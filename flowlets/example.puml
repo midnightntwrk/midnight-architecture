@@ -1,0 +1,22 @@
+@startuml
+actor User as user
+box "Component\nA"
+        control "Client\nHandler" as clientHandler
+        entity Sessions as sessions
+end box
+
+user -> clientHandler : join(id)
+clientHandler -> sessions : registerSession(id)
+alt success
+        rnote over sessions: added as session_id
+        sessions -> clientHandler : Ok(session_id)
+        clientHandler -> user : Joined(session_id)
+else failure
+        rnote over sessions: failed to add
+        sessions -> clientHandler : Failed
+        clientHandler -> user : FailedToJoin
+end
+
+@enduml
+
+        
