@@ -1,6 +1,12 @@
 @startuml
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
 actor User as user
-box "Component\nA"
+box "[[http://plantuml.com{Optional tooltip} Server Component]]"
         control "Client\nHandler" as clientHandler
         entity Sessions as sessions
 end box
@@ -16,6 +22,11 @@ else failure
         sessions -> clientHandler : Failed
         clientHandler -> user : FailedToJoin
 end
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
 
 @enduml
 
