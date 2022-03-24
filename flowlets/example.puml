@@ -1,4 +1,4 @@
-@startuml
+@startuml "Flowlet Example"
 
 '-----------------------------------------------------------
 ' Please include this standard header
@@ -10,6 +10,7 @@ box "[[http://plantuml.com{Optional tooltip} Server Component]]"
         control "Client\nHandler" as clientHandler
         entity Sessions as sessions
 end box
+
 
 user -> clientHandler : join(id)
 clientHandler -> sessions : registerSession(id)
@@ -28,6 +29,5 @@ end
 footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
 '-----------------------------------------------------------
 
-@enduml
 
-        
+@enduml
