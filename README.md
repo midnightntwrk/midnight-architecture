@@ -1,4 +1,4 @@
-# midnight-architecture
+# Midnight Architecture
 
 This is a repository of the Midnight software architecture documents.  While each component repository may have its own local documentation, this repo includes the specification of each component in standard terms and documents the flows, features, and deployments supported by the system.
 
