@@ -27,7 +27,7 @@ frame "Backend Server" {
 [WalletClient3] .. [WalletBackend]
 
 
-[WalletBackend] .. [Node]
+[WalletBackend] -- [Node]
 
 '-----------------------------------------------------------
 ' Please include this standard footer
