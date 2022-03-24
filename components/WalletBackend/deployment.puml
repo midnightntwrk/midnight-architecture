@@ -18,7 +18,7 @@ frame "Light Wallet 3" {
 
 
 frame "Backend Server" {
-        [WalletBackend]
+        [WalletBackend] #aliceblue;line:blue;text:blue
         [Node]
 }
 
