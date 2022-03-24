@@ -16,12 +16,12 @@ entity "CLIENT" {
         *client_id : Hash
 }
 
-entity "DEPLOYED_CONTRACT" {
+entity "CONTRACT" {
         *id : ContractId
         --
         *is_deployed : Boolean
 }
-note left: All contracts of\ninterest to any client
+'note left: All contracts of\ninterest to any client
 
 entity "CLIENT_CONTRACT" {
         *id : Number <<generated>>
@@ -31,7 +31,7 @@ entity "CLIENT_CONTRACT" {
         --
 }
 CLIENT ||--o{ CLIENT_CONTRACT 
-DEPLOYED_CONTRACT |o--o{ CLIENT_CONTRACT 
+CONTRACT |o--o{ CLIENT_CONTRACT 
 
 entity "CLIENT_SUBMITTED_TX" {
         *id : number <<generated>>
@@ -80,7 +80,7 @@ VERIFIED_TX ||--o{ CLIENT_UNDELIVERED_TX
 
 entity CONTRACT_STATE {
 }
-DEPLOYED_CONTRACT ||--o{  CONTRACT_STATE
+CONTRACT ||--o{  CONTRACT_STATE
 
 entity CLIENT_UNDELIVERED_CONTRACT_STATE  {
 }
