@@ -8,5 +8,5 @@ What are *flows*, *features*, *components* and so forth?  The essential terminol
 
 Documents use text-based diagrams to enable version control of key illustrations.  The tools used include:
 
-- plantUML
-- graphviz (used by plantUML)
+- [plantUML](https://plantuml.com/)
+- [graphviz](https://www.graphviz.org/) (used by plantUML)
