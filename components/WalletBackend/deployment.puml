@@ -6,9 +6,27 @@
 header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 '-----------------------------------------------------------
 
+frame "Light Wallet 1" {
+        [WalletClient1]
+}
+frame "Light Wallet 2" {
+        [WalletClient2]
+}
+frame "Light Wallet 3" {
+        [WalletClient3]
+}
+
+
+frame "Backend Server" {
+        [WalletBackend]
+        [Node]
+}
+
 [WalletClient1] .. [WalletBackend]
 [WalletClient2] .. [WalletBackend]
 [WalletClient3] .. [WalletBackend]
+
+
 [WalletBackend] .. [Node]
 
 '-----------------------------------------------------------

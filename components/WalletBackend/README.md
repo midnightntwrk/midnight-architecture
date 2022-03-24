@@ -4,15 +4,23 @@ Link to code repo
 
 Component description
 
-## Special Needs
+## Special Considerations
 
 ### Trust
 
-This service implicitly trusts its Node for all block data.  Clients implicitly trust their `WalletBackend` to serve them correct state and transaction sequences.  There is a risk, however, that a 
+This service implicitly trusts its Node for all block data.  
+
+Clients implicitly trust their `WalletBackend` to serve them correct state and transaction sequences.  There is a risk, however, that a malicious `WalletBackend` might intentionally mislead a client about these facts; is there some easy way for the client to verify anything it learns from the backend?
+
+The service does not trust clients, individually or in aggregate.  In particular, DDoS attacks of all kinds require mitigations.
 
 ### Incentives
 
 Is this service monetized?  Does it work for fees?  If so, how are those fees computed and levied?
+
+### Abandoned Session
+
+There is no way to firmly distinguish between a client that has been offline for a while and a client that has forever gone away.  This service maintains data -- sometimes significant amounts of data -- on behalf of its clients.  There must be some policy (configurable) that prunes clients assumed to have abanonded their sessions.  Policy factors may include the time since last contact and the amount of data and/or filter processing consumed by the client in its absence.
 
 ## Neighbors & API Dependencies
 
