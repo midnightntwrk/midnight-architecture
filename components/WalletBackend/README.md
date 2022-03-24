@@ -14,6 +14,10 @@ Clients implicitly trust their `WalletBackend` to serve them correct state and t
 
 The service does not trust clients, individually or in aggregate.  In particular, DDoS attacks of all kinds require mitigations.
 
+### Privacy
+
+What private information does the Wallet Backend learn about its clients?  What linkability does it witness that isn't otherwise visible?  The need to filter transactions creates challenges here that need to be documented and, of possible, addressed to ensure clients don't sacrifice privacy when working with untrusted Wallet Backends.
+
 ### Incentives
 
 Is this service monetized?  Does it work for fees?  If so, how are those fees computed and levied?
@@ -46,7 +50,7 @@ Included [ER diagram](https://plantuml.com/ie-diagram).
 
 Document the entities.
 
-#### `DEPLOYED_CONTRACT`
+#### `CONTRACT`
 
 All contracts of interest to any client.
 
