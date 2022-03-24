@@ -6,28 +6,45 @@ Component description
 
 ## Special Needs
 
+### Trust
+
+This service implicitly trusts its Node for all block data.  Clients implicitly trust their `WalletBackend` to serve them correct state and transaction sequences.  There is a risk, however, that a 
+
+### Incentives
+
+Is this service monetized?  Does it work for fees?  If so, how are those fees computed and levied?
 
 ## Neighbors & API Dependencies
 
+This service requires a tethered `Node` component that is the source of truth for blocks and that serves contract state so that the `WalletBackend` does not need to compute contract state updates.
+
+Each `WalletBackend` may service any number of clients.  Each client will use only one `WalletBackend` at a time, but may change backends over time.
+
+![](deployment.png)
 
 ## Operating Environment
 
-List the assumptions about the operating environment.
 
 ## Key Library Dependencies
 
 
 ## Logical Data Model
 
-Include an [ER diagram](https://plantuml.com/ie-diagram).
+Included [ER diagram](https://plantuml.com/ie-diagram).
+
+![](datamodel.png)
 
 ### Entities
 
 Document the entities.
 
-#### Entity 1
+#### `DEPLOYED_CONTRACT`
 
-#### Entity 2
+All contracts of interest to any client.
+
+#### `CLIENT_CONTRACT`
+
+The recorded fact that a given client is interested in a given contract.  The contract may or may not be deployed when we learn of this interest, so the `contract` column, while not nullable, is only sometimes a valid FK.  Deleted when `CLIENT` is deleted or when the client expresses loss of interest.
 
 ### Invariants
 

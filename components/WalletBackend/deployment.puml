@@ -1,0 +1,19 @@
+'ER diagrams documented here
+'    https://plantuml.com/ie-diagram
+@startuml
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+[WalletClient1] .. [WalletBackend]
+[WalletClient2] .. [WalletBackend]
+[WalletClient3] .. [WalletBackend]
+[WalletBackend] .. [Node]
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+@enduml
+
