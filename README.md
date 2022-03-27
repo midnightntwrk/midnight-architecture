@@ -10,3 +10,5 @@ Documents use text-based diagrams to enable version control of key illustrations
 
 - [plantUML](https://plantuml.com/)
 - [graphviz](https://www.graphviz.org/) (used by plantUML)
+
+**Please use local installations of these tools rather than pasting IOHK confidential data into web-hosted versions.**
