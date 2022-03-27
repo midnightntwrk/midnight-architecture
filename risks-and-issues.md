@@ -1,14 +1,14 @@
 # Architectural Issue Tracking
 
 | Name                            | Owner | Priority | Short Status |
-|---------------------------------+-------+------------+-------------|
+| ------------------------------- | ----- | -------- | ------------ |
 | [Gas for Public Oracles](#gas-for-public-oracles) | | | |
 | [Rent for Public State](#rent-for-public-state) | | | |
 | [Wallet Backend Fees](#wallet-backend-fees) | | | |
 | [Proof Server](#proof-server) | | | |
 | [Wallet Backend Privacy](#wallet-backend-privacy) | | | |
 | [Private Data Recovery](#private-data-recovery) | | | |
-| [Ada / Dust Exchange](#ada-/-dust-exchange) | | | |
+| [Ada / Dust Exchange](#ada-dust-exchange) | | | |
 | [Network-Layer Security](#network-layer-security) | | | |
 | [Choice of Consensus Mechanism](#choice-of-consensus-mechanism) | | | |
 | [Is a Sidechain Launch More Secure?](#is-a-sidechain-launch-more-secure) | | | |
@@ -51,7 +51,7 @@ Who runs wallet backend severs?  Why?  How are they compensated?  Should there b
 
 ### Private Data Recovery
 
-### Ada / Dust Exchange
+### Ada-Dust Exchange
 
 Is the exchange simply an instance of the Midnight privacy bridge, or are there deeper concerns to examine?
 
