@@ -1,1 +1,3 @@
 #+TITLE: Midnight Languages Architecture
+
+- [[file:reach.org][Reach]], a report on a similar programming language.
