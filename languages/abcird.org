@@ -3,6 +3,43 @@
 Abcird (pronounced /absurd/) is a proposed programming language for compiling
 programs down to zkSNARKs.
 
+Currently, abcird is aiming to support Plonk, therefore we might use the
+following terms interchangeably:
+- underlying proving systems, of which the current state of the art for
+  zero-knowledge are
+- zkSNARKs, of which the current state of the art are
+- Plonk instances, which are often abbreviated as
+- Plonk, when referring to the currently chosen Plonk instance.
+
+zkSNARKs, including Plonk, model the computation that we want to prove using
+zero-knowledge as
+- arithmetic circuits, which sometimes are sometimes referred to as
+- zero-knowledge circuits, and altogether abbreviated as
+- circuits.
+
+We assume the basic knowledge of how zero-knowledge, including undestanding the
+roles of prover and verifier.  We write /witness/ or /witness vector/ to denote
+the private inputs to the zero-knowledge proof and we write /statement/ or
+/statement vector/ to denote the public inputs to the zero-knowledge proof.  We
+write /input/ or /input vector/ for the input to either prover or verifier,
+meaning /witness/ together with /statement/ for the prover and /statement/ for
+the verifier.  Since the word "statement" often has a particular meaning in the
+context of programming languages we prefer to refer to it as /input/ when
+discussing verifier.
+
+We do not assume any prior knowledge about circuits, but we do point out that in
+our settings their are finite and bound by a constant.
+
+We do not assume any prior knowledge about Plonk instances, but we do point out
+that two Plonk instances are not compatible and can be treated as two separate
+zkSNARKs.
+
+One of abcird long-term goals of the Abcird programming language is to ease a
+transition between two underlying proving systems.  In the near term that could
+mean a potential transition between two Plonk instances, however it can also
+mean transitioning to a completely different zkSNARK or transitioning to a
+completely different scheme of proving systems.
+
 A compilation of an abcird program will involve the following tools:
 - abcirdc :: a compiler written in Chez Scheme that compiles programs written in
   abcird programming language down to abcird bytecode, and
@@ -19,5 +56,9 @@ When working with abcird there will be following artifacts:
 - abcird bytecode :: abcird programs compiled by the abcird compiler,
 - compiled circuits :: abcird bytecode compiled down to the form understood by the underlying proof system,
 - input vectors :: computed input to the prover system.
+
+* Compilation of Abcird programs
+Compiling programs down to zkSNARKs usually poses an interesting challenge:  not only we need to generate a circuit for the c
+
 
 * Compilation Artifacts vs Evaluation Artifacts
