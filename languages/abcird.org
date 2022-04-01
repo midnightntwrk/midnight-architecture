@@ -57,7 +57,6 @@ A compilation of an abcird program will involve the following tools:
   - interpretes abcird bytecode to generate input vectors for the underlying
     proving system.
 
-
 When working with abcird there will be following artifacts:
 
 - abcird programs :: high-level programs written in abcird programming language,
@@ -73,3 +72,86 @@ only we need to generate a circuit for the c
 ** Compilation Artifacts vs Evaluation Artifacts
 
 * Transition Between Proving Systems
+
+The compilation pipeline for Abcird has the following elements
+- an abcird program :: which is compiled by the abcird compiler to
+- an abcird bytecode :: which is then interpreted by abcird vm to generate
+  - compiled circuits :: in the form of
+    - prover key :: and
+    - verifier key :: .
+
+then, during execution the abcird bytecode is interpreted by abcird vm to
+produce
+ - input vectors ::
+   - witness vector :: and
+   - statement vector :: .
+
+In order to prove the abcird vm takes
+- prover key,
+- witness vector, and
+- statement vector
+in order to produce a proof.
+
+In order to verify the abcird vm takes
+- proof,
+- verifier key, and
+- statement vector
+in order to verify the proof.
+
+Therefore there are these distinct steps
+- bytecode compilation
+- circuit compilation
+- input generation
+- proof generation/verification
+
+Therefore there are the following levels of compatibility
+- source code compatible :: which is the weakest level of compatibility and does
+  not provide any guarantees,
+- bytecode compatible :: meaning that we do not need to recompile the bytecode,
+- input compatible :: meaning that we do not need to regenerate the input,
+- circuit compatible :: meaning that we do not need to recompile the circuit,
+- proof compatible :: meaning that we do not need to regenerate the proof.
+
+** Input Compatibility vs Circuit Compatibility
+There is an interesting relation between input compatibility and circuit
+compatibility.
+
+Firstly, it is very easy to imagine that circuit compilation occurs before input
+generation because circuit compilation feels like a part of a compilation
+pipeline, whereas input generation is distinctly a runtime operation because we
+need the inputs to the abcird program so we can generate the input to the prover
+or verifier.
+
+Still, input generation is independent to circuit compilation, and theoretically
+leads to the following ordering
+#+begin_src artist
+                 +----------------------+
+                 |source code compatible|
+                 +----------------------+
+                             |
+                             |
+                             |
+                  +--------------------+
+                  |byte code compatible|
+                  +--------------------+
+                            /\
+               *-----------*  *-----------*
+              /                            \
+    +------------------+          +----------------+
+    |circuit compatible|          |input compatible|
+    +------------------+          +----------------+
+              \                            /
+               *-----------*  *-----------*
+                            \/
+                    +----------------+
+                    |proof compatible|
+                    +----------------+
+#+end_src
+meaning that some updates or modifications could be
+- circuit compatible but not input compatible, or
+- input compatible but not circuit compatible.
+
+In practice, we so far encountered the latter (for example, when switching to a
+plonk instance with an additional custom gate) and we are not sure if the former
+is even possible, as input compatibility seems to be implied by the circuit
+compatibility.
