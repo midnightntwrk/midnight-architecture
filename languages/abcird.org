@@ -34,42 +34,86 @@ We do not assume any prior knowledge about Plonk instances, but we do point out
 that two Plonk instances are not compatible and can be treated as two separate
 zkSNARKs.
 
-The long-term goals of Abcird are to:
-- provide a high-level programming language :: for writing programs which
-  results need to be proven in zero-knowledge ([[* Abcird Programming Language]]).
-  In the near term such programming language will be used by the Lares project
-  for writing private smart contracts, however it could also be used by a larger
-  Plonk community or retrofitted to a different underlying proving system.
+Main contributions of this report are
+- giving scenarios of transitions :: in Abcird and what they entail ([[* Scenarios
+  of Transitions]]).
 - ease the transition between underlying proving systems :: when changing
   between incompatible underlying proving systems ([[* Transition Between Proving
   Systems]]). In the near term that means a transition between two Plonk
   instances, however it could also mean transitioning to a completely different
   zkSNARK or transitioning to a completely different scheme of proving systems.
+- provide a high-level programming language :: for writing programs which
+  results need to be proven in zero-knowledge ([[* Abcird Programming Language]]).
+  In the near term such programming language will be used by the Lares project
+  for writing private smart contracts, however it could also be used by a larger
+  Plonk community or retrofitted to a different underlying proving system.
 
-* Abcird Programming Language
+* Bytecode, Versioning, Backwards Compatibility, and Hard-Forks.
+There is an interesting relation between having a versioned bytecode and
+hard-forks, where hard-fork becomes more of a means to ensure that all the
+network has upgraded to a particular version.
 
-A compilation of an abcird program will involve the following tools:
-- abcirdc :: a compiler written in Chez Scheme that compiles programs written in
-  abcird programming language down to abcird bytecode, and
-- abcird-vm :: a vm/runtime written in Rust that
-  - compiles abcird bytecode to a compiled form that is understood by the
-    underlying proving system, and
-  - interpretes abcird bytecode to generate input vectors for the underlying
-    proving system.
+Modifications to bytecode will probably result in hard-forks.
 
-When working with abcird there will be following artifacts:
+* Scenarios of Transitions
+We will go over informal scenarions of changes to Abcird.  We assume some that
+there is some starting instance of Plonk.
 
-- abcird programs :: high-level programs written in abcird programming language,
-- abcird bytecode :: abcird programs compiled by the abcird compiler,
-- compiled circuits :: abcird bytecode compiled down to the form understood by
-  the underlying proof system,
-- input vectors :: computed input to the prover system.
+** Adding a hand-crafted gadget
+Let's assume that someone writes an Abcird code that contains implementation of
+novel hashing function of FooHash.  That function becomes popular and that there
+are multiple deployed smart contracts that are using FooHash.
 
-** Compilation of Abcird programs
-Compiling programs down to zkSNARKs usually poses an interesting challenge: not
-only we need to generate a circuit for the c
+As FooHash gains popularity, someone figures out how to make FooHash more
+efficient by using a hand-crafted gadget that targets the current Plonk
+instance, which leads to FooHash2.
 
-** Compilation Artifacts vs Evaluation Artifacts
+Newly written smart contracts can make use of FooHash2, but developers are free
+to use the old version FooHash, as it is still working.
+
+This one will not need a hard-fork.
+
+** Adding X to Abcird VM (or ZK-Garage/Plonk)
+Let's assume that FooHash becomes widely popular, but it suffers greatly from
+the computational cost of computing the input vectors in Abcird VM, so a
+specialised Rust subroutine is added to Abcird VM or ZK-Garage/Plonk.
+
+This update will probably add a new instruction to bytecode, meaning that in
+order to use the faster subroutine the old smart-contracts need to be
+re-compiled.
+
+However, old smart contracts are still fully backwards compatible.
+
+Still, will probably warrant a hard-fork to ensure that everyone can support it.
+
+** Changing X in Abcird VM (or ZK-Garage/Plonk)
+There is FooHash in Abcird and we want to switch to FooHash2.
+
+This is probably a circuit incompatible or input incompatible change, so we
+probably would want to add it as a separate instruction.
+
+In both cases it will probably warrant a hard-fork.
+
+We need to be very vigilant about ZK-Garage/Plonk not doing that by accident and
+hitting us by surprise.
+
+** Removing X from Abcird VM (or ZK-Garage/Plonk)
+Depracating bytecode instructions probably warrants a hard-fork.
+
+** Adding a custom gate to Plonk instance
+This is primarly a circuit incompatible change, meaning that all
+- prover keys,
+- verifier keys, and
+- proofs
+will stop working and need to be regenerated.
+
+Needs a hard-fork.
+
+** Switching to a completely different proving system alltogether
+If we are lucky it will be bytecode compatible, if we are not lucky it might not
+even be source code compatible.
+
+Needs a hard-fork.
 
 * Transition Between Proving Systems
 
@@ -111,6 +155,11 @@ Therefore there are the following levels of compatibility
 - input compatible :: meaning that we do not need to regenerate the input,
 - circuit compatible :: meaning that we do not need to recompile the circuit,
 - proof compatible :: meaning that we do not need to regenerate the proof.
+
+Proof compatibility is the most restrictive and essentially tells if we are
+confident that we can still verify old proofs.  Interestingly, a change that is
+not input compatible, but is circuit compatible, could potentially be proof
+compatible, as long as we keep around the old statement vectors.
 
 ** Input Compatibility vs Circuit Compatibility
 There is an interesting relation between input compatibility and circuit
@@ -155,3 +204,29 @@ In practice, we so far encountered the latter (for example, when switching to a
 plonk instance with an additional custom gate) and we are not sure if the former
 is even possible, as input compatibility seems to be implied by the circuit
 compatibility.
+
+* Abcird Programming Language
+
+A compilation of an abcird program will involve the following tools:
+- abcirdc :: a compiler written in Chez Scheme that compiles programs written in
+  abcird programming language down to abcird bytecode, and
+- abcird-vm :: a vm/runtime written in Rust that
+  - compiles abcird bytecode to a compiled form that is understood by the
+    underlying proving system, and
+  - interpretes abcird bytecode to generate input vectors for the underlying
+    proving system.
+
+When working with abcird there will be following artifacts:
+
+- abcird programs :: high-level programs written in abcird programming language,
+- abcird bytecode :: abcird programs compiled by the abcird compiler,
+- compiled circuits :: abcird bytecode compiled down to the form understood by
+  the underlying proof system,
+- input vectors :: computed input to the prover system.
+
+** Compilation of Abcird programs
+Compiling programs down to zkSNARKs usually poses an interesting challenge: not
+only we need to generate a circuit for the c
+
+** Compilation Artifacts vs Evaluation Artifacts
+
