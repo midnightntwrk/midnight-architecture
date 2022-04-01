@@ -5,11 +5,11 @@ programs down to zkSNARKs.
 
 Currently, abcird is aiming to support Plonk, therefore we might use the
 following terms interchangeably:
-- underlying proving systems, of which the current state of the art for
-  zero-knowledge are
+- underlying proving systems, of which the current state of the art are
+- SNARKs, which in the context of zero-knowledge are referred to as
 - zkSNARKs, of which the current state of the art are
 - Plonk instances, which are often abbreviated as
-- Plonk, when referring to the currently chosen Plonk instance.
+- Plonk, when referring to the chosen Plonk instance.
 
 zkSNARKs, including Plonk, model the computation that we want to prove using
 zero-knowledge as
@@ -18,12 +18,12 @@ zero-knowledge as
 - circuits.
 
 We assume the basic knowledge of how zero-knowledge, including undestanding the
-roles of prover and verifier.  We write /witness/ or /witness vector/ to denote
+roles of prover and verifier. We write /witness/ or /witness vector/ to denote
 the private inputs to the zero-knowledge proof and we write /statement/ or
-/statement vector/ to denote the public inputs to the zero-knowledge proof.  We
+/statement vector/ to denote the public inputs to the zero-knowledge proof. We
 write /input/ or /input vector/ for the input to either prover or verifier,
 meaning /witness/ together with /statement/ for the prover and /statement/ for
-the verifier.  Since the word "statement" often has a particular meaning in the
+the verifier. Since the word "statement" often has a particular meaning in the
 context of programming languages we prefer to refer to it as /input/ when
 discussing verifier.
 
@@ -34,11 +34,19 @@ We do not assume any prior knowledge about Plonk instances, but we do point out
 that two Plonk instances are not compatible and can be treated as two separate
 zkSNARKs.
 
-One of abcird long-term goals of the Abcird programming language is to ease a
-transition between two underlying proving systems.  In the near term that could
-mean a potential transition between two Plonk instances, however it can also
-mean transitioning to a completely different zkSNARK or transitioning to a
-completely different scheme of proving systems.
+The long-term goals of Abcird are to:
+- provide a high-level programming language :: for writing programs which
+  results need to be proven in zero-knowledge ([[* Abcird Programming Language]]).
+  In the near term such programming language will be used by the Lares project
+  for writing private smart contracts, however it could also be used by a larger
+  Plonk community or retrofitted to a different underlying proving system.
+- ease the transition between underlying proving systems :: when changing
+  between incompatible underlying proving systems ([[* Transition Between Proving
+  Systems]]). In the near term that means a transition between two Plonk
+  instances, however it could also mean transitioning to a completely different
+  zkSNARK or transitioning to a completely different scheme of proving systems.
+
+* Abcird Programming Language
 
 A compilation of an abcird program will involve the following tools:
 - abcirdc :: a compiler written in Chez Scheme that compiles programs written in
@@ -54,11 +62,14 @@ When working with abcird there will be following artifacts:
 
 - abcird programs :: high-level programs written in abcird programming language,
 - abcird bytecode :: abcird programs compiled by the abcird compiler,
-- compiled circuits :: abcird bytecode compiled down to the form understood by the underlying proof system,
+- compiled circuits :: abcird bytecode compiled down to the form understood by
+  the underlying proof system,
 - input vectors :: computed input to the prover system.
 
-* Compilation of Abcird programs
-Compiling programs down to zkSNARKs usually poses an interesting challenge:  not only we need to generate a circuit for the c
+** Compilation of Abcird programs
+Compiling programs down to zkSNARKs usually poses an interesting challenge: not
+only we need to generate a circuit for the c
 
+** Compilation Artifacts vs Evaluation Artifacts
 
-* Compilation Artifacts vs Evaluation Artifacts
+* Transition Between Proving Systems
