@@ -1,0 +1,23 @@
+#+TITLE: Abcird
+
+Abcird (pronounced /absurd/) is a proposed programming language for compiling
+programs down to zkSNARKs.
+
+A compilation of an abcird program will involve the following tools:
+- abcirdc :: a compiler written in Chez Scheme that compiles programs written in
+  abcird programming language down to abcird bytecode, and
+- abcird-vm :: a vm/runtime written in Rust that
+  - compiles abcird bytecode to a compiled form that is understood by the
+    underlying proving system, and
+  - interpretes abcird bytecode to generate input vectors for the underlying
+    proving system.
+
+
+When working with abcird there will be following artifacts:
+
+- abcird programs :: high-level programs written in abcird programming language,
+- abcird bytecode :: abcird programs compiled by the abcird compiler,
+- compiled circuits :: abcird bytecode compiled down to the form understood by the underlying proof system,
+- input vectors :: computed input to the prover system.
+
+* Compilation Artifacts vs Evaluation Artifacts
