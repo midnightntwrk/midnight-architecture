@@ -1,0 +1,145 @@
+@startuml
+
+actor user
+
+box "Wallet Frontend" #eef
+        participant dApp as dapp
+        participant "Transition\nFunction" as gamma
+        database "Pending\nPrivate\nUpdates" as pending
+end box
+box "Wallet Backend Component" #efe
+        participant "WBE\nClient API" as walletBackend
+        database "Client\nData" as clientData
+end box
+box "Proof Server Component" #fee
+        participant "Proof\nServer" as proofServer
+end box
+
+boundary Consensus as consensus
+
+'==================================================================
+
+
+        user -> dapp : action
+        
+        activate dapp
+                /'
+                ' group sync public and private state
+                '         note over dapp
+                '                 The dApp attempts to work with the
+                '                 most current view of the blockchain,
+                '                 synchronizing via the Wallet Backend
+                '         end note
+                '         dapp -> walletBackend : sync
+                '         activate walletBackend
+                '                 walletBackend -> dapp : public state,\n⟨event ⊕ transaction, ...⟩
+                '         deactivate walletBackend
+                '         /\'
+                '         ' rnote over dapp #eee
+                '         '         dApp:
+                '         '           - install public state
+                '         '           - update private state from
+                '         '                ⟨event ⊕ transaction, ...⟩
+                '         ' end rnote
+                '         '\/
+                ' end
+                '/
+                
+                group compute and cost a state update
+                        group compute a state update
+                                dapp -> gamma : update(args) using\n  public state,\n  private state
+                                activate gamma
+                                        gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate,\n     leakage report)
+                                deactivate gamma
+                        end
+
+                        group identify payment
+                                dapp -> walletBackend : select coins
+                                activate walletBackend
+                                        note over walletBackend: omitting details of\nsession management
+                                        walletBackend -> dapp : coins
+                                deactivate walletBackend
+
+                        end
+                end
+
+                group obtain authorization
+                        note over dapp: alternative flow: user pre-authorizes\n to avoid this step
+                        dapp -> user : request authorization\nof leakage report & coins
+                        user -> dapp : authorized
+                end
+                
+
+                note over dapp: Now perform the expensive\nproofs to complete the transaction.
+                
+
+                
+                group build and send transaction
+                        group over TLS, to TEE in proof server
+                                note over dapp: witness includes private data\nnot shared with Wallet Backend
+                                dapp -> proofServer : prove(circuit, witness)
+                                activate proofServer
+                                        note over proofServer: omitting details of\nsession management
+                                        proofServer -> dapp : proof
+                                deactivate proofServer
+                        end
+                        
+                        dapp -> walletBackend : build tx 'call' using\n  contractId,\n  public transcript,\n  proof,\n  coins
+                        activate walletBackend
+                                walletBackend -> proofServer : prove spend
+                                activate proofServer
+                                        proofServer -> walletBackend : spendProof
+                                deactivate proofServer
+                                walletBackend -> consensus : tx(call, circuitId, proof, spendIns, spendOuts, spendProof)
+                                walletBackend -> dapp : submitted
+                        deactivate walletBackend
+                end
+                
+                dapp -> user: pending
+
+                == time passes as TX is verified and propageted ==
+
+        deactivate dapp
+
+
+note over user: possibly\noffline
+
+group Wallet Backend observes consensus
+        consensus -> walletBackend : verified tx and new public state
+        activate walletBackend
+                note over walletBackend
+                        Omitted details:
+                        Update wallet state to
+                        reflect spend/receive coins.
+                end note
+                walletBackend -> clientData : store for client
+        deactivate walletBackend
+end
+
+== time passes until Front End polls Back End ==
+
+note over user: online
+
+user -> dapp : refresh
+        activate dapp
+                
+                group dApp processes consesus data
+                        dapp -> walletBackend : sync
+                        activate walletBackend
+                                walletBackend -> clientData ++ : fetch
+                                clientData -> walletBackend -- : public state, tx
+                                walletBackend -> dapp : public state, tx
+                        deactivate walletBackend
+                        dapp -> dapp : install new public state
+                        dapp -> pending ++ : fetch private transcript
+                        pending -> dapp -- : private transcript
+                        dapp -> dapp : apply private transcript
+                        dapp -> dapp : install new private state
+                end
+
+        dapp -> user : outcome information
+        deactivate dapp
+
+
+
+@enduml
