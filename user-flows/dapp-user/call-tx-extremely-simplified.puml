@@ -1,0 +1,81 @@
+@startuml
+autonumber
+hide footbox
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+actor user
+
+box "Wallet" #eef
+        participant dApp as dapp
+        participant "Transition\nFunction" as gamma
+        database "Pending\nPrivate\nUpdates" as pending
+end box
+/'
+ ' box "Wallet Backend Component" #efe
+ '         participant "WBE\nClient API" as walletBackend
+ '         database "Client\nData" as clientData
+ ' end box
+ '/
+box "Proof Server Component" #fee
+        participant "Proof\nServer" as proofServer
+end box
+
+boundary Consensus as consensus
+
+'==================================================================
+
+
+        user -> dapp : action
+        
+        activate dapp
+        group compute a state update
+                dapp -> gamma : update(args) using\n  public state,\n  private state
+                activate gamma
+                        gamma -> dapp : ok(result,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate)
+                deactivate gamma
+        end
+                
+        dapp -> pending ++ : store pending private transcript
+        return ok
+
+        group build and send transaction
+                group over TLS, to TEE in Proof Server
+                        note over dapp: witness includes private data\nnot shared with Wallet Backend
+                        dapp -> proofServer : prove(circuit, witness)
+                        activate proofServer
+                                proofServer -> dapp : proof
+                        deactivate proofServer
+                end
+
+                dapp -> consensus : tx(call, circuitId, proof, spendIns, spendOuts, spendProof)
+        end
+        
+        dapp -> user: pending
+        
+        == time passes as TX is verified and propageted ==
+        
+        consensus -> dapp : verified tx and new public state
+        
+        
+        group dApp processes consesus data
+                dapp -> dapp : install new public state
+                dapp -> pending ++ : fetch private transcript for the tx
+                pending -> dapp -- : private transcript for the tx
+                dapp -> dapp : apply private transcript
+                dapp -> dapp : install new private state
+        end
+        
+        dapp -> user : outcome information
+deactivate dapp
+
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml

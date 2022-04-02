@@ -1,0 +1,56 @@
+@startuml
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+
+set namespaceSeparator ::
+
+
+together {
+        abstract Lares::ContractBase #white {
+        }
+        abstract Lares::OracleBase #white
+        }
+abstract Lares::PrivateOracle #white
+abstract Lares::PublicOracle #white
+Lares::OracleBase <|-- Lares::PrivateOracle
+Lares::OracleBase <|-- Lares::PublicOracle
+
+
+class MyDapp::MyDapp #cyan
+
+class MyDapp::Contract #lightgreen {
+        transitionFunctionA()
+        transitionFunctionB()
+}
+class MyDapp::PublicOracle {
+        publicQueryQ()
+        publicCommandR()
+        publicQueryS()
+}
+class MyDapp::PrivateOracle {
+        privateQueryX()
+        privateCommandY()
+}
+
+namespace MyDapp {
+MyDapp  -- "1..*" Contract
+}
+
+Lares::ContractBase  <|-- MyDapp::Contract
+Lares::PrivateOracle <|-- MyDapp::PrivateOracle
+Lares::PublicOracle  <|-- MyDapp::PublicOracle
+
+MyDapp::Contract *- MyDapp::PublicOracle
+MyDapp::Contract *- MyDapp::PrivateOracle
+
+
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml
