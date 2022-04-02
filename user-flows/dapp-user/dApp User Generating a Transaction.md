@@ -10,7 +10,7 @@ Without committing to an object-oriented implementation of the Midnight programm
 
 It's useful to think of a dApp as containing one or more *contracts*, each of which is an implementation of the abstract `ContractBase`.  Each of these contracts has two helper classes, one to manage the private state and one to manage the public state.  These are referred to as the public and private *oracles*.  Each *transition function* in the contract accesses public and private state exclusively through the methods on these helper classes.  
 
-![](../../Components/Lares/oracles-as-objects.png)
+![](https://github.com/input-output-hk/midnight-architecture/raw/main/components/lares/oracles-as-objects.png)
 
 ### Transition Function Execution
 
