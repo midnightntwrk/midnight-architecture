@@ -1,4 +1,9 @@
 @startuml
+autonumber
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
 
 actor user
 
@@ -68,7 +73,10 @@ boundary Consensus as consensus
                         dapp -> user : request authorization\nof leakage report & coins
                         user -> dapp : authorized
                 end
-                
+
+        dapp -> pending ++ : store pending private\ntranscript indexed by tx
+        return ok
+
 
                 note over dapp: Now perform the expensive\nproofs to complete the transaction.
                 
@@ -141,5 +149,9 @@ user -> dapp : refresh
         deactivate dapp
 
 
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
 
 @enduml
