@@ -1,0 +1,32 @@
+@startmindmap
++[#Orange] <&people> User Roles
+++ dApp Developer
++++ dApp Front-end
++++ dApp Back-end
++++ dApp Libs (incl. asserts/gadgets)
++++ dApp Services
+++ Component Operators
++++ Stale Pool Operator
++++ Wallet Backend Operator
++++ Proof Server Operator
+++ End User
++++ Lightwallet User
+++++ Dust Holder
+++++ dApp User
++++++ Wrapped Coin Holder
++++++ Wrapped Coin Holder
++++++ ACE User
++++++ DeFi User
++++ API User
+++++ Exchange Operator
+++++ Stats Publisher
+++++ Wallet Developer
+
+-- Midnight Team
+--- Midnight Engineer
+--- Midnight QA
+--- Scrum Leader
+--- Product Owner
+--- Release Manager
+--- Management
+@endmindmap
