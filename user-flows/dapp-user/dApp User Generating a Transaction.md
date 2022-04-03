@@ -1,4 +1,4 @@
-# dApp User Generating a Transaction
+# Flow: _dApp User_ Generating a Transaction
 
 Midnight dApps present a user interface through which dApp users interact.  Their inputs to this interface trigger business logic in the dApp backend, which runs in their client context with full access to their private data.  Some user inputs will cause the dApp to issue transactions with the intent to modify the public state of the dApp.  A dApp may consist of multiple contracts with multiple on-chain addresses, and a single user input may update multiple contracts; it is therefore important that Midnight should support atomic transactions against multiple contracts, similar to how a single *spend* transaction can consume multiple inputs and produce multiple outputs.
 
@@ -68,7 +68,7 @@ This is, as previously stated, an extreme oversimplifiction of the flow, but it 
 * dApps re-combine the private part of the computation with its public part by applying the saved private transcript after the TX is verified
 * application of private transcripts MUST succeed; this demands that Midnight provide a means of writing private-state oracles that ensures safe application in the presence of intervening private-state updates.
 
-### A Bried Note On Latency
+### A Brief Note On Latency
 
 This overview flow gives us some initial insights into the latencies a user will face.  Ignoring the (likely trivial) latency of the actual dApp logic, the key points of latency are the Proof Server and consensus.  The Proof Server introduces two forms of latency: the time it takes to perform the proof, and the queueing latency inherent in a shared service.  The proving latency can be considered a speed-of-light limitation among competing ZK-based smart-contract platforms, since all must execute proofs using the best available proving technology.  (And this speaks to the need for Midnight to support upgrades to the proving system!) The queueing latency is an artifact of Midnight's exclusive use of light wallets, and can be mitigated only by providing a sufficient Proof Server pool and load distribution scheme.
 
