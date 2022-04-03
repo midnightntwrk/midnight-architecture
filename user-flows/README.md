@@ -8,7 +8,7 @@ Often the user flows expressed here can be defined as aggregations of flowlets d
 
 Product use cases and system architecture should be aligned on the identities of the different users and stakeholders of the product. We identify the following user roles for Midnight.
 
-[](https://github.com/input-output-hk/midnight-architecture/blob/main/user-flows/roles.png)
+![](https://github.com/input-output-hk/midnight-architecture/blob/main/user-flows/roles.png)
 
 
 ## User-Centric Subdirectories
