@@ -34,40 +34,26 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in rec {
       packages = {
+        plantuml_jar = pkgs.plantuml.overrideAttrs (old: rec {
+          version = "1.2022.3";
+          src = builtins.fetchurl {
+            url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
+            sha256 = "sha256:1bngsc6a7rpl8l21m20pj8parcqkih9jcm0pjb6hnl7m9h4pm9z9";
+          };
+        });
+
         midnight-architecture = pkgs.stdenv.mkDerivation {
           name = "midnight-architecture";
           src = ./.;
           buildInputs = with pkgs; [
-            plantuml
-            jre
+            packages.plantuml_jar
           ];
-          buildPhase = ''
-            function generate_png {
-
-              local filename=$1
-              local fileWithoutSuffix=$(filename%".puml")
-
-              java -jar ${pkgs.plantuml}/lib/plantuml.jar $(filename) -tpng > $(fileWithoutSuffix).png
-            }
-
-             # TODO enable pdf support for plantuml: https://plantuml.com/pdf
-            function generate_pdf {
-
-              local filename=$1
-              local fileWithoutSuffix=$(filename%".puml")
-
-              java -jar ${pkgs.plantuml}/lib/plantuml.jar $(filename) -tpdf > $(fileWithoutSuffix).pdf
-            }
-
-            generate_png flowlets/example.puml
-          '';
-
           installPhase = ''
             mkdir -p $out
-            cp --parents flowlets/example.png $out
           '';
         };
       };
+
       defaultPackage = packages.midnight-architecture;
 
       devShell = devshell.legacyPackages.${system}.mkShell {

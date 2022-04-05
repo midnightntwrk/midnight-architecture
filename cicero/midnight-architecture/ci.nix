@@ -52,33 +52,47 @@
 
       {
         config.packages = std.data-merge.append [
-          "github:nixos/nixpkgs#plantuml"
+          "github:input-output-hk/midnight-architecture?ref=cic-147#plantuml_jar"
+          "github:nixos/nixpkgs#fontconfig"
+          "github:nixos/nixpkgs#go-font"
+          "github:nixos/nixpkgs#gnumake"
+          "github:nixos/nixpkgs#bash"
         ];
       }
 
       (std.git.clone cfg)
 
+      {
+        resources = {
+          memory = 1024 * 3;
+        };
+      }
+
+      {
+        template = std.data-merge.append [{
+          destination = "/local/.fonts.conf";
+          data  = ''
+            <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+            <fontconfig>
+           <dir>/share/fonts/truetype</dir>
+           </fontconfig>
+          '';
+        }];
+
+        env."HOME" = "/local";
+        env."FONTCONFIG_PATH" = "/local/";
+        env."FONTCONFIG_FILE" = "/local/.fonts.conf";
+      }
+
       (std.script "bash" ''
-        set -x
-
-        function generate_png {
-          local filename=$1
-          java -jar /lib/plantuml.jar $(filename).puml -tpng > $(filename).png
-        }
-
-         # TODO enable pdf support for plantuml: https://plantuml.com/pdf
-        function generate_pdf {
-          local filename=$1
-          java -jar /lib/plantuml.jar $(filename).puml -tpdf > $(filename).pdf
-        }
-
-        mkdir -p $out
-        local unique_filenames=$(git diff --name-only | sed -n -E 's/.(png|puml)$//gp' | uniq -u)
-        #local unique_filenames=$(git diff --name-only HEAD HEAD~1 | sed -n -E 's/.(png|puml)$//gp' | uniq -u)
-        for line in $unique_filenames
-        do
-          generate_png $line
-        done
+        set -euxo
+        plantuml -p -tpdf < flowlets/example.puml > flowlets/example.pdf
+        ls -ahl
+        ls -ahl flowlets/
+        ls -ahl components/WalletBackend/
+        git status
+        make
+        git status
       '')
     ];
 }
