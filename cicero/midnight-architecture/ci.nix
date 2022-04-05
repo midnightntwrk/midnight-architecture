@@ -3,21 +3,33 @@
 {
 
   inputs.start = ''
-    "midnight-architecture/ci": start: {
-      ${actionLib.common.inputStartCue}
+    "${name}": start: {
+      // from both std/ci/{pr,push}
+      sha: string
+      clone_url: string
+      statuses_url?: string
+
+      // only from std/ci/push
+      ref?: "refs/heads/\(default_branch)"
+      default_branch?: string
     }
   '';
 
   output = { start }:
-    actionLib.common.output args
-      start.value."midnight-architecture/ci".start;
+    let cfg = start.value.${name}.start; in
+    {
+      success.${name} = {
+        ok = true;
+        revision = cfg.sha;
+      } // lib.optionalAttrs (cfg ? ref) {
+        inherit (cfg) ref default_branch;
+      };
+    };
 
   job = { start }:
     let cfg = start.value.${name}.start; in
     std.chain args [
       actionLib.simpleJob
-      (actionLib.common.task
-        start.value."midnight-architecture/ci".start)
       (std.github.reportStatus cfg.statuses_url or null)
       {
         template = std.data-merge.append [{
@@ -28,6 +40,9 @@
             password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
           '';
         }];
+      }
+
+      {
         config.packages = std.data-merge.append [
           "github:nixos/nixpkgs#plantuml"
         ];
