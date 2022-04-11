@@ -56,6 +56,8 @@
           "github:nixos/nixpkgs#fontconfig"
           "github:nixos/nixpkgs#go-font"
           "github:nixos/nixpkgs#gnumake"
+          "github:nixos/nixpkgs#gnugrep"
+          "github:nixos/nixpkgs#findutils"
           "github:nixos/nixpkgs#bash"
         ];
       }
@@ -86,13 +88,13 @@
 
       (std.script "bash" ''
         set -euxo
-        plantuml -p -tpdf < flowlets/example.puml > flowlets/example.pdf
-        ls -ahl
-        ls -ahl flowlets/
-        ls -ahl components/WalletBackend/
-        git status
         make
+        git status | grep -E '*.(png|pdf)' | xargs git add
         git status
+        git config --global user.email "devops@iohk.io"
+        git config --global user.name "iohk-devops"
+        git commit -am "Generate missing png and pdf files"
+        git push origin HEAD:cic-147
       '')
     ];
 }
