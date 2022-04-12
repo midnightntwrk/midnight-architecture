@@ -431,22 +431,21 @@ to expose:
 
 | Name                 | Inp | Out | Imm   |
 |----------------------+-----+-----+-------|
-| pure_gate            |   3 |     | 5×F   |
-| pure_gate_pub_input  |   3 |     | 6×F   |
-| constrain_to_boolean |   1 |     |       |
-| cond_select          |   3 |   1 |       |
-| load_imm             |     |   1 | 1×F   |
-| load_imm_pub_input   |     |   1 | 1×F   |
-| load_imm_constant    |     |   1 | 1×F   |
-| declare_pub_input    |   1 |     |       |
-| constrain_eq         |   2 |     |       |
-| test_eq              |   2 |   1 |       |
-| nop                  |     |   1 |       |
-| poseidon_compress    |   2 |   1 |       |
-| ecc_add              |   4 |   2 |       |
-| ecc_generator_mul    |   1 |   2 |       |
-| ecc_mul              |   3 |     |       |
-| call_extern          |   n |   m | 1×u64 |
+| =pure_gate=            |   3 |     | 5×F   |
+| =pure_gate_pub_input=  |   3 |     | 6×F   |
+| =constrain_to_boolean= |   1 |     |       |
+| =cond_select=          |   3 |   1 |       |
+| =load_imm=             |     |   1 | 1×F   |
+| =load_imm_pub_input=   |     |   1 | 1×F   |
+| =load_imm_constant=    |     |   1 | 1×F   |
+| =declare_pub_input=    |   1 |     |       |
+| =constrain_eq=         |   2 |     |       |
+| =test_eq=              |   2 |   1 |       |
+| =poseidon_compress=    |   2 |   1 |       |
+| =ecc_add=              |   4 |   2 |       |
+| =ecc_generator_mul=    |   1 |   2 |       |
+| =ecc_mul=              |   3 |     |       |
+| =call_extern=          |   n |   m | 1×u64 |
 
 - Each instruction may be represented as a sequence of bytes, and operate on an unbounded append-only array of intermediate values (the stack).
 - The first byte identifies the instruction.
