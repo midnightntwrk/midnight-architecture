@@ -224,6 +224,153 @@ When working with abcird there will be following artifacts:
   the underlying proof system,
 - input vectors :: computed input to the prover system.
 
+** Mutability
+For the time being we assume immutable variables and we might add some form of
+mutability later.  Currently mutability is restricted to oracles, as oracles can
+contain mutable state themselves.
+
+** Modules
+We want to add compile-time parameters to functions and types, for instance we
+want to parameterize functions operating on merkle trees and merkle paths by the
+path lenght, which will be known at compile time.
+
+We are looking for module systems of the following programming
+languages
+- Rust, or
+- ML-family languages
+to look for the inspiration.
+
+Due to the restrictions of the abcird language, modules are compile-time
+constructs, and we believe that they can be fully desugared during the
+compilation pipeline.
+
+We also believe that modules will allow us to parameterize our code but still
+have a nominal type system.
+
+*** Module and Structs instead of Classes
+We started with a language that looks like a TypeScript, however we will
+probably go more towards Rust design space, because we conjecture that modules +
+structs + methods defined on structs will map nicer to the restrictions of the
+underlying language rather than classes.
+
+Syntactically modules can look similar to classes, however semantically they are
+similar to static class factories (producing static classes themselves).
+Modules are similar to static classes.
+
+*** Proposed Module Syntax
+#+begin_src text
+module <module_name>[<module parameters...>] {
+       <module members...>
+}
+
+using <module_name>[<parameter instantiation>];
+using <module_name>[<parameter isntantiation>] as <module_alias>;
+#+end_src
+
+*** Example of Desugaring a Module:  Merkle Path Library
+We start by writing a module for operating on merkle paths using our module
+syntax
+
+#+begin_src text
+module merkle_path[n: Natural] {
+  struct merkle_root { <...> };
+  struct merkle_path_entry { <...> };
+  struct merkle_path { <...> };
+  circuit merkle_path_root(path: merkle_path[n]): merkle_root {
+    <...>
+  };
+}
+#+end_src
+
+Then we can desugar the module into a prefix on circuit and structures
+#+begin_src text
+struct merkle_path$merkle_root[n: Natural] { <...> };
+struct merkle_path$merkle_path_entry[n : Natural] { <...> };
+struct merkle_path$merkle_path[n : Natural] { <...> };
+circuit merkle_path$merkle_path_root[n : Natural](path: merkle_path$merkle_path[n]): merkle_path$merkle_root[n] {
+  <...>
+};
+#+end_src
+
+Finally, at the inport site, we can instantiate =n= and add it to the prefix
+(here we instantiate =5= for =n=):
+#+begin_src text
+struct merkle_path`5$merkle_root { <...> };
+struct merkle_path`5$merkle_path_entry { <...> };
+struct merkle_path`5$merkle_path { <...> };
+circuit merkle_path`5$merkle_path_root(path: merkle_path`5$merkle_path): merkle_path`5$merkle_root {
+  <...>
+};
+#+end_src
+
+** Interfacing with Oracles
+Oracles are implemented outside of abcird, therefore we need to define a way for
+interfacing with them. We also realised that we need to capture /external
+types/, which are defined inside oracles, but which do not mean anything in
+abcird. One approach to do so is the use of /existential types/ from ML-family
+languages.
+
+Existential types are used widely in OCaml, however the UX of using them might
+be foreign to smart contract developers:
+- developers with TypeScript experience might be confused by existential types,
+  because TypeScript does not have support for existential types.
+- developers with Rust experience might be familiar with existential types,
+  because Rust has similar construct in the form of Traits' associated types.
+
+Still, we need to be wary about uncanny valley of using existential types, as
+developers tend to work with either concrete types or type reflection, which
+allows them to inspect the type during runtime.
+
+*** Example:  Existential Types in OCaml
+#+begin_src text
+type merkle_root = {
+  bytes : byte array;
+};
+
+module merkle_path :
+    sig
+      type merkle_path;
+      val merkle_path_root(path: t): merkle_root;
+    end =
+    struct
+      type merkle_path = {
+           ...
+        }
+    end
+
+module type PUBLIC =
+    sig
+      type t;
+      val topic : t option;
+      val set_topic : t -> unit;
+    end
+#+end_src
+
+*** Potential Syntax for Specifying Oracles as Interfaces (Module Types)
+One way to specify oracles is to specify them as /interfaces/, which are
+collection of types bundled together, roughly resembling module types from
+OCaml.
+
+Potential example of specifying public and private oracle
+#+begin_src text
+public interface public_oracle {
+  type topic;
+  statement hash(topic: topic): Field;
+  statement topic(): Maybe[topic];
+  statement topic$set(topic: topic): Void;
+}
+#+end_src
+
+** TODO Hashing Existential Types
+Do we need to autogenerate the code for hashing existential types, or should we
+always defer that to the oracles.
+
+** TODO Entry Point/Main Module
+We need to figure out how we will mark the entry point to abcird programs.
+Should that be a distinguished module that will expose functions that will
+become transition functions of the deployed smart contract?  Or should that be a
+single function that will pattern match on it.
+
 ** Compilation of Abcird programs
 Compiling programs down to zkSNARKs usually poses an interesting challenge: not
 only we need to generate a circuit for the c
