@@ -1,0 +1,17 @@
+@startyaml
+
+version1:
+  transaction:
+    kind:
+      spend: 0
+      deploy: 1
+      undeploy: 2
+      call: 3
+    length: Nat
+    payload: [Byte]
+  
+  spend:
+    - foo
+
+
+@endyaml

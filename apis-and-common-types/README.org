@@ -1,0 +1,8 @@
+#+TITLE: API's and Common Types
+
+Components must agree on the data types they use to exchange data.  These may be data types defined in a common programming language, or data interchange types encoded in, say, JSON or protofbufs.
+
+All of these datatypes should be versioned and should be defined as part of the architecture.  Since they do not naturally belong to either collaborating component, they should be defined here.
+
+
+

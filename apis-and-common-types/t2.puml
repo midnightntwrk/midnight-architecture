@@ -1,0 +1,39 @@
+@startsalt
+scale 2
+{
+
+{^"version 0.2"
+{T
+ + Transaction
+ ++ type: | **meaning** | **value**
+ +++ |//spend// |  ""0""
+ +++ |//deploy// |  ""1""
+ +++ |//undeploy// |  ""2""
+ +++ |//call// |  ""3""
+ ++ length: Nat
+ ++ payload: [Byte]
+}
+
+===
+{T
++ Spend Payload
+}
+
+===
+{T
++ Deploy Payload
+}
+
+===
+{T
++ Undeploy Payload
+}
+
+===
+{T
++ Call Payload
+}
+
+}}
+
+@endsalt
