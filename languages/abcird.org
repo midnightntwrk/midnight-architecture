@@ -454,3 +454,73 @@ to expose:
 - Immediates may be either field elements, which are represented as a LE-encoded sequence of 48 bytes (for BLS12-381), or another fixed constant, or LE-encoded =u64=.
 - Each instruction, except =call_extern= consists of the instruction opcode, any input indicies it takes, and any immediates it takes.
 - =call_extern= begins with a LE-encoded =u64=, identifying a previously registered external handle (with =register_external=). The following =n = argument_size= LE encoded field elements are identified dynamically, using the recorded size of the argument vector for this =call_extern=.
+
+* 2022-04-13 Lares Weekly Meeting
+Plonk is more of a framework to create zkSNARKs.
+
+We actually talk about Plonk Instances.
+
+If you recall for proving
+
+- prover key (compiled form of the circuit),
+- prover input vector (public and private parts encoded as a vector of field
+  elements),
+
+For verification
+
+- proof (output from the prover),
+- verifier key (compiled for of the circuit),
+- verifier input vector (public parts encoded as a vector of field elements).
+
+Where does the input generation come from?
+
+If I have a function =foo= and I want to create a ZK proof that =x = foo(y)=, I
+need to encode =foo= as a ZK circuit and that circuit will contain some
+additional variables (inputs).
+
+Assume that I can encode =x= and =y= into a single field element.  That means
+that I will have at least 2 public inputs (one for =x= and one for =y=).
+
+I take the code/semantics/meaning of =foo= and encode it to a circuit with
+additional elements. For intance, each division will contain at least one extra
+private input. Usually there are a lot of private inputs, for instance hashing
+functions can contain up to 1000s of private inputs/intermediate values.
+
+And all of these intermediate values consume the budget for circuits.
+
+Scenarios we were discussing
+- there is hashing function in =zk-garage/plonk= and someone comes up with a
+  improved/fixed version of that function.
+- 3rd party comes up with a hashing function (or any function that could be used
+  by a wide variety of smart contracts)
+  - we could provide a Rust implementation of the input generation part,
+  - we could provide a hand-crafted circuit (or gadget) for that particular function.
+
+Privacy in zkSNARKs:
+- proofs are succint (so small that they cannot contain private information),
+- ECCs (you add randomness to your proof, making it exteremly difficult to
+  extract private information from the proof).
+
+Because we need to do verification on the node and we do not want to ship Rust
+compiler as a part of the node, we realised that we need something similar to an
+interpreter that can handle proof verification.
+
+Instead of having 3 separate compilation artifacts, we decided to have a single
+compilation artifact, that can be interpreted in 3 different ways.
+
+Why verifier needs that bytecode?  Depends on what are your trust boundaries.
+And also it depends on who is responsible for handling encoding of values to
+field elements?
+
+So far we have compatibilities
+- source-level compatibility :: we can still compile it,
+- byte-code comaptibility :: we don't need to recompile the code,
+- circuit compatibility :: we don't need to regenerate prover/verifier keys and
+  inputs,
+- proof compatibility :: we don't need to regenerate the proofs.
+
+** Assumptions
+- we deploy smart contracts as bytecode.
+
+** Questions
+- what is our story for a snark upgrade?
