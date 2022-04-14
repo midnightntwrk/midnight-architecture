@@ -87,6 +87,7 @@
           "github:nixos/nixpkgs#go-font"
           "github:nixos/nixpkgs#gnumake"
           "github:nixos/nixpkgs#gnugrep"
+          "github:nixos/nixpkgs#gnupg"
           "github:nixos/nixpkgs#findutils"
           "github:nixos/nixpkgs#bash"
         ];
