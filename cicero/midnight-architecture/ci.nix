@@ -77,6 +77,7 @@
         env."HOME" = "/local";
         env."FONTCONFIG_PATH" = "/local/";
         env."FONTCONFIG_FILE" = "/local/.fonts.conf";
+        env."GIT_CONFIG_GLOBAL" = "/local/.gitconfig";
       }
 
       {
