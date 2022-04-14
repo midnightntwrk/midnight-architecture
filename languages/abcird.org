@@ -55,6 +55,38 @@ network has upgraded to a particular version.
 
 Modifications to bytecode will probably result in hard-forks.
 
+** /Thomas/: upgrade assumptions
+I've been operating on the following some unspoken assumptions. First of these is:
+
+/The dominant cost of compilation for the network is the verifier key generation./
+
+This seems reasonable as most smart-contracts are small programs, with dominant
+costs likely lying in the primitives used, and the fact that verifier key
+generation requires moderately expensive group operations to be performed for
+each gate in a source arithmetic circuit.
+
+As a result, I believe that, where an upgrade invalidates old verifier keys,
+compilation cost of Abcird should not be a concern, and it makes sense to
+recompile from (close to) source.
+
+In particular, I believe that we will identify an intermediate language of
+Abcird, which is can both be targeted for any high-level language we may
+eventually support, but also which can in turn target any ZK architecture we may
+wish to switch to. I believe that we should use such an intermediate form as the
+persistent contract bytecode, and ensure that the language capabilities
+monotonically increase.
+
+Any upgrade which invalidates verifier keys then would require re-running the
+backend compilation pipeline for affected circuits, and as a consequence it also
+makes sense to be proof-system specific in the VM bytecode, as this is /not/
+persistent data, and is recompiled if verifier keys are invalidated.
+
+I oppose a generic VM bytecode design, as this, in my opinion, pushes the entire
+compiler backend into the VM bytecode. This bytecode would also be harder to /get
+right/, as we'd have to define the right level of abstraction, rather than
+selecting the right level of abstraction /for a specific upgrade/ when necessary
+in our multi-pass Abcird compiler.
+
 * Scenarios of Transitions
 We will go over informal scenarions of changes to Abcird.  We assume some that
 there is some starting instance of Plonk.
@@ -429,31 +461,33 @@ The low-level target should be a sequence of bytecode instructions. The
 following are some operations already supported by Plonk, which we likely want
 to expose:
 
-| Name                 | Inp | Out | Imm   |
-|----------------------+-----+-----+-------|
-| =pure_gate=            |   3 |     | 5×F   |
-| =pure_gate_pub_input=  |   3 |     | 6×F   |
-| =constrain_to_boolean= |   1 |     |       |
-| =cond_select=          |   3 |   1 |       |
-| =load_imm=             |     |   1 | 1×F   |
-| =load_imm_pub_input=   |     |   1 | 1×F   |
-| =load_imm_constant=    |     |   1 | 1×F   |
-| =declare_pub_input=    |   1 |     |       |
-| =constrain_eq=         |   2 |     |       |
-| =test_eq=              |   2 |   1 |       |
-| =poseidon_compress=    |   2 |   1 |       |
-| =ecc_add=              |   4 |   2 |       |
-| =ecc_generator_mul=    |   1 |   2 |       |
-| =ecc_mul=              |   3 |     |       |
-| =call_extern=          |   n |   m | 1×u64 |
+| Name                    | Inp | Out | Imm   | Desc                                                                                    |
+|-------------------------+-----+-----+-------+-----------------------------------------------------------------------------------------|
+| =pure_gate=               |   3 |     | 5×F   | Calls =poly_gate= on pre-existing variables and coefficients                              |
+| =pure_gate_pub_input=     |   3 |     | 6×F   | Like =pure_gate= with non-zero =pi=                                                         |
+| =pure_gate_out=           |   2 |   1 | 4×F   | Calls =poly_gate= with =q_o = 1= and =c= being a generated variable                           |
+| =pure_gate_out_pub_input= |   2 |   1 | 6×F   | Like =pure_gate_out= with non-zero =pi=                                                     |
+| =constrain_to_boolean=    |   1 |     |       | Calls =boolean_gate=                                                                      |
+| =cond_select=             |   3 |   1 |       | Calls =conditional_select=                                                                |
+| =load_imm=                |     |   1 | 1×F   | Calls =add_input= and =constrain_to_constant=                                               |
+| =declare_pub_input=       |   1 |     |       | Calls (ironically) =constrain_to_constant(a, Zero::zero(), Some(a.value()))= (pseudocode) |
+| =constrain_eq=            |   2 |     |       | Calls =assert_equal=                                                                      |
+| =test_eq=                 |   2 |   1 |       | Calls =is_eq_with_output=                                                                 |
+| =poseidon_compress=       |   2 |   1 |       | Calls =Poseidon<...>::output_hash=                                                        |
+| =ecc_add=                 |   4 |   2 |       | Calls =point_addition_gate=                                                               |
+| =ecc_generator_mul=       |   1 |   2 |       | Calls =fixed_base_scalar_mul=                                                             |
+| =ecc_mul=                 |   3 |   2 |       | Calls =variable_base_scalar_mul=                                                          |
+| =call_extern=             |   n |   m | 1×u64 | Calls externally registered function pointer (indexed by immediate)                     |
+| =call_extern_guard=       | n+1 |   m | 1×u64 | As =call_extern=, but only if the first input is non-zero                                 |
 
 - Each instruction may be represented as a sequence of bytes, and operate on an unbounded append-only array of intermediate values (the stack).
+- The stack first 8 bytes of a program LE-encode a =u64= representing the number of inputs the program. These are modelled as pre-existing variables on the stack.
 - The first byte identifies the instruction.
 - Inputs are provided as indexes onto the stack, each being represented as a LE-encoded 64-bit unsigned integer, with indexes starting at zero.
 - The stack grows by the output amount, and each value is a field element.
 - Immediates may be either field elements, which are represented as a LE-encoded sequence of 48 bytes (for BLS12-381), or another fixed constant, or LE-encoded =u64=.
 - Each instruction, except =call_extern= consists of the instruction opcode, any input indicies it takes, and any immediates it takes.
-- =call_extern= begins with a LE-encoded =u64=, identifying a previously registered external handle (with =register_external=). The following =n = argument_size= LE encoded field elements are identified dynamically, using the recorded size of the argument vector for this =call_extern=.
+- =call_extern= and =call_extern_guard= begin with a LE-encoded =u64=, identifying a previously registered external handle (with =register_external=). For =call_extern_guard=, the next argument refers to the variable controlling if the call will be performed. The following =n = argument_size= LE encoded field elements are identified dynamically, using the recorded size of the argument vector for this =call_extern=.
 
 * 2022-04-13 Lares Weekly Meeting
 Plonk is more of a framework to create zkSNARKs.
