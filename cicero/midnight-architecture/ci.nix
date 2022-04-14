@@ -47,7 +47,36 @@
               password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
             '';
           }
+          {
+            destination = "/local/.fonts.conf";
+            data  = ''
+              <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+              <fontconfig>
+             <dir>/share/fonts/truetype</dir>
+             </fontconfig>
+            '';
+          }
+          {
+            destination = "/local/.gitconfig";
+            data  = ''
+              [user]
+	              name = iohk-devops
+	              email = devops@iohk.io
+
+              [commit]
+                gpgsign = true
+            '';
+          }
+
         ];
+
+        resources = {
+          memory = 1024 * 3;
+        };
+
+        env."HOME" = "/local";
+        env."FONTCONFIG_PATH" = "/local/";
+        env."FONTCONFIG_FILE" = "/local/.fonts.conf";
       }
 
       {
@@ -64,35 +93,10 @@
 
       (std.git.clone cfg)
 
-      {
-        resources = {
-          memory = 1024 * 3;
-        };
-      }
-
-      {
-        template = std.data-merge.append [{
-          destination = "/local/.fonts.conf";
-          data  = ''
-            <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-            <fontconfig>
-           <dir>/share/fonts/truetype</dir>
-           </fontconfig>
-          '';
-        }];
-
-        env."HOME" = "/local";
-        env."FONTCONFIG_PATH" = "/local/";
-        env."FONTCONFIG_FILE" = "/local/.fonts.conf";
-      }
-
       (std.script "bash" ''
         set -euxo
         make
         git status | grep -E '*.(png|pdf)' | xargs git add
-        git status
-        git config --global user.email "devops@iohk.io"
-        git config --global user.name "iohk-devops"
         git commit -am "Generate missing png and pdf files"
         git push origin HEAD:cic-147
       '')
