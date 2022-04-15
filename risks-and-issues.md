@@ -47,6 +47,26 @@ Who runs wallet backend severs?  Why?  How are they compensated?  Should there b
 
 ### Proof Server
 
+Who runs it? What are the incentives? How to protect users privacy given by default it HAS to learn a lot of private data in order to create the proof?
+The team behind ZEXE mentions "delegated DPC" as a change to the protocol, which introduces proof servers. They claim that "while randomized signatures make it impossible to sign/prove false claims on user's behalf, there's still research needed related to protecting the data needed to create proof itself since it is a privacy concern".
+
+#### Possible solution - Proof companion app
+
+If we only target desktop - one way to to not leak the private data would be to use a "wallet proving companion" application.
+Such application would be installed as a native application, that can be called by the extension in order to create proof.
+
+##### Pros
+  - allows to run native code without any limitations
+  - runs on user's machine
+  - no private data leaving the machine
+
+##### Cons
+  - does not solve performance issues for mobile platforms
+  - requires both extension and native app to be installed
+  - the API that makes such connection possible might require a lot of tweaking for proper cross-platform support
+  - the application needs to be properly installed on the host OS in order to be recognized by browser as one that can be run from extension
+  - private data leave browser's sandbox
+
 ### Wallet Backend Privacy
 
 ### Private Data Recovery
