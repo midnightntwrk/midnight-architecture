@@ -9,10 +9,19 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 
 actor user
 
-box "Wallet" #eef
-        participant dApp as dapp
+'Dapp might be embedded/"installed" inside wallet, but even then it requires quite strong separation between wallet and dApp code
+box "dApp" #eef
+        participant "client-sdk" as clientSdk
         participant "Transition\nFunction" as gamma
         database "Pending\nPrivate\nUpdates" as pending
+end box
+
+
+box "Wallet" #eff
+    'The browser extension
+    participant "Wallet" as wallet
+    'Wallet Backend, server component that works as a cache for frontend + bridge between frontend and the network
+    participant "Wallet Backend" as walletBackend
 end box
 /'
  ' box "Wallet Backend Component" #efe
@@ -27,50 +36,59 @@ end box
 boundary Consensus as consensus
 
 '==================================================================
+        ' Wallet Backend is always active, at least from perspective of this flow
+        activate walletBackend
 
+        user -> clientSdk : action
 
-        user -> dapp : action
-        
-        activate dapp
+        activate clientSdk
         group compute a state update
-                dapp -> gamma : update(args) using\n  public state,\n  private state
+                clientSdk -> gamma : update(args) using\n  public state,\n  private state
                 activate gamma
-                        gamma -> dapp : ok(result,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate)
+                        gamma -> clientSdk : ok(result,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate)
                 deactivate gamma
         end
-                
-        dapp -> pending ++ : store pending private transcript
+
+        clientSdk -> pending ++ : store pending private transcript
         return ok
 
         group build and send transaction
+                clientSdk -> wallet : callTx(call, circuit, witness)
+                activate wallet
                 group over TLS, to TEE in Proof Server
-                        note over dapp: witness includes private data\nnot shared with Wallet Backend
-                        dapp -> proofServer : prove(circuit, witness)
+                        note over wallet: witness includes private data\nnot shared with Wallet Backend
+                        wallet -> proofServer : prove(circuit, witness)
                         activate proofServer
-                                proofServer -> dapp : proof
+                                proofServer -> wallet : proof
                         deactivate proofServer
                 end
 
-                dapp -> consensus : tx(call, circuitId, proof, spendIns, spendOuts, spendProof)
+                wallet -> walletBackend : submitTx(tx)
+                walletBackend -> consensus : submitTx(tx)
+                walletBackend -> wallet : pending
+                wallet -> clientSdk : pending
         end
-        
-        dapp -> user: pending
-        
+
+        clientSdk -> user: pending
+
         == time passes as TX is verified and propageted ==
-        
-        consensus -> dapp : verified tx and new public state
-        
-        
+
+        consensus -> walletBackend : verified tx and new public state
+        walletBackend -> wallet : verified tx, new public state
+        wallet -> clientSdk : tx verified, new public state
+
+        deactivate wallet
+
         group dApp processes consesus data
-                dapp -> dapp : install new public state
-                dapp -> pending ++ : fetch private transcript for the tx
-                pending -> dapp -- : private transcript for the tx
-                dapp -> dapp : apply private transcript
-                dapp -> dapp : install new private state
+                clientSdk -> clientSdk : install new public state
+                clientSdk -> pending ++ : fetch private transcript for the tx
+                pending -> clientSdk -- : private transcript for the tx
+                clientSdk -> clientSdk : apply private transcript
+                clientSdk -> clientSdk : install new private state
         end
-        
-        dapp -> user : outcome information
-deactivate dapp
+
+        clientSdk -> user : outcome information
+deactivate clientSdk
 
 
 '-----------------------------------------------------------
