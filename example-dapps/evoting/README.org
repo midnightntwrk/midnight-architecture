@@ -9,7 +9,9 @@ Reusing the core mechanisms of zcash, this e-voting contract treats voter regist
 
 * Overview
 
-*In terms of ACE Philosophy*
+*TODO: In terms of ACE Philosophy*
+
+[[../../assets/images/WIP.png]]
 
 ** The Election Contract
 
@@ -178,9 +180,18 @@ We assume that the election has been deployed and that Voter /A/ has learned of 
 #+NAME:   fig:registration
 [[./register.png]]
 
+*** Voting
+
+/TBD -- no PlantUML figure yet./
+
+[[../../assets/images/WIP.png]]
+
+
 *** Vote Counting
 
 /TBD -- no PlantUML figure yet./
+
+[[../../assets/images/WIP.png]]
 
 
 
@@ -209,6 +220,12 @@ It must not be possible to use the size of a VOT coin to determine its content. 
 
 
 * Larger Context
+
+This whole section is just an outline of topics unlocked by understanding the eVoting example.  Might not even really belong here, but rather in an overview document that has the present example doc as a prerequisite.
+
+[[../../assets/images/WIP.png]]
+
+
 
 ** Structure of a dApp
 
