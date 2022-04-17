@@ -9,9 +9,9 @@ Reusing the core mechanisms of zcash, this e-voting contract treats voter regist
 
 * Overview
 
-**In terms of ACE Philosophy**
+*In terms of ACE Philosophy*
 
-** Elections
+** The Election Contract
 
 We represent an election as a smart contract with distinct phases, configuration data, and user roles as described here.
 
@@ -64,7 +64,7 @@ The public state of our contract consists of these parts:
 - The REG token :: Registration tokens are represented using the data structures of a privacy coin: a Merkle trie of commitment "notes" and a nullifier set of spent notes.  Observers of the public state can see how many registrations exist, but not their owners.
 - The VOT token :: Votes are also represented as a variant of privacy coin, but one that includes as its payload the option that was selected by the voter.  Our state maintains a Merkle trie and nullifier set for this coin.  Observers of the public state can see how many votes have been created, but not their owners or option payloads.
 - The tally :: The public state reveals the current vote tally for each option as votes are revealed, and the outcome is visible on chain forever after the election is closed.
-- The phase :: The public state of an election has four distinct phases in which different operations are allowed: =REGISTERING=, =VOTING=, =COUNTING=, and =CALLED=b.  The contract tracks this phase in a public variable.
+- The phase :: The public state of an election has four distinct phases in which different operations are allowed: =REGISTERING=, =VOTING=, =COUNTING=, and =CALLED=.  The contract tracks this phase in a public variable.
 
 *** Walkthrough By Phase
 
@@ -211,10 +211,6 @@ We assume that the election has been deployed and that Voter /A/ has learned of 
 
 * Potential Exploits
 
-** Early Round Termination
-
-There is an easy solution to this problem, and it is included in our design but not our implementation.
-
 
 ** No Transparency of Voter Demographics
 
@@ -230,7 +226,7 @@ Our contract makes it easy for a voter to prove to any observer of the chain tha
 
 A voter can commit to a vote in the first round and observe an arbitrary amount of vote counting in the second phase before deciding whether to reveal that vote.  Ideally, the decision to reveal would not be able to include any knowledge of the rising vote tallies.  This is not as bad as allowing voters to observe tallies before deciding to commit, which is already addressed by our two-round commit/reveal mechanism.  But in principle it allows a form of outcome manipulation.
 
-** Option Size
+** Leakage via Option Size
 
 It must not be possible to use the size of a VOT coin to determine its content.  Voting options must be the same size.  The voting contract should enforce this restriction.
 
