@@ -190,11 +190,11 @@ The following figure shows Voter B using an existing REG token /r/ to cast a vot
 
 *** Vote Counting
 
-/TBD -- no PlantUML figure yet./
+The following figure shows Voter B using an existing VOT token /v/ to cast a vote for its committed option /o/.
 
-[[../../assets/images/WIP.png]]
-
-
+#+CAPTION: Vote Counting
+#+NAME:   fig:counting
+[[./counting.png]]
 
 
 ** Vulnerabilities
