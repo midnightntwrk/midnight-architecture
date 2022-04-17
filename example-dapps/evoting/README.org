@@ -182,10 +182,11 @@ We assume that the election has been deployed and that Voter /A/ has learned of 
 
 *** Voting
 
-/TBD -- no PlantUML figure yet./
+The following figure shows Voter B using an existing REG token /r/ to cast a vote.
 
-[[../../assets/images/WIP.png]]
-
+#+CAPTION: Voting
+#+NAME:   fig:voting
+[[./voting.png]]
 
 *** Vote Counting
 

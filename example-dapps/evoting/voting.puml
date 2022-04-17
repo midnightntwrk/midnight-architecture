@@ -1,0 +1,95 @@
+@startuml
+autonumber
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+!include participants.puml
+
+
+
+note over B #lightyellow
+        Assume Voter B is registered with REG token //r//.
+        B learns the contract is in the VOTING state and
+        chooses to turn its REG token into a VOT token.
+end note
+
+
+
+verifier -> B : state //s// with phase = VOTING
+activate B
+        B -> rho_b ++ : Swap(//r//, option, code, circuits, //s//, pk[B])
+        note over rho_b #lightyellow
+                Create a commitment to "spend"
+                the given REG token //r// with
+                output to a new VOT token we
+                shall call //v//, whose payload
+                is the given voting option.
+                Yields a proof of validity of
+                the commitment //wrt// state s,
+                and bytecode for updating the
+                REG and VOT Merkle trie and
+                nullifiers in //s//.  The
+                commitment is //pending// until
+                witnessed under consensus.
+        end note
+        return Swapped(proof, public_bytecode)
+        B -> verifier : Call(addr, public_bytecode, proof)
+deactivate B
+
+activate verifier
+        verifier -> state ++ : Fetch(addr)
+        return s'
+        note over verifier #lightyellow
+                In this case s = s', but
+                Kachina assumes s ≠ s'
+        end note
+        verifier -> contracts ++ : Fetch(addr)
+        return ⟨code, circuits⟩
+        note over verifier #lightyellow
+                Verify the ZK proof using the given
+                circuits, proof, and state s'.  On
+                success, compute a new state s''
+                using inputs s' and the public_bytecode
+                operations. On success, install the
+                updated state.
+        end note
+        note over state #lightyellow
+                The new state s'' includes
+                everything from s' with the REG
+                token added to its nullifiers
+                set and the VOT token added to
+                its Merkle tree.
+        end note
+        verifier -> state : Update(addr, s'')
+        verifier -> A: verifiedTx_2 //including B's encrypted token//
+        verifier -> B : verifiedTx_2 //including B's encrypted token//
+        verifier -> C : verifiedTx_2 //including B's encrypted token//
+deactivate verifier
+
+activate B
+        B -> rho_b ++ : Apply(verifiedTx_2)
+        note over rho_b #lightyellow
+                B is able to decrypt the
+                transaction using sk[B]. It
+                marks the pending commitments as
+                confirmed, ensuring B will not
+                try to reuse //r// and that B
+                now knows its vote //v// can be
+                used in the COUNTING phase.
+        end note
+        rho_b --> B --: Voted(option)
+deactivate B
+
+
+
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+
+@enduml
