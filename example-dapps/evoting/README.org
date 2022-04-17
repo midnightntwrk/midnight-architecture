@@ -64,15 +64,17 @@ Figure [[fig:high-level]] offers a high-level overview of the actors and datasto
 [[./higher-level-interactions.png]]
 
 
-* Public and Private States
+* Detailed Architecture
+
+** Public and Private States
 
 The Kachina programming model makes a clear distinction between the on-chain public state of a contract and the off-chain private state used by clients. In this section illustrate both of these states through the course of an election.
 
-** Public State
+*** Public State
 
 Lares has the unique advantage, compared with Zexe-based private smart-contract systems, of allowing contracts to manage  unshielded public state on chain.  This allows our eVoting app to ensure both the legality and transparency of its elections without sacrificing voter privacy.
 
-*** Overview
+**** Overview
 
 The public state of our contract consists of these parts:
 - Configuration data :: Each election has its own configuration data, such as the prompt (what is the election about?) and the legal options for which a voter may cast its votes.  We also include configuration of timeouts that are used to advance the election's state machine through its explicit phases.
@@ -81,7 +83,7 @@ The public state of our contract consists of these parts:
 - The tally :: The public state reveals the current vote tally for each option as votes are revealed, and the outcome is visible on chain forever after the election is closed.
 - The phase :: The public state of an election has four distinct phases in which different operations are allowed: =REGISTERING=, =VOTING=, =COUNTING=, and =CALLED=.  The contract tracks this phase in a public variable.
 
-*** Walkthrough By Phase
+**** Walkthrough By Phase
 
 Figure [[fig:public-state]] shows the state of an election through its three phases.  A detailed walkthrough follows.  This design includes memory-management details that illustrate how the ledger-space requirements of the contract can both grow and shrink, leaving a small final footprint for any completed election.  The following discussion assumes some familiarity with privacy tokens as implemented in Zerocash, which make use of a Merkle trie and nullifier set in the public ledger state.  Our design implements two privacy tokens:
 
@@ -113,13 +115,13 @@ A detailed discussion of each state and state transition follows the figure.
 - CALLED :: This is the final state of the contract, and holds only the read-only tally dictionary.
 
 
-*** Scalability Discussion
+**** Scalability Discussion
 
 - /Advantages of the account model/
 - /Opportunity to *delete* the Merkle tries and nullifier sets at each phase transition/
   - Compare to minting native tokens in the L1 ledger.
 
-** Private State
+*** Private State
 
 Each Voter manages its own off-chain private state.  This state includes the secrets it uses in constructing the ZK proofs required to (a) cast a vote and (b) have the vote counted.  Figure [fig:private-state] illustrates how these secrets are constructed through the Voter's interaction with the blockchain, and how the Voter uses them to influence the outcome of the election.  A detailed discussion follows the figure.
 
@@ -141,11 +143,11 @@ Each Voter manages its own off-chain private state.  This state includes the sec
   - Counted :: The Voter has observed its Count on chain, proving that its vote has been added to the correct tally.  Both REG and VOT tokens for this election are now spent.  The Voter is free to delete all data associated with this election and can simply watch for the final tally when the contract enters its CALLED phase.
 
 
-* Detailed Flows
+** Detailed Flows
 
 We further document the design of our eVoting contract with a series of flow diagrams showing how different parties interact with each other and the blockchain to realize the desired behaviors.
 
-** Pre-Election Setup
+*** Pre-Election Setup
 
 Our first flow, shown in figure [[fig:setup]], introduces the participants in an example election and shows them setting up some initial private state.  The figure shows four interacting "subsystems": two voters (A and B), the blockchain consensus system, and the election coordinator (C).  The voters each consist of the actor (A or B) and that actor's private state.  The consensus system comprises the verifier and the two key account ledgers it maintains: "Contract Code", which maps contract addresses to a tuple of the on-chain code and compiled zk circuits for the contract; and "Contract States", which maps contract addresses to the current public state of each contract. (This is a simplification that ignores forks in the blockchain; in reality these ledgers might be indexed by the block for which they are valid.) Finally, the coordinator has both a private state and a database of registrations in which it manages voter-registration data for the election.
 
@@ -157,14 +159,14 @@ Our setup is quite simple.  In parallel, each actor (A, B, and C) simply generat
 
 
 
-** Deploying an Election
+*** Deploying an Election
 
 #+CAPTION: Deploy
 #+NAME:   fig:deploy
 [[./deploy.png]]
 
 
-** Voter Registration
+*** Voter Registration
 
 Figure [[fig:registration]] shows a detailed flow in which Voter /A/ registers to vote in the election.
 
@@ -176,28 +178,53 @@ We assume that the election has been deployed and that Voter /A/ has learned of 
 #+NAME:   fig:registration
 [[./register.png]]
 
-** Vote Counting
+*** Vote Counting
 
 /TBD -- no PlantUML figure yet./
 
 
 
 
-* Structure of a dApp
+** Vulnerabilities
 
-** Layers: FE, BE, Contract, Wallet, Chain
+The eVoting contract described in this document is strictly an example, not fit for any specific purpose.  It demonstrates powerful features and scalability properties of the Kachina programming model in an easy-to-understand and compelling use case, but it remains exposed to a number of possible exploits that would need to be addressed to turn the example in to a general solution for private eVoting.  This section details some of the known vulnerabilities.
 
-** Structure of a Contract
+*** No Transparency of Voter Demographics
 
-*** Public state & operations
+Since the contract makes no assumptions about how the Coordinator evaluates registration requests, or about what criteria they may impose, the eVoting contract cannot provide built-in assurances about voter eligibility, demographics, fairness in registration, or other such desirable properties of a fair election.  These fall outside the scope of the contract, but not outside the problem domain in which the contract operates.
 
-*** Private state & operations
+These shortcomings should be addressed by placing the eVoting contract within a larger application in which some form of transparent registration is implemented on chain, or at least some proof of inclusiveness or one-vote-per-person.  There could be standard registration services and libraries supporting on-chain transparency with ZK privacy, and Midnight is designed to support such services.
 
-*** Transition functions & circuits
+*** No Anti-Bribery Mechanism
 
-** Analysis and Testing Tools
+Our contract makes it easy for a voter to prove to any observer of the chain that they voted in a particular way.  It would be easy to implement, say, a vote-buying contract that paid a reward for each unique proof of a vote with a desired value.  No easy solution exists for this well-known challenge.
 
-** Expressiveness and Expressivity
+*** No Requirement to Reveal
+
+A voter can commit to a vote in the first round and observe an arbitrary amount of vote counting in the second phase before deciding whether to reveal that vote.  Ideally, the decision to reveal would not be able to include any knowledge of the rising vote tallies.  This is not as bad as allowing voters to observe tallies before deciding to commit, which is already addressed by our two-round commit/reveal mechanism.  But in principle it allows a form of outcome manipulation.
+
+*** Leakage via Option Size
+
+It must not be possible to use the size of a VOT coin to determine its content.  Voting options must be the same size.  The voting contract should enforce this restriction.
+
+
+* Larger Context
+
+** Structure of a dApp
+
+*** Layers: FE, BE, Contract, Wallet, Chain
+
+*** Structure of a Contract
+
+**** Public state & operations
+
+**** Private state & operations
+
+**** Transition functions & circuits
+
+*** Analysis and Testing Tools
+
+*** Expressiveness and Expressivity
 
 - Bounded computational models (circuits)
 - Gas vs. bounded on-chain updates
@@ -205,16 +232,16 @@ We assume that the election has been deployed and that Voter /A/ has learned of 
 - Deterministic code
 - Aids to managing privacy: tainted data flows and explicit declassification
 
-* Development and Regression Testing
+** Development and Regression Testing
 
-** Automated Regression Testing of the dApp
+*** Automated Regression Testing of the dApp
 
 - Cicero
 - Monika's scripts
 - End-to-end user flows remain stable as everything underneath changes
 - All tests must pass before promotion to testnet
 
-** Iterative Refinement of the Programming Model
+*** Iterative Refinement of the Programming Model
 
 - "Everything" in Racket/Scheme ==> only compilers in Racket/Scheme (working today)
 - First "real" language: Typescript (underway)
@@ -223,25 +250,4 @@ We assume that the election has been deployed and that Voter /A/ has learned of 
   - What lives where
   - Best way to express different elements
 
-
-* Potential Exploits
-
-
-** No Transparency of Voter Demographics
-
-It's not possible for an outsider to audit the voter registration records on chain.
-
-This could be addressed by placing this contract within a larger application in which some form of transparent registration was implemented on chain, or at least some proof of inclusiveness or one-vote-per-person.
-
-** No Anti-Bribery Mechanism
-
-Our contract makes it easy for a voter to prove to any observer of the chain that they voted in a particular way.  It would be easy to implement, say, a vote-buying contract that paid a reward for each unique proof of a vote with a desired value.
-
-** No Requirement to Reveal
-
-A voter can commit to a vote in the first round and observe an arbitrary amount of vote counting in the second phase before deciding whether to reveal that vote.  Ideally, the decision to reveal would not be able to include any knowledge of the rising vote tallies.  This is not as bad as allowing voters to observe tallies before deciding to commit, which is already addressed by our two-round commit/reveal mechanism.  But in principle it allows a form of outcome manipulation.
-
-** Leakage via Option Size
-
-It must not be possible to use the size of a VOT coin to determine its content.  Voting options must be the same size.  The voting contract should enforce this restriction.
 
