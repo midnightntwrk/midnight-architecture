@@ -1,0 +1,236 @@
+#+TITLE: Lares Private e-Voting Example
+
+This approach to private e-voting, while not fully general, provides a significant demonstration of the Kachina model's unique support for smart contracts that manage both public and private state.
+
+Reusing the core mechanisms of zcash, this e-voting contract treats voter registrations and votes as two types of "coin" with their own special semantics.
+
+
+
+
+* Overview
+
+**In terms of ACE Philosophy**
+
+** Elections
+
+We represent an election as a smart contract with distinct phases, configuration data, and user roles as described here.
+
+*** Phases
+
+Each election contract progresses through four distinct phases in the following sequence:
+
+- REGISTERING :: In this phase the contract is deployed and voters are being registered.
+- VOTING :: In this phase registered voters are allowed to cast votes.
+- COUNTING :: In this phase voters may use selective disclosure to have their votes added to a tally.
+- CALLED :: In this phase all vote counting is finished and the final tally is available on chain.
+
+*** Configuration Data
+
+Every deployed contract has an initial state that includes the following configuration data.
+
+- Prompt :: A description of the election and the question to be answered by voting. (This option could, in principle,  be omitted.  It is informative, but not required for correct operation.)
+- Options :: The fixed set of legal vote choices a voter may cast.
+- Timouts :: The times at which the election will transition between phases.
+
+*** Roles
+
+Every election is a collaboration among agents playing the following roles:
+
+- Coordinator :: Configures and deploys the contract.  Has the exclusive ability to create voter-registration tokens in response to out-of-band registration requests.
+- Voter :: Registers with the Coordinator; casts and reveals votes.
+- Observer :: Non-participant who can view all public information about the election.  This includes the number and type of transactions (e.g., votes, phase transitions) and the public state details (e.g., current phase, final tally).
+
+** High Level Overview
+
+Figure [[fig:high-level]] offers a high-level overview of the actors and datastores involved in an election.  The Coordinator deploys the election contract and announces its address and other details out of band.[fn::/Out of band/ could even be on-chain in a public registry of elections, if desired.]  Voters witness the announcement and, if they choose to participate, register with the Coordinator (perhaps from an untraceable address) by providing a public key and a proof of eligibility (perhaps a zero-knowledge proof, and certainly including an anti-sybil mechamism). The Coordinator, after verifying eligibility, mints a registration token on chain using the Voter's public key.  The Voter witnesses the minted registration, stores the details in its private state, and waits for someone to open the election for voting.  We assume the election phases are gated by timeouts and Any actor can submit a transaction after the given timeout to advance the election through its phases: REGISTERING ➔ VOTING ➔ COUNTING ➔ CALLED.  At any time during the VOTING phase, each Voter can swap its registration token for a vote token with whatever vote option the Voter wishes to cast; doing so consumes the registration token, which ensures at-most-once voting.  At any time during the COUNTING phase, each Voter can use a ZK proof of their committed vote option to increment the tally associated with that option in the public state.  Once the contract enters the CALLED state, no further state changes are possible and the final tally is locked and available on chain to any Observer.
+
+#+CAPTION: High Level
+#+NAME:   fig:high-level
+[[./higher-level-interactions.png]]
+
+
+* Public and Private States
+
+The Kachina programming model makes a clear distinction between the on-chain public state of a contract and the off-chain private state used by clients. In this section illustrate both of these states through the course of an election.
+
+** Public State
+
+Lares has the unique advantage, compared with Zexe-based private smart-contract systems, of allowing contracts to manage  unshielded public state on chain.  This allows our eVoting app to ensure both the legality and transparency of its elections without sacrificing voter privacy.
+
+*** Overview
+
+The public state of our contract consists of these parts:
+- Configuration data :: Each election has its own configuration data, such as the prompt (what is the election about?) and the legal options for which a voter may cast its votes.  We also include configuration of timeouts that are used to advance the election's state machine through its explicit phases.
+- The REG token :: Registration tokens are represented using the data structures of a privacy coin: a Merkle trie of commitment "notes" and a nullifier set of spent notes.  Observers of the public state can see how many registrations exist, but not their owners.
+- The VOT token :: Votes are also represented as a variant of privacy coin, but one that includes as its payload the option that was selected by the voter.  Our state maintains a Merkle trie and nullifier set for this coin.  Observers of the public state can see how many votes have been created, but not their owners or option payloads.
+- The tally :: The public state reveals the current vote tally for each option as votes are revealed, and the outcome is visible on chain forever after the election is closed.
+- The phase :: The public state of an election has four distinct phases in which different operations are allowed: =REGISTERING=, =VOTING=, =COUNTING=, and =CALLED=b.  The contract tracks this phase in a public variable.
+
+*** Walkthrough By Phase
+
+Figure [[fig:public-state]] shows the state of an election through its three phases.  A detailed walkthrough follows.  This design includes memory-management details that illustrate how the ledger-space requirements of the contract can both grow and shrink, leaving a small final footprint for any completed election.  The following discussion assumes some familiarity with privacy tokens as implemented in Zerocash, which make use of a Merkle trie and nullifier set in the public ledger state.  Our design implements two privacy tokens:
+
+- REG :: A token with no payload that provides the owner the potential to cast a single vote.
+- VOT :: A token whose shielded payload holds the commitment to a single voting option.  The owner can provide a ZK proof that allows them to "spend" the token by incrementing the tally associated with the committed voting option.
+
+We use some shorthand jargon to indicate the lifetime and mutability of various data structures on chain:
+
+- init :: Allocate and initialize the data.
+- freeze :: Prevent future updates to the data.
+- delete :: De-allocate the data.
+
+A detailed discussion of each state and state transition follows the figure.
+
+
+#+CAPTION: Public State
+#+NAME:   fig:public-state
+[[./public-states.png]]
+
+- REGISTERING :: Every election's initial phase, on deployment, is =REGISTERING=.  In this phase the configuration parameters are recorded.  This phase also makes use of the Merkle trie for the REG token, which is initialized to empty.  This phase allows two types of update operations:
+  - Mint REG /r/ :: The coordinator, using its secret key, is able to mint REG tokens on behalf of voters.  The REG tokens are recorded in the Merkle tree; their corresponding private details are present in the transaction, encrypted using the registrant's public key.  Registrants observing consensus can detect the transaction containing their registration by decrypting the transaction, which privately delivers them the token details in-band with consensus.
+  - Open :: Any party may advance the state machine to the =VOTING= phase by sending an Open transaction whose verification time is greater than or equal to the threshold time set by ~t_open~.
+- VOTING :: The purpose of this phase is to allow voters to vote by swapping REG tokens for VOT tokens; these VOT tokens are recorded in a Merkle trie which is initialized to empty at the beginning of the phase. It also makes use of the REG token's previously unnecessary nullifier set, which it initializes to empty.  The REG token's Merkle trie is read-only in this phase.  The contract uses these structures to ensure only the owner of a REG token can swap it and that no REG token can be swapped more than once.  Voters maintain the details of their VOT tokens offline, publishing only the "note" commitment in their transaction.  The note contains the voter's selected option as an encrypted payload of the VOT token.  This phase allows two types of update operations:
+  - Swap REG /r/ to VOT /v/ :: The owner of an unswapped REG token /r/ can submit a transaction that swaps that registration for a new VOT token encoding the user's private vote.
+  - Close :: Any party may advance the state machine to the =COUNTING= phase by sending a Close transaction whose verification time is greater than or equal to the threshold time set by ~t_close~.
+- COUNTING :: The purpose of this phase is to allow every voter the opportunity to add their vote's committed option to the tally of votes for that option.  The principal data structure for this phase is the =tally= dictionary, which maps options to the current tally of votes revealed for that option.  The phase begins with all option tallies initialized to 0.  This phase no longer needs any information about the REG token, so it can safely delete that token's Merkle trie and nullifier set.  The Merkle trie for the VOT token is still needed to verify the votes, and a nullifier set for VOT token is introduced to track already-counted votes. This phase allows two types of update operations:
+  - Count VOT /v/ with option /x/ :: Voters use this operation to increment the vote tally for their selected option.  The transaction for this operation encodes the voter's ZK proof of ownership for an unspent vote with the given option selected.  Counting the VOT adds it to the nullifier set to prevent double counting of votes.
+  - Call :: Any party may advance the state machine to the =CALLED= phase by sending a Call transaction whose verification time is greater than or equal to the threshold time set by ~t_call~.
+- CALLED :: This is the final state of the contract, and holds only the read-only tally dictionary.
+
+
+*** Scalability Discussion
+
+- /Advantages of the account model/
+- /Opportunity to *delete* the Merkle tries and nullifier sets at each phase transition/
+  - Compare to minting native tokens in the L1 ledger.
+
+** Private State
+
+Each Voter manages its own off-chain private state.  This state includes the secrets it uses in constructing the ZK proofs required to (a) cast a vote and (b) have the vote counted.  Figure [fig:private-state] illustrates how these secrets are constructed through the Voter's interaction with the blockchain, and how the Voter uses them to influence the outcome of the election.  A detailed discussion follows the figure.
+
+
+#+CAPTION: Private State
+#+NAME:   fig:private-state
+[[./private-states.png]]
+
+
+
+- Initialized :: The Voter must initialize a keypair before it can register to vote.  The Voter shares its public key (pk) with the election Coordinator who uses it to encrypt details of the minted registration token in a Mint REG transaction. The transition to Registered state happens when the Voter witnesses this transaction, decrypts the REG token's private details, and stores them in the Voter's private REG data.
+- Registered :: The Voter owns the registration token $r$, meaning it has the secrets necessary to construct a ZK proof that swaps the REG token for a VOT token that represents a vote.  The transition to Voting state happens when the Voter submits a Swap transaction with that proof.  The transaction does not reveal which REG token is being swapped, what option the Voter has selected, or the identity of the Voter.
+- Voting :: In this state the Voter has cast a vote.  There are two sub-states:
+  - PendingVote :: The Voter has submitted a transaction to Swap its REG token for a VOT token but has yet to witness the transaction on chain.  The blockchain is not a reliable-delivery mechanism, and in some cases a Voter may have to resubmit the request.  There is no issue of contention in the on-chain verification of the Swap request, since only one Voter can attempt to consume a given REG and since insertion of a new VOT is contention-free by the Zerocash design.[fn::Someone please verify this assertion and provide details.]  The Swap transaction is valid only when the contract is in its VOTING phase, so each Voter should track the phase state of the contract when attempting to vote or retrying a vote.[fn::In principle, a Voter could submit multiple votes spending the same REG token and voting for different options.  The on-chain verifier will reject all but the first of these, where unordered messaging assumptions make the selected vote nondeterministic.]
+  - Voted :: The Voter has observed its Swap on chain.  It updates its local state to reflect that its commitment to spend //r// has been accepted, ensuring no future wasted effort by the Voter trying to spend the same registration token twice.
+- Counting :: In this state the Voter can use a Count transaction including a ZK proof of its voting option to "reveal" its vote by adding it to the appropriate tally.  This operation "spends" the VOT token.  
+  There are two sub-states:
+  - PendingReveal :: The Voter has submitted the Count transaction and marked the VOT token as "pending spent" in its private state.  The Voter remains in this state until it observes its Count transaction verified by consensus.  Count transactions are valid only when the contract is in its COUNTING phase, so the Voter should track the phase state of the contract to avoid submitting a transaction in the wrong phase.
+  - Counted :: The Voter has observed its Count on chain, proving that its vote has been added to the correct tally.  Both REG and VOT tokens for this election are now spent.  The Voter is free to delete all data associated with this election and can simply watch for the final tally when the contract enters its CALLED phase.
+
+
+* Detailed Flows
+
+We further document the design of our eVoting contract with a series of flow diagrams showing how different parties interact with each other and the blockchain to realize the desired behaviors.
+
+** Pre-Election Setup
+
+Our first flow, shown in figure [[fig:setup]], introduces the participants in an example election and shows them setting up some initial private state.  The figure shows four interacting "subsystems": two voters (A and B), the blockchain consensus system, and the election coordinator (C).  The voters each consist of the actor (A or B) and that actor's private state.  The consensus system comprises the verifier and the two key account ledgers it maintains: "Contract Code", which maps contract addresses to a tuple of the on-chain code and compiled zk circuits for the contract; and "Contract States", which maps contract addresses to the current public state of each contract. (This is a simplification that ignores forks in the blockchain; in reality these ledgers might be indexed by the block for which they are valid.) Finally, the coordinator has both a private state and a database of registrations in which it manages voter-registration data for the election.
+
+Our setup is quite simple.  In parallel, each actor (A, B, and C) simply generates a keypair for elections and stores the keys in their private state.  Some interactions will later cause them to share their public keys (pk), but the secret keys (sk) never leave the safety of the client context. We take the liberty of treating the private state as an actor that can perform cryptographic primitives such as keygen, decryption, and zk proof generation & verification.
+
+#+CAPTION: Setup
+#+NAME:   fig:setup
+[[./setup.png]]
+
+
+
+** Deploying an Election
+
+#+CAPTION: Deploy
+#+NAME:   fig:deploy
+[[./deploy.png]]
+
+
+** Voter Registration
+
+Figure [[fig:registration]] shows a detailed flow in which Voter /A/ registers to vote in the election.
+
+We assume that the election has been deployed and that Voter /A/ has learned of the election and knows both the Coordinator's off-chain registration address and the on-chain address of the deployed election contract, which serves as a globally unique identifier for the election.
+
+
+
+#+CAPTION: Voter Registration
+#+NAME:   fig:registration
+[[./register.png]]
+
+** Vote Counting
+
+/TBD -- no PlantUML figure yet./
+
+
+
+
+* Structure of a dApp
+
+** Layers: FE, BE, Contract, Wallet, Chain
+
+** Structure of a Contract
+
+*** Public state & operations
+
+*** Private state & operations
+
+*** Transition functions & circuits
+
+** Analysis and Testing Tools
+
+** Expressiveness and Expressivity
+
+- Bounded computational models (circuits)
+- Gas vs. bounded on-chain updates
+- Private state commitment management (pending updates)
+- Deterministic code
+- Aids to managing privacy: tainted data flows and explicit declassification
+
+* Development and Regression Testing
+
+** Automated Regression Testing of the dApp
+
+- Cicero
+- Monika's scripts
+- End-to-end user flows remain stable as everything underneath changes
+- All tests must pass before promotion to testnet
+
+** Iterative Refinement of the Programming Model
+
+- "Everything" in Racket/Scheme ==> only compilers in Racket/Scheme (working today)
+- First "real" language: Typescript (underway)
+- Evolution using the strangle pattern
+- Exploring:
+  - What lives where
+  - Best way to express different elements
+
+
+* Potential Exploits
+
+** Early Round Termination
+
+There is an easy solution to this problem, and it is included in our design but not our implementation.
+
+
+** No Transparency of Voter Demographics
+
+It's not possible for an outsider to audit the voter registration records on chain.
+
+This could be addressed by placing this contract within a larger application in which some form of transparent registration was implemented on chain, or at least some proof of inclusiveness or one-vote-per-person.
+
+** No Anti-Bribery Mechanism
+
+Our contract makes it easy for a voter to prove to any observer of the chain that they voted in a particular way.  It would be easy to implement, say, a vote-buying contract that paid a reward for each unique proof of a vote with a desired value.
+
+** No Requirement to Reveal
+
+A voter can commit to a vote in the first round and observe an arbitrary amount of vote counting in the second phase before deciding whether to reveal that vote.  Ideally, the decision to reveal would not be able to include any knowledge of the rising vote tallies.  This is not as bad as allowing voters to observe tallies before deciding to commit, which is already addressed by our two-round commit/reveal mechanism.  But in principle it allows a form of outcome manipulation.
+
+** Option Size
+
+It must not be possible to use the size of a VOT coin to determine its content.  Voting options must be the same size.  The voting contract should enforce this restriction.
+

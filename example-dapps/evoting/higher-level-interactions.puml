@@ -1,0 +1,61 @@
+@startuml
+
+actor "Voter" as A
+actor "Any" as any
+actor "Coordinator" as C
+actor "Observer" as O
+cloud "Out of\nBand" as P
+
+component Blockchain as chain
+database "**Public**\nincluding tally" as public
+chain -r- public
+
+/'
+ ' frame Blockchain as chain {
+ '         node b0
+ '         node b1
+ '         node b2
+ '         node b3
+ '         node b4
+ '         storage " s " as s2
+ '         storage "s' " as s3
+ '         storage "s''" as s4
+ ' }
+ '/
+
+/'
+ ' 'blocks
+ ' b4 -l-> b3
+ ' b3 -l-> b2
+ ' b2 -l-> b1
+ ' b1 -l-> b0
+ ' 
+ ' 'contract states
+ ' s2 -u-> b2
+ ' s3 -u-> b3
+ ' s4 -u-> b4
+ '/
+
+
+'coordinator
+C -r-> P : "Announce"
+database "**Private**" as rho_c #white
+rho_c -- C
+C -d-> chain
+chain ~up~> C
+
+'voter
+P -r(0-> A : "           "
+database "**Private**" as rho_a #white
+A -u- rho_a
+A -l-> C : "Register"
+chain ~up~> A : "//Registration//"
+A -do-> chain : "Vote & Count"
+
+'any
+any -up-> chain : "Advance state\nafter timeout\n(Open, Close, Call)"
+
+'observer
+chain ~do~> O : "All transactions\n& states"
+
+@enduml

@@ -1,0 +1,123 @@
+@startuml
+autonumber
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+!include participants.puml
+
+
+
+note over A, rho_a #lightyellow
+        Voter A notices the advertised election
+        and decided to register.  A sends the
+        registration to the coordinator out of
+        band, revealing only its public key and
+        whatever the underlying network
+        connection leaks.
+end note
+A -> C : Register(contract_address, pk[A], justification[A])
+activate C
+        C -> regs ++ : Verify/Store(pk[A], justification[A])
+        regs -> C -- : Ok
+        C -> state ++ : Fetch(addr)
+        return s
+        C -> rho_c ++ : Mint(code, circuits, s, pk[A])
+        note over rho_c #lightyellow
+                Create a commitment to mint a
+                registration token privately
+                owned by pk[A].  Yields
+                a proof of validity of the
+                commitment //wrt// state s, and
+                bytecode for updating the
+                Merkle trie and nullifiers in s.
+                A's registration token is
+                encrypted with A's pk.  The
+                commitment is //pending// until
+                witnessed under consensus.
+        end note
+        return Minted(proof, public_bytecode)
+        C -> verifier : Call(addr, public_bytecode, proof)
+deactivate C
+activate verifier
+        verifier -> state ++ : Fetch(addr)
+        return s'
+        note over verifier #lightyellow
+                In this case s = s', but
+                Kachina assumes s ≠ s'
+        end note
+        verifier -> contracts ++ : Fetch(addr)
+        return ⟨code, circuits⟩
+        note over verifier #lightyellow
+                Verify the ZK proof using the given
+                circuits, proof, and state s'.  On
+                success, compute a new state s''
+                using inputs s' and the public_bytecode
+                operations. On success, install the
+                updated state.
+        end note
+        note over state #lightyellow
+                The new state s'' includes everything from s'
+                with the new registration token added to
+                the Merkle trie.
+        end note
+        verifier -> state : Update(addr, s'')
+        verifier -> C : verifiedTx_1 //including commitment correlator//
+        activate C
+                C -> rho_c : Verified //including commitment correlator from tx//
+                note over rho_c #lightyellow
+                        Update private state to confirm
+                        the mint actually happened, as
+                        opposed to just pending.
+                end note
+        deactivate C
+        verifier -> A: verifiedTx_1 //including A's encrypted token//
+        verifier -> B : verifiedTx_1 //including A's encrypted token//
+deactivate verifier
+activate B
+        B -> rho_b ++ : Apply(verifiedTx_1)
+        note over rho_b #lightyellow
+                B is unable to decrypt the
+                transaction using sk[B].
+                It ignores the tx.
+        end note
+        rho_b --> B --: Ignored
+deactivate B
+activate A
+        A -> rho_a ++ : Apply(verifiedTx_1)
+        note over rho_a #lightyellow
+                A is able to decrypt the transaction
+                using sk[A].  It updates its Merkle
+                trie with the coint commitment found
+                in the encrypted payload.
+        end note
+        rho_a --> A --: Registered(merkle_path)
+deactivate A
+note over A, rho_a #lightyellow
+        Voter A now knows its registration
+        token's shielded location in the public
+        Merkle trie, with the details stored in
+        its local commitments store off chain.
+        Nobody can associate the registration
+        token with A, and nobody else can use
+        the token because they lack the private
+        unlocking information, which includes
+        the secret merkle path.
+end note
+
+
+
+
+
+
+
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+
+
+'https://color.hailpixel.com/#4F90C4,AFE4E4,C2EBD0,D4EBC2,EAECC6,F2D9F0,F6E4E9
+
+'blue
+box "Voter A" #afe4e4 
+        actor "A" as A
+        database "private state" as rho_a
+end box
+
+'green
+box "Voter B" #c2ebd0 
+        actor "B" as B
+        database "private state" as rho_b
+end box
+
+'yellow ugly something
+box "Consensus" #eaecc6
+        control "Verifier" as verifier
+        database "Contract\nCode" as contracts
+        database "Contract\nStates" as state
+end box
+
+'pink
+box "Election Coordinator C" #f6e4e9 
+        actor "Coordinator" as C
+        database "private state" as rho_c
+        database "registrations" as regs
+end box
+
+
+
+@enduml

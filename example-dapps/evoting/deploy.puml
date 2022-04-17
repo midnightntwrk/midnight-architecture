@@ -1,0 +1,52 @@
+@startuml
+autonumber
+hide footbox
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+!include participants.puml
+
+activate C
+        note over C #lightyellow
+                We assume the coordinator has access to the contract source code and
+                corresponding ZK circuits.  It creates an initial state of the contract
+                consisting of at least the election's prompt text (what are we voting on?) and
+                the legal vote options.  The state will also include some data encrypted with
+                the cooordinator's public key pk[C] that will enable the coordinator to
+                perform authorized operations such as minting registration tokens.
+        end note
+        C -> verifier ++ : Deploy(code, circuits, initState)
+        verifier -> verifier : Alloc ⇒ addr
+        verifier -> contracts : Deploy(addr, ⟨code, circuits⟩)
+        'activate contracts #DarkSalmon
+        verifier -> state : Init(addr, initState)
+        'activate state #DarkSalmon
+        verifier --> C -- : verifiedTx_1 //including addr//
+
+        note over C #lightyellow
+                The coordinator now shares the on-chain address of the election contract out
+                of band in some way.  This could be via some broadcast medium, multicast to a
+                membership list, or any other means.  The information must contain an address
+                where the coordinator will listen for registration requests (//self// in this
+                example), the on-chain address of the contract, and any information the voters
+                will find useful, such as the voting prompt and legal votes. (Those specific
+                details are also found on chain in this case, but might be useful.)
+        end note
+        
+        C -> A : RegistrationOpen(self, addr, ⟨prompt, options⟩)
+        C -> B : RegistrationOpen(self, addr, ⟨prompt, options⟩)
+deactivate C
+
+
+
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+
+@enduml

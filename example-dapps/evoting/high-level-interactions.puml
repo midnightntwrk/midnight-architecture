@@ -1,0 +1,61 @@
+@startuml
+
+actor "Voter" as A
+actor "Any" as any
+actor "Coordinator" as C
+actor "Observer" as O
+cloud "Out of\nBand" as P
+
+component Blockchain as chain
+database "**Public**\nphase & timeouts &\nREG notes/nullifiers &\nVOT notes/nullifiers &\ntally" as public
+chain -r- public
+
+/'
+ ' frame Blockchain as chain {
+ '         node b0
+ '         node b1
+ '         node b2
+ '         node b3
+ '         node b4
+ '         storage " s " as s2
+ '         storage "s' " as s3
+ '         storage "s''" as s4
+ ' }
+ '/
+
+/'
+ ' 'blocks
+ ' b4 -l-> b3
+ ' b3 -l-> b2
+ ' b2 -l-> b1
+ ' b1 -l-> b0
+ ' 
+ ' 'contract states
+ ' s2 -u-> b2
+ ' s3 -u-> b3
+ ' s4 -u-> b4
+ '/
+
+
+'coordinator
+C -r-> P : "3. Announce(//a//)"
+database "**Private**\n⟨pk[C],sk[C]⟩ &\nall REG token data &\nregistrations" as rho_c #white
+rho_c -- C
+C -d-> chain : "1. Deploy,\n6. Mint REG //r//"
+chain ~up~> C : "  2. address //a//"
+
+'voter
+P -r(0-> A : "4. witness //a//"
+database "**Private**\n⟨pk[A],sk[A]⟩ &\nmy REG token data &\nmy VOT token data" as rho_a #white
+A -u- rho_a
+A -l-> C : "5. Register(pk[A])\n             with eligibility proof"
+chain ~up~> A : "7. Registered(//r//)"
+A -do-> chain : "    9. Vote //r// ➔ VOT //v//\n11. Count //v//"
+
+'any
+any -up-> chain : "8. Open\n10. Close\n12. Call"
+
+'observer
+chain ~do~> O : "all transactions\n& states"
+
+@enduml

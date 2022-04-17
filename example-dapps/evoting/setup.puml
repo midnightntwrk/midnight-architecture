@@ -1,0 +1,35 @@
+@startuml 
+autonumber
+hide footbox 
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+!include participants.puml
+
+par
+activate A
+        A -> rho_a ++ : KeyGen
+        return ⟨sk[A], pk[A]⟩
+deactivate A
+else
+        
+activate B
+        B -> rho_b ++ : KeyGen
+        return ⟨sk[B], pk[B]⟩
+deactivate B
+else
+
+activate C
+        C -> rho_c ++ : KeyGen
+        return ⟨sk[C], pk[C]⟩
+deactivate C
+end
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+
+@enduml

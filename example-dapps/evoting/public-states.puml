@@ -1,0 +1,40 @@
+@startuml
+'scale 300 width
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+
+[*] --> REGISTERING : **coordinator** : deploy(prompt, options, t_open, t_close, t_call) \n [t_open < t_close < t_call]
+
+REGISTERING : init REG.merkle_trie := empty
+
+REGISTERING --> REGISTERING : **coordinator** : //Mint REG r//\nadd r to REG.merkle_trie
+REGISTERING --> VOTING : **any** : Open [t ≥ t_open]
+
+VOTING: freeze REG.merkle_trie 
+VOTING: init REG.nullifier_set := empty
+VOTING: init VOT.merkle_trie := empty
+
+VOTING --> VOTING : **voter** : //Swap REG r to VOT v//\nverify r in REG.merkle_trie;\nverify r not in REG.nullifier_set;\nadd r.hash to REG.nullifier_set;\nadd v to VOT.merkle_trie
+VOTING --> COUNTING : **any** : Close [t ≥ t_close]
+
+COUNTING: init ∀ x ∈ options, tally[x] := 0
+COUNTING: delete REG.nullifier_set
+COUNTING: delete REG.merkle_trie
+COUNTING: freeze VOT.merkle_trie
+COUNTING: init VOT.nullifier_set := empty
+
+COUNTING --> COUNTING : **voter** : //Count VOT v with option x//\nverify v in VOT.merkle_trie with option x;\nverify v not in VOT.nullifier_set;\ntally[x] ++
+COUNTING --> CALLED : **any** : Call [t ≥ t_call]
+
+CALLED: freeze tally
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml

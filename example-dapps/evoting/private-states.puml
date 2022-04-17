@@ -1,0 +1,44 @@
+@startuml
+'scale 300 width
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+
+
+[*] --> Initialized : **voter** : //Init//
+Initialized: init ⟨pk,sk⟩ := keyGen()
+
+Initialized --> Registered : **consensus** : //verified tx//\n[decrypt(sk, tx.payload) ⇒ //r//]
+Registered: **verified** token info //r// with Merkle path
+
+state Voting {
+Registered --> PendingVote : **voter** : //swap REG r to VOT v//\n[new valid vote commitment //v// with valid option //x//]
+PendingVote: **pending spent** token info //r// with Merkle path
+PendingVote: **pending new** token info //v// with Merkle path and option //x//
+
+PendingVote --> Voted : **consensus** : //verified tx//\n[tx is our swap transaction]
+Voted: **spent** token info //r// with Merkle path
+Voted: **verified** token info //v// with Merkle path and option //x//
+}
+
+state Counting {
+Voted --> PendingReveal : **voter** : //count VOT v with option x//
+PendingReveal: **spent** token info //r// with Merkle path
+PendingReveal: **pending spent** token info //v// with Merkle path and option //x//
+
+PendingReveal --> Counted : **consensus** : //verified tx//\n[tx is our count transaction]
+Counted: **spent** token info //r// with Merkle path
+Counted: **spent** token info //v// with Merkle path and option //x//
+}
+
+Counted --> [*] : 𝝐
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml
