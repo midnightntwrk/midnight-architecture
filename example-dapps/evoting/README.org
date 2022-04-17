@@ -32,13 +32,28 @@ Every deployed contract has an initial state that includes the following configu
 - Options :: The fixed set of legal vote choices a voter may cast.
 - Timouts :: The times at which the election will transition between phases.
 
-*** Roles
+*** Roles & Rights
 
 Every election is a collaboration among agents playing the following roles:
 
 - Coordinator :: Configures and deploys the contract.  Has the exclusive ability to create voter-registration tokens in response to out-of-band registration requests.
 - Voter :: Registers with the Coordinator; casts and reveals votes.
 - Observer :: Non-participant who can view all public information about the election.  This includes the number and type of transactions (e.g., votes, phase transitions) and the public state details (e.g., current phase, final tally).
+
+*** Guarantees
+
+The purpose of a private eVoting app should be maintain integrity and privacy.  What guarantees does our solution provide?
+
+- The identities of all participants (Coordinator, Voter, Observer) are shielded in every transaction.
+- Only registered voters can vote; and they can vote at most once.
+- Nobody can tell which voter registrations were converted to votes and which were not.
+- Nobody can tell which votes contain which voting options.
+- The tally of votes contains only valid votes and never counts a vote more than once.
+- No party can change a vote in response to knowledge of other votes. (They can see the total number of votes recorded, but nothing about their content.)
+- No party can end the election early to prevent valid votes.
+- No party can censor another by stealing, changing, or mounting a DoS attack against another's votes.
+- Finality: once an election is legally "called," the vote tallies cannot be changed.
+
 
 ** High Level Overview
 
