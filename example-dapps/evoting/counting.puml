@@ -18,11 +18,16 @@ note over B #lightyellow
         the tally for option //o//.
 end note
 
+hnote over rho_b #aqua
+        • keys = ⟨pk[B],sk[B]⟩
+        • **unspent** VOT //v//
+             with option //o//
+end note
 
 
 verifier -> B : state //s// with phase = COUNTING
 activate B
-        B -> rho_b ++ : Count(//v//, //o//, code, circuits, //s//, sk[B])
+        B -> rho_b ++ : Count(//v//, code, circuits, //s//)
         note over rho_b #lightyellow
                 Create a commitment to "spend" the
                 given VOT token //v// with no output
@@ -37,6 +42,9 @@ activate B
                 in //s//.  The commitment is
                 //pending// until witnessed under
                 consensus.
+        end note
+        hnote over rho_b #aqua
+                • **pending spend** VOT //v//
         end note
         return Counted(proof, public_bytecode)
         B -> verifier : Call(addr, public_bytecode, proof)
@@ -67,9 +75,15 @@ activate verifier
                 for option //o// incremented.
         end note
         verifier -> state : Update(addr, s'')
+        hnote over state #aqua
+                • VOT.nulls += v.hash
+                • tally[//o//] ++
+        end note
         verifier -> A: verifiedTx_3 //including B's encrypted token//
-        verifier -> B : verifiedTx_3 //including B's encrypted token//
+        note over A #lightyellow : ignore
         verifier -> C : verifiedTx_3 //including B's encrypted token//
+        note over C #lightyellow : ignore
+        verifier -> B : verifiedTx_3 //including B's encrypted token//
 deactivate verifier
 
 activate B
@@ -83,6 +97,9 @@ activate B
                 B now knows its vote for //o//
                 has been counted in the final
                 tally.
+        end note
+        hnote over rho_b #aqua
+                • **spent** VOT //v//                
         end note
         rho_b --> B --: Counted(option)
 deactivate B
