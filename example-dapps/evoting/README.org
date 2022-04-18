@@ -1,17 +1,26 @@
 #+TITLE: Lares Private e-Voting Example
 
-This approach to private e-voting, while not fully general, provides a significant demonstration of the Kachina model's unique support for smart contracts that manage both public and private state.
+This document defines the architecture of an example dApp for private electronic voting, built with the Kachina programming model as realized by the Lares language(s) and tools for Midnight.  This sample application, while not a fully general eVoting solution,  serves several important purposes for Midnight:
+- It provides a realistic example of the *separation of public and private state* that demonstrates the value of both.
+- It forces Midnight to implement or mock enough of the *complete stack* to enable a working multi-user demo.
+- It informs the language team of the challenges a programmer faces, guiding the *refinement of the programming languages and tools*.
+- It establishes a baseline of externally-visible behavior for Midnight (end-to-end user flows) that can establish a growing *regression test suite*.
 
-Reusing the core mechanisms of zcash, this e-voting contract treats voter registrations and votes as two types of "coin" with their own special semantics.
-
-
+The initial version of the eVoting dApp was delivered in April 2022 and includes a [[https://drive.google.com/file/d/1oTPz-NsvW5dMYUIMrvajDXi9SYw3kTp4/view][recorded demo]].
 
 
 * Overview
 
-*TODO: In terms of ACE Philosophy*
+*TODO: Establish the context in terms of ACE Philosophy*
+
+#+begin_quote
+The driving force behind Midnight has and will always be protecting the basic freedoms that underpin open, democratic societies.  The freedom of expression, the freedom of association and the freedom of commerce secures the individual liberty of all citizens in a free and fair democratic society.  Historically these freedoms were guaranteed by the state either by decree or later on through constitutions, statutes and acts created by elected officials chosen by the people.  
+#+end_quote
 
 [[../../assets/images/WIP.png]]
+
+It is easy to imagine a family of related applications using similar technologies.  Surveys, for example, are such a close concept that the demo team actually built their demo script around a survey.  This could be further enhanced by requiring a ZK proof of the respondent's survey response.
+
 
 ** The Election Contract
 
@@ -67,6 +76,10 @@ Figure [[fig:high-level]] offers a high-level overview of the actors and datasto
 
 
 * Detailed Architecture
+
+Reusing the core mechanisms of zcash, this e-voting contract treats voter registrations and votes as two types of "coin" with their own special semantics.  A Coordinator, who has deployed the contract, registers voters by minting them REG tokens.  A voter, in possession of a REG token, can swap it, converting it into a VOT token holding the voter's voting option.  Once all votes are cast, voters "spend" their VOT tokens in a way that increments the on-chain tally of their voted option.
+
+Our solution relies on a combination of public shared state and private local state.  The Kachina programming model allows the public state to be maintained on chain in a way that makes it observable without special permissions.  This serves both data availability and election transparency needs without compromising privacy.
 
 ** Public and Private States
 
@@ -215,10 +228,81 @@ Our contract makes it easy for a voter to prove to any observer of the chain tha
 
 A voter can commit to a vote in the first round and observe an arbitrary amount of vote counting in the second phase before deciding whether to reveal that vote.  Ideally, the decision to reveal would not be able to include any knowledge of the rising vote tallies.  This is not as bad as allowing voters to observe tallies before deciding to commit, which is already addressed by our two-round commit/reveal mechanism.  But in principle it allows a form of outcome manipulation.
 
-*** Leakage via Option Size
 
-It must not be possible to use the size of a VOT coin to determine its content.  Voting options must be the same size.  The voting contract should enforce this restriction.
 
+* Source Versions
+** Initial Racket Implementation
+
+The [[https://github.com/input-output-hk/lares/blob/master/dapp/election/main.rkt][initial implementation]] of our eVoting design is implemented entirely in ~200 lines of Racket code.  This is intentionally different from how we expect Lares dApp developers to work, since it enabled fast iteration and forced us to focus on semantics and minimal expression of intent rather than on developer convenience.  Developer convenience is critical to Midnight's delivery, but premature focus on convenience can slow the exploration phase -- it's not useful to find convenient expression of things we don't end up wanting to express.
+
+Here are a few select code snippets to illustrate how parts of our design are expressed in code.
+
+
+#+CAPTION: Public State
+#+begin_src scheme
+  (public-state
+   #:init-fields ([authority :: bytes]) ;; nonce to verify Coordinator
+   #:fields ([state :: PublicState := 'setup] ;; phase
+             [topic :: (maybe string) := (void)] ;; prompt
+             [tally :: (hash natural) := (hash)] ;; tally
+             [committed-votes :: merkle-tree := (merkle-tree-empty 10)] ;; VOT.Merk
+             [eligible-voters :: merkle-tree := (merkle-tree-empty 10)] ;; REG.Merk
+             [committed :: (set bytes) := (set)] ;; REG.nulls
+             [revealed :: (set bytes) := (set)]) ;; VOT.nulls
+#+end_src
+
+This listing shows the declaration of the public state of an election.  It is missing some elements of our ideal design, such as a list of the legal voting options and the timeouts that control phase changes, but the elements listed here should be familiar from the design.
+
+#+CAPTION: Private State
+#+begin_src scheme
+  (private-state
+   #:init-fields ()
+   #:fields ([secret-key :: bytes := (make-secret-key~)]
+             [vote :: (maybe symbol) := (void)]
+             [state :: PrivateState := 'initial])
+   (private.secret-key (-> bytes) secret-key)
+   (private.public-key (-> bytes) (public-key secret-key))
+   (private.state (-> PrivateState) state)
+   (private.state.advance! (-> void)
+    (set! state (match state
+                  ['initial 'committed]
+                  ['committed 'revealed])))
+   (private.vote.record! ([ballot :: PermissibleVotes] -> void)
+    (when (not (void? vote))
+      (sc-error "attempted to overwrite recorded vote"))
+    (set! vote ballot))
+   (private.vote (-> symbol)
+    (when (void? vote)
+      (sc-error "no recorded vote found"))
+    vote))
+#+end_src
+
+This listing shows the declaration of the private state of an election participant.  It holds the voter's secret key, their vote (if any) and the current voting phase.  The listing also shows the operations defined on this data type, such as accessing the public and private keys, advancing the state, and recording/accessing the vote.
+
+
+#+CAPTION: Transition Function / Circuit Definition
+#+begin_src scheme
+   [vote/reveal ()
+     (unless (and (eq? (public.state) 'reveal) (eq? (private.state) 'committed))
+       (sc-error "In illegal state for revealing"))
+     (define sk (private.secret-key))
+     (define rev-nul (reveal-nullifier sk))
+     (when (public.revealed.member? rev-nul)
+       (sc-error "Attempted to double vote"))
+     (define vote (private.vote))
+     (define cm (commit-with-sk vote sk))
+     (define path (context.committed-votes.path-of cm))
+     (unless (and (equal? (public.committed-votes.root) (merkle-path-root path))
+                  (equal? cm (merkle-path-item path)))
+       (sc-error "Attempted to reveal incorrectly"))
+     (public.tally.increase! vote)
+     (public.revealed.add! rev-nul)
+     (private.state.advance!)
+     (public.state.maybe-advance!)]
+#+end_src
+
+
+This listing shows the function a Voter calls to have its vote counted in a tally. The function inspects and updates both the public and private states known to the Voter.  The Kachina model automatically defines from this execution (a) a proof that the secrets used from the private state justify actions on the public state (b) a sequence of queries/updates to perform on chain to update the public state (c) a sequence of queries/updates to perform privately, off-chain when the public update has been verified.
 
 * Larger Context
 
@@ -255,7 +339,7 @@ This whole section is just an outline of topics unlocked by understanding the eV
 *** Automated Regression Testing of the dApp
 
 - Cicero
-- Monika's scripts
+- [[https://drive.google.com/file/d/14KQ9CeIaLFtjNwkS_7ofsBqMirBAjdaF/view?usp=sharing_eil_m&ts=62502f4b][Monika's test-automation demo]]
 - End-to-end user flows remain stable as everything underneath changes
 - All tests must pass before promotion to testnet
 
