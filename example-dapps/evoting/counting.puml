@@ -8,6 +8,9 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 
 !include participants.puml
 
+hnote over state #aqua
+        • phase = COUNTING
+end note
 
 
 note over B #lightyellow
@@ -20,7 +23,7 @@ end note
 
 hnote over rho_b #aqua
         • keys = ⟨pk[B],sk[B]⟩
-        • **unspent** VOT //v//
+        • **verified** VOT //v//
              with option //o//
 end note
 
@@ -79,22 +82,22 @@ activate verifier
                 • VOT.nulls += v.hash
                 • tally[//o//] ++
         end note
-        verifier -> A: verifiedTx_3 //including B's encrypted token//
+        verifier -> A: verifiedTx_3 //including B's encrypted nonce//
         note over A #lightyellow : ignore
-        verifier -> C : verifiedTx_3 //including B's encrypted token//
+        verifier -> C : verifiedTx_3 //including B's encrypted nonce//
         note over C #lightyellow : ignore
-        verifier -> B : verifiedTx_3 //including B's encrypted token//
+        verifier -> B : verifiedTx_3 //including B's encrypted nonce//
 deactivate verifier
 
 activate B
         B -> rho_b ++ : Apply(verifiedTx_3)
         note over rho_b #lightyellow
-                B is able to decrypt the
-                transaction using sk[B]. It
-                marks the pending commitments
-                as confirmed, ensuring B will
-                not try to reuse //v// and that
-                B now knows its vote for //o//
+                B is able to decrypt the nonce
+                using sk[B]. It marks the
+                pending commitments as
+                confirmed, ensuring B will not
+                try to reuse //v// and that B
+                now knows its vote for //o//
                 has been counted in the final
                 tally.
         end note

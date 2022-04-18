@@ -8,6 +8,9 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 
 !include participants.puml
 
+hnote over state #aqua
+        • phase = VOTING
+end note
 
 
 note over B #lightyellow
@@ -16,11 +19,16 @@ note over B #lightyellow
         chooses to turn its REG token into a VOT token.
 end note
 
+hnote over rho_b #aqua
+        • keys = ⟨pk[B],sk[B]⟩
+        • **verified** REG //r//
+end note
+
 
 
 verifier -> B : state //s// with phase = VOTING
 activate B
-        B -> rho_b ++ : Swap(//r//, option, code, circuits, //s//, sk[B])
+        B -> rho_b ++ : Swap(//r//, option, code, circuits, //s//)
         note over rho_b #lightyellow
                 Create a commitment to "spend"
                 the given REG token //r// with
@@ -34,6 +42,11 @@ activate B
                 nullifiers in //s//.  The
                 commitment is //pending// until
                 witnessed under consensus.
+        end note
+        hnote over rho_b #aqua
+                • **pending spend** RET //r//
+                • **pending add** VOT //v//
+                       with option //o//
         end note
         return Swapped(proof, public_bytecode)
         B -> verifier : Call(addr, public_bytecode, proof)
@@ -64,21 +77,32 @@ activate verifier
                 its Merkle tree.
         end note
         verifier -> state : Update(addr, s'')
-        verifier -> A: verifiedTx_2 //including B's encrypted token//
-        verifier -> B : verifiedTx_2 //including B's encrypted token//
-        verifier -> C : verifiedTx_2 //including B's encrypted token//
+        hnote over state #aqua
+                • REG.nulls += r.hash
+                • VOT.Merk += v
+        end note
+        verifier -> A: verifiedTx_2 //including B's encrypted nonce//
+        note over A #lightyellow : ignore
+        verifier -> C : verifiedTx_2 //including B's encrypted nonce//
+        note over C #lightyellow : ignore
+        verifier -> B : verifiedTx_2 //including B's encrypted nonce//
 deactivate verifier
 
 activate B
         B -> rho_b ++ : Apply(verifiedTx_2)
         note over rho_b #lightyellow
-                B is able to decrypt the
-                transaction using sk[B]. It
-                marks the pending commitments as
+                B is able to decrypt the nonce
+                using sk[B]. It marks the
+                pending commitments as
                 confirmed, ensuring B will not
                 try to reuse //r// and that B
                 now knows its vote //v// can be
                 used in the COUNTING phase.
+        end note
+        hnote over rho_b #aqua
+                • **spent** RET //r//                
+                • **verified** VOT //v//                
+                       with option //o//
         end note
         rho_b --> B --: Voted(option)
 deactivate B
