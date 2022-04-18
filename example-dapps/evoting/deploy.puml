@@ -21,8 +21,15 @@ activate C
         C -> verifier ++ : Deploy(code, circuits, initState)
         verifier -> verifier : Alloc ⇒ addr
         verifier -> contracts : Deploy(addr, ⟨code, circuits⟩)
+        hnote over contracts #aqua
+                ⟨code, circuits⟩
+        end note
         'activate contracts #DarkSalmon
         verifier -> state : Init(addr, initState)
+        hnote over state #aqua
+                phase = REGISTERING
+                REG.Merk = empty
+        end note
         'activate state #DarkSalmon
         verifier --> C -- : verifiedTx_1 //including addr//
 

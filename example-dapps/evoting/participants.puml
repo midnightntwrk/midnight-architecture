@@ -1,5 +1,6 @@
 @startuml
 
+skinparam SequenceGroupBodyBackgroundColor transparent
 
 'https://color.hailpixel.com/#4F90C4,AFE4E4,C2EBD0,D4EBC2,EAECC6,F2D9F0,F6E4E9
 

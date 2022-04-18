@@ -11,19 +11,28 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 par
 activate A
         A -> rho_a ++ : KeyGen
-        return ⟨sk[A], pk[A]⟩
+                hnote over rho_a #aqua
+                        keys := ⟨pk[A],sk[A]⟩
+                end note
+        return pk[A]
 deactivate A
 else
         
 activate B
         B -> rho_b ++ : KeyGen
-        return ⟨sk[B], pk[B]⟩
+                hnote over rho_b #aqua
+                        keys := ⟨pk[B],sk[B]⟩
+                end note
+        return pk[B]
 deactivate B
 else
 
 activate C
         C -> rho_c ++ : KeyGen
-        return ⟨sk[C], pk[C]⟩
+                hnote over rho_c #aqua
+                        keys := ⟨pk[C],sk[C]⟩
+                end note
+        return pk[C]
 deactivate C
 end
 '-----------------------------------------------------------

@@ -9,6 +9,8 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 !include participants.puml
 
 
+hnote over contracts #aqua: ⟨code, circuits⟩
+hnote over state #aqua: s
 
 note over A, rho_a #lightyellow
         Voter A notices the advertised election
@@ -21,6 +23,9 @@ end note
 A -> C : Register(contract_address, pk[A], justification[A])
 activate C
         C -> regs ++ : Verify/Store(pk[A], justification[A])
+        hnote over regs #aqua
+                ⟨pk[A], justification[A]⟩
+        end note
         regs -> C -- : Ok
         C -> state ++ : Fetch(addr)
         return s
@@ -37,6 +42,10 @@ activate C
                 encrypted with A's pk.  The
                 commitment is //pending// until
                 witnessed under consensus.
+        end note
+        hnote over rho_c #aqua
+                **pending, __unspendable__** REG //r//
+                     encrypted using p[A]
         end note
         return Minted(proof, public_bytecode)
         C -> verifier : Call(addr, public_bytecode, proof)
@@ -64,6 +73,9 @@ activate verifier
                 the Merkle trie.
         end note
         verifier -> state : Update(addr, s'')
+        hnote over state #aqua
+                REG.Merk += //r//
+        end note
         verifier -> C : verifiedTx_1 //including commitment correlator//
         activate C
                 C -> rho_c : Verified //including commitment correlator from tx//
@@ -72,8 +84,12 @@ activate verifier
                         the mint actually happened, as
                         opposed to just pending.
                 end note
+                hnote over rho_c #aqua
+                **verified, __unspendable__** REG //r//
+                     encrypted using p[A]
+                end note
         deactivate C
-        verifier -> A: verifiedTx_1 //including A's encrypted token//
+        verifier -> A ++: verifiedTx_1 //including A's encrypted token//
         verifier -> B : verifiedTx_1 //including A's encrypted token//
 deactivate verifier
 activate B
@@ -85,15 +101,18 @@ activate B
         end note
         rho_b --> B --: Ignored
 deactivate B
-activate A
-        A -> rho_a ++ : Apply(verifiedTx_1)
-        note over rho_a #lightyellow
-                A is able to decrypt the transaction
-                using sk[A].  It updates its Merkle
-                trie with the coint commitment found
-                in the encrypted payload.
-        end note
-        rho_a --> A --: Registered(merkle_path)
+'activate A
+A -> rho_a ++ : Apply(verifiedTx_1)
+note over rho_a #lightyellow
+        A is able to decrypt the transaction
+        using sk[A].  It updates its Merkle
+        trie with the coint commitment found
+        in the encrypted payload.
+end note
+hnote over rho_a #aqua
+        **verified** REG //r//
+end note
+rho_a --> A --: Registered(merkle_path)
 deactivate A
 note over A, rho_a #lightyellow
         Voter A now knows its registration
