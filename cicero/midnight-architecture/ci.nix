@@ -1,7 +1,10 @@
-{ name, std, lib, actionLib, ... } @ args:
-
 {
-
+  name,
+  std,
+  lib,
+  actionLib,
+  ...
+} @ args: {
   inputs.start = ''
     "${name}": start: {
       // from both std/ci/{pr,push}
@@ -15,31 +18,36 @@
     }
   '';
 
-  output = { start }:
-    let cfg = start.value.${name}.start; in
-    {
-      success.${name} = {
+  output = {start}: let
+    cfg = start.value.${name}.start;
+  in {
+    success.${name} =
+      {
         ok = true;
         revision = cfg.sha;
-      } // lib.optionalAttrs (cfg ? ref) {
+      }
+      // lib.optionalAttrs (cfg ? ref) {
         inherit (cfg) ref default_branch;
       };
-    };
+  };
 
-  job = { start }:
-    let cfg = start.value.${name}.start; in
+  job = {start}: let
+    cfg = start.value.${name}.start;
+  in
     std.chain args [
       actionLib.simpleJob
       (std.github.reportStatus cfg.statuses_url or null)
       {
-        template = std.data-merge.append [{
-          destination = "secrets/netrc";
-          data = ''
-            machine github.com
-            login git
-            password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
-          '';
-        }];
+        template = std.data-merge.append [
+          {
+            destination = "secrets/netrc";
+            data = ''
+              machine github.com
+              login git
+              password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
+            '';
+          }
+        ];
       }
 
       {
