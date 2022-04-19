@@ -5,6 +5,7 @@
     devshell.url = "github:numtide/devshell";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     utils.url = "github:numtide/flake-utils";
+    alejandra.url = "github:kamadorueda/alejandra";
     cicero = {
       url = "github:input-output-hk/cicero";
       inputs = {
@@ -14,7 +15,7 @@
     };
   };
 
-  outputs = { nixpkgs, utils, cicero, ... }:
+  outputs = { nixpkgs, utils, devshell, alejandra, cicero, ... }:
   let
     supportedSystems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
   in
@@ -60,6 +61,18 @@
           };
 
         in {
+          devShell = devshell.legacyPackages.${system}.mkShell {
+            commands = [
+              {
+                package = "treefmt";
+                category = "formatter";
+              }
+              {
+                package = alejandra.defaultPackage.${system};
+                category = "formatter";
+              }
+            ];
+          };
 
           defaultPackage = packages.midnight-architecture;
 
