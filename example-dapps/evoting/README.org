@@ -65,6 +65,8 @@ The purpose of a private eVoting app should be maintain integrity and privacy.  
 
 ** High Level Overview
 
+Our solution relies on a combination of public shared state and private local state.  The Kachina programming model allows the public state to be maintained on chain in a way that makes it observable without special permissions.  This serves both data availability and election transparency needs without compromising privacy.
+
 Figure [[fig:high-level]] offers a high-level overview of the actors and datastores involved in an election.  The Coordinator deploys the election contract and announces its address and other details out of band.[fn::/Out of band/ could even be on-chain in a public registry of elections, if desired.]  Voters witness the announcement and, if they choose to participate, register with the Coordinator (perhaps from an untraceable address) by providing a public key and a proof of eligibility (perhaps a zero-knowledge proof, and certainly including an anti-sybil mechamism). The Coordinator, after verifying eligibility, mints a registration token on chain using the Voter's public key.  The Voter witnesses the minted registration, stores the details in its private state, and waits for someone to open the election for voting.  We assume the election phases are gated by timeouts and Any actor can submit a transaction after the given timeout to advance the election through its phases: REGISTERING ➔ VOTING ➔ COUNTING ➔ CALLED.  At any time during the VOTING phase, each Voter can swap its registration token for a vote token with whatever vote option the Voter wishes to cast; doing so consumes the registration token, which ensures at-most-once voting.  At any time during the COUNTING phase, each Voter can use a ZK proof of their committed vote option to increment the tally associated with that option in the public state.  Once the contract enters the CALLED state, no further state changes are possible and the final tally is locked and available on chain to any Observer.
 
 #+CAPTION: High Level
@@ -76,7 +78,6 @@ Figure [[fig:high-level]] offers a high-level overview of the actors and datasto
 
 Reusing the core mechanisms of zcash, this e-voting contract treats voter registrations and votes as two types of "coin" with their own special semantics.  A Coordinator, who has deployed the contract, registers voters by minting them REG tokens.  A voter, in possession of a REG token, can swap it, converting it into a VOT token holding the voter's voting option.  Once all votes are cast, voters "spend" their VOT tokens in a way that increments the on-chain tally of their voted option.
 
-Our solution relies on a combination of public shared state and private local state.  The Kachina programming model allows the public state to be maintained on chain in a way that makes it observable without special permissions.  This serves both data availability and election transparency needs without compromising privacy.
 
 ** Public and Private States
 
