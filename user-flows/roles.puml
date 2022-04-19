@@ -3,10 +3,10 @@
 ++ dApp Developer
 +++ dApp Front-end
 +++ dApp Back-end
-+++ dApp Libs (incl. asserts/gadgets)
++++ dApp Libs (incl. asserts/circuits/gadgets)
 +++ dApp Services
 ++ Component Operators
-+++ Stale Pool Operator
++++ Stake Pool Operator
 +++ Wallet Backend Operator
 +++ Proof Server Operator
 ++ End User
