@@ -11,13 +11,10 @@ The initial version of the eVoting dApp was delivered in April 2022 and includes
 
 * Overview
 
-*TODO: Establish the context in terms of ACE Philosophy*
+The driving force behind Midnight has and will always be protecting the basic freedoms that underpin open, democratic societies.  The freedom of expression, the freedom of association and the freedom of commerce secures the individual liberty of all citizens in a free and fair democratic society.  Historically these freedoms were guaranteed by the state either by decree or later on through constitutions, statutes and acts created by elected officials chosen by the people. Unfortunately in many countries these freedoms are either not respected or simply are not made available to the majority of the population.  Our first demo seeks to provide a view as to how Midnight begins to provide individuals with tools that can make it easier for them to demand change in their countries.
 
-#+begin_quote
-The driving force behind Midnight has and will always be protecting the basic freedoms that underpin open, democratic societies.  The freedom of expression, the freedom of association and the freedom of commerce secures the individual liberty of all citizens in a free and fair democratic society.  Historically these freedoms were guaranteed by the state either by decree or later on through constitutions, statutes and acts created by elected officials chosen by the people.  
-#+end_quote
-
-[[../../assets/images/WIP.png]]
+One of the most basic forms of free expression in any society is the right to vote.  Voting is the way citizens of democratic societies express their opinion about the job that their leaders have done. It enables all the other freedoms by ensuring elected leaders are held accountable. Without the ability to make our voices heard to those in power we would be at risk of losing all other freedoms.  Or at the very least, we would be at the mercy of those in power to "grant" or "bestow" "privledges" to us instead of upholding the laws on which free and fair societies rest.  
+In this app we wanted to show how an election could be held on Midnight, showing how we could dramatically reduce the frictions for running private elections.
 
 It is easy to imagine a family of related applications using similar technologies.  Surveys, for example, are such a close concept that the demo team actually built their demo script around a survey.  This could be further enhanced by requiring a ZK proof of the respondent's survey response.
 
