@@ -98,7 +98,7 @@
       (std.script "bash" ''
         set -euxo
         make
-        git status | grep -E '*.(png|pdf)' | xargs git add
+        git status --porcelain | grep -E '*.(png|pdf)' | cut -d ' ' -f 2 | xargs git add
         git commit -am "Generate missing png and pdf files"
         git push origin HEAD:cic-147
       '')
