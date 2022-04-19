@@ -51,7 +51,7 @@
           }
           {
             destination = "/local/.fonts.conf";
-            data  = ''
+            data = ''
               <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
               <fontconfig>
               <dir>/share/fonts/truetype</dir>
@@ -60,7 +60,7 @@
           }
           {
             destination = "/local/.gitconfig";
-            data  = ''
+            data = ''
               [user]
                 name = iohk-devops
                 email = devops@iohk.io
@@ -69,7 +69,6 @@
                 gpgsign = true
             '';
           }
-
         ];
 
         resources.memory = 1024 * 3;
