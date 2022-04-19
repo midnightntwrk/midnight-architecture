@@ -36,7 +36,9 @@
   in
     std.chain args [
       actionLib.simpleJob
+
       (std.github.reportStatus cfg.statuses_url or null)
+
       {
         template = std.data-merge.append [
           {
@@ -52,16 +54,16 @@
             data  = ''
               <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
               <fontconfig>
-             <dir>/share/fonts/truetype</dir>
-             </fontconfig>
+              <dir>/share/fonts/truetype</dir>
+              </fontconfig>
             '';
           }
           {
             destination = "/local/.gitconfig";
             data  = ''
               [user]
-	              name = iohk-devops
-	              email = devops@iohk.io
+                name = iohk-devops
+                email = devops@iohk.io
 
               [commit]
                 gpgsign = true
@@ -70,9 +72,7 @@
 
         ];
 
-        resources = {
-          memory = 1024 * 3;
-        };
+        resources.memory = 1024 * 3;
 
         env."HOME" = "/local";
         env."FONTCONFIG_PATH" = "/local/";
