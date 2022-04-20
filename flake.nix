@@ -2,10 +2,16 @@
   description = "Flake for the midnight-architecture";
 
   inputs = {
-    devshell.url = "github:numtide/devshell";
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     utils.url = "github:numtide/flake-utils";
-    alejandra.url = "github:kamadorueda/alejandra";
+    alejandra = {
+      url = "github:kamadorueda/alejandra";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     cicero = {
       url = "github:input-output-hk/cicero";
       inputs = {
