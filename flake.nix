@@ -22,12 +22,11 @@
     alejandra,
     cicero,
     ...
-  }: let
-    supportedSystems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
-  in
-    utils.lib.eachSystem supportedSystems
+  }:
+    utils.lib.eachSystem ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"]
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
+    in rec {
       packages = {
         midnight-architecture = pkgs.stdenv.mkDerivation {
           name = "midnight-architecture";
@@ -63,7 +62,8 @@
           '';
         };
       };
-    in {
+      defaultPackage = packages.midnight-architecture;
+
       devShell = devshell.legacyPackages.${system}.mkShell {
         commands = [
           {
@@ -76,8 +76,6 @@
           }
         ];
       };
-
-      defaultPackage = packages.midnight-architecture;
 
       ciceroActions =
         cicero.lib.callActionsWithExtraArgs
