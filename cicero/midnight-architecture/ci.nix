@@ -81,7 +81,7 @@
 
       {
         config.packages = std.data-merge.append [
-          "github:input-output-hk/midnight-architecture?ref=cic-147#plantuml_jar"
+          "github:input-output-hk/midnight-architecture?ref=cic-147#plantuml"
           "github:nixos/nixpkgs#fontconfig"
           "github:nixos/nixpkgs#go-font"
           "github:nixos/nixpkgs#gnumake"

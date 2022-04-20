@@ -34,9 +34,9 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in rec {
       packages = {
-        plantuml_jar = pkgs.plantuml.overrideAttrs (old: rec {
+        plantuml = pkgs.plantuml.overrideAttrs (old: rec {
           version = "1.2022.3";
-          src = builtins.fetchurl {
+          src = pkgs.fetchurl {
             url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
             sha256 = "sha256:1bngsc6a7rpl8l21m20pj8parcqkih9jcm0pjb6hnl7m9h4pm9z9";
           };
@@ -45,9 +45,7 @@
         midnight-architecture = pkgs.stdenv.mkDerivation {
           name = "midnight-architecture";
           src = ./.;
-          buildInputs = with pkgs; [
-            packages.plantuml_jar
-          ];
+          buildInputs = [ packages.plantuml ];
           installPhase = ''
             mkdir -p $out
           '';
