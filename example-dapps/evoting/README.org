@@ -242,15 +242,15 @@ The eVoting app constructs a new ZK proof for every transaction submitted to the
   - that it can knows a value whose hash is equal to the authorization hash (i.e., prove it is the Coordinator)
   - that the contract is in the REGISTERING state
 - Cast a Vote :: The voter must prove:
-  - that the input REG token //r// is a valid path in REG.Merk
+  - that the input REG token r is a valid path in REG.Merk
   - that its nullifier is not in REG.nulls
   - that the voted option is a valid option for this election
-- Count a Vote for Option //o// :: The voter must prove:
-  - that the input VOT token //v// is a valid path in VOT.Merk
+- Count a Vote for Option o :: The voter must prove:
+  - that the input VOT token v is a valid path in VOT.Merk
   - that its nullifier is not in VOT.nulls
-  - that its voted option is equal to //o//
-- Advance the Phase from //X// to //Y// :: The initiator must prove:
-  - that the public "phase" is //X//
+  - that its voted option is equal to o
+- Advance the Phase from X to Y :: The initiator must prove:
+  - that the public "phase" is X
   - that the current consensus time is greater than or equal to the specified timeout =t_X=
 
 The proofs concerning the REG and VOT tokens are done in the same manner as serial numbers / nullifiers in Zerocash:
