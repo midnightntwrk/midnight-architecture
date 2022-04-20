@@ -91,6 +91,7 @@ Lares has the unique advantage, compared with Zexe-based private smart-contract 
 
 The public state of our contract consists of these parts:
 - Configuration data :: Each election has its own configuration data, such as the prompt (what is the election about?) and the legal options for which a voter may cast its votes.  We also include configuration of timeouts that are used to advance the election's state machine through its explicit phases.
+- Authorization nonce :: Kachina has no user accounts to use for authorization; instead, operations that require authorization are guarded by hashes.  In our contract, only Coordinators can mint REG tokens, so an authorization hash guards this operation.  It is the hash of a value known only to the Controller.  The ZK proof for the Mint transaction must include proof that the Controller knows a value whose hash is equal to the authorization hash.
 - The REG token :: Registration tokens are represented using the data structures of a privacy coin: a Merkle trie of commitment "notes" and a nullifier set of spent notes.  Observers of the public state can see how many registrations exist, but not their owners.
 - The VOT token :: Votes are also represented as a variant of privacy coin, but one that includes as its payload the option that was selected by the voter.  Our state maintains a Merkle trie and nullifier set for this coin.  Observers of the public state can see how many votes have been created, but not their owners or option payloads.
 - The tally :: The public state reveals the current vote tally for each option as votes are revealed, and the outcome is visible on chain forever after the election is closed.
@@ -228,10 +229,59 @@ A voter can commit to a vote in the first round and observe an arbitrary amount 
 
 
 
+
+* Spotlight on Zero Knowledge
+
+The eVoting contract described here relies on zero-knowledge proofs to restrict public state changes based on privately-held facts from each participant.  Instead of disclosing the facts as justification of the correctness of a state update, the participants supply proofs that their updates are correct; they construct these proofs off chain using their private facts, yielding a proof in which those facts are irretrievable.  Nodes verify the proofs without seeing any of the actual facts that justify correctness.
+
+** Plain-English Proofs Used in eVoting
+
+The eVoting app constructs a new ZK proof for every transaction submitted to the blockchain.  Each distinct transaction type has its own ZK circuit, and that circuit is used off chain to construct a validity proof and again on chain to verify that proof.  It can be helpful to look at each transaction type in the eVoting example and describe in plain English what is being proven by the circuit.
+
+- Mint a REG token :: This is a restricted operation that can be performed only by the Coordinator.  The coordinator must prove:
+  - that it can knows a value whose hash is equal to the authorization hash (i.e., prove it is the Coordinator)
+  - that the contract is in the REGISTERING state
+- Cast a Vote :: The voter must prove:
+  - that the input REG token //r// is a valid path in REG.Merk
+  - that its nullifier is not in REG.nulls
+  - that the voted option is a valid option for this election
+- Count a Vote for Option //o// :: The voter must prove:
+  - that the input VOT token //v// is a valid path in VOT.Merk
+  - that its nullifier is not in VOT.nulls
+  - that its voted option is equal to //o//
+- Advance the Phase from //X// to //Y// :: The initiator must prove:
+  - that the public "phase" is //X//
+  - that the current consensus time is greater than or equal to the specified timeout =t_X=
+
+The proofs concerning the REG and VOT tokens are done in the same manner as serial numbers / nullifiers in Zerocash:
+
+- The eligible public key / vote commitment are pseudorandom projections of private data: The private key and the private key + vote respectively.
+- We create an independant one-way projection of the same data, and publish that, checking that it does not already exist.
+- Due to the pseudo-randomness of the projections, the two are unlinkable
+- Due to the uniqueness of the underlying data and the projections, the projection cannot be revealed twice without being detected as a duplicate.
+
+
+Kachina nodes verify transactions by first checking the given ZK proof against the current public state using a circuit specified in the contract deployment.  Only when this proof succeeds does the verifier apply the state updates to yield a modified public state.
+
+
+** Linkability and the Need for a Private L1
+
+The application we have described here could be implemented on any number of smart-contract platforms.  Although ZK proofs are central to the implementation, these kinds of proofs can be implemented without an L1 that specifically supports ZK and privacy.  The game Dark Forest, for example,  is built around ZK proofs but runs on an EVM.  The Espresso Systems "CARE" demo implements a zcash system on an EVM, using all the same data structures and similar ZK proofs as our eVoting dApp.  Why, then, do we argue that Kachina and our zcash-based ledger are both required to implement privacy?
+
+The answer is linkability.  Ethereum and Cardano, like all non-private smart-contract platforms, leak information that allows linkability and, ultimately, de-anonymization.  Privacy is undermined by the very act of paying to submit a transaction.  Our zcash-based base currency ensures privacy in our payments layer.  Combined with the Lares contract ledger, which has no unshielded owners, this ensures end-to-end unlinkability for our end users.
+
+If we implemented this same dApp on an Ethereum blockchain, for example, each voter's single user account would be billed for both their vote and their "count" disclosure, as well as any other activities performed by the same user account.  While their vote details would still be protected by ZK proofs, their participation in one or both rounds could potentially be linked to their other activities on the platform.  Midnight and the Kachina programming model combine to protect users from this kind of accidental linkability.
+
 * Source Versions
 ** Initial Racket Implementation
 
 The [[https://github.com/input-output-hk/lares/blob/master/dapp/election/main.rkt][initial implementation]] of our eVoting design is implemented entirely in ~200 lines of Racket code.  This is intentionally different from how we expect Lares dApp developers to work, since it enabled fast iteration and forced us to focus on semantics and minimal expression of intent rather than on developer convenience.  Developer convenience is critical to Midnight's delivery, but premature focus on convenience can slow the exploration phase -- it's not useful to find convenient expression of things we don't end up wanting to express.
+
+This implementation (at the time of this writing) does not implement all of the specification described in this document.  Some of the key differences:
+
+- It does not have a fixed set of legal voting options.
+- Only the Coordinator can advance the public state through its phases, and there are no timeouts to ensure the phases last for some pre-determined interval.
+- Voters assume their transactions will succeed, so they don't track pending private-state updates.
 
 Here are a few select code snippets to illustrate how parts of our design are expressed in code.
 
