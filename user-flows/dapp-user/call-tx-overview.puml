@@ -7,14 +7,17 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 
 actor user
 
-box "Wallet Frontend" #eef
+box "dApp" #eef
         participant dApp as dapp
         participant "Transition\nFunction" as gamma
         database "Pending\nPrivate\nUpdates" as pending
 end box
-box "Wallet Backend Component" #efe
-        participant "WBE\nClient API" as walletBackend
+box "Wallet Frontend" #efe
+        participant "Wallet" as wallet
         database "Client\nData" as clientData
+end box
+box "Wallet Backend"
+    participant "Wallet Backend" as walletBackend
 end box
 box "Proof Server Component" #fee
         participant "Proof\nServer" as proofServer
@@ -49,60 +52,62 @@ activate dapp
         '         '\/
         ' end
         '/
-        
-        group compute and cost a state update
-                group compute a state update
-                        dapp -> gamma : update(args) using\n  public state,\n  private state
-                        activate gamma
-                                gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate,\n     leakage report)
-                        deactivate gamma
-                end
 
-                group identify payment
-                        dapp -> walletBackend : select coins
-                        activate walletBackend
-                                note over walletBackend: omitting details of\nsession management
-                                walletBackend -> dapp : coins
-                        deactivate walletBackend
 
-                end
+        group compute and store a state update
+                dapp -> gamma : update(args) using\n  public state,\n  private state
+                activate gamma
+                        gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness)
+                deactivate gamma
+
+            dapp -> pending ++ : store pending private\ntranscript indexed by tx
+            return ok
         end
 
-        group obtain authorization
-                note over dapp: alternative flow: user pre-authorizes\n to avoid this step
-                dapp -> user : request authorization\nof leakage report & coins
-                user -> dapp : authorized
-        end
-
-        dapp -> pending ++ : store pending private\ntranscript indexed by tx
-        return ok
-
-
-        note over dapp: Now perform the expensive\nproofs to complete the transaction.
-        
-
-        
         group build and send transaction
+                dapp -> wallet : make call tx (call, witness, transcripts)
+                activate wallet
+                group identify payment
+                            wallet -> clientData ++ : fetch coins
+                            clientData -> wallet : coins
+                        deactivate clientData
+                        wallet -> wallet : estimate cost, select coins
+                end
+
+                group obtain authorization
+                        note over wallet : now we have all the data needed to ask user for authorization\nthough a 2-stage process may be better suited:\n - first dApp asks if can interact with wallet at all(and user confirms or rejects)\n - then wallet asks user for each separate transaction
+                        note over wallet: alternative flow: user pre-authorizes\n to avoid this step
+                        wallet -> user : request authorization\nof leakage report & coins
+                        user -> wallet : authorized
+                end
+
+                note over wallet: Now perform the expensive\nproofs to complete the transaction.
                 group over TLS, to TEE in proof server
-                        note over dapp: witness includes private data\nnot shared with Wallet Backend
-                        dapp -> proofServer : prove(circuit, witness)
+                        note over wallet: witness includes private data\nnot shared with Wallet Backend
+                        wallet -> proofServer : prove(circuit, witness)
                         activate proofServer
                                 note over proofServer: omitting details of\nsession management
-                                proofServer -> dapp : proof
+                                proofServer -> wallet : proof
+                        deactivate proofServer
+
+                        wallet -> proofServer : prove spend
+                        activate proofServer
+                                proofServer -> wallet : spendProof
                         deactivate proofServer
                 end
-                
-                dapp -> walletBackend : build tx 'call' using\n  contractId,\n  public transcript,\n  proof,\n  coins
+
+                wallet -> wallet : build tx 'call' using\n  contractId,\n  public transcript,\n  proof,\n  coins
+                wallet -> clientData ++ : savePending(tx)
+                clientData -> wallet -- : ok
+                note over walletBackend : omitting details of initialization and session management
+                wallet -> walletBackend : submitTx(tx)
                 activate walletBackend
-                        walletBackend -> proofServer : prove spend
-                        activate proofServer
-                                proofServer -> walletBackend : spendProof
-                        deactivate proofServer
-                        walletBackend -> consensus : tx(call, circuitId, proof, spendIns, spendOuts, spendProof)
-                        walletBackend -> dapp : submitted
-                deactivate walletBackend
+                        walletBackend -> consensus : submitTx(call, circuitId, proof, spendIns, spendOuts, spendProof)
+                        walletBackend -> wallet : submitted
+                wallet -> dapp : submitted
+                deactivate wallet
         end
-        
+
         dapp -> user: pending
 
         == time passes as TX is verified and propageted ==
@@ -110,43 +115,42 @@ activate dapp
 deactivate dapp
 
 
-note over user: possibly\noffline
+note over user: possibly offline
 
 group Wallet Backend observes consensus
         consensus -> walletBackend : verified tx and new public state
-        activate walletBackend
-                note over walletBackend
-                        Omitted details:
-                        Update wallet state to
-                        reflect spend/receive coins.
-                end note
-                walletBackend -> clientData : store for client
-        deactivate walletBackend
+        walletBackend -> walletBackend : store for client
 end
 
-== time passes until Front End polls Back End ==
+== time passes until Wallet Front End polls Back End or user opens browser ==
 
 note over user: online
 
-user -> dapp : refresh
-activate dapp
-        
-        group dApp processes consesus data
-                dapp -> walletBackend : sync
-                activate walletBackend
-                        walletBackend -> clientData ++ : fetch
-                        clientData -> walletBackend -- : public state, tx
-                        walletBackend -> dapp : public state, tx
-                deactivate walletBackend
-                dapp -> dapp : install new public state
-                dapp -> pending ++ : fetch private transcript
-                pending -> dapp -- : private transcript
-                dapp -> dapp : apply private transcript
-                dapp -> dapp : install new private state
-        end
+'activation doesn't seem to work here
+activate wallet
 
+group wallet processes consensus data
+    wallet -> walletBackend : sync
+    walletBackend -> wallet :  public state, tx
+    wallet -> clientData ++ : public state, tx
+    clientData -> wallet -- : ok
+end
+
+deactivate walletBackend
+
+note over user: online, opens dApp
+group dApp processes confirmed transaction
+    activate dapp
+        dapp -> wallet: refresh
+        wallet -> dapp: public state, tx
+        dapp -> dapp : install new public state
+        dapp -> pending ++ : fetch private transcript
+        pending -> dapp -- : private transcript
+        dapp -> dapp : apply private transcript
+        dapp -> dapp : install new private state
         dapp -> user : outcome information
-deactivate dapp
+    deactivate dapp
+end
 
 
 '-----------------------------------------------------------
