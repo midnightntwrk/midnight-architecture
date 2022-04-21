@@ -10,5 +10,5 @@ $(pdfs): %.pdf: %.puml
 	plantuml -p -tpdf -Sshadowing=false < $< > $@
 
 .DEFAULT_GOAL=default
-default: $(pngs) $(pdfs)
+default: $(pngs) # $(pdfs) don't work with !include directive
 .PHONY: default
