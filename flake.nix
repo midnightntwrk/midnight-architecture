@@ -38,7 +38,7 @@
           version = "1.2022.3";
           src = pkgs.fetchurl {
             url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
-            sha256 = "sha256:1bngsc6a7rpl8l21m20pj8parcqkih9jcm0pjb6hnl7m9h4pm9z9";
+            hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
           };
         });
 
