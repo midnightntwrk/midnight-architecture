@@ -49,25 +49,12 @@
               password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
             '';
           }
-          {
-            destination = "/local/.gitconfig";
-            data = ''
-              [user]
-                name = iohk-devops
-                email = devops@iohk.io
-
-              [commit]
-                gpgsign = true
-            '';
-          }
         ];
 
         resources = {
           cpu = 800;
-          memory = 1024 * 3;
+          memory = 1024 / 2;
         };
-
-        env."GIT_CONFIG_GLOBAL" = "/local/.gitconfig";
       }
 
       {
@@ -87,15 +74,23 @@
 
         rsync -r result/ .
 
+        if [[ -z "$(git status --porcelain)" ]]; then
+          exit 0
+        fi
+
         git status --porcelain \
         | grep -E '*.(png|pdf)' \
         | cut -d ' ' -f 2 \
         | xargs git add
 
-        git commit --all --message render
+        git config user.name iohk-devops
+        git config user.email devops@iohk.io
+        git config commit.gpgSign true
 
-        git show
-        # git push origin HEAD:cic-147
+        git commit --all --message render
+        git show # just for the log
+
+        git push origin HEAD:cic-147
       '')
     ];
 }
