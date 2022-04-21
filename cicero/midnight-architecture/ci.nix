@@ -3,7 +3,6 @@
   std,
   lib,
   actionLib,
-  rev,
   ...
 } @ args: {
   inputs.start = ''
@@ -51,15 +50,6 @@
             '';
           }
           {
-            destination = "/local/.fonts.conf";
-            data = ''
-              <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-              <fontconfig>
-              <dir>/share/fonts/truetype</dir>
-              </fontconfig>
-            '';
-          }
-          {
             destination = "/local/.gitconfig";
             data = ''
               [user]
@@ -72,35 +62,40 @@
           }
         ];
 
-        resources.memory = 1024 * 3;
+        resources = {
+          cpu = 800;
+          memory = 1024 * 3;
+        };
 
-        env."HOME" = "/local";
-        env."FONTCONFIG_PATH" = "/local/";
-        env."FONTCONFIG_FILE" = "/local/.fonts.conf";
         env."GIT_CONFIG_GLOBAL" = "/local/.gitconfig";
       }
 
       {
         config.packages = std.data-merge.append [
-          "github:input-output-hk/midnight-architecture/${rev}#plantuml"
-          "github:nixos/nixpkgs#fontconfig"
-          "github:nixos/nixpkgs#go-font"
-          "github:nixos/nixpkgs#gnumake"
+          "github:nixos/nixpkgs#rsync"
           "github:nixos/nixpkgs#gnugrep"
           "github:nixos/nixpkgs#gnupg"
-          "github:nixos/nixpkgs#findutils"
-          "github:nixos/nixpkgs#bash"
         ];
       }
 
       (std.git.clone cfg)
 
+      std.nix.build
+
       (std.script "bash" ''
         set -euxo
-        make
-        git status --porcelain | grep -E '*.(png|pdf)' | cut -d ' ' -f 2 | xargs git add
-        git commit -am "Generate missing png and pdf files"
-        git push origin HEAD:cic-147
+
+        rsync -r result/ .
+
+        git status --porcelain \
+        | grep -E '*.(png|pdf)' \
+        | cut -d ' ' -f 2 \
+        | xargs git add
+
+        git commit --all --message render
+
+        git show
+        # git push origin HEAD:cic-147
       '')
     ];
 }

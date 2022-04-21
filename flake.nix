@@ -34,29 +34,27 @@
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
     in rec {
-      packages = {
-        plantuml = pkgs.plantuml.overrideAttrs (old: rec {
-          version = "1.2022.3";
-          src = pkgs.fetchurl {
-            url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
-            hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
-          };
-        });
-
-        midnight-architecture = pkgs.stdenv.mkDerivation {
-          name = "midnight-architecture";
-          src = ./.;
-          buildInputs = [ packages.plantuml ];
-          installPhase = ''
-            make -p \
-            | grep '^default:' \
-            | cut -d ' ' -f 2- --output-delimiter $'\n' \
-            | while read -r; do
-              mkdir -p $out/"$(dirname "$REPLY")"
-              mv "$REPLY" $out/"$REPLY"
-            done
-          '';
-        };
+      packages.midnight-architecture = pkgs.stdenv.mkDerivation {
+        name = "midnight-architecture";
+        src = ./.;
+        buildInputs = [
+          (pkgs.plantuml.overrideAttrs (old: rec {
+            version = "1.2022.3";
+            src = pkgs.fetchurl {
+              url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
+              hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
+            };
+          }))
+        ];
+        installPhase = ''
+          make -p \
+          | grep '^default:' \
+          | cut -d ' ' -f 2- --output-delimiter $'\n' \
+          | while read -r; do
+            mkdir -p $out/"$(dirname "$REPLY")"
+            mv "$REPLY" $out/"$REPLY"
+          done
+        '';
       };
 
       defaultPackage = packages.midnight-architecture;
@@ -81,7 +79,6 @@
           inherit (cicero.lib) std;
           inherit (nixpkgs) lib;
           actionLib = import "${cicero}/action-lib.nix" {inherit std lib;};
-          rev = self.rev or "cic-147";
         }
         ./cicero;
     };
