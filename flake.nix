@@ -66,7 +66,8 @@
           }
         ];
       };
-
+    })
+    // {
       ciceroActions =
         cicero.lib.callActionsWithExtraArgs
         rec {
@@ -75,5 +76,5 @@
           actionLib = import "${cicero}/action-lib.nix" {inherit std lib;};
         }
         ./cicero;
-    });
+    };
 }
