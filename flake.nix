@@ -48,7 +48,13 @@
           src = ./.;
           buildInputs = [ packages.plantuml ];
           installPhase = ''
-            mkdir -p $out
+            make -p \
+            | grep '^default:' \
+            | cut -d ' ' -f 2- --output-delimiter $'\n' \
+            | while read -r; do
+              mkdir -p $out/"$(dirname "$REPLY")"
+              mv "$REPLY" $out/"$REPLY"
+            done
           '';
         };
       };
