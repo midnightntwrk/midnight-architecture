@@ -3,6 +3,7 @@
   std,
   lib,
   actionLib,
+  rev,
   ...
 } @ args: {
   inputs.start = ''
@@ -81,7 +82,7 @@
 
       {
         config.packages = std.data-merge.append [
-          "github:input-output-hk/midnight-architecture?ref=cic-147#plantuml"
+          "github:input-output-hk/midnight-architecture/${rev}#plantuml"
           "github:nixos/nixpkgs#fontconfig"
           "github:nixos/nixpkgs#go-font"
           "github:nixos/nixpkgs#gnumake"

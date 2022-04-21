@@ -22,6 +22,7 @@
   };
 
   outputs = {
+    self,
     nixpkgs,
     utils,
     devshell,
@@ -74,6 +75,7 @@
           inherit (cicero.lib) std;
           inherit (nixpkgs) lib;
           actionLib = import "${cicero}/action-lib.nix" {inherit std lib;};
+          rev = self.rev or "cic-147";
         }
         ./cicero;
     };
