@@ -7,7 +7,7 @@ $(pngs): %.png: %.puml
 	plantuml -p -tpng < $< > $@
 
 $(pdfs): %.pdf: %.puml
-	plantuml -p -tpdf < $< > $@
+	plantuml -p -tpdf -Sshadowing=false < $< > $@
 
 .DEFAULT_GOAL=default
 default: $(pngs) $(pdfs)
