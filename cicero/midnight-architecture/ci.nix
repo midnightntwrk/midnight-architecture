@@ -55,6 +55,7 @@
         config.packages = std.data-merge.append [
           "github:nixos/nixpkgs#rsync"
           "github:nixos/nixpkgs#gnugrep"
+          "github:nixos/nixpkgs#findutils"
           "github:nixos/nixpkgs#gnupg"
         ];
       }
