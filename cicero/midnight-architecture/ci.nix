@@ -7,28 +7,22 @@
 } @ args: {
   inputs.start = ''
     "${name}": start: {
-      // from both std/ci/{pr,push}
       sha: string
       clone_url: string
       statuses_url?: string
-
-      // only from std/ci/push
-      ref?: "refs/heads/\(default_branch)"
-      default_branch?: string
+      ref: "refs/heads/\(default_branch)"
+      default_branch: string
     }
   '';
 
   output = {start}: let
     cfg = start.value.${name}.start;
   in {
-    success.${name} =
-      {
-        ok = true;
-        revision = cfg.sha;
-      }
-      // lib.optionalAttrs (cfg ? ref) {
-        inherit (cfg) ref default_branch;
-      };
+    success.${name} = {
+      ok = true;
+      revision = cfg.sha;
+      inherit (cfg) ref default_branch;
+    };
   };
 
   job = {start}: let
@@ -90,7 +84,7 @@
         git commit --all --message render
         git show # just for the log
 
-        git push origin HEAD:cic-147
+        git push origin HEAD:${lib.escapeShellArg (lib.removePrefix "refs/heads/" cfg.ref)}
       '')
     ];
 }
