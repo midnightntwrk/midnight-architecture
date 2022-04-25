@@ -1,95 +1,94 @@
 'ER diagrams documented here
 '    https://plantuml.com/ie-diagram
 @startuml
-'-----------------------------------------------------------
-' Please include this standard header
+
 header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
-'-----------------------------------------------------------
 
-' hide the spot
-hide circle
-
-' avoid problems with angled crows feet
-skinparam linetype ortho
-
-entity "CLIENT" {
-        *client_id : Hash
-}
-
-entity "CONTRACT" {
-        *id : ContractId
-        --
-        *is_deployed : Boolean
-}
-'note left: All contracts of\ninterest to any client
-
-entity "CLIENT_CONTRACT" {
-        *id : Number <<generated>>
-        --
-        ~contract : ContractId <<FK>>
-        ~client : Hash <<FK>>
-        --
-}
-CLIENT ||--o{ CLIENT_CONTRACT 
-CONTRACT |o--o{ CLIENT_CONTRACT 
-
-entity "CLIENT_SUBMITTED_TX" {
-        *id : number <<generated>>
-        --
-        *cc_id : Number <<FK>>
-        --
-        *hash : Hash
-}
-CLIENT_CONTRACT ||--o{  CLIENT_SUBMITTED_TX
-
-entity "CLIENT_TX_FILTER" {
-        *id : number <<generated>>
-        --
-        *cc_id : Number <<FK>>
-        --
-        *code : Text
-        *args : Text <<Encoded Array>>
-}
-CLIENT_CONTRACT ||--o{  CLIENT_TX_FILTER
-
-entity "BLOCK" {
-        *hash : Hash
-        --
-        *parent : Hash <<FK>>
-}
-BLOCK |o--o{ BLOCK
-
-entity "VERIFIED_TX" {
-        *hash : Hash
-        --
-        *block : Hash <<FK>>
-        --
-        tx : Transaction
-}
-BLOCK ||--o{ VERIFIED_TX
-
-entity CLIENT_UNDELIVERED_TX {
-        *hash : Hash  <<FK>>
-        *cc_id : Number <<FK>>
-        --
-        *code : Text
-        *args : Text <<Encoded Array>>
-}
-CLIENT_CONTRACT ||--o{  CLIENT_UNDELIVERED_TX
-VERIFIED_TX ||--o{ CLIENT_UNDELIVERED_TX
-
-entity CONTRACT_STATE {
-}
-CONTRACT ||--o{  CONTRACT_STATE
-
-entity CLIENT_UNDELIVERED_CONTRACT_STATE  {
-}
-CLIENT_CONTRACT ||--o{  CLIENT_UNDELIVERED_CONTRACT_STATE
-CONTRACT_STATE ||--o{  CLIENT_UNDELIVERED_CONTRACT_STATE
-
-'-----------------------------------------------------------
-' Please include this standard footer
 footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
-'-----------------------------------------------------------
-@enduml
 
+entity Account {
+  * accountId : AccountId <<PK>>
+  * auth : AuthorizationScheme
+  --
+  freshSnapshots : Seq<StateSnapshot> <<Memory>>
+}
+
+entity AccountRelevantBlock {
+  * account : AccountId <<FK>>
+  * block : BlockHash <<FK>>
+}
+
+entity ExecutedBlock {
+  * hash : BlockHash <<PK>>
+  * parent : BlockHash <<FK>>
+  * transactionsOrder : Seq<TransactionHash> <<FK>>
+}
+
+entity Transaction {
+  * hash : TransactionHash <<PK>>
+  * contractId : ContractId
+  * publicTranscript : PublicTranscript
+  * signature : Signature
+}
+
+entity ExecutedTransaction {
+  publicState : ContractPublicState
+}
+
+entity PendingTransaction {
+  * ttl : TTL
+}
+
+entity RelevantTransactionFilter {
+  * definition : FilterDefinition
+}
+
+entity StateSnapshot {
+  hook : Either<BlockHash, Timestamp> <<FK>>
+  account : AccountId <<FK>>
+  derivedState: DerivedState
+  relevantBlocks: Seq<BlockHash> <<FK>>
+  pendingTransactions: Seq<TransactionHash> <<FK>>
+  newEvents : AccountEvent
+}
+
+entity NodeConnectionPool {
+  availableNodes : Seq<NodeAddress>
+}
+
+entity ActiveNodeConnection {
+  address : NodeAddress
+}
+
+entity ClientConnection {
+  * targetAccount : AccountId <<FK>>
+}
+
+
+RelevantTransactionFilter ||..o{ ExecutedTransaction : "accepts or rejects"
+
+Account ||--|{ RelevantTransactionFilter
+
+ExecutedBlock ||--o| ExecutedBlock : "is parent of"
+ExecutedBlock ||--o{ ExecutedTransaction
+
+AccountRelevantBlock }|--|| ExecutedBlock
+
+StateSnapshot }|--|| Account
+StateSnapshot }|--o{ AccountRelevantBlock
+StateSnapshot }|--o{ PendingTransaction
+StateSnapshot }|--|| ExecutedBlock
+StateSnapshot ||--o| StateSnapshot : "evolution of"
+
+ExecutedTransaction |o--|| Transaction
+
+PendingTransaction |o--|| Transaction
+
+Account }o--|| NodeConnectionPool
+NodeConnectionPool ||--o{ ActiveNodeConnection : "manages"
+ActiveNodeConnection }o..|{ ExecutedBlock : "streams"
+
+ClientConnection }o--|| Account : "connects to"
+ClientConnection }o..|{ StateSnapshot : "receives"
+
+@enduml
