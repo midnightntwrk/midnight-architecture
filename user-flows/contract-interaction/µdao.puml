@@ -1,0 +1,171 @@
+@startuml
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+actor "Alice\n[0xdeadbeef]" as alice
+actor "Bob\n[0xcaca0f0e]" as bob
+
+box "Lares Kernel" #ddd
+  participant kernel as kernel
+  database "Key\nStore" as keystore
+  database "Coin\nStore" as coinstore
+  database "Commitment\nSet" as commits
+  database "Nullifier\nSet" as nullifiers
+  database "Contract\nStore" as contracts
+end box
+box "µDAO SC [0xd0c0ffee]" #eef
+  participant "Transition\nFunction" as udaoGamma
+  participant "Public\nOracle" as udaoOraclePub
+  participant "Private\nOracle" as udaoOraclePriv
+end box
+box "election SC [0xfeedf00d]" #efe
+  participant "Transition\nFunction" as electionGamma
+  participant "Public\nOracle" as electionOraclePub
+  participant "Private\nOracle" as electionOraclePriv
+end box
+
+group Bob buy-in
+  bob -> kernel ++ : **0xd0c0ffee::buy-in**($1, //id//)
+  activate bob
+    kernel -> keystore ++ : **retrieve**: id, sk
+    return 0xcaca0f0e, //sk//
+    kernel -> coinstore ++ : **retrieve**: $1
+    return $1///coin//
+    kernel -> commits ++ : **commitPath**: commit($1///coin//, //sk//)
+    return cm, path, root
+    kernel -> nullifiers : **spend**: null($1///coin//, //sk//)
+    kernel -> kernel : create $1///coin2//
+    kernel -> commits : **newCommit**: commit($1///coin2//, 0xd0c0ffee)
+    kernel -> contracts ++ : **retrieve**: 0xd0c0ffee
+    return //code for µDAO//
+    kernel -> udaoGamma ++ : **buy-in**($1///coin2//, //id//, 0xcaca0f0e)
+      udaoGamma -> udaoOraclePub : **received**: $1///coin2//
+      udaoGamma -> udaoOraclePub : **whitelist**: 0xcaca0f0e
+      udaoGamma -> udaoOraclePriv : **setIsWhitelisted**: true
+    return ok
+  return ok
+  deactivate bob
+end group
+
+...
+
+group Alice buy-in
+  alice -> kernel ++ : **0xd0c0ffee::buy-in**($1, //id//)
+  activate alice
+    ...
+  return ok
+  deactivate alice
+end group
+
+...
+
+group Proposal creation
+  alice -> kernel ++ : **0xd0c0ffee::propose**($0, //id//): pay //<me>// $1
+  activate alice
+    kernel -> keystore ++ : **retrieve**: id
+    return 0xfeedbeef
+    kernel -> contracts ++ : **retrieve**: 0xd0c0ffee
+    return //code for µDAO//
+    kernel -> udaoGamma ++ : **propose**($0, //id//, 0xfeedbeef): pay 0xfeedbeef $1
+      udaoGamma -> udaoOraclePriv ++ : **whitelistPath**(0xfeedbeef)
+      return //path//
+      udaoGamma -> udaoOraclePub ++ : **isWhitelistRoot**(//path//.root)
+      return true
+      udaoGamma -> kernel ++ : **deploy**: //code for election//
+        kernel -> contracts ++ : **deploy**: //code for election//
+        return 0xfeedf00d
+      return 0xfeedf00d
+      udaoGamma -> kernel ++ : **0xfeedf00d::setup**($0): "pay 0xfeedbeef $1", //whitelist//
+        kernel -> electionGamma ++ : **setup**($0): "pay 0xfeedbeef $1", //whitelist//
+          electionGamma -> electionOraclePub : **setup**: "pay 0xfeedbeef $1", //whitelist//
+        return ok
+      return ok
+      udaoGamma -> udaoOraclePub ++ : **proposal**: 0xfeedf00d
+        udaoOraclePub -> alice : **0xd0c0ffee::proposal**: 0xfeedf00d
+        udaoOraclePub -> bob : **0xd0c0ffee::proposal**: 0xfeedf00d
+      return
+    return ok
+  return ok
+  deactivate alice
+end group
+
+...
+
+group Bob vote
+  bob -> kernel ++ : **0xfeedf00d::vote**($0, //id//): vote yes
+  activate bob
+    ...
+  return ok
+  deactivate bob
+end group
+
+...
+
+group Alice vote
+  alice -> kernel ++ : **0xfeedf00d::vote**($0, //id//): vote yes
+  activate alice
+    ...
+  return ok
+  deactivate alice
+end group
+
+...
+
+group Alice autoreveal
+  electionOraclePub -> alice : **0xfeedf00d::advance**: reveal
+  activate alice
+    alice -> kernel ++ : **0xfeedf00d::vote/reveal**($0, //id//)
+      ...
+    return ok
+  deactivate alice
+end group
+
+...
+
+group Bob autoreveal
+  electionOraclePub -> bob : **0xfeedf00d::advance**: reveal
+  activate bob
+    bob -> kernel ++ : **0xfeedf00d::vote/reveal**($0, //id//)
+      ...
+    return ok
+  deactivate bob
+end group
+
+...
+
+group Proposal closing
+  electionOraclePub -> alice : **0xfeedf00d::tally**: {yes: 2, no: 0}
+  activate alice
+    alice -> kernel ++ : **0xd0c0ffee::close-proposal**($0, //id//): 0xfeedf00d
+      ...
+      kernel -> udaoGamma ++ : **close-proposal**($0, //id//, 0xfeedbeef): 0xfeedf00d
+        udaoGamma -> udaoOraclePub : **assert-valid-proposal**: 0xfeedf00d
+        udaoGamma -> kernel ++ : **0xfeedf00d::results**($0)
+          kernel -> electionGamma ++ : **results**($0)
+            electionGamma -> electionOraclePub ++ : **results**
+            return "pay 0xfeedbeef $1", {yes: 2, no: 0}
+          return "pay 0xfeedbeef $1", {yes: 2, no: 0}
+        return "pay 0xfeedbeef $1", {yes: 2, no: 0}
+        udaoGamma -> udaoGamma : check recipient id matches
+        udaoGamma -> udaoOraclePub : **remove-proposal**: 0xfeedf00d
+        udaoGamma -> udaoGamma : check vote passed
+        udaoGamma -> udaoOraclePub ++ : **pop-coin**
+        return $1///coin//
+      return ok($1///coin//)
+      kernel -> commits ++ : **commitPath**: commit($1///coin//, 0xfeedf00d)
+      return cm, path, root
+      kernel -> nullifiers : **spend**: null($1///coin//, 0xfeedf00d)
+      kernel -> kernel : create //coin2//, value $1, for 0xfeedbeef
+      kernel -> coinstore : **deposit**: $1///coin2//
+    return ok($1)
+  deactivate alice
+end group
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml
