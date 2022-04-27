@@ -1,0 +1,97 @@
+#+TITLE: dApp vs Wallet
+
+* 2022-04-27 Wallet/Languages Sync :midnight:
+
+- [X] Is the font size big enough for everyone?
+- [X] Record the meeting.
+
+** Notes from Previous Meeting
+What we discussed before.
+
+*** Overall Architecture
+- application :: which is a web application that contains the dApp code,
+- wallet front-end :: which runs in the browser as a browser extension,
+- wallet back-end :: which runs on a trusted server,
+- proving server :: which is a server dedicated to execute the expensive
+  portions of ZK.
+
+*** Division between the dApp and the Wallet
+- dApp is loaded as a website, but
+- Wallet is loaded as a browser extension.
+
+Does it mean that Wallet has different lifetime vs dApp?
+
+dApp should be a client of the Wallet Frontend.
+
+How to make dApps and Wallet aware of transactions that might potentially modify
+the private state.
+
+If we figure out how to sandbox a portion of dApp.
+
+Every other chain seems to require that a dApp is running as a separate website
+and then provides a machinery to communicate with dApp.
+
+Private State lives in the Application slice and it has Lares runtime to evolve
+the state.
+
+*** Trust model of dApp
+- private state does not leave the dApp,
+- nevertheless the user trusts the dApp to be correct, and
+- not sharing the private state is an element to establish that trust.
+
+** CONCERN IPC Security Concerns
+Modern web browsers use RPC mechanism provided by the OS, meaning that it is
+easy to sniff messages between processes.
+
+If there is a malware installed, then potentially communication between Wallet
+and dApp can be eavesdropped.
+
+We should lean towards as local processing of information as possible as well to
+prove as local as possible (so perform that within the local context of the dApp).
+
+In general it is possible for any extension to eavesdrop messages that are sent
+between the website and the extension.
+
+We cannot rely on order of extensions being injected to the website.
+
+*** IDEA TLS/Encrypted channel between Wallet and dApp
+But the hostile extension can listen on UI events and DOM.
+
+*** IDEA Completely embed some part of the dApp code in the Browser Extension
+But this is difficult.
+
+** What we can run inside the Browser Extension
+We want to limit communcation between the dApp and the Wallet.  Eavesdropping on
+that communication is very easy, therefore it should result at a loss of
+privacy, but not security (similar requirement to communicating with the proving server).
+
+We should not blindly trust the dApp, because it might have been compromised.
+
+Whe could potentially run the transition functions inside the Wallet.
+
+*** IDEA dApp produces Transaction Request to Wallet
+dApp owns
+- private oracle,
+- lares runtime, and
+- public oracle.
+
+Wallet owns signing keys only.
+
+dApp prepares everything (including ZK proof) just before the transaction needs
+to be signed and then hands it off to Wallet.
+
+*** IDEA Wallet injects Runtime to dApp
+Similar to above, but it is not dApp which provides client SDK, but browser
+extension that injects it to the page.
+
+dApp runs the Lares runtime, but it doesn't own it.
+
+** dApp/Wallet split
+Due to IPC eavesdropping concern, we cannot send private information from Wallet
+to dApp easily, which seems to enforce the following flow:
+- User Inputs flowing to dApp
+- /Something/ (i.e. Transaction Request) flowing from dApp to Wallet, and
+- Transaction flowing from Wallet to Consensus.
+
+This also means that the dApp communicates with Snarkie/ZK Proving Server
+directly and via Wallet.
