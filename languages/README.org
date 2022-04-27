@@ -1,0 +1,4 @@
+#+TITLE: Midnight Languages Architecture
+
+- [[file:abcird.org][Abcird]], a proposal for a programming language that can be compilled down to zkSNARKs,
+- [[file:reach.org][Reach]], a report on a similar programming language.

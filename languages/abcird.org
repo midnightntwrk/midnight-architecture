@@ -1,0 +1,379 @@
+#+TITLE: Abcird
+
+Abcird (pronounced /absurd/) is a proposed programming language for compiling
+programs down to zkSNARKs.
+
+Currently, abcird is aiming to support Plonk, therefore we might use the
+following terms interchangeably:
+- underlying proving systems, of which the current state of the art are
+- SNARKs, which in the context of zero-knowledge are referred to as
+- zkSNARKs, of which the current state of the art are
+- Plonk instances, which are often abbreviated as
+- Plonk, when referring to the chosen Plonk instance.
+
+zkSNARKs, including Plonk, model the computation that we want to prove using
+zero-knowledge as
+- arithmetic circuits, which sometimes are sometimes referred to as
+- zero-knowledge circuits, and altogether abbreviated as
+- circuits.
+
+We assume the basic knowledge of how zero-knowledge, including undestanding the
+roles of prover and verifier. We write /witness/ or /witness vector/ to denote
+the private inputs to the zero-knowledge proof and we write /statement/ or
+/statement vector/ to denote the public inputs to the zero-knowledge proof. We
+write /input/ or /input vector/ for the input to either prover or verifier,
+meaning /witness/ together with /statement/ for the prover and /statement/ for
+the verifier. Since the word "statement" often has a particular meaning in the
+context of programming languages we prefer to refer to it as /input/ when
+discussing verifier.
+
+We do not assume any prior knowledge about circuits, but we do point out that in
+our settings their are finite and bound by a constant.
+
+We do not assume any prior knowledge about Plonk instances, but we do point out
+that two Plonk instances are not compatible and can be treated as two separate
+zkSNARKs.
+
+Main contributions of this report are
+- giving scenarios of transitions :: in Abcird and what they entail ([[* Scenarios
+  of Transitions]]).
+- ease the transition between underlying proving systems :: when changing
+  between incompatible underlying proving systems ([[* Transition Between Proving
+  Systems]]). In the near term that means a transition between two Plonk
+  instances, however it could also mean transitioning to a completely different
+  zkSNARK or transitioning to a completely different scheme of proving systems.
+- provide a high-level programming language :: for writing programs which
+  results need to be proven in zero-knowledge ([[* Abcird Programming Language]]).
+  In the near term such programming language will be used by the Lares project
+  for writing private smart contracts, however it could also be used by a larger
+  Plonk community or retrofitted to a different underlying proving system.
+
+* Bytecode, Versioning, Backwards Compatibility, and Hard-Forks.
+There is an interesting relation between having a versioned bytecode and
+hard-forks, where hard-fork becomes more of a means to ensure that all the
+network has upgraded to a particular version.
+
+Modifications to bytecode will probably result in hard-forks.
+
+* Scenarios of Transitions
+We will go over informal scenarions of changes to Abcird.  We assume some that
+there is some starting instance of Plonk.
+
+** Adding a hand-crafted gadget
+Let's assume that someone writes an Abcird code that contains implementation of
+novel hashing function of FooHash.  That function becomes popular and that there
+are multiple deployed smart contracts that are using FooHash.
+
+As FooHash gains popularity, someone figures out how to make FooHash more
+efficient by using a hand-crafted gadget that targets the current Plonk
+instance, which leads to FooHash2.
+
+Newly written smart contracts can make use of FooHash2, but developers are free
+to use the old version FooHash, as it is still working.
+
+This one will not need a hard-fork.
+
+** Adding X to Abcird VM (or ZK-Garage/Plonk)
+Let's assume that FooHash becomes widely popular, but it suffers greatly from
+the computational cost of computing the input vectors in Abcird VM, so a
+specialised Rust subroutine is added to Abcird VM or ZK-Garage/Plonk.
+
+This update will probably add a new instruction to bytecode, meaning that in
+order to use the faster subroutine the old smart-contracts need to be
+re-compiled.
+
+However, old smart contracts are still fully backwards compatible.
+
+Still, will probably warrant a hard-fork to ensure that everyone can support it.
+
+** Changing X in Abcird VM (or ZK-Garage/Plonk)
+There is FooHash in Abcird and we want to switch to FooHash2.
+
+This is probably a circuit incompatible or input incompatible change, so we
+probably would want to add it as a separate instruction.
+
+In both cases it will probably warrant a hard-fork.
+
+We need to be very vigilant about ZK-Garage/Plonk not doing that by accident and
+hitting us by surprise.
+
+** Removing X from Abcird VM (or ZK-Garage/Plonk)
+Depracating bytecode instructions probably warrants a hard-fork.
+
+** Adding a custom gate to Plonk instance
+This is primarly a circuit incompatible change, meaning that all
+- prover keys,
+- verifier keys, and
+- proofs
+will stop working and need to be regenerated.
+
+Needs a hard-fork.
+
+** Switching to a completely different proving system alltogether
+If we are lucky it will be bytecode compatible, if we are not lucky it might not
+even be source code compatible.
+
+Needs a hard-fork.
+
+* Transition Between Proving Systems
+
+The compilation pipeline for Abcird has the following elements
+- an abcird program :: which is compiled by the abcird compiler to
+- an abcird bytecode :: which is then interpreted by abcird vm to generate
+  - compiled circuits :: in the form of
+    - prover key :: and
+    - verifier key :: .
+
+then, during execution the abcird bytecode is interpreted by abcird vm to
+produce
+ - input vectors ::
+   - witness vector :: and
+   - statement vector :: .
+
+In order to prove the abcird vm takes
+- prover key,
+- witness vector, and
+- statement vector
+in order to produce a proof.
+
+In order to verify the abcird vm takes
+- proof,
+- verifier key, and
+- statement vector
+in order to verify the proof.
+
+Therefore there are these distinct steps
+- bytecode compilation
+- circuit compilation
+- input generation
+- proof generation/verification
+
+Therefore there are the following levels of compatibility
+- source code compatible :: which is the weakest level of compatibility and does
+  not provide any guarantees,
+- bytecode compatible :: meaning that we do not need to recompile the bytecode,
+- input compatible :: meaning that we do not need to regenerate the input,
+- circuit compatible :: meaning that we do not need to recompile the circuit,
+- proof compatible :: meaning that we do not need to regenerate the proof.
+
+Proof compatibility is the most restrictive and essentially tells if we are
+confident that we can still verify old proofs.  Interestingly, a change that is
+not input compatible, but is circuit compatible, could potentially be proof
+compatible, as long as we keep around the old statement vectors.
+
+** Input Compatibility vs Circuit Compatibility
+There is an interesting relation between input compatibility and circuit
+compatibility.
+
+Firstly, it is very easy to imagine that circuit compilation occurs before input
+generation because circuit compilation feels like a part of a compilation
+pipeline, whereas input generation is distinctly a runtime operation because we
+need the inputs to the abcird program so we can generate the input to the prover
+or verifier.
+
+Still, input generation is independent to circuit compilation, and theoretically
+leads to the following ordering
+#+begin_src artist
+                 +----------------------+
+                 |source code compatible|
+                 +----------------------+
+                             |
+                             |
+                             |
+                  +--------------------+
+                  |byte code compatible|
+                  +--------------------+
+                            /\
+               *-----------*  *-----------*
+              /                            \
+    +------------------+          +----------------+
+    |circuit compatible|          |input compatible|
+    +------------------+          +----------------+
+              \                            /
+               *-----------*  *-----------*
+                            \/
+                    +----------------+
+                    |proof compatible|
+                    +----------------+
+#+end_src
+meaning that some updates or modifications could be
+- circuit compatible but not input compatible, or
+- input compatible but not circuit compatible.
+
+In practice, we so far encountered the latter (for example, when switching to a
+plonk instance with an additional custom gate) and we are not sure if the former
+is even possible, as input compatibility seems to be implied by the circuit
+compatibility.
+
+* Abcird Programming Language
+
+A compilation of an abcird program will involve the following tools:
+- abcirdc :: a compiler written in Chez Scheme that compiles programs written in
+  abcird programming language down to abcird bytecode, and
+- abcird-vm :: a vm/runtime written in Rust that
+  - compiles abcird bytecode to a compiled form that is understood by the
+    underlying proving system, and
+  - interpretes abcird bytecode to generate input vectors for the underlying
+    proving system.
+
+When working with abcird there will be following artifacts:
+
+- abcird programs :: high-level programs written in abcird programming language,
+- abcird bytecode :: abcird programs compiled by the abcird compiler,
+- compiled circuits :: abcird bytecode compiled down to the form understood by
+  the underlying proof system,
+- input vectors :: computed input to the prover system.
+
+** Mutability
+For the time being we assume immutable variables and we might add some form of
+mutability later.  Currently mutability is restricted to oracles, as oracles can
+contain mutable state themselves.
+
+** Modules
+We want to add compile-time parameters to functions and types, for instance we
+want to parameterize functions operating on merkle trees and merkle paths by the
+path lenght, which will be known at compile time.
+
+We are looking for module systems of the following programming
+languages
+- Rust, or
+- ML-family languages
+to look for the inspiration.
+
+Due to the restrictions of the abcird language, modules are compile-time
+constructs, and we believe that they can be fully desugared during the
+compilation pipeline.
+
+We also believe that modules will allow us to parameterize our code but still
+have a nominal type system.
+
+*** Module and Structs instead of Classes
+We started with a language that looks like a TypeScript, however we will
+probably go more towards Rust design space, because we conjecture that modules +
+structs + methods defined on structs will map nicer to the restrictions of the
+underlying language rather than classes.
+
+Syntactically modules can look similar to classes, however semantically they are
+similar to static class factories (producing static classes themselves).
+Modules are similar to static classes.
+
+*** Proposed Module Syntax
+#+begin_src text
+module <module_name>[<module parameters...>] {
+       <module members...>
+}
+
+using <module_name>[<parameter instantiation>];
+using <module_name>[<parameter isntantiation>] as <module_alias>;
+#+end_src
+
+*** Example of Desugaring a Module:  Merkle Path Library
+We start by writing a module for operating on merkle paths using our module
+syntax
+
+#+begin_src text
+module merkle_path[n: Natural] {
+  struct merkle_root { <...> };
+  struct merkle_path_entry { <...> };
+  struct merkle_path { <...> };
+  circuit merkle_path_root(path: merkle_path[n]): merkle_root {
+    <...>
+  };
+}
+#+end_src
+
+Then we can desugar the module into a prefix on circuit and structures
+#+begin_src text
+struct merkle_path$merkle_root[n: Natural] { <...> };
+struct merkle_path$merkle_path_entry[n : Natural] { <...> };
+struct merkle_path$merkle_path[n : Natural] { <...> };
+circuit merkle_path$merkle_path_root[n : Natural](path: merkle_path$merkle_path[n]): merkle_path$merkle_root[n] {
+  <...>
+};
+#+end_src
+
+Finally, at the inport site, we can instantiate =n= and add it to the prefix
+(here we instantiate =5= for =n=):
+#+begin_src text
+struct merkle_path`5$merkle_root { <...> };
+struct merkle_path`5$merkle_path_entry { <...> };
+struct merkle_path`5$merkle_path { <...> };
+circuit merkle_path`5$merkle_path_root(path: merkle_path`5$merkle_path): merkle_path`5$merkle_root {
+  <...>
+};
+#+end_src
+
+** Interfacing with Oracles
+Oracles are implemented outside of abcird, therefore we need to define a way for
+interfacing with them. We also realised that we need to capture /external
+types/, which are defined inside oracles, but which do not mean anything in
+abcird. One approach to do so is the use of /existential types/ from ML-family
+languages.
+
+Existential types are used widely in OCaml, however the UX of using them might
+be foreign to smart contract developers:
+- developers with TypeScript experience might be confused by existential types,
+  because TypeScript does not have support for existential types.
+- developers with Rust experience might be familiar with existential types,
+  because Rust has similar construct in the form of Traits' associated types.
+
+Still, we need to be wary about uncanny valley of using existential types, as
+developers tend to work with either concrete types or type reflection, which
+allows them to inspect the type during runtime.
+
+*** Example:  Existential Types in OCaml
+#+begin_src text
+type merkle_root = {
+  bytes : byte array;
+};
+
+module merkle_path :
+    sig
+      type merkle_path;
+      val merkle_path_root(path: t): merkle_root;
+    end =
+    struct
+      type merkle_path = {
+           ...
+        }
+    end
+
+module type PUBLIC =
+    sig
+      type t;
+      val topic : t option;
+      val set_topic : t -> unit;
+    end
+#+end_src
+
+*** Potential Syntax for Specifying Oracles as Interfaces (Module Types)
+One way to specify oracles is to specify them as /interfaces/, which are
+collection of types bundled together, roughly resembling module types from
+OCaml.
+
+Potential example of specifying public and private oracle
+#+begin_src text
+public interface public_oracle {
+  type topic;
+  statement hash(topic: topic): Field;
+  statement topic(): Maybe[topic];
+  statement topic$set(topic: topic): Void;
+}
+#+end_src
+
+** TODO Hashing Existential Types
+Do we need to autogenerate the code for hashing existential types, or should we
+always defer that to the oracles.
+
+** TODO Entry Point/Main Module
+We need to figure out how we will mark the entry point to abcird programs.
+Should that be a distinguished module that will expose functions that will
+become transition functions of the deployed smart contract?  Or should that be a
+single function that will pattern match on it.
+
+** Compilation of Abcird programs
+Compiling programs down to zkSNARKs usually poses an interesting challenge: not
+only we need to generate a circuit for the c
+
+** Compilation Artifacts vs Evaluation Artifacts
+
