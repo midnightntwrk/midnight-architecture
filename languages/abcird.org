@@ -1,4 +1,5 @@
 #+TITLE: Abcird
+#+STARTUP: overview
 
 Abcird (pronounced /absurd/) is a proposed programming language for compiling
 programs down to zkSNARKs.
@@ -34,32 +35,34 @@ We do not assume any prior knowledge about Plonk instances, but we do point out
 that two Plonk instances are not compatible and can be treated as two separate
 zkSNARKs.
 
-Main contributions of this report are
-- giving scenarios of transitions :: in Abcird and what they entail ([[* Scenarios
-  of Transitions]]).
-- ease the transition between underlying proving systems :: when changing
-  between incompatible underlying proving systems ([[* Transition Between Proving
-  Systems]]). In the near term that means a transition between two Plonk
-  instances, however it could also mean transitioning to a completely different
-  zkSNARK or transitioning to a completely different scheme of proving systems.
-- provide a high-level programming language :: for writing programs which
-  results need to be proven in zero-knowledge ([[* Abcird Programming Language]]).
-  In the near term such programming language will be used by the Lares project
-  for writing private smart contracts, however it could also be used by a larger
-  Plonk community or retrofitted to a different underlying proving system.
+# Main contributions of this report are
+# - giving scenarios of transitions :: in Abcird and what they entail ([[* Scenarios
+#   of Transitions]]).
+# - ease the transition between underlying proving systems :: when changing
+#   between incompatible underlying proving systems ([[* Transition Between Proving
+#   Systems]]). In the near term that means a transition between two Plonk
+#   instances, however it could also mean transitioning to a completely different
+#   zkSNARK or transitioning to a completely different scheme of proving systems.
+# - provide a high-level programming language :: for writing programs which
+#   results need to be proven in zero-knowledge ([[* Abcird Programming Language]]).
+#   In the near term such programming language will be used by the Lares project
+#   for writing private smart contracts, however it could also be used by a larger
+#   Plonk community or retrofitted to a different underlying proving system.
 
-* Bytecode, Versioning, Backwards Compatibility, and Hard-Forks.
+* Upgradability Story
+
+** Bytecode, Versioning, Backwards Compatibility, and Hard-Forks.
 There is an interesting relation between having a versioned bytecode and
 hard-forks, where hard-fork becomes more of a means to ensure that all the
 network has upgraded to a particular version.
 
 Modifications to bytecode will probably result in hard-forks.
 
-* Scenarios of Transitions
+** Scenarios of Transitions
 We will go over informal scenarions of changes to Abcird.  We assume some that
 there is some starting instance of Plonk.
 
-** Adding a hand-crafted gadget
+*** Adding a hand-crafted gadget
 Let's assume that someone writes an Abcird code that contains implementation of
 novel hashing function of FooHash.  That function becomes popular and that there
 are multiple deployed smart contracts that are using FooHash.
@@ -73,7 +76,7 @@ to use the old version FooHash, as it is still working.
 
 This one will not need a hard-fork.
 
-** Adding X to Abcird VM (or ZK-Garage/Plonk)
+*** Adding X to Abcird VM (or ZK-Garage/Plonk)
 Let's assume that FooHash becomes widely popular, but it suffers greatly from
 the computational cost of computing the input vectors in Abcird VM, so a
 specialised Rust subroutine is added to Abcird VM or ZK-Garage/Plonk.
@@ -86,7 +89,7 @@ However, old smart contracts are still fully backwards compatible.
 
 Still, will probably warrant a hard-fork to ensure that everyone can support it.
 
-** Changing X in Abcird VM (or ZK-Garage/Plonk)
+*** Changing X in Abcird VM (or ZK-Garage/Plonk)
 There is FooHash in Abcird and we want to switch to FooHash2.
 
 This is probably a circuit incompatible or input incompatible change, so we
@@ -97,10 +100,10 @@ In both cases it will probably warrant a hard-fork.
 We need to be very vigilant about ZK-Garage/Plonk not doing that by accident and
 hitting us by surprise.
 
-** Removing X from Abcird VM (or ZK-Garage/Plonk)
+*** Removing X from Abcird VM (or ZK-Garage/Plonk)
 Depracating bytecode instructions probably warrants a hard-fork.
 
-** Adding a custom gate to Plonk instance
+*** Adding a custom gate to Plonk instance
 This is primarly a circuit incompatible change, meaning that all
 - prover keys,
 - verifier keys, and
@@ -109,13 +112,13 @@ will stop working and need to be regenerated.
 
 Needs a hard-fork.
 
-** Switching to a completely different proving system alltogether
+*** Switching to a completely different proving system alltogether
 If we are lucky it will be bytecode compatible, if we are not lucky it might not
 even be source code compatible.
 
 Needs a hard-fork.
 
-* Transition Between Proving Systems
+** Transition Between Proving Systems
 
 The compilation pipeline for Abcird has the following elements
 - an abcird program :: which is compiled by the abcird compiler to
@@ -161,7 +164,7 @@ confident that we can still verify old proofs.  Interestingly, a change that is
 not input compatible, but is circuit compatible, could potentially be proof
 compatible, as long as we keep around the old statement vectors.
 
-** Input Compatibility vs Circuit Compatibility
+*** Input Compatibility vs Circuit Compatibility
 There is an interesting relation between input compatibility and circuit
 compatibility.
 
@@ -204,6 +207,12 @@ In practice, we so far encountered the latter (for example, when switching to a
 plonk instance with an additional custom gate) and we are not sure if the former
 is even possible, as input compatibility seems to be implied by the circuit
 compatibility.
+
+* Deploy Story
+** TODO How will we deploy smart contracts?
+
+* Execution Story
+** TODO How do we run our smart contracts?
 
 * Abcird Programming Language
 
@@ -455,7 +464,8 @@ to expose:
 - Each instruction, except =call_extern= consists of the instruction opcode, any input indicies it takes, and any immediates it takes.
 - =call_extern= begins with a LE-encoded =u64=, identifying a previously registered external handle (with =register_external=). The following =n = argument_size= LE encoded field elements are identified dynamically, using the recorded size of the argument vector for this =call_extern=.
 
-* 2022-04-13 Lares Weekly Meeting
+* Meetings
+** 2022-04-13 Lares Weekly Meeting
 Plonk is more of a framework to create zkSNARKs.
 
 We actually talk about Plonk Instances.
@@ -519,8 +529,36 @@ So far we have compatibilities
   inputs,
 - proof compatibility :: we don't need to regenerate the proofs.
 
-** Assumptions
-- we deploy smart contracts as bytecode.
-
-** Questions
-- what is our story for a snark upgrade?
+** 2022-04-28 Abcird Weekly Meeting
+*** Agenda:
+**** Update [Kent]: Current state of abcirdc
+**** Update [Anatolii]: Current state of ZKIR
+**** Update [Thomas]: Witness generation discussions
+***** WASM witness generation
+*** Kent update:
+**** Surface language is much the same
+***** Modules have been added
+***** As have type parameters & circuit overloading
+***** Structs have become types
+***** Type inference has been added
+**** Converting to a form of SSA
+Concern that it's not what we need
+**** We also need to decide on our compilation model
+Do =extern= circuits link to libraries, and where?
+*** Anatolli Update:
+**** JSON-based IR
+**** Public and private input numbers, list of gates
+***** Gates executed linearly
+***** Gates can reference outputs of prior gates
+*** Wasm Witness generation
+**** In the Plonk VM we need callbacks for external witness generation (public/private oracle)
+***** For the rust side we'll be exposing these as C FFI/taking C function pointers
+***** Something more direct? https://demille.github.io/wasm-ffi/docs/rust/
+**** Can we actually Plonk =StandardComposer= in WASM
+***** Will it survive stress tests: Poseidon hash
+***** Basic need: Compile to Plonk contraints, witness generation
+***** Advanced: Compile to prover/verifier keys, proving/verifying
+**** Javascript needs en/decoders for abcird/Plonk datastructures
+**** Dmitry was able to compile zk-garage/plonk to wasm
+***** He needs help to ensure the benchmarks are being run correctly
+***** Will aim to get some preliminary measurements by next week
