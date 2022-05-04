@@ -5,3 +5,4 @@ Please define each new component as a new subfolder here, and use the provided [
 - [Wallet Backend](WalletBackend)
 - Circuit Compiler
 - Lares Runtime (Typescript)
+- [Transaction kernel](kernel)

@@ -1,3 +1,14 @@
 *~
 result
 README.html
+*.synctex
+*.synctex.gz
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.bcf
+*.brf
+*.fdb_latexmk
+.auctex-auto

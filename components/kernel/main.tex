@@ -1,0 +1,40 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{todonotes}
+\title{Midnight Transaction Kernel Specification}
+\subtitle{draft}
+\author{Thomas Kerber}
+\begin{document}
+\maketitle
+\begin{abstract}
+  This document specifies the semantics of creating and validating Midnight transactions, outside of the sandboxed realm of each smart contract. Notably, this includes native currencies, their transfer, and interactions between multiple contracts, and contracts and currency.
+\end{abstract}
+This document leans heavily on research in ZSwap~\cite{}, Zexe~\cite{}, and to a lesser extent, Kachina~\cite{}.
+
+\section{Structure of Coins}
+\todo[inline]{Thomas: How should diversiviers, viewing keys etc. work? What can we take from Sapling/Orchard here?}
+
+A basic coin consists of a controlling \textbf{secret key}, a random
+\textbf{nonce}, a \textbf{value}, and a \textbf{color}. Coins may additionally
+have a \textbf{spend predicate}, and a \textbf{locking contract}.
+
+Proposed data types:
+\begin{itemize}
+    \item \textbf{secret key} -- a 256-bit bitstring
+    \item \textbf{nonce} -- a 256-bit bitstring
+    \item \textbf{value} -- a 64-bit unsigned integer
+    \item \textbf{color} -- a 256-bit bitstring
+    \item \textbf{spend predicate} -- a hash of the circuit IR, 0 representing no predicate
+    \item \textbf{locking contract} -- a contract address, 0 representing no lock
+\end{itemize}
+
+Coins the twin cryptographic projections of \textbf{notes} and \textbf{nullifiers}, both of which commit to all of the coin's contents. They are domain-separated, and \textbf{notes} commit to a (diversified) public key derived from the secret key.
+
+\section{Structure of Transactions}
+
+A transaction consists of $n$ burns, $m$ mints, a balancing signature, a public transcript, and a (set of?) proof(s) of valid transition.
+
+Each burn removes a coin from circulation, by revealing and marking as spent the nullifier of a valid existing coin. Each mint adds a coin to circulation, by providing the coin's commitment. The balancing signature ensures that, for each color, the sum of the values burned, minus the sum of values minted, is positive (assuming no additional mints are authorised).
+
+\todo[inline]{Thomas: minting policies for user tokens need to be made clear. These should probably be tied to a specific UTXO...}
+
+\end{document}
