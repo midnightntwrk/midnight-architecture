@@ -1,0 +1,61 @@
+@startuml
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+actor "Alice\n[0xfeedbeef]" as alice
+box "Lares Kernel" #ddd
+  participant kernel as kernel
+  database "Key\nStore" as keystore
+  database "Coin\nStore" as coinstore
+  database "Commitment\nSet" as commits
+  database "Nullifier\nSet" as nullifiers
+  database "Contract\nStore" as contracts
+end box
+box "Trusted Treasury [0xd0c0ffee]" #eef
+  participant "Transition\nFunction" as treasuryGamma
+  participant "Public\nOracle" as treasuryOraclePub
+  participant "Private\nOracle" as treasuryOraclePriv
+end box
+box "Pernicious Proposal [0xfeedf00d]" #fee
+  participant "Transition\nFunction" as proposalGamma
+  participant "Public\nOracle" as proposalOraclePub
+  participant "Private\nOracle" as proposalOraclePriv
+end box
+actor "Mallory\n[0xcaca0f0e]" as mallory
+
+alice -> kernel ++ : **0xd0c0ffee::close-proposal**($0, __full-trust__): 0xfeedf00d
+  note left: Let's assume our treasure needs fancy\npermissions for some bizarre reason...
+  activate alice
+  kernel -> contracts ++ : **retrieve**: 0xd0c0ffee
+  return //code for treasury//
+  kernel -> treasuryGamma ++ : **close-proposal**($0, __full-trust__, 0xfeedbeef): 0xfeedf00d
+    ...
+    alt #LightGreen Permissions properly downgraded
+      treasuryGamma -> kernel ++ : **0xfeedf00d::notify-close**($0, __none__): //proposal status//
+        kernel -> proposalGamma ++ : **notify-close**($0, __none__, __unknown__): //proposal state//
+          ...
+        return ok
+      return ok
+    else #Pink Permissions forwarded
+      treasuryGamma -> kernel ++ : **0xfeedf00d::notify-close**($0, __full-trust__): //proposal state//
+        kernel -> proposalGamma ++ : **notify-close**($0, __full-trust__, 0xd0c0ffee): //proposal state//
+          proposalGamma -> kernel ++ : **request**: __sk__
+          return //sk//
+          proposalGamma -> proposalOraclePub ++ : **leak**: //sk//
+            proposalOraclePub -> mallory : //sk//
+          return
+        return ok
+      return ok
+    end
+  return ok
+  deactivate alice
+return ok
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml
