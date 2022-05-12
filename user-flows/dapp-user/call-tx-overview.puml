@@ -55,17 +55,26 @@ activate dapp
 
 
         group compute and store a state update
-                dapp -> gamma : update(args) using\n  public state,\n  private state
-                activate gamma
-                        gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness)
-                deactivate gamma
+            dapp -> gamma : update(args) using\n  public state,\n  private state
+            activate gamma
+                    gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness)
+            deactivate gamma
+
+            group over TLS, to TEE in proof server
+                note over dapp: witness includes private data\nnot shared with Wallet
+                dapp -> proofServer : prove(circuit, witness)
+                note over proofServer: omitting details of\nsession management
+                activate proofServer
+                        proofServer -> dapp : proof
+                deactivate proofServer
+            end
 
             dapp -> pending ++ : store pending private\ntranscript indexed by tx
             return ok
         end
 
         group build and send transaction
-                dapp -> wallet : make call tx (call, witness, transcripts)
+                dapp -> wallet : make call tx (call, transcripts)
                 activate wallet
                 group identify payment
                             wallet -> clientData ++ : fetch coins
@@ -76,20 +85,13 @@ activate dapp
 
                 group obtain authorization
                         note over wallet : now we have all the data needed to ask user for authorization\nthough a 2-stage process may be better suited:\n - first dApp asks if can interact with wallet at all(and user confirms or rejects)\n - then wallet asks user for each separate transaction
-                        note over wallet: alternative flow: user pre-authorizes\n to avoid this step
+                        note over wallet: alternative flow: user pre-authorizes to avoid this step. \nDepending on time it takes to calculate SC ZK-proofs (steps 4, 5) \nthe user experience may require moving user authorization step earlier
                         wallet -> user : request authorization\nof leakage report & coins
                         user -> wallet : authorized
                 end
 
-                note over wallet: Now perform the expensive\nproofs to complete the transaction.
+                note over wallet: Now perform the expensive spend\nproofs to complete the transaction.
                 group over TLS, to TEE in proof server
-                        note over wallet: witness includes private data\nnot shared with Wallet Backend
-                        wallet -> proofServer : prove(circuit, witness)
-                        activate proofServer
-                                note over proofServer: omitting details of\nsession management
-                                proofServer -> wallet : proof
-                        deactivate proofServer
-
                         wallet -> proofServer : prove spend
                         activate proofServer
                                 proofServer -> wallet : spendProof

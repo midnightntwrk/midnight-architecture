@@ -49,15 +49,22 @@ boundary Consensus as consensus
                 deactivate gamma
         end
 
+        group over TLS, to TEE in Proof Server
+                                note over clientSdk: witness includes private data\nnot shared with Wallet
+                                clientSdk -> proofServer : prove(circuit, witness)
+                                activate proofServer
+                                        proofServer -> clientSdk : proof
+                                deactivate proofServer
+                        end
+
         clientSdk -> pending ++ : store pending private transcript
         return ok
 
         group build and send transaction
-                clientSdk -> wallet : callTx(call, circuit, witness)
+                clientSdk -> wallet : callTx(call, circuit)
                 activate wallet
                 group over TLS, to TEE in Proof Server
-                        note over wallet: witness includes private data\nnot shared with Wallet Backend
-                        wallet -> proofServer : prove(circuit, witness)
+                        wallet -> proofServer : prove(notesOwnership)
                         activate proofServer
                                 proofServer -> wallet : proof
                         deactivate proofServer
