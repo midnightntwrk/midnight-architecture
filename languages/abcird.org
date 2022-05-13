@@ -49,7 +49,67 @@ zkSNARKs.
 #   for writing private smart contracts, however it could also be used by a larger
 #   Plonk community or retrofitted to a different underlying proving system.
 
+* Execution Story
+
+** Running on Client
+
+*** Execute Transition Function as a Program
+**** Call Transition Function
+**** Query Private Oracle
+**** Query Public Oracle
+**** Query Context Oracle
+
+*** Collect Witness Vector During Transition Function Execution
+**** Question:  Is this equivalent to collecting a transcript and then passing it through an encoder?
+
+*** Encode Publlic Transcript as Statement
+**** Run Encoder of Structured Data as Field Elements
+
+*** Interpret/Compile Transition Function to a Proving Key
+**** Run Snarkie Interpreter
+
+*** Generate ZK Proof using Proving Key, Witness, and Statement
+**** Call into the Underlying Proving System
+
+** Verifying on Node
+
+*** Encoding Public Transcript as Statement
+**** Run Encoder of Structured Data as Field Elements
+
+*** Interpret/Compile Transition Function to a Verifier Key
+**** Run Snarkie Interpreter
+
+*** Verify ZK Proof usign Verifier Key and Statement
+**** Call into the Underlying Proving System
+
+*** Verify Public Oracle Transcript
+**** Query Public Oracle
+
+** Transition Function Dependencies
+
+*** Private Oracle
+- private oracle state
+- private oracle implementation, that matches the private oracle interface.
+*** Public Oracle
+- public oracle state,
+- public oracle implementation, that matches the public oracle interface.
+
+*** Contrext Oracle
+- context oracle implementation, that matches the context oracle interface.
+
+*** Transition Function Runtime
+
+* Deploy Story
+** TODO How will we deploy smart contracts?
+
 * Upgradability Story
+To fully understand this, we need to firstly discuss the execution model.
+
+** Bytecode VM/Bytecode Interpreter
+Jakub's assumption is that we have single component that is responsible for
+- calling TF,
+- proving, and
+- verification.
 
 ** Bytecode, Versioning, Backwards Compatibility, and Hard-Forks.
 There is an interesting relation between having a versioned bytecode and
@@ -207,12 +267,6 @@ In practice, we so far encountered the latter (for example, when switching to a
 plonk instance with an additional custom gate) and we are not sure if the former
 is even possible, as input compatibility seems to be implied by the circuit
 compatibility.
-
-* Deploy Story
-** TODO How will we deploy smart contracts?
-
-* Execution Story
-** TODO How do we run our smart contracts?
 
 * Abcird Programming Language
 
