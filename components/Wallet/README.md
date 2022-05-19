@@ -83,12 +83,14 @@ ones are:
 
 ## Key Library Dependencies
 
-React.js - for rendering UI
-Kernel (internal) - for processing&creating transactions
+  - React.js - for rendering UI
+  - Kernel (internal) - for processing&creating transactions
 
 ## Logical Data Model
 
 Include an [ER diagram](https://plantuml.com/ie-diagram).
+
+![](./datamodel.svg)
 
 ### Entities
 

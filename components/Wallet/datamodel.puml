@@ -1,0 +1,48 @@
+@startuml
+
+entity EncryptedPrivateKey {}
+entity ViewingKey {
+
+}
+entity KeyStore {}
+entity KeyChain {}
+entity RelevantTxFilter {
+  * filterDefinition: Definition
+}
+entity SyncBlock {}
+entity SyncTransaction {}
+entity RelevantTransaction {}
+entity TransactionHistory {}
+entity DAppConnection {}
+entity WalletBackendConnection {}
+entity StateSnapshot {
+  * newEvents: WalletEvent
+  * derivedState : DerivedState
+  * knownAddresses: Address[]
+  * balance: Balance
+}
+entity Wallet {
+  * lastSnapshot: StateSnapshot
+}
+
+Wallet ||--|{ StateSnapshot
+Wallet ||--|| KeyChain
+Wallet ||--|{ RelevantTxFilter
+
+StateSnapshot }|--|| TransactionHistory
+StateSnapshot |o--|| StateSnapshot : previous
+
+TransactionHistory }|--o{ RelevantTransaction
+
+DAppConnection }o--o{ RelevantTransaction
+WalletBackendConnection |o--o{ SyncBlock
+SyncTransaction ||--o| RelevantTransaction
+SyncBlock ||--|{ SyncTransaction
+
+
+RelevantTxFilter ||--o| KeyChain
+
+KeyChain ||--|| ViewingKey : derives from private key
+KeyChain ||--|| KeyStore
+KeyStore ||--|| EncryptedPrivateKey
+@enduml
