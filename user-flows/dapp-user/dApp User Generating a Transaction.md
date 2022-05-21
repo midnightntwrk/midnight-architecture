@@ -37,30 +37,32 @@ Midnight is designed to support the benefits of privacy with the ease-of-use of 
 
 The following figure illustrates an extremely high-level simplification of the flow that enables a user to push a transaction through the blockchain and witness its result.  A step-by-step discussion follows the figure.
 
-![](call-tx-extremely-simplified.png)
+![](call-tx-extremely-simplified.svg)
 
 1. The user performs some UI action triggering dApp backend logic.
 2. The dApp calls a transition function on one of the contracts.
 3. The contract executes the transition function, capturing transcripts of the function's interactions with the public and private oracles.
-4. The dApp stores the private-oracle transcript, indexed by the TX id of the new transaction.
-5. Stored successfully
-6. The dApp calls wallet frontend to prepare and submit transaction with performed call details
-7. The wallet frontend uses a secure connection to a Proof Server to request a ZK proof, using the transition function's corresponding circuit and the witness extracted in step 3.
-8. The Proof Server provides the necessary ZK proof.
-9. The wallet frontend submits transaction to its backend. The transaction includes the contract's ID, the ZK proof, and everything needed to complete any required spends of Midnight's base currency, such as gas or other fees, or movement of funds between the contract and other parties.
-10. Midnight submits the transaction to consensus.  
-11. Wallet backend responds to frontend that transaction is pending.
-12. Wallet frontend responds with pending status to the dApp.
-13. The dApp advises the user that the request is pending. At this point the user may safely go offline and await a result, or stay connected to monitor updates.
-14. Once the TX is verified on chain, wallet backend will eventually witness the verified TX and the new public state.
-15. Then wallet frontend will learn them from wallet backend.
-16. Then the dApp learn them from wallet frontend.
-17. The dApp installs the observed public state (or, equivalently, computes the public state from the public-oracle transcript -- the choice comes down to performance).
-18. The dApp looks up the corresponding saved private-oracle transcript.
-19. Successfully retrieved.
-20. The dApp applies the private-oracle transcript, executing each query or command in sequence.
-21. After successful application of private state, the dApp installs the resulting private state as the current private state of the given contract.
-22. The dApp advises the user that of the public and private effects of the verified transaction.
+4. The dApp uses a secure connection to a Proof Server to request a ZK proof, using the transition function's corresponding circuit and the witness extracted in previous step.
+5. The Proof Server provides the necessary ZK proof.
+6. The dApp stores the private-oracle transcript, indexed by the TX id of the new transaction.
+7. Stored successfully
+8. The dApp calls wallet frontend to prepare and submit transaction with performed call details
+9. The wallet uses a secure connection to a Proof Server to request a spend ZK proof
+10. The Proof Server provides the necessary ZK proof.
+11. The wallet frontend submits transaction to its backend. The transaction includes the contract's ID, the ZK proof, and everything needed to complete any required spends of Midnight's base currency, such as gas or other fees, or movement of funds between the contract and other parties.
+12. Midnight submits the transaction to consensus.  
+13. Wallet backend responds to frontend that transaction is pending.
+14. Wallet frontend responds with pending status to the dApp.
+15. The dApp advises the user that the request is pending. At this point the user may safely go offline and await a result, or stay connected to monitor updates.
+16. Once the TX is verified on chain, wallet backend will eventually witness the verified TX and the new public state.
+17. Then wallet frontend will learn them from wallet backend.
+18. Then the dApp learn them from wallet frontend.
+19. The dApp installs the observed public state (or, equivalently, computes the public state from the public-oracle transcript -- the choice comes down to performance).
+20. The dApp looks up the corresponding saved private-oracle transcript.
+21. Successfully retrieved.
+22. The dApp applies the private-oracle transcript, executing each query or command in sequence.
+23. After successful application of private state, the dApp installs the resulting private state as the current private state of the given contract.
+24. The dApp advises the user that of the public and private effects of the verified transaction.
 
 ## Conclusion
 

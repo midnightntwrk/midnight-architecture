@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="2510px" preserveAspectRatio="none" style="width:1533px;height:2510px;background:#FFFFFF;" version="1.1" viewBox="0 0 1533 2510" width="1533px" zoomAndPan="magnify"><defs/><g><rect fill="#EEEEFF" height="2388.1523" style="stroke:#181818;stroke-width:0.5;" width="333.5" x="225.5" y="65.8867"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="37" x="373.75" y="78.4551">dApp</text><rect fill="#EEFFEE" height="2388.1523" style="stroke:#181818;stroke-width:0.5;" width="272.5" x="561" y="65.8867"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="106" x="644.25" y="78.4551">Wallet Frontend</text><rect fill="#DDDDDD" height="2388.1523" style="stroke:#181818;stroke-width:0.5;" width="124" x="835.5" y="65.8867"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="102" x="846.5" y="78.4551">Wallet Backend</text><rect fill="#FFEEEE" height="2388.1523" style="stroke:#181818;stroke-width:0.5;" width="170" x="1004" y="65.8867"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="164" x="1007" y="78.4551">Proof Server Component</text><rect fill="#FFFFFF" height="1376.7695" style="stroke:#181818;stroke-width:1.0;" width="10" x="250" y="211.9727"/><rect fill="#FFFFFF" height="105.8633" style="stroke:#181818;stroke-width:1.0;" width="10" x="436" y="296.2148"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="519" y="637.873"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="519" y="2187.332"/><rect fill="#FFFFFF" height="824.627" style="stroke:#181818;stroke-width:1.0;" width="10" x="587.5" y="727.8047"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="801.5" y="781.4258"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="801.5" y="1370.5684"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="801.5" y="1961.1582"/><rect fill="#FFFFFF" height="540.9688" style="stroke:#181818;stroke-width:1.0;" width="10" x="892.5" y="1464.5"/><rect fill="#FFFFFF" height="79.9316" style="stroke:#181818;stroke-width:1.0;" width="10" x="1084" y="506.3203"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="1084" y="1201.3945"/><rect height="448.2109" style="stroke:#000000;stroke-width:1.5;fill:none;" width="1053" x="133" y="226.9727"/><rect height="177.1738" style="stroke:#000000;stroke-width:1.5;fill:none;" width="1033" x="143" y="417.0781"/><rect height="871.248" style="stroke:#000000;stroke-width:1.5;fill:none;" width="1478" x="38" y="689.1836"/><rect height="118.2422" style="stroke:#000000;stroke-width:1.5;fill:none;" width="284.5" x="555" y="742.8047"/><rect height="223.1055" style="stroke:#000000;stroke-width:1.5;fill:none;" width="812" x="48" y="875.0469"/><rect height="75.9316" style="stroke:#000000;stroke-width:1.5;fill:none;" width="572.5" x="555" y="1162.7734"/><rect height="88.9316" style="stroke:#000000;stroke-width:1.5;fill:none;" width="686.5" x="829.5" y="1682.3633"/><rect height="134.5527" style="stroke:#000000;stroke-width:1.5;fill:none;" width="410.5" x="555" y="1863.916"/><rect height="290.7949" style="stroke:#000000;stroke-width:1.5;fill:none;" width="582" x="48" y="2047.7793"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="76" x2="76" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="254.5" x2="254.5" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="441" x2="441" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="524" x2="524" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="592" x2="592" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="806.5" x2="806.5" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="897.5" x2="897.5" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="1088.5" x2="1088.5" y1="180.6621" y2="2355.5742"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="1465" x2="1465" y1="180.6621" y2="2355.5742"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30" x="58" y="177.709">user</text><ellipse cx="76" cy="112.6738" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M76,120.6738 L76,147.6738 M63,128.6738 L89,128.6738 M76,147.6738 L63,162.6738 M76,147.6738 L89,162.6738 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30" x="58" y="2368.1094">user</text><ellipse cx="76" cy="2379.5625" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M76,2387.5625 L76,2414.5625 M63,2395.5625 L89,2395.5625 M76,2414.5625 L63,2429.5625 M76,2414.5625 L89,2429.5625 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><rect fill="#E2E2F0" height="30.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="51" x="229.5" y="149.1738"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="236.5" y="169.709">dApp</text><rect fill="#E2E2F0" height="30.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="51" x="229.5" y="2354.5742"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="236.5" y="2375.1094">dApp</text><rect fill="#E2E2F0" height="46.9766" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="84" x="399" y="132.6855"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="70" x="406" y="153.2207">Transition</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="60" x="411" y="169.709">Function</text><rect fill="#E2E2F0" height="46.9766" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="84" x="399" y="2354.5742"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="70" x="406" y="2375.1094">Transition</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="60" x="411" y="2391.5977">Function</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="493" y="144.7324">Pending</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="46" x="498" y="161.2207">Private</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="493" y="177.709">Updates</text><path d="M506,95.1973 C506,85.1973 524,85.1973 524,85.1973 C524,85.1973 542,85.1973 542,95.1973 L542,121.1973 C542,131.1973 524,131.1973 524,131.1973 C524,131.1973 506,131.1973 506,121.1973 L506,95.1973 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M506,95.1973 C506,105.1973 524,105.1973 524,105.1973 C524,105.1973 542,105.1973 542,95.1973 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="493" y="2368.1094">Pending</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="46" x="498" y="2384.5977">Private</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="493" y="2401.0859">Updates</text><path d="M506,2414.0391 C506,2404.0391 524,2404.0391 524,2404.0391 C524,2404.0391 542,2404.0391 542,2414.0391 L542,2440.0391 C542,2450.0391 524,2450.0391 524,2450.0391 C524,2450.0391 506,2450.0391 506,2440.0391 L506,2414.0391 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M506,2414.0391 C506,2424.0391 524,2424.0391 524,2424.0391 C524,2424.0391 542,2424.0391 542,2414.0391 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><rect fill="#E2E2F0" height="30.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="55" x="565" y="149.1738"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="572" y="169.709">Wallet</text><rect fill="#E2E2F0" height="30.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="55" x="565" y="2354.5742"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="572" y="2375.1094">Wallet</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="783.5" y="161.2207">Client</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="788" y="177.709">Data</text><path d="M788.5,111.6855 C788.5,101.6855 806.5,101.6855 806.5,101.6855 C806.5,101.6855 824.5,101.6855 824.5,111.6855 L824.5,137.6855 C824.5,147.6855 806.5,147.6855 806.5,147.6855 C806.5,147.6855 788.5,147.6855 788.5,137.6855 L788.5,111.6855 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M788.5,111.6855 C788.5,121.6855 806.5,121.6855 806.5,121.6855 C806.5,121.6855 824.5,121.6855 824.5,111.6855 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="783.5" y="2368.1094">Client</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="788" y="2384.5977">Data</text><path d="M788.5,2397.5508 C788.5,2387.5508 806.5,2387.5508 806.5,2387.5508 C806.5,2387.5508 824.5,2387.5508 824.5,2397.5508 L824.5,2423.5508 C824.5,2433.5508 806.5,2433.5508 806.5,2433.5508 C806.5,2433.5508 788.5,2433.5508 788.5,2423.5508 L788.5,2397.5508 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M788.5,2397.5508 C788.5,2407.5508 806.5,2407.5508 806.5,2407.5508 C806.5,2407.5508 824.5,2407.5508 824.5,2397.5508 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><rect fill="#E2E2F0" height="30.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="116" x="839.5" y="149.1738"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102" x="846.5" y="169.709">Wallet Backend</text><rect fill="#E2E2F0" height="30.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="116" x="839.5" y="2354.5742"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102" x="846.5" y="2375.1094">Wallet Backend</text><rect fill="#E2E2F0" height="46.9766" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="57" x="1060.5" y="132.6855"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="1070.5" y="153.2207">Proof</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="1067.5" y="169.709">Server</text><rect fill="#E2E2F0" height="46.9766" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="57" x="1060.5" y="2354.5742"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="1070.5" y="2375.1094">Proof</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="1067.5" y="2391.5977">Server</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="75" x="1425" y="177.709">Consensus</text><path d="M1445,136.1738 L1445,160.1738 M1445,148.1738 L1462,148.1738 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><ellipse cx="1474" cy="148.1738" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="75" x="1425" y="2368.1094">Consensus</text><path d="M1445,2375.0625 L1445,2399.0625 M1445,2387.0625 L1462,2387.0625 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><ellipse cx="1474" cy="2387.0625" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><rect fill="#FFFFFF" height="1376.7695" style="stroke:#181818;stroke-width:1.0;" width="10" x="250" y="211.9727"/><rect fill="#FFFFFF" height="105.8633" style="stroke:#181818;stroke-width:1.0;" width="10" x="436" y="296.2148"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="519" y="637.873"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="519" y="2187.332"/><rect fill="#FFFFFF" height="824.627" style="stroke:#181818;stroke-width:1.0;" width="10" x="587.5" y="727.8047"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="801.5" y="781.4258"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="801.5" y="1370.5684"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="801.5" y="1961.1582"/><rect fill="#FFFFFF" height="540.9688" style="stroke:#181818;stroke-width:1.0;" width="10" x="892.5" y="1464.5"/><rect fill="#FFFFFF" height="79.9316" style="stroke:#181818;stroke-width:1.0;" width="10" x="1084" y="506.3203"/><rect fill="#FFFFFF" height="29.3105" style="stroke:#181818;stroke-width:1.0;" width="10" x="1084" y="1201.3945"/><polygon fill="#181818" points="238,207.9727,248,211.9727,238,215.9727,242,211.9727" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="76" x2="244" y1="211.9727" y2="211.9727"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="83" y="207.2305">1</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="96" y="207.2305">action</text><path d="M133,226.9727 L406,226.9727 L406,234.2832 L396,244.2832 L133,244.2832 L133,226.9727 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="448.2109" style="stroke:#000000;stroke-width:1.5;" width="1053" x="133" y="226.9727"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="228" x="148" y="240.541">compute and store a state update</text><polygon fill="#181818" points="424,292.2148,434,296.2148,424,300.2148,428,296.2148" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="260" x2="430" y1="296.2148" y2="296.2148"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="267" y="276.1621">2</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="117" x="280" y="260.8516">update(args) using</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="78" x="288" y="276.1621">public state,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="78" x="288" y="291.4727">private state</text><polygon fill="#181818" points="271,398.0781,261,402.0781,271,406.0781,267,402.0781" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="265" x2="440" y1="402.0781" y2="402.0781"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="277" y="359.0596">3</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="60" x="290" y="320.7832">ok(result,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="107" x="310" y="336.0938">new public state,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="111" x="310" y="351.4043">new private state,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112" x="310" y="366.7148">private transcript,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108" x="310" y="382.0254">public transcript,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="52" x="310" y="397.3359">witness)</text><path d="M143,417.0781 L399,417.0781 L399,424.3887 L389,434.3887 L143,434.3887 L143,417.0781 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="177.1738" style="stroke:#000000;stroke-width:1.5;" width="1033" x="143" y="417.0781"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="211" x="158" y="430.6465">over TLS, to TEE in proof server</text><path d="M153,439.3887 L153,479.3887 L357,479.3887 L357,449.3887 L347,439.3887 L153,439.3887 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M347,439.3887 L347,449.3887 L357,449.3887 L347,439.3887 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="183" x="159" y="456.957">witness includes private data</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="140" x="159" y="472.2676">not shared with Wallet</text><polygon fill="#181818" points="1072,502.3203,1082,506.3203,1072,510.3203,1076,506.3203" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="260" x2="1078" y1="506.3203" y2="506.3203"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="267" y="501.5781">4</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="139" x="280" y="501.5781">prove(circuit, witness)</text><path d="M1012,519.3203 L1012,559.3203 L1166,559.3203 L1166,529.3203 L1156,519.3203 L1012,519.3203 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M1156,519.3203 L1156,529.3203 L1166,529.3203 L1156,519.3203 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="117" x="1018" y="536.8887">omitting details of</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="133" x="1018" y="552.1992">session management</text><polygon fill="#181818" points="271,582.252,261,586.252,271,590.252,267,586.252" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="265" x2="1088" y1="586.252" y2="586.252"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="277" y="581.5098">5</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="290" y="581.5098">proof</text><polygon fill="#181818" points="507,633.873,517,637.873,507,641.873,511,637.873" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="260" x2="513" y1="637.873" y2="637.873"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="267" y="625.4756">6</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="134" x="280" y="617.8203">store pending private</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="151" x="280" y="633.1309">transcript indexed by tx</text><polygon fill="#181818" points="271,663.1836,261,667.1836,271,671.1836,267,667.1836" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="265" x2="523" y1="667.1836" y2="667.1836"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="277" y="662.4414">7</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="16" x="290" y="662.4414">ok</text><path d="M38,689.1836 L265,689.1836 L265,696.4941 L255,706.4941 L38,706.4941 L38,689.1836 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="871.248" style="stroke:#000000;stroke-width:1.5;" width="1478" x="38" y="689.1836"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="182" x="53" y="702.752">build and send transaction</text><polygon fill="#181818" points="575.5,723.8047,585.5,727.8047,575.5,731.8047,579.5,727.8047" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="260" x2="581.5" y1="727.8047" y2="727.8047"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="267" y="723.0625">8</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="187" x="280" y="723.0625">make call tx (call, transcripts)</text><path d="M555,742.8047 L716,742.8047 L716,750.1152 L706,760.1152 L555,760.1152 L555,742.8047 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="118.2422" style="stroke:#000000;stroke-width:1.5;" width="284.5" x="555" y="742.8047"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="116" x="570" y="756.373">identify payment</text><polygon fill="#181818" points="789.5,777.4258,799.5,781.4258,789.5,785.4258,793.5,781.4258" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="795.5" y1="781.4258" y2="781.4258"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="9" x="604.5" y="776.6836">9</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70" x="617.5" y="776.6836">fetch coins</text><polygon fill="#181818" points="608.5,806.7363,598.5,810.7363,608.5,814.7363,604.5,810.7363" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="602.5" x2="805.5" y1="810.7363" y2="810.7363"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="614.5" y="805.9941">10</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="636.5" y="805.9941">coins</text><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="639.5" y1="840.0469" y2="840.0469"/><line style="stroke:#181818;stroke-width:1.0;" x1="639.5" x2="639.5" y1="840.0469" y2="853.0469"/><line style="stroke:#181818;stroke-width:1.0;" x1="598.5" x2="639.5" y1="853.0469" y2="853.0469"/><polygon fill="#181818" points="608.5,849.0469,598.5,853.0469,608.5,857.0469,604.5,853.0469" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="604.5" y="835.3047">11</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="168" x="626.5" y="835.3047">estimate cost, select coins</text><path d="M48,875.0469 L231,875.0469 L231,882.3574 L221,892.3574 L48,892.3574 L48,875.0469 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="223.1055" style="stroke:#000000;stroke-width:1.5;" width="812" x="48" y="875.0469"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="138" x="63" y="888.6152">obtain authorization</text><path d="M334,897.3574 L334,968.3574 L850,968.3574 L850,907.3574 L840,897.3574 L334,897.3574 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M840,897.3574 L840,907.3574 L850,907.3574 L840,897.3574 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="387" x="340" y="914.9258">now we have all the data needed to ask user for authorization</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="300" x="340" y="930.2363">though a 2-stage process may be better suited:</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="491" x="344" y="945.5469">- first dApp asks if can interact with wallet at all(and user confirms or rejects)</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="332" x="344" y="960.8574">- then wallet asks user for each separate transaction</text><path d="M467,978.5996 L467,1018.5996 L718,1018.5996 L718,988.5996 L708,978.5996 L467,978.5996 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M708,978.5996 L708,988.5996 L718,988.5996 L708,978.5996 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="230" x="473" y="996.168">alternative flow: user pre-authorizes</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="110" x="477" y="1011.4785">to avoid this step</text><polygon fill="#181818" points="87,1056.8418,77,1060.8418,87,1064.8418,83,1060.8418" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="81" x2="586.5" y1="1060.8418" y2="1060.8418"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="93" y="1048.4443">12</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="135" x="115" y="1040.7891">request authorization</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="158" x="115" y="1056.0996">of leakage report &amp; coins</text><polygon fill="#181818" points="575.5,1086.1523,585.5,1090.1523,575.5,1094.1523,579.5,1090.1523" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="76" x2="581.5" y1="1090.1523" y2="1090.1523"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="83" y="1085.4102">13</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="67" x="105" y="1085.4102">authorized</text><path d="M470,1110.1523 L470,1150.1523 L714,1150.1523 L714,1120.1523 L704,1110.1523 L470,1110.1523 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M704,1110.1523 L704,1120.1523 L714,1120.1523 L704,1110.1523 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="215" x="476" y="1127.7207">Now perform the expensive spend</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="223" x="476" y="1143.0313">proofs to complete the transaction.</text><path d="M555,1162.7734 L811,1162.7734 L811,1170.084 L801,1180.084 L555,1180.084 L555,1162.7734 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="75.9316" style="stroke:#000000;stroke-width:1.5;" width="572.5" x="555" y="1162.7734"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="211" x="570" y="1176.3418">over TLS, to TEE in proof server</text><polygon fill="#181818" points="1072,1197.3945,1082,1201.3945,1072,1205.3945,1076,1201.3945" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="1078" y1="1201.3945" y2="1201.3945"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="604.5" y="1196.6523">14</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="77" x="626.5" y="1196.6523">prove spend</text><polygon fill="#181818" points="608.5,1226.7051,598.5,1230.7051,608.5,1234.7051,604.5,1230.7051" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="602.5" x2="1088" y1="1230.7051" y2="1230.7051"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="614.5" y="1225.9629">15</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="71" x="636.5" y="1225.9629">spendProof</text><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="639.5" y1="1328.2578" y2="1328.2578"/><line style="stroke:#181818;stroke-width:1.0;" x1="639.5" x2="639.5" y1="1328.2578" y2="1341.2578"/><line style="stroke:#181818;stroke-width:1.0;" x1="598.5" x2="639.5" y1="1341.2578" y2="1341.2578"/><polygon fill="#181818" points="608.5,1337.2578,598.5,1341.2578,608.5,1345.2578,604.5,1341.2578" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="604.5" y="1292.8945">16</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="120" x="626.5" y="1262.2734">build tx 'call' using</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="68" x="634.5" y="1277.584">contractId,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108" x="634.5" y="1292.8945">public transcript,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="38" x="634.5" y="1308.2051">proof,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="634.5" y="1323.5156">coins</text><polygon fill="#181818" points="789.5,1366.5684,799.5,1370.5684,789.5,1374.5684,793.5,1370.5684" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="795.5" y1="1370.5684" y2="1370.5684"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="604.5" y="1365.8262">17</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="99" x="626.5" y="1365.8262">savePending(tx)</text><polygon fill="#181818" points="608.5,1395.8789,598.5,1399.8789,608.5,1403.8789,604.5,1399.8789" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="602.5" x2="805.5" y1="1399.8789" y2="1399.8789"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="614.5" y="1395.1367">18</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="16" x="636.5" y="1395.1367">ok</text><path d="M705,1412.8789 L705,1437.8789 L1090,1437.8789 L1090,1422.8789 L1080,1412.8789 L705,1412.8789 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M1080,1412.8789 L1080,1422.8789 L1090,1422.8789 L1080,1412.8789 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="364" x="711" y="1430.4473">omitting details of initialization and session management</text><polygon fill="#181818" points="880.5,1460.5,890.5,1464.5,880.5,1468.5,884.5,1464.5" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="886.5" y1="1464.5" y2="1464.5"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="604.5" y="1459.7578">19</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="81" x="626.5" y="1459.7578">submitTx(tx)</text><polygon fill="#181818" points="1453.5,1489.8105,1463.5,1493.8105,1453.5,1497.8105,1457.5,1493.8105" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="902.5" x2="1459.5" y1="1493.8105" y2="1493.8105"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="909.5" y="1489.0684">20</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="412" x="931.5" y="1489.0684">submitTx(call, circuitId, proof, spendIns, spendOuts, spendProof)</text><polygon fill="#181818" points="608.5,1519.1211,598.5,1523.1211,608.5,1527.1211,604.5,1523.1211" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="602.5" x2="891.5" y1="1523.1211" y2="1523.1211"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="614.5" y="1518.3789">21</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64" x="636.5" y="1518.3789">submitted</text><polygon fill="#181818" points="271,1548.4316,261,1552.4316,271,1556.4316,267,1552.4316" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="265" x2="591.5" y1="1552.4316" y2="1552.4316"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="277" y="1547.6895">22</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64" x="299" y="1547.6895">submitted</text><polygon fill="#181818" points="87,1584.7422,77,1588.7422,87,1592.7422,83,1588.7422" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="81" x2="254" y1="1588.7422" y2="1588.7422"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="93" y="1584">23</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="51" x="115" y="1584">pending</text><rect fill="#EEEEEE" height="3" style="stroke:#EEEEEE;stroke-width:1.0;" width="1526" x="0" y="1617.3975"/><line style="stroke:#000000;stroke-width:1.0;" x1="0" x2="1526" y1="1617.3975" y2="1617.3975"/><line style="stroke:#000000;stroke-width:1.0;" x1="0" x2="1526" y1="1620.3975" y2="1620.3975"/><rect fill="#EEEEEE" height="23.3105" style="stroke:#000000;stroke-width:2.0;" width="323" x="601.5" y="1606.7422"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="305" x="607.5" y="1623.3105">time passes as TX is verified and propageted</text><path d="M16,1645.0527 L16,1670.0527 L135,1670.0527 L135,1655.0527 L125,1645.0527 L16,1645.0527 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M125,1645.0527 L125,1655.0527 L135,1655.0527 L125,1645.0527 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="98" x="22" y="1662.6211">possibly offline</text><path d="M829.5,1682.3633 L1116.5,1682.3633 L1116.5,1689.6738 L1106.5,1699.6738 L829.5,1699.6738 L829.5,1682.3633 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="88.9316" style="stroke:#000000;stroke-width:1.5;" width="686.5" x="829.5" y="1682.3633"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="242" x="844.5" y="1695.9316">Wallet Backend observes consensus</text><polygon fill="#181818" points="913.5,1716.9844,903.5,1720.9844,913.5,1724.9844,909.5,1720.9844" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="907.5" x2="1464.5" y1="1720.9844" y2="1720.9844"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="919.5" y="1716.2422">24</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="198" x="941.5" y="1716.2422">verified tx and new public state</text><line style="stroke:#181818;stroke-width:1.0;" x1="902.5" x2="944.5" y1="1750.2949" y2="1750.2949"/><line style="stroke:#181818;stroke-width:1.0;" x1="944.5" x2="944.5" y1="1750.2949" y2="1763.2949"/><line style="stroke:#181818;stroke-width:1.0;" x1="903.5" x2="944.5" y1="1763.2949" y2="1763.2949"/><polygon fill="#181818" points="913.5,1759.2949,903.5,1763.2949,913.5,1767.2949,909.5,1763.2949" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="909.5" y="1745.5527">25</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="93" x="931.5" y="1745.5527">store for client</text><rect fill="#EEEEEE" height="3" style="stroke:#EEEEEE;stroke-width:1.0;" width="1526" x="0" y="1798.9502"/><line style="stroke:#000000;stroke-width:1.0;" x1="0" x2="1526" y1="1798.9502" y2="1798.9502"/><line style="stroke:#000000;stroke-width:1.0;" x1="0" x2="1526" y1="1801.9502" y2="1801.9502"/><rect fill="#EEEEEE" height="23.3105" style="stroke:#000000;stroke-width:2.0;" width="504" x="511" y="1788.2949"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="486" x="517" y="1804.8633">time passes until Wallet Front End polls Back End or user opens browser</text><path d="M46,1826.6055 L46,1851.6055 L106,1851.6055 L106,1836.6055 L96,1826.6055 L46,1826.6055 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M96,1826.6055 L96,1836.6055 L106,1836.6055 L96,1826.6055 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="52" y="1844.1738">online</text><path d="M555,1863.916 L820,1863.916 L820,1871.2266 L810,1881.2266 L555,1881.2266 L555,1863.916 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="134.5527" style="stroke:#000000;stroke-width:1.5;" width="410.5" x="555" y="1863.916"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="220" x="570" y="1877.4844">wallet processes consensus data</text><polygon fill="#181818" points="880.5,1898.5371,890.5,1902.5371,880.5,1906.5371,884.5,1902.5371" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="592.5" x2="886.5" y1="1902.5371" y2="1902.5371"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="599.5" y="1897.7949">26</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="29" x="621.5" y="1897.7949">sync</text><polygon fill="#181818" points="603.5,1927.8477,593.5,1931.8477,603.5,1935.8477,599.5,1931.8477" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="891.5" y1="1931.8477" y2="1931.8477"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="609.5" y="1927.1055">27</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="95" x="631.5" y="1927.1055">public state, tx</text><polygon fill="#181818" points="789.5,1957.1582,799.5,1961.1582,789.5,1965.1582,793.5,1961.1582" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="592.5" x2="795.5" y1="1961.1582" y2="1961.1582"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="599.5" y="1956.416">28</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="95" x="621.5" y="1956.416">public state, tx</text><polygon fill="#181818" points="603.5,1986.4688,593.5,1990.4688,603.5,1994.4688,599.5,1990.4688" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="597.5" x2="805.5" y1="1990.4688" y2="1990.4688"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="609.5" y="1985.7266">29</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="16" x="631.5" y="1985.7266">ok</text><path d="M5,2010.4688 L5,2035.4688 L148,2035.4688 L148,2020.4688 L138,2010.4688 L5,2010.4688 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><path d="M138,2010.4688 L138,2020.4688 L148,2020.4688 L138,2010.4688 " fill="#FEFFDD" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="122" x="11" y="2028.0371">online, opens dApp</text><path d="M48,2047.7793 L354,2047.7793 L354,2055.0898 L344,2065.0898 L48,2065.0898 L48,2047.7793 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="290.7949" style="stroke:#000000;stroke-width:1.5;" width="582" x="48" y="2047.7793"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="261" x="63" y="2061.3477">dApp processes confirmed transaction</text><polygon fill="#181818" points="580.5,2082.4004,590.5,2086.4004,580.5,2090.4004,584.5,2086.4004" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="255" x2="586.5" y1="2086.4004" y2="2086.4004"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="262" y="2081.6582">30</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="44" x="284" y="2081.6582">refresh</text><polygon fill="#181818" points="266,2111.7109,256,2115.7109,266,2119.7109,262,2115.7109" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="260" x2="591.5" y1="2115.7109" y2="2115.7109"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="272" y="2110.9688">31</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="95" x="294" y="2110.9688">public state, tx</text><line style="stroke:#181818;stroke-width:1.0;" x1="255" x2="297" y1="2145.0215" y2="2145.0215"/><line style="stroke:#181818;stroke-width:1.0;" x1="297" x2="297" y1="2145.0215" y2="2158.0215"/><line style="stroke:#181818;stroke-width:1.0;" x1="256" x2="297" y1="2158.0215" y2="2158.0215"/><polygon fill="#181818" points="266,2154.0215,256,2158.0215,266,2162.0215,262,2158.0215" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="262" y="2140.2793">32</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="146" x="284" y="2140.2793">install new public state</text><polygon fill="#181818" points="507,2183.332,517,2187.332,507,2191.332,511,2187.332" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="255" x2="513" y1="2187.332" y2="2187.332"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="262" y="2182.5898">33</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="144" x="284" y="2182.5898">fetch private transcript</text><polygon fill="#181818" points="266,2212.6426,256,2216.6426,266,2220.6426,262,2216.6426" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="260" x2="523" y1="2216.6426" y2="2216.6426"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="272" y="2211.9004">34</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108" x="294" y="2211.9004">private transcript</text><line style="stroke:#181818;stroke-width:1.0;" x1="255" x2="297" y1="2245.9531" y2="2245.9531"/><line style="stroke:#181818;stroke-width:1.0;" x1="297" x2="297" y1="2245.9531" y2="2258.9531"/><line style="stroke:#181818;stroke-width:1.0;" x1="256" x2="297" y1="2258.9531" y2="2258.9531"/><polygon fill="#181818" points="266,2254.9531,256,2258.9531,266,2262.9531,262,2258.9531" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="262" y="2241.2109">35</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="146" x="284" y="2241.2109">apply private transcript</text><line style="stroke:#181818;stroke-width:1.0;" x1="255" x2="297" y1="2288.2637" y2="2288.2637"/><line style="stroke:#181818;stroke-width:1.0;" x1="297" x2="297" y1="2288.2637" y2="2301.2637"/><line style="stroke:#181818;stroke-width:1.0;" x1="256" x2="297" y1="2301.2637" y2="2301.2637"/><polygon fill="#181818" points="266,2297.2637,256,2301.2637,266,2305.2637,262,2301.2637" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="262" y="2283.5215">36</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="150" x="284" y="2283.5215">install new private state</text><polygon fill="#181818" points="87,2326.5742,77,2330.5742,87,2334.5742,83,2330.5742" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="81" x2="254" y1="2330.5742" y2="2330.5742"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="18" x="93" y="2325.832">37</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="133" x="115" y="2325.832">outcome information</text><rect height="58.8867" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="123" x="1402" y="5"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="109" x="1416" y="14.668">call-tx-overview.puml</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="123" x="1402" y="26.4453">2022.05.12 at 14:23 CEST</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1522" y="38.2227"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1522" y="50"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1522" y="61.7773"> </text><rect height="47.1094" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="222" x="651.5" y="2455.0391"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="761" y="2464.707"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="761" y="2476.4844"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="761" y="2488.2617"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="222" x="651.5" y="2500.0391">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[3c0b255a6c181203bda457148364f70d]
+@startuml
+autonumber
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+actor user
+
+box "dApp" #eef
+        participant dApp as dapp
+        participant "Transition\nFunction" as gamma
+        database "Pending\nPrivate\nUpdates" as pending
+end box
+box "Wallet Frontend" #efe
+        participant "Wallet" as wallet
+        database "Client\nData" as clientData
+end box
+box "Wallet Backend"
+    participant "Wallet Backend" as walletBackend
+end box
+box "Proof Server Component" #fee
+        participant "Proof\nServer" as proofServer
+end box
+
+boundary Consensus as consensus
+
+'==================================================================
+
+
+user -> dapp : action
+
+activate dapp
+        /'
+        ' group sync public and private state
+        '         note over dapp
+        '                 The dApp attempts to work with the
+        '                 most current view of the blockchain,
+        '                 synchronizing via the Wallet Backend
+        '         end note
+        '         dapp -> walletBackend : sync
+        '         activate walletBackend
+        '                 walletBackend -> dapp : public state,\n⟨event ⊕ transaction, ...⟩
+        '         deactivate walletBackend
+        '         /\'
+        '         ' rnote over dapp #eee
+        '         '         dApp:
+        '         '           - install public state
+        '         '           - update private state from
+        '         '                ⟨event ⊕ transaction, ...⟩
+        '         ' end rnote
+        '         '\/
+        ' end
+        '/
+
+
+        group compute and store a state update
+            dapp -> gamma : update(args) using\n  public state,\n  private state
+            activate gamma
+                    gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness)
+            deactivate gamma
+
+            group over TLS, to TEE in proof server
+                note over dapp: witness includes private data\nnot shared with Wallet
+                dapp -> proofServer : prove(circuit, witness)
+                note over proofServer: omitting details of\nsession management
+                activate proofServer
+                        proofServer -> dapp : proof
+                deactivate proofServer
+            end
+
+            dapp -> pending ++ : store pending private\ntranscript indexed by tx
+            return ok
+        end
+
+        group build and send transaction
+                dapp -> wallet : make call tx (call, transcripts)
+                activate wallet
+                group identify payment
+                            wallet -> clientData ++ : fetch coins
+                            clientData -> wallet : coins
+                        deactivate clientData
+                        wallet -> wallet : estimate cost, select coins
+                end
+
+                group obtain authorization
+                        note over wallet : now we have all the data needed to ask user for authorization\nthough a 2-stage process may be better suited:\n - first dApp asks if can interact with wallet at all(and user confirms or rejects)\n - then wallet asks user for each separate transaction
+                        note over wallet: alternative flow: user pre-authorizes\n to avoid this step
+                        wallet -> user : request authorization\nof leakage report & coins
+                        user -> wallet : authorized
+                end
+
+                note over wallet: Now perform the expensive spend\nproofs to complete the transaction.
+                group over TLS, to TEE in proof server
+                        wallet -> proofServer : prove spend
+                        activate proofServer
+                                proofServer -> wallet : spendProof
+                        deactivate proofServer
+                end
+
+                wallet -> wallet : build tx 'call' using\n  contractId,\n  public transcript,\n  proof,\n  coins
+                wallet -> clientData ++ : savePending(tx)
+                clientData -> wallet - - : ok
+                note over walletBackend : omitting details of initialization and session management
+                wallet -> walletBackend : submitTx(tx)
+                activate walletBackend
+                        walletBackend -> consensus : submitTx(call, circuitId, proof, spendIns, spendOuts, spendProof)
+                        walletBackend -> wallet : submitted
+                wallet -> dapp : submitted
+                deactivate wallet
+        end
+
+        dapp -> user: pending
+
+        == time passes as TX is verified and propageted ==
+
+deactivate dapp
+
+
+note over user: possibly offline
+
+group Wallet Backend observes consensus
+        consensus -> walletBackend : verified tx and new public state
+        walletBackend -> walletBackend : store for client
+end
+
+== time passes until Wallet Front End polls Back End or user opens browser ==
+
+note over user: online
+
+'activation doesn't seem to work here
+activate wallet
+
+group wallet processes consensus data
+    wallet -> walletBackend : sync
+    walletBackend -> wallet :  public state, tx
+    wallet -> clientData ++ : public state, tx
+    clientData -> wallet - - : ok
+end
+
+deactivate walletBackend
+
+note over user: online, opens dApp
+group dApp processes confirmed transaction
+    activate dapp
+        dapp -> wallet: refresh
+        wallet -> dapp: public state, tx
+        dapp -> dapp : install new public state
+        dapp -> pending ++ : fetch private transcript
+        pending -> dapp - - : private transcript
+        dapp -> dapp : apply private transcript
+        dapp -> dapp : install new private state
+        dapp -> user : outcome information
+    deactivate dapp
+end
+
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@enduml
+
+@startuml
+autonumber
+header call-tx-overview.puml\n2022.05.12 at 14:23 CEST\n\n\n
+
+actor user
+
+box "dApp" #eef
+        participant dApp as dapp
+        participant "Transition\nFunction" as gamma
+        database "Pending\nPrivate\nUpdates" as pending
+end box
+box "Wallet Frontend" #efe
+        participant "Wallet" as wallet
+        database "Client\nData" as clientData
+end box
+box "Wallet Backend"
+    participant "Wallet Backend" as walletBackend
+end box
+box "Proof Server Component" #fee
+        participant "Proof\nServer" as proofServer
+end box
+
+boundary Consensus as consensus
+
+
+
+user -> dapp : action
+
+activate dapp
+
+
+        group compute and store a state update
+            dapp -> gamma : update(args) using\n  public state,\n  private state
+            activate gamma
+                    gamma -> dapp : ok(result,\n     new public state,\n     new private state,\n     private transcript,\n     public transcript,\n     witness)
+            deactivate gamma
+
+            group over TLS, to TEE in proof server
+                note over dapp: witness includes private data\nnot shared with Wallet
+                dapp -> proofServer : prove(circuit, witness)
+                note over proofServer: omitting details of\nsession management
+                activate proofServer
+                        proofServer -> dapp : proof
+                deactivate proofServer
+            end
+
+            dapp -> pending ++ : store pending private\ntranscript indexed by tx
+            return ok
+        end
+
+        group build and send transaction
+                dapp -> wallet : make call tx (call, transcripts)
+                activate wallet
+                group identify payment
+                            wallet -> clientData ++ : fetch coins
+                            clientData -> wallet : coins
+                        deactivate clientData
+                        wallet -> wallet : estimate cost, select coins
+                end
+
+                group obtain authorization
+                        note over wallet : now we have all the data needed to ask user for authorization\nthough a 2-stage process may be better suited:\n - first dApp asks if can interact with wallet at all(and user confirms or rejects)\n - then wallet asks user for each separate transaction
+                        note over wallet: alternative flow: user pre-authorizes\n to avoid this step
+                        wallet -> user : request authorization\nof leakage report & coins
+                        user -> wallet : authorized
+                end
+
+                note over wallet: Now perform the expensive spend\nproofs to complete the transaction.
+                group over TLS, to TEE in proof server
+                        wallet -> proofServer : prove spend
+                        activate proofServer
+                                proofServer -> wallet : spendProof
+                        deactivate proofServer
+                end
+
+                wallet -> wallet : build tx 'call' using\n  contractId,\n  public transcript,\n  proof,\n  coins
+                wallet -> clientData ++ : savePending(tx)
+                clientData -> wallet - - : ok
+                note over walletBackend : omitting details of initialization and session management
+                wallet -> walletBackend : submitTx(tx)
+                activate walletBackend
+                        walletBackend -> consensus : submitTx(call, circuitId, proof, spendIns, spendOuts, spendProof)
+                        walletBackend -> wallet : submitted
+                wallet -> dapp : submitted
+                deactivate wallet
+        end
+
+        dapp -> user: pending
+
+        == time passes as TX is verified and propageted ==
+
+deactivate dapp
+
+
+note over user: possibly offline
+
+group Wallet Backend observes consensus
+        consensus -> walletBackend : verified tx and new public state
+        walletBackend -> walletBackend : store for client
+end
+
+== time passes until Wallet Front End polls Back End or user opens browser ==
+
+note over user: online
+
+activate wallet
+
+group wallet processes consensus data
+    wallet -> walletBackend : sync
+    walletBackend -> wallet :  public state, tx
+    wallet -> clientData ++ : public state, tx
+    clientData -> wallet - - : ok
+end
+
+deactivate walletBackend
+
+note over user: online, opens dApp
+group dApp processes confirmed transaction
+    activate dapp
+        dapp -> wallet: refresh
+        wallet -> dapp: public state, tx
+        dapp -> dapp : install new public state
+        dapp -> pending ++ : fetch private transcript
+        pending -> dapp - - : private transcript
+        dapp -> dapp : apply private transcript
+        dapp -> dapp : install new private state
+        dapp -> user : outcome information
+    deactivate dapp
+end
+
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+@enduml
+
+PlantUML version 1.2022.4(Sat Apr 09 15:29:17 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: pl
+Country: PL
+--></g></svg>
