@@ -54,6 +54,8 @@ Additionally, Client SDK may be run in environments like Node.js in CLI or serve
 
 Include an [ER diagram](https://plantuml.com/ie-diagram).
 
+![](./datamodel.svg)
+
 ### Entities
 
 Document the entities.
