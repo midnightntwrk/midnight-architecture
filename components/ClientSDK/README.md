@@ -8,9 +8,15 @@ Client SDK is a library, that is used directly by dApp. It has 2 primary respons
 
 ## Special Needs
 
+The API design of Client SDK has to be very easy to follow for newcomers into the ecosystem. At the same time - it 
+should encourage developers by-design to follow good practices regarding dApps development.
 
+Whole library has to be flexible enough to allow developers to use only some of sub-components of the Client SDK to 
+implement their dApps and tailor/wrap others, where library implementation is not sufficient for specific dApp needs.
 
 ## Neighbors & API Dependencies
+
+![Components](./components.svg)
 
 ### Client - Wallet dApp connector
 
