@@ -187,3 +187,9 @@ ie=UTF8&camp=1789&creative=9325&creativeASIN=0321125215&linkCode=as2&tag=martinf
 provide some useful definitions or insights to what aggregates are: 
   - [Martin Fowler](https://www.martinfowler.com/bliki/DDD_Aggregate.html)
   - [Kacper Gunia](https://domaincentric.net/blog/tag/aggregates)
+
+## Invariant
+
+A property which remains unchanged after operations or transformations are applied to the objects it relates to.
+
+
