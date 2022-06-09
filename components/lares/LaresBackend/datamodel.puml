@@ -1,0 +1,85 @@
+@startuml Application Backend
+
+hide circle
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam monochrome true
+skinparam activityArrowFontSize 10
+
+entity Application {}
+entity TxRequestBuilder {
+  --
+  * call
+  * deploy
+}
+entity TxApplier {
+  --
+  * installCallback
+  * uninstallCallback
+}
+entity WalletBackend {
+  --
+  * sendTxRequest
+  * installFilter
+  * uninstallFilter
+}
+'TODO: Fill in contents
+entity TX {
+  * hash
+  * txRequest
+}
+entity CallTxRequest {
+  * address
+  * function
+  * arguments
+  * proof
+  * nonce
+  * transcript
+  * circuit
+}
+entity DeployTxRequest {
+  * hash
+  * timestamp
+  * state
+  * code
+  * circuits
+}
+entity PendingTranscript {
+  * nonce
+  * queries
+}
+entity Contract {
+  * address
+}
+entity PublicOracle {
+  * state
+  * code
+}
+entity PrivateOracle {
+  * state
+  * code
+}
+entity TransitionFunction {
+  * circuit
+  * code
+}
+
+Application       ||-r-|| TxRequestBuilder : connects to
+Application       ||-l-|| TxApplier : connects to
+Contract          ||-l-|{ PublicOracle
+Contract          ||-d-|{ PrivateOracle
+Contract          ||-r-|{ TransitionFunction
+TxRequestBuilder  ||--|{  CallTxRequest : produces
+TxRequestBuilder  ||--|{  DeployTxRequest : produces
+WalletBackend     ||-u-o{ DeployTxRequest : receives
+WalletBackend     ||-l-o{ CallTxRequest : receives
+WalletBackend     ||-l-o{ TX : sends
+TxRequestBuilder  ||--|{  PendingTranscript : produces
+TxApplier         ||--|{  TX : receives
+TxApplier         ||-d-|{ PendingTranscript : applies
+TxApplier         ||--|{  Contract : retrieves
+TxRequestBuilder  ||--|{  Contract : retrieves
+Contract          ||-[hidden]d-|| PendingTranscript
+PendingTranscript ||-[hidden]u-|| Contract
+
+@enduml
