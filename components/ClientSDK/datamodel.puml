@@ -1,6 +1,9 @@
 @startuml
+interface ClientSDK
 entity SDKInstance {}
-entity Contract {}
+entity Contract <<Aggregate>> {
+  transitionFunctions: Map<FunctionName, TransitionFunction>
+}
 entity WalletConnection {}
 entity SyncConnection {}
 entity RelevantTransaction {}
@@ -12,6 +15,7 @@ entity PublicOracle {}
 entity PublicState {}
 entity PendingPrivateTranscript {}
 
+SDKInstance <|-- ClientSDK
 SDKInstance ||--o| WalletConnection
 SDKInstance ||--o{ SyncConnection
 SDKInstance ||--o{ Contract

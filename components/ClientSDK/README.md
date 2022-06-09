@@ -58,17 +58,22 @@ Additionally, Client SDK may be run in environments like Node.js in CLI or serve
 
 ## Logical Data Model
 
-Include an [ER diagram](https://plantuml.com/ie-diagram).
-
 ![](./datamodel.svg)
 
 ### Entities
 
-Document the entities.
+#### Contract
 
-#### Entity 1
+Representation of a smart contract as suitable for client code, it has to enable:
+  - calling the transition functions
+  - state evolution on a per-call and per-transaction basis
 
-#### Entity 2
+The above make it a natural candidate for being an [aggregate](../../definitions.md#Aggregate)
+
+#### SDKInstance
+
+A composition root for whole SDK. It implements the Client SDK API and gathers all pieces (connection to wallet, 
+synchronization and contracts used by dApp) together.
 
 ### Invariants
 
