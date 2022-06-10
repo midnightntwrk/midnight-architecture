@@ -1,0 +1,81 @@
+@startuml Lares Backend Datamodel
+
+hide circle
+skinparam linetype ortho
+skinparam nodesep 70
+skinparam activityArrowFontSize 10
+
+entity Application {}
+entity TxRequestBuilder {
+  --
+  * call
+  * deploy
+}
+entity TxApplier {
+  --
+  * installCallback
+  * uninstallCallback
+}
+entity TX {
+  * id
+  * txRequest [TODO]
+}
+entity CallTxRequest {
+  * id
+  * address
+  * function
+  * arguments
+  * proof
+  * nonce
+  * publicTranscript
+  * circuit
+}
+entity DeployTxRequest {
+  * id
+  * timestamp
+  * state
+  * code
+  * circuits
+}
+entity PendingPrivateTranscript {
+  * id
+}
+entity Contract {
+  * id
+}
+entity PublicOracle {
+  * state
+  * code
+}
+entity PrivateOracle {
+  * state
+  * code
+}
+entity TransitionFunction {
+  * circuit
+  * code
+}
+entity WalletBackend {
+  --
+  * sendTxRequest
+  * installFilter
+  * uninstallFilter
+}
+
+Application       ||-l-|| TxRequestBuilder : connects to
+Application       ||-r-|| TxApplier : connects to
+TxRequestBuilder  ||-u-|{ PendingPrivateTranscript : produces
+TxRequestBuilder  ||---|{ CallTxRequest : produces
+TxRequestBuilder  ||---|{ DeployTxRequest : produces
+TxRequestBuilder  ||--|{  Contract : retrieves
+TxApplier         ||--|{  TX : applies
+TxApplier         ||-u-|{ PendingPrivateTranscript : applies
+TxApplier         ||--|{  Contract : retrieves
+Contract          ||.u.|| PublicOracle
+Contract          ||.l.|| PrivateOracle
+Contract          ||..|{  TransitionFunction
+WalletBackend     ||---o{ DeployTxRequest : receives
+WalletBackend     ||---o{ CallTxRequest : receives
+WalletBackend     ||--o{  TX : sends
+
+@enduml
