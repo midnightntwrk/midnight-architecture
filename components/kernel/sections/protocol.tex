@@ -1,0 +1,65 @@
+\section{Protocol}
+
+\subsection{Structure of Coins}
+
+A basic coin consists of a controlling \textbf{secret key}, a random
+\textbf{nonce}, a \textbf{value}, and a \textbf{color}. Coins may additionally
+have a \textbf{spend predicate}, and a \textbf{locking contract}.
+
+Proposed data types:
+\begin{itemize}
+    \item \textbf{secret key} -- a 256-bit bitstring
+    \item \textbf{nonce} -- a 256-bit bitstring
+    \item \textbf{value} -- a 64-bit unsigned integer
+    \item \textbf{color} -- a 256-bit bitstring
+    \item \textbf{spend predicate} -- a hash of the circuit IR, 0 representing no predicate
+    \item \textbf{locking contract} -- a contract address, 0 representing no lock
+\end{itemize}
+Coins the twin cryptographic projections of \textbf{notes} and \textbf{nullifiers}, both of which commit to all of the coin's contents. They are domain-separated, and \textbf{notes} commit to a (diversified) public key derived from the secret key.
+
+\subsection{Notes}
+A note $n$ represents that a value $v$ is spendable by the recipient who holds the spending key corresponding to a given address.
+Each note is associated with a note commitment where every commitment represents a leaf in a tree of note commitments. The goal of using note commitments is to preserve privacy of the receipient's address and the value they are receiving as only the commitment to the above values is disclosed publicly when a note is spent. The commitment is then used by a zk-SNARK proof to check that it exists on the blockchain in the commitment tree.\newline
+A note is also associated to a unique nullifier which requires the associated private spending key in order to be computed.
+It is infeasible to correlate the note commitment or note position with the corresponding nullifier without knowledge of at least this key.
+
+\subsubsection{Note generation}
+
+
+\subsubsection{Note components}
+We define the note components similar to ZCash Sapling as a tuple $(d,pk_d,v,rcm)$ where:
+\begin{itemize}
+  \item $d:\mathbb{B}^{[l_d]}$ is the diversifier of the receipient address where $\mathbb{B}^{[l_d]}$ means the type of byte values, i.e. {0 .. 255}.
+  \item $pk_d:KA.pps$ is the diversified transmission key used to encrypt the note. $KA$ is a key agreement scheme and $KA.p$ is a type of public keys which includes a subset $KA.pps$ (i.e$pps$ is a short for PublicPrimeSubgroup) such that $$KA.pps \subseteq KA.p$$
+  \item $v: \{0,......,MAX\}$ is an integer that represents the value of the note
+  \item $rcm:n_{com}.tr$: is a random commitment trapdoor (see commitment section).
+\end{itemize}
+Each note has a type $n_{ty}$ that is computed as follow:
+$$ n_{ty}:=\mathbb{B}^{[l_d]}\times n_{com}.tr\times KA.pps$$
+\subsubsection{Note commitment}
+Each time a note is spent, the note commitment gets publicly revealed. The note spender only proves that some commitment for that note had been revealed, without revealing which makes a spent note and the transaction that created it unlinkable.
+Notes commit to a diversifier key in the following way:
+
+\subsection{Nullifiers}
+
+The role of nullifiers is to prevent notes double spending. This is guaranteed by proving in a deterministic way the correctness of the nullifier marking the input as spent and thus cannot be spent again.
+$S_{nf}$ is the set of used nullifiers
+
+
+
+\subsection{Structure of Transactions}
+
+A transaction consists of $n$ outputs, $m$ spends, a balancing signature, binding randomness, a public transcript, and a set of proofs of valid smart contracts transitions.
+We call spends and outputs inside a transaction Spend descriptions and Output descriptions, they represent a piece of data included in a transaction that describe Spend transfers and
+Output transfers, respectively.
+Each Spend is authorized by a signature, called the spend authorization signature.
+
+
+\subsubsection{Zswap Spends and outputs}
+\paragraph*{Spends}
+
+A spend transfer is a transfer creating value of the issued currency, i.e. increasing the circulating supply.
+
+
+
+\subsection*{Outputs}

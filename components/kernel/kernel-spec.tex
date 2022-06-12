@@ -1,0 +1,47 @@
+\documentclass[a4paper]{scrartcl}
+
+\usepackage{todonotes}
+\usepackage{amsfonts}
+\usepackage{authblk}
+\usepackage[backend=bibtex,style=alphabetic,maxnames=99,minalphanames=3,maxalphanames=4]{biblatex}
+
+\usepackage{macros}
+
+\addbibresource{kernel-spec.bib}
+
+
+\title{Midnight Transaction Kernel Specification}
+\subtitle{draft}
+
+\author[1]{Amira Bouguera}
+\author[2]{Thomas Kerber}
+
+\affil[1]{IOG}
+\affil[2]{IOG}
+
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+
+\input{sections/introduction}
+\input{sections/notation}
+\input{sections/concepts}
+\input{sections/protocol}
+
+\newpage
+\printbibliography
+\newpage
+\appendix
+\input{sections/circuits}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "./kernel-spec.tex"
+%%% eval: (if (string= "90a8b75056172d4fe184b1061fedf6083cc7e8698be557293b6654fb9039c268" (with-temp-buffer (insert-file-contents "./formatting.el") (secure-hash 'sha256 (current-buffer)))) (load-file "./formatting.el"))
+%%% End:

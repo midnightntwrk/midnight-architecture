@@ -1,0 +1,33 @@
+\section{Concepts}
+The principal abstractions needed to understand the protocol
+
+\subsection{Zcash sapling and Orchard}
+
+
+\subsubsection*{Diversifier keys}
+Both Sapling and Orchard have three step in their key derivation mechanisms:
+\begin{itemize}
+  \item Spending keys extension
+  \item Child key derivation
+  \item Diversifier key derivation
+\end{itemize}
+The first step prevents the child keys to be completely dependent on the parent key ans that's why they are extended. In sapling, three keys are derived: Spend authorizing key, proof authorizing key, and outgoing viewing key. In Orchard, the proof authorizing key is removed and the spending key sk is used to derive a Spend authorizing key. The second step derives full viewing keys from which payment addresses can be generated. Sapling and Orchard do not derive public keys directly, as this would prevent the use of diversified addresses.  Viewing keys enable the separation of spending and viewing permissions for Zcash shielded addresses. By creating a separate viewing key, Zcash users can share visibility of the transactions sent and received from their shielded address without compromising their private spend key. As with Sapling, we define a mechanism for deterministically deriving a sequence of diversifiers, without leaking how many diversified addresses have already been generated for an account. For the last step, in order to deterministically derive a sequence of diversifiers and prevent the diversifier leaking how many diversified addresses have already been generated for an account, the sequence of diversifiers is pseudorandom and uncorrelated to that of any other account.
+Sapling derives a diversifier key as part of the extended spending key whereas in Orchard it's derived directly from the full viewing key and provides the capability to determine the position of a diversifier within the sequence, which matches the capabilities of a Sapling extended full viewing key but simplifies the key structure.
+\subsection{Zexe Swaps}
+\subsection{Transactions and Treestates}
+\subsection{Notes}
+
+\subsection{Spend Transfers and Output Transfers}
+\subsection{Transaction merge}
+\subsection{Commitment schemes}
+\subsubsection{Pedersen commitment}
+
+\subsubsection{Homomorphic commitment}
+
+\subsection{Binding signature}
+\subsection{Hash Functions (Poseiden)}
+\subsection{Curves}
+
+
+\subsection{Nullifier Sets}
+\subsection{Zero-Knowledge Proving Systems(Plonk, Halo 2, Groth16)}
