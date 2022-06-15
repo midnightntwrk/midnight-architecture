@@ -17,24 +17,32 @@ Parts of the transaction kernel depend on the availability of one-step-recursion
 
 ## Neighbors & API Dependencies
 
-Interacts with [lares](../lares/), and our circuit compiler. 
+Interacts with the *node* for transaction execution, as well as the
+*Transaction Constructor* for creating a transaction. Parts of the transaction
+kernel will be compiled to *abcird*, and parts to our currently undefined
+*public and private oracle languages*, effectively running as an extend to
+[Lares](../lares/). Some of its privileged operations will request information
+from the *wallet frontend*.
 
 ## Operating Environment
 
 The transaction kernel will operate in two independent modes: Transaction
-creation and validation. Transaction creation is bounded by the client
-environment, while validation is bounded strict efficiency requirements.
+creation and validation. Transaction creation should be runnable is a browser
+context in WASM, given trusted external preprocessing. Transaction validation
+should run on all systems supported by full nodes, and within transaction
+execution budgets.
 
 ## Key Library Dependencies
 
+1. Lares for the execution semantics of contract subtransactions.
+2. Abcird as the language of kernel circuits.
+3. Snarkie for proof creation & proof verification
 
 ## Logical Data Model
 
-Include an [ER diagram](https://plantuml.com/ie-diagram).
+![](datamodel.svg)
 
 ### Entities
-
-Document the entities.
 
 #### Entity 1
 

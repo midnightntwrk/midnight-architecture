@@ -1,0 +1,95 @@
+'ER diagrams documented here
+'    https://plantuml.com/ie-diagram
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+
+skinparam linetype ortho
+
+entity Transaction {
+  hash : TransactionHash <<PK>>
+  bindingRandomness : Field
+  publicValues : Set<Type, Value>
+  --
+  validate : Bool
+}
+
+entity ZswapOutput {
+  coinNote : Note
+  valueCom : ValueCommitment
+  message : ByteString
+  proof : Proof
+}
+
+entity ZswapInput {
+  merkleRoot : Field
+  nullifier: Nullifier
+  valueCom : ValueCommitment
+  proof : Proof
+}
+
+entity ZswapImmediatelySpent {
+  valueCom : ValueCommitment
+  proof : Proof
+}
+
+entity PublicOutput {
+  //funds sent to main chain//
+  type : Type
+  value : Value
+  authorizedPk: ByteString
+  authorizingCommitment : ValueCommitment
+}
+
+entity ContractCall {
+  contract : Address <<FK>>
+  entryPoint : TransitionFunctionID <<FK>>
+  transcript : Vector<OracleCall>
+  proof : Proof
+}
+
+entity Contract {
+  address : Address <<PK>>
+  code : ByteString
+  state : PublicState
+  dataCommitments : Vec<ByteString>
+  publicOracle : Map<String, PublicOracleCode>
+}
+
+entity TransitionFunction {
+  id : TransitionFunctionID <<PK>>
+  intermediateRepresentation : ByteString
+  vk : VerifyingKey
+  pk : Maybe<ProvingKey>
+}
+
+entity ChainState {
+  notes: MerkleTree<Note>
+  nullifiers: Set<Nullifier>
+  merkleRoots: Set<Field>
+}
+
+ChainState }|--o{ TransitionFunction
+ChainState }|--o{ Contract
+ChainState }|..o{ ZswapInput
+ChainState }|..o{ ZswapOutput
+Contract }o--|{ TransitionFunction
+ContractCall }o..|| Contract
+ContractCall }o..|| TransitionFunction
+Transaction  |o--|{ Transaction : "merges"
+Transaction  }o--o{ ZswapOutput
+Transaction  }o--o{ ZswapInput
+Transaction  }o--o{ ZswapImmediatelySpent
+Transaction  }o--o{ ContractCall
+Transaction  }o--o{ PublicOutput
+ZswapOutput  }o..o| ContractCall : "output to"
+ZswapInput   }o..o| ContractCall : "obtained from"
+ZswapImmediatelySpent }o..|| ContractCall : "output to"
+ZswapImmediatelySpent }o..|| ContractCall : "obtained from"
+ContractCall |o..o{ ContractCall : "invokes"
+
+
+
+@enduml
