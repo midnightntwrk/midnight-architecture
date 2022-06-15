@@ -1,0 +1,155 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage{todonotes}
+\usepackage{amsfonts}
+\usepackage{authblk}
+
+
+
+\title{Midnight Transaction Kernel Specification}
+\subtitle{draft}
+\author{Amira Bouguera, Thomas Kerber}
+\begin{document}
+\maketitle
+\begin{abstract}
+  This document specifies the semantics of creating and validating Midnight transactions, outside of the sandboxed realm of each smart contract. Notably, this includes native currencies, their transfer, and interactions between multiple contracts, and contracts and currency.
+  \end{abstract}
+\tableofcontents
+
+
+
+
+\section{Introduction}
+This document leans heavily on research in ZSwap~\cite{}, Zexe~\cite{}, and to a lesser extent, Kachina~\cite{}.
+\subsection*{State of the art}
+\section{Notation}
+Definitions of notation used throughout the document.
+\section{Concepts}
+The principal abstractions needed to understand the protocol
+
+\subsection{Zcash sapling and Orchard}
+
+
+\subsubsection*{Diversifier keys}
+Both Sapling and Orchard have three step in their key derivation mechanisms: 
+\begin{itemize}
+  \item Spending keys extension
+  \item Child key derivation
+  \item Diversifier key derivation
+\end{itemize}
+The first step prevents the child keys to be completely dependent on the parent key ans that's why they are extended. In sapling, three keys are derived: Spend authorizing key, proof authorizing key, and outgoing viewing key. In Orchard, the proof authorizing key is removed and the spending key sk is used to derive a Spend authorizing key. The second step derives full viewing keys from which payment addresses can be generated. Sapling and Orchard do not derive public keys directly, as this would prevent the use of diversified addresses.  Viewing keys enable the separation of spending and viewing permissions for Zcash shielded addresses. By creating a separate viewing key, Zcash users can share visibility of the transactions sent and received from their shielded address without compromising their private spend key. As with Sapling, we define a mechanism for deterministically deriving a sequence of diversifiers, without leaking how many diversified addresses have already been generated for an account. For the last step, in order to deterministically derive a sequence of diversifiers and prevent the diversifier leaking how many diversified addresses have already been generated for an account, the sequence of diversifiers is pseudorandom and uncorrelated to that of any other account.
+Sapling derives a diversifier key as part of the extended spending key whereas in Orchard it's derived directly from the full viewing key and provides the capability to determine the position of a diversifier within the sequence, which matches the capabilities of a Sapling extended full viewing key but simplifies the key structure.
+\subsection{Zexe Swaps}
+\subsection{Transactions and Treestates}
+\subsection{Notes} 
+
+\subsection{Spend Transfers and Output Transfers}
+\subsection{Transaction merge}
+\subsection{Commitment schemes}
+\subsubsection{Pedersen commitment}
+
+\subsubsection{Homomorphic commitment}
+
+\subsection{Binding signature}
+\subsection{Hash Functions (Poseiden)}
+\subsection{Curves}
+
+
+\subsection{Nullifier Sets} 
+\subsection{Zero-Knowledge Proving Systems(Plonk, Halo 2, Groth16)}
+
+\section{Protocol}
+
+\subsection{Structure of Coins}
+
+A basic coin consists of a controlling \textbf{secret key}, a random
+\textbf{nonce}, a \textbf{value}, and a \textbf{color}. Coins may additionally
+have a \textbf{spend predicate}, and a \textbf{locking contract}.
+
+Proposed data types:
+\begin{itemize}
+    \item \textbf{secret key} -- a 256-bit bitstring
+    \item \textbf{nonce} -- a 256-bit bitstring
+    \item \textbf{value} -- a 64-bit unsigned integer
+    \item \textbf{color} -- a 256-bit bitstring
+    \item \textbf{spend predicate} -- a hash of the circuit IR, 0 representing no predicate
+    \item \textbf{locking contract} -- a contract address, 0 representing no lock
+\end{itemize}
+Coins the twin cryptographic projections of \textbf{notes} and \textbf{nullifiers}, both of which commit to all of the coin's contents. They are domain-separated, and \textbf{notes} commit to a (diversified) public key derived from the secret key.
+
+\subsection{Notes}
+A note $n$ represents that a value $v$ is spendable by the recipient who holds the spending key corresponding to a given address.
+Each note is associated with a note commitment where every commitment represents a leaf in a tree of note commitments. The goal of using note commitments is to preserve privacy of the receipient's address and the value they are receiving as only the commitment to the above values is disclosed publicly when a note is spent. The commitment is then used by a zk-SNARK proof to check that it exists on the blockchain in the commitment tree.\newline
+A note is also associated to a unique nullifier which requires the associated private spending key in order to be computed. 
+It is infeasible to correlate the note commitment or note position with the corresponding nullifier without knowledge of at least this key. 
+
+\subsubsection{Note generation}
+
+Notes are generated using an OTA (One Time Account) scheme. An OTA consists of five PPT algorithms (Setup, KeyGen, Gen, Receive, NulEval).  
+The Gen() algorithm is the one that actually generates notes using a public key $pk$, a vector of attributes 
+$\overrightarrow{a}$ (attributes could be amount, type..etc) and randomness $r$ where:
+\begin{itemize}
+  \item $pk=(a_{pk}, pk_{enc})$ for $a_{pk}$ the ZK public key and $pk_{enc}$ the encryption key (both 256 bit string).
+  \item $\overrightarrow{a}\in\mathbb{M}^{|\overrightarrow{a}|}$ where $\mathbb{M}:=\mathbb{Z}^2_{2^{\lambda}}$ is the message space and consists of two $\lambda$-bit integers: the first representing an amount and the second identifying a type. 
+  \item $r\in \mathbb{S}$ where $\mathbb{S}:= ({0, 1}^{\lambda})^3$ is the randomness space.
+\end{itemize}
+
+First, $r$ and $pk$ are parsed into $(rk, rc, rn) \leftarrow r$ and
+$(a_{pk}, pk_{enc}) \leftarrow pk$. Note is computed as:
+$$ note = Commit(Commit(a_{pk}, rn; rk),\overrightarrow{a}; rc)$$
+
+Second step consists of encrypting $\overrightarrow{a}$ and $r$ using the encryption key $pk_{enc}$ as $C \leftarrow Enc(pk, (\overrightarrow{a},r), \xi)$ with randomness $\xi$.  
+
+
+
+
+\subsubsection{Note components}
+We define the note components similar to ZCash Sapling as a tuple $(d,pk_d,v,rcm)$ where:
+\begin{itemize}
+  \item $d:\mathbb{B}^{[l_d]}$ is the diversifier of the receipient address where $\mathbb{B}^{[l_d]}$ means the type of byte values, i.e. {0 .. 255}.
+  \item $pk_d:KA.pps$ is the diversified transmission key used to encrypt the note. $KA$ is a key agreement scheme and $KA.p$ is a type of public keys which includes a subset $KA.pps$ (i.e$pps$ is a short for PublicPrimeSubgroup) such that $$KA.pps \subseteq KA.p$$
+  \item $v: \{0,......,MAX\}$ is an integer that represents the value of the note
+  \item $rcm:n_{com}.tr$: is a random commitment trapdoor (see commitment section).
+\end{itemize}
+Each note has a type $n_{ty}$ that is computed as follow:
+$$ n_{ty}:=\mathbb{B}^{[l_d]}\times n_{com}.tr\times KA.pps$$
+\subsubsection{Note commitment}
+Each time a note is spent, the note commitment gets publicly revealed. The note spender only proves that some commitment for that note had been revealed, without revealing which makes a spent note and the transaction that created it unlinkable.
+Notes commit to a diversifier key in the following way:
+
+In Sapling, each positioned note has an associated  value which is computed from its note commitment cm and
+note position pos as follows:
+ρ := MixingPedersenHash(cm, pos).
+
+
+\subsection{Nullifiers}
+
+The role of nullifiers is to prevent notes double spending. This is guaranteed by proving in a deterministic way the correctness of the nullifier marking the input as spent and thus cannot be spent again. Computing the nullier requires the associated private spending key (or the nullier deriving
+key for Sapling or Orchard notes). It is infeasible to correlate the note commitment or note position with the
+corresponding nullier without knowledge of at least this key. 
+$S_{nf}$ is the set of used nullifiers
+The nullifier is derived as:
+$nk⋆(ρ⋆)$, where nk⋆ is a representation of the nullifier deriving
+key associated with the note and ρ = reprJ(ρ).
+
+
+
+\subsection{Structure of Transactions}
+
+A transaction consists of $n$ outputs, $m$ spends, a balancing signature, binding randomness, a public transcript, and a set of proofs of valid smart contracts transitions.
+We call spends and outputs inside a transaction Spend descriptions and Output descriptions, they represent a piece of data included in a transaction that describe Spend transfers and
+Output transfers, respectively.
+Each Spend is authorized by a signature, called the spend authorization signature.
+
+
+\subsubsection{Zswap Spends and outputs}
+\paragraph*{Spends}
+
+A spend transfer is a transfer creating value of the issued currency, i.e. increasing the circulating supply. 
+
+
+
+\subsection*{Outputs}
+
+
+\section{Appendix}
+\end{document}
