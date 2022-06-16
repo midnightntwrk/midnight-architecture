@@ -117,40 +117,35 @@ Transactions are created with separate inputs and outputs using the OTA scheme. 
 SHC commitment with an equal amount and type.
 
 Each time a note is spent, the note commitment gets publicly revealed. The note spender only proves that some commitment for that note had been revealed, without revealing which one making a spent note and the transaction that created it unlinkable.
-They do so if they possess the secret key to authorize the spending and prove that the published nullifier is correct.
-
-The output additionally assure non-malleability for the note ciphertext.
-This is captured by two NIZK languages.
-n Sapling, each positioned note has an associated  value which is computed from its note commitment cm and
-note position pos as follows:
-ρ := MixingPedersenHash(cm, pos).
-
-
-The first one authenticates a valid spend --- it says that the (rerandomized) SHC commitment $\com^\sS$ is well-formed and contains the same value and type as a note in the Merkle tree of state $\sta$ with the given nullifier $\nul$.
+They do so by proving that SHC commitment $com^S$ has the same value and type as a note in the Merkle tree of state $st$ with the given nullifier $nul$. The spender can only do this if they possess the secret key to authorize the spending and prove that the published nullifier is correct.
+\begin{center}
 \begin{align*}
-    \SpendLang = \Big\{
-        \left(\sta,\nul,\com^{\sS}\right) \mid \exists (\mtpath, \sk^\sS,&a^\sS,\typ^\sS,r^{\sS},\rc^{\sS}) \qsep
+    L^{spend} = \Big\{
+        \left(st,nul,com^{S}\right) \mid \exists (path, \sk^S,&a^S,ty^S,r^{S},rc^{S}): \qsep
         \\[-0.24\baselineskip]
-        (\sta.\MT[\mtpath],\nul;\sk^\sS,(a^\sS,\typ^\sS),r^{\sS})&\in\NulLang\  \land\\[-0.05\baselineskip]
-        (\sta.\MT[\mtpath]; \OTA.P(\sk^\sS),(a^\sS,\typ^\sS),r^{\sS}) &\in \OpenLang\  \land \\[-0.24\baselineskip]
-        \com^{\sS} = \Commit&(\typ^\sS,a^\sS; \rc^{\sS})
+        (st.MT[path],nul;sk^S,(a^S,ty^S),r^{S})&\in L^{nul}\  \land\\[-0.05\baselineskip]
+        (st.MT[path]; \OTA.P(sk^S),(a^S,ty^S),r^{S}) &\in L^{open}  \land \\[-0.24\baselineskip]
+        com^{S} = \Commit&(ty^S,a^S; \rc^{S})
     \Big\}
 \end{align*}
+\end{center}
 
-The second language $\OutputLang$ is even simpler.
-It claims that the two output commitments, the real (which is contained inside the output note) and the randomized one, contain the same value of the same type. To prevent overflows in the homomorphic commitments, we include a range proof where $\beta$ is chosen small enough in relation to the group order (maximum inputs and outputs times $2^\beta < |\mathbb{G}|$). Thereby we assume integer amounts in subsequent arguments.
+
+The second language $L^{output}$ claims that the two output commitments, the real (which is contained inside the output note) and the randomized one, contain the same value of the same type.
+
+\begin{center}
 \begin{align*}
-\OutputLang =
+L^{output} =
 \Big\{
-    (&\Note^\sT,C^\sT, \com^{\sT}) \mid \exists (\pk^\sT,a^\sT,\typ^\sT,r^\sT,\rc^\sT) \qsep\\%[-0.24\baselineskip]
-        &(\sta.\MT[\mtpath]; \pk, (a^\sT,\typ^\sT),r^{\sT}) \in \OpenLang \ \land \\%[-0.24\baselineskip]
-        &\com^{\sT} = \Commit(\typ^\sT,a^\sT; \rc^{\sT})\\
-        &a^\sT\in\{0,\dots,2^\beta-1\}
+    (&note^{\tau},C^\tau, com^{\tau}) \mid \exists (pk^\tau,a^\tau,ty^\tau,r^\tau,rc^\tau) \qsep\\%[-0.24\baselineskip]
+        &(st.MT[path]; pk, (a^\tau,ty^\tau),r^{\tau}) \in L^{open} \ \land \\%[-0.24\baselineskip]
+        &com^{\tau} = Commit(ty^\tau,a^\tau; \rc^{\tau})\\
+        &a^\tau\in\{0,\dots,2^\beta-1\}
   \Big\}
 \end{align*}
+\end{center}
+where $2\beta < |G|$, $\beta$ is chosen small enough in relation to the group order $G$ to prevent overflows in the homomorphic commitments.
 
-
-I
 
 
 \subsection{Nullifiers}
