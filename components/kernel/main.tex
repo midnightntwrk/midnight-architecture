@@ -153,11 +153,15 @@ is a set of (output) notes $note_i^{\tau}$ that outputs a signature $\sigma$ as 
 
 \subsection{Nullifiers}
 
-The role of nullifiers is to prevent notes double spending. This is guaranteed by proving in a deterministic way the correctness of the nullifier marking the input as spent and thus cannot be spent again. Computing the nullifier requires the associated private spending or deriving key. It is infeasible to correlate the note commitment or note position with the
-corresponding nullifier without knowledge of at least this key. 
-$st_{nf}$ is the set of used nullifiers
+The role of nullifiers is to prevent notes double spending. This is guaranteed by proving in a deterministic way the correctness of the nullifier marking the input as spent and thus cannot be spent again. 
+Computing the nullifier requires the associated private spending or deriving key, note and ciphertext $C$. It is infeasible to correlate the note commitment or note position with the
+corresponding nullifier without knowledge of at least this key. The algorithm NulEval from the OTA scheme generates a unique serial value $nul\leftarrow NulEval(sk,r)$ characterizing the note using the secret key $sk$ and randomness $r$ as inputs.
+The construction must provide a NIZK protocol for the following languages:
 
+$$L^{nul} = \{(note, nul) | \exists(sk,\overrightarrow{a}, r) :
+note = Gen(P(sk),\overrightarrow{a}, r) \land nul = NulEval(sk, r)\}$$
 
+$$L^{open} = \{note | \exists(pk,\overrightarrow{a}, r) : note = Gen(pk,\overrightarrow{a}, r)\}$$
 
 
 \subsection{Structure of Transactions}
