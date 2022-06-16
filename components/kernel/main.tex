@@ -129,9 +129,11 @@ They do so by proving that SHC commitment $com^S$ has the same value and type as
     \Big\}
 \end{align*}
 \end{center}
-
-
-The second language $L^{output}$ claims that the two output commitments, the real (which is contained inside the output note) and the randomized one, contain the same value of the same type.
+where $st$ is the current state of valid previously issued notes. $st.MT$ is the Merkle tree containing notes
+as leaves, and $st.NF$ is the set of used nullifiers. 
+$$S=\{sk_i^S,note_i^S,nul_i,path_i,(a_i^S,ty_i^S,r_i^S)\}_{i=1}^{|\tau|}$$
+is a set of inputs with a nullifier $nul_i$ corresponding to the $note_i^S$.
+\\The second language $L^{output}$ claims that the two output commitments, the real (which is contained inside the output note) and the randomized one, contain the same value of the same type.
 
 \begin{center}
 \begin{align*}
@@ -145,18 +147,16 @@ L^{output} =
 \end{align*}
 \end{center}
 where $2\beta < |G|$, $\beta$ is chosen small enough in relation to the group order $G$ to prevent overflows in the homomorphic commitments.
-
+$$\tau = \{(pk_i^{\tau}, note_i^{\tau}, (a_i^{\tau}, ty_i^{\tau}), r_i^{\tau} )\}_{i=1}^{|\tau|}$$
+is a set of (output) notes $note_i^{\tau}$ that outputs a signature $\sigma$ as authorization to spend the inputs $S$ on the given outputs $\tau$.
 
 
 \subsection{Nullifiers}
 
-The role of nullifiers is to prevent notes double spending. This is guaranteed by proving in a deterministic way the correctness of the nullifier marking the input as spent and thus cannot be spent again. Computing the nullier requires the associated private spending key (or the nullier deriving
-key for Sapling or Orchard notes). It is infeasible to correlate the note commitment or note position with the
-corresponding nullier without knowledge of at least this key. 
-$S_{nf}$ is the set of used nullifiers
-The nullifier is derived as:
-$nk⋆(ρ⋆)$, where nk⋆ is a representation of the nullifier deriving
-key associated with the note and ρ = reprJ(ρ).
+The role of nullifiers is to prevent notes double spending. This is guaranteed by proving in a deterministic way the correctness of the nullifier marking the input as spent and thus cannot be spent again. Computing the nullifier requires the associated private spending or deriving key. It is infeasible to correlate the note commitment or note position with the
+corresponding nullifier without knowledge of at least this key. 
+$st_{nf}$ is the set of used nullifiers
+
 
 
 
