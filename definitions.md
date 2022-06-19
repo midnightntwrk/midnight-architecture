@@ -110,3 +110,63 @@ The component MUST declare whether it has a lifecycle that can be described as a
 
 How will the component handle unavailability of required services, both at launch and in steady state?
 
+# Architecture Characteristics
+
+[Richards and Ford (2020)](https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/) propose to use the term _architecture characteristics_ instead of the usual _non-functional requirements_ or _quality attributes_.
+
+They specify that an architecture characteristic meets the following criteria:
+
+- Specify a non-domain design consideration,
+- Influence some structural aspect of the design,
+- Be critical or important to appliaction success.
+
+They also provide a partial list of architectural characteristics they identified.
+
+## Operational Architecture Characteristics
+
+Richards and Ford mention that "operational characteristics heavily overlap with operations and DevOps concerns, forming the intersections of those concerns in many software projects".
+
+Following definitions taken verbatim from Richards and Ford (2020).
+
+| Characteristic     | Definition |
+| ------------------ | ---------- |
+| Availability       | How long the system will need to be available (if 24/7, steps need to be in place to allow the system to be up and running quickly in case of any failure). |
+| Continuity         | Disaster recovery capability. |
+| Performance        | Includes stress testing, peak analysis, analysis of the frequency of functions used, capacity required, and response times. Performance acceptance sometimes requires an exercise of its own, taking months to complete. |
+| Recoverability     | Business continuity requirements (e.g., in case of a disaster, how quickly is the system required to be on-line again?). This will affect the backup strategy and requirements for duplicated hardware. |
+| Reliability/Safety | Assess if the system needs to be fail-safe, or if it is mission critical in a way that affects lives. If it fails, will it cost the company large sums of money? |
+| Robustness         | Ability to handle error and boundary conditions while running if the internet connection goes down or if there’s a power outage or hardware failure. |
+| Scalability        | Ability for the system to perform and operate as the number of users or requests increases. |
+
+## Structural Architecture Characteristics
+
+Following definitions taken verbatim from Richards and Ford (2020).
+
+| Characteristic        | Definition |
+| --------------------- | ---------- |
+| Configurability       | Ability for the end users to easily change aspects of the software’s configuration (through usable interfaces). |
+| Extensibility         | How important it is to plug new pieces of functionality in. |
+| Installability        | Ease of system installation on all necessary platforms. |
+| Leverageability/Reuse | Ability to leverage common components across multiple products. |
+| Localization          | Support for multiple languages on entry/query screens in data fields; on reports, multibyte character requirements and units of measure or currencies. |
+| Maintainability       | How easy it is to apply changes and enhance the system? |
+| Portability           | Does the system need to run on more than one platform? (For example, does the frontend need to run against Oracle as well as SAP DB? |
+| Upgradeability        | Ability to easily/quickly upgrade from a previous version of this application/solution to a newer version on servers and clients. |
+
+## Cross-Cutting Architectur Characteristics
+
+Finally, Richards and Ford identify some characteristics that cannot be easily categorized.
+
+Following definitions taken verbatim from Richards and Ford (2020).
+
+| Characteristic          | Definition |
+| ----------------------- | ---------- |
+| Accessibility           | Access to all your users, including those with disabilities like colorblindness or hearing loss. |
+| Archivability           | Will the data need to be archived or deleted after a period of time? (For example, customer accounts are to be deleted after three months or marked as obsolete and archived to a secondary database for future access.) |
+| Authentication          | Security requirements to ensure users are who they say they are. |
+| Authorization           | Security requirements to ensure users can access only certain functions within the application (by use case, subsystem, webpage, business rule, field level, etc.). |
+| Legal                   | What legislative constraints is the system operating in (data protection, Sarbanes Oxley, GDPR, etc.)? What reservation rights does the company require? Any regulations regarding the way the application is to be built or deployed? |
+| Privacy                 | Ability to hide transactions from internal company employees (encrypted transactions so even DBAs and network architects cannot see them). |
+| Security                | Does the data need to be encrypted in the database? Encrypted for network communication between internal systems? What type of authentication needs to be in place for remote user access? |
+| Supportability          | What level of technical support is needed by the application? What level of logging and other facilities are required to debug errors in the system? |
+| Usability/Achievability | Level of training required for users to achieve their goals with the application/solution. Usability requirements need to be treated as seriously as any other architectural issue. |
