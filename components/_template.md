@@ -53,11 +53,19 @@ What API's does the component support?  It's not necessary to include the actual
 
 ##### Event 2
 
+## Architecture Characteristics
 
+NOTE:  There is also a quick [reference list of architecture characteristics](../definitions.md#architecture-characteristics) available.
 
-## Non-Functional Requirements
+NOTE:  Choose wisely, the more architecture characteristics are identified for a component, the more complicated it will be.  Also, bear in mind that some architecture characteristics can be delegated to software design or UX.
 
-### Scalability
+Here is a list of sample architecture characteristics, please remember to update them to match the needs of the particular component.
+
+### Configurability
+
+Configurability is a cross-cutting responsibility that affects many API's.  The antidote to a regrettable constant in your code is proper configurability.  What are the configuration parameters (policy) supported by the component?
+
+### Performance
 
 - What is the expected complexity bound of each API function?
 - For each API function, what is its net effect on memory growth and what mechanisms are included to prevent memory leaks?
