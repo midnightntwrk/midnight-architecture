@@ -2,7 +2,8 @@
 
 [https://github.com/input-output-hk/midnight-client-sdk](https://github.com/input-output-hk/midnight-client-sdk)
 
-Client SDK is a library, that is used directly by dApp. It has 2 primary responsibilities:
+Client SDK is a library, that is used directly by dApp as the main entry point to interact with Midnight.
+It has 2 primary responsibilities:
   - orchestrate calls to Lares in order to effectively call dApp's smart contract or update state
   - provide dApps an API for communicating with Wallet
 
@@ -20,7 +21,9 @@ implement their dApps and tailor/wrap others, where library implementation is no
 
 ### Client - Wallet dApp connector
 
-Client SDK uses the dApp connector API implemented by Wallet in order to communicate with it.
+Client SDK uses the dApp connector API implemented by Wallet in order to communicate with it. The dApp connector API 
+is expected to be a subset of internal Wallet API for easiness of exposing it, as well as allowing easier Wallet 
+implementation replacement for testing or off-line simulations.  
 
 ### Client - Lares
 
@@ -31,9 +34,11 @@ Client SDK uses APIs implemented by Lares in order to:
 
 ### Server - SDK interface
 
-An API that is meant to be used by dApps to use SDK's functionality. Because of being a library dependency for 
-potentially many different dapps developed at different pace this one has to be well-thought to provide good 
-developer experience as well as proper balance between safety, easiness of use and maintainability.
+An API that is meant to be used by dApps to use SDK's functionality. Because of 
+being a library dependency for potentially many dApps developed at different pace 
+this one has to be well-thought to balance availability (as how easy to use it is), 
+robustness (handle edge conditions or possible network failures where possible), 
+security and maintainability.
 
 ## Operating Environment
 
@@ -50,7 +55,9 @@ ones are:
 - macOS
 - BSD flavors
 
-Additionally, Client SDK may be run in environments like Node.js in CLI or server-side use-cases
+Additionally, Client SDK may be run in environments like Node.js in CLI or server-side 
+use-cases. There, if any native code is involved, it becomes important to support also 
+different CPU architectures, primarily x86_64 and ARM.
 
 ## Key Library Dependencies
 

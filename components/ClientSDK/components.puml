@@ -1,12 +1,14 @@
 @startuml
-component ClientSDK
+component ClientSDK {
+  component dappConnectorClient
+  component StateManagement
+  component Prover
+  component Sync
+  component LaresRuntime
+}
 interface ClientSDKAPI
 component DappClientCode
-component dappConnectorClient
-component StateManagement
-component Prover
-component Sync
-component LaresRuntime
+
 
 DappClientCode -- ClientSDKAPI : "uses"
 ClientSDKAPI -- ClientSDK : "implemented by"
@@ -15,9 +17,4 @@ LaresRuntime .> StateManagement : "uses"
 LaresRuntime .> Prover : "uses"
 StateManagement <. Sync : "uses"
 Sync ..> Prover : "uses"
-
-ClientSDK -- dappConnectorClient : "embeds"
-ClientSDK -- LaresRuntime : "embeds"
-ClientSDK -- Sync : "embeds"
-ClientSDK -- StateManagement : "embeds"
 @enduml
