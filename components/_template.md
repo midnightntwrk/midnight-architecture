@@ -74,7 +74,7 @@ Configurability is a cross-cutting responsibility that affects many API's.  The 
 
 Is it ok for the component to "just let it fail" when things go wrong, or must this component fight to survive all errors?
 
-### Security
+### Security, Authentication, Authorization
 
 How are the API's protected against unauthorized use?  What is the DDoS defense, for example?  Are there operations that require specific authorization using signatures or authenticated identities?
 
