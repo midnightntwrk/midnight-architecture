@@ -3,14 +3,21 @@
 [Wallet Core](https://github.com/input-output-hk/midnight-wallet)
 [Wallet Browser Extension UI](https://github.com/input-output-hk/midnight-wallet-extension)
 
-Wallet is a component run by the end user. Its core purpose is to:
+Wallet is a component run by the end user. Core purpose of any wallet software is to:
   - protect the private key(s)
-  - allow making transactions authenticated using the key
+  - allow creating transactions authenticated using the key
+  - submitting the created transactions to the network
+  - keep track of native tokens associated with owned key(s) and data allowing to 
+    spend them, like Merkle trees
 
-Everything else is more of a convenience functionality to bring solid user experience than something wallet has to do. Most notably, very common functionalities, that is hard to imagine a modern wallet without, are:
-  - an API allowing websites to initiate a transaction and query for some data
-  - track tokens owned by user: native and defined through smart contracts
-  - keep track of additional data allowing to generate witnesses necessary to construct a correct transaction (like Merkle trees, ZK-proofs, temporary keys)
+In the context of browser extension wallet, an important responsibility is providing 
+an API that allows websites to initiate a transaction or query wallet for some data
+
+Everything else is more an attempt to bring solid user experience than something wallet 
+has to do in order to interact with network at all. Most notably, very common 
+functionalities, that is hard to imagine a modern wallet without, are:
+  - tracking transaction history
+  - track smart contracts calls made by user and related data/tokens
 
 There are also important non-functional considerations:
   - intuitiveness
