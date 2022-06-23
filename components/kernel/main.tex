@@ -199,9 +199,12 @@ Kachina contracts divide their state into a shared public state and a local priv
 We define the state $\phi$ by the tuple $(\sigma,\rho)$ where $\sigma$ is the public state and $\rho$ consists of $\rho_p$ for each party $p$.
 Transition functions are applied over the pair $(\sigma,\rho)$ where each party can only change their local state $\rho_p$.\\
 The contract does not update the state directly but has access to public and private oracles that operate on the state transition.
-Oracles are used for key generation, honest transaction generation and recording those transactions into the ledger. \\
 
-
+The contract makes queries to these oracles by calling functions which update the
+state, and return information about it. Lets call $PrivQueryF$ the function that queries the private oracle and $PubQueryF$ the one that queries the public oracle.
+$PrivQueryF$ queries the oracles used for key generation $PRQGenKey$, honest transaction generation and recording those transactions into the ledger. \\
+Queries made by users are used to prove the interaction with the public state is correct by giving correct responses to queries they prove they know the input which will make the series of queries.
+To prove the interaction with the public state correct, users capture the queries they made, and the responses they
 
 
 \section{Appendix}
