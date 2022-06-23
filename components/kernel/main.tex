@@ -20,6 +20,7 @@
 
 \section{Introduction}
 This document leans heavily on research in ZSwap~\cite{}, Zexe~\cite{}, and to a lesser extent, Kachina~\cite{}.
+
 \subsection*{State of the art}
 \section{Notation}
 Definitions of notation used throughout the document.
@@ -45,6 +46,13 @@ Sapling derives a diversifier key as part of the extended spending key whereas i
 \subsection{Spend Transfers and Output Transfers}
 \subsection{Transaction merge}
 \subsection{Commitment schemes}
+Sparse Pedersen commitment is an homomorphic commitment scheme used in Note Commitments and Nullifiers to derive the unique ρ value for a Sapling note. It is also used in the Spend statement to confirm use of the correct ρ value as an input to nullifier derivation. 
+a commitment construction that hashes an asset type
+descriptor to the bases of an extended Pedersen commitment
+such that the resulting commitments are additively
+homomorphic, which facilitates proving the balZswap
+4
+ancing of amounts.
 \subsubsection{Pedersen commitment}
 
 \subsubsection{Homomorphic commitment}
@@ -163,6 +171,7 @@ note = Gen(P(sk),\overrightarrow{a}, r) \land nul = NulEval(sk, r)\}$$
 
 $$L^{open} = \{note | \exists(pk,\overrightarrow{a}, r) : note = Gen(pk,\overrightarrow{a}, r)\}$$
 
+\subsection{Security requirements}
 
 \subsection{Structure of Transactions}
 
@@ -171,7 +180,10 @@ We call spends and outputs inside a transaction Spend descriptions and Output de
 Output transfers, respectively.
 Each Spend is authorized by a signature, called the spend authorization signature.
 
-
+A transaction is composed of:
+a list of nullifiers which mark the inputs as spent without revealing their content
+new output record commitments to be published, and
+a zero-knowledge proof that ensures the nullifiers and the new records are correctly computed, and also that the privacy policies for those records are satisfied.
 \subsubsection{Zswap Spends and outputs}
 \paragraph*{Spends}
 
@@ -180,6 +192,16 @@ A spend transfer is a transfer creating value of the issued currency, i.e. incre
 
 
 \subsection*{Outputs}
+
+\subsection{State transitions and Oracles}
+
+Kachina contracts divide their state into a shared public state and a local private state for each party. 
+We define the state $\phi$ by the tuple $(\sigma,\rho)$ where $\sigma$ is the public state and $\rho$ consists of $\rho_p$ for each party $p$.
+Transition functions are applied over the pair $(\sigma,\rho)$ where each party can only change their local state $\rho_p$.\\
+The contract does not update the state directly but has access to public and private oracles that operate on the state transition.
+Oracles are used for key generation, honest transaction generation and recording those transactions into the ledger. \\
+
+
 
 
 \section{Appendix}
