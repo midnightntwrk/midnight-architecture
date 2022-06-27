@@ -1,6 +1,5 @@
 # Component Name
 
-[Wallet Core](https://github.com/input-output-hk/midnight-wallet)
 [Wallet Browser Extension UI](https://github.com/input-output-hk/midnight-wallet-extension)
 
 Wallet is a component run by the end user. Core purpose of any wallet software is to:
@@ -40,14 +39,20 @@ biggest risks seem to arise from 2 directions:
 
 ## Neighbors & API Dependencies
 
-Wallet has 2 neighbors: [Wallet Backend](../WalletBackend) and dApp(Client SDK effectively)
+Wallet has 3 neighbors when run: [Wallet Backend](../WalletBackend), proving system, and 
+dApp (Client SDK effectively)
 
 ### Service - dApp connector _(just a WIP name)_
 
 This is an API that allows a dApp ([see Glossary](../../product/Glossary.md)) to initiate a transaction and query 
 wallet data.
 
-### Client - Wallet Backend sync API
+### Client, through API - Wallet Engine
+
+Wallet Extension depends on Wallet Engine to implement core wallet logic, filling only 
+platform-specific gaps.
+
+### Client, in runtime - Wallet Backend sync API
 
 It allows the Wallet to learn about blocks that are relevant to it. And thus, with additional processing - exact 
 transactions, their confirmations, finality and metadata for constructing future transactions 
@@ -91,11 +96,9 @@ ones are:
 ## Key Library Dependencies
 
   - React.js - for rendering UI
-  - Kernel (internal) - for processing&creating transactions
+  - [Wallet Engine (internal)](../WalletEngine) - for processing&creating transactions
 
 ## Logical Data Model
-
-Include an [ER diagram](https://plantuml.com/ie-diagram).
 
 ![](./datamodel.svg)
 

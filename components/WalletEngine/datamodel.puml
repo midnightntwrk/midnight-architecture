@@ -14,16 +14,20 @@ entity SyncTransaction {}
 entity RelevantTransaction {}
 entity TransactionHistory {}
 entity DAppConnection {}
+interface SyncConnection {}
 entity WalletBackendConnection {}
+entity NodeConnection {}
 entity StateSnapshot {
   * newEvents: WalletEvent
   * derivedState : DerivedState
   * knownAddresses: Address[]
   * balance: Balance
 }
+interface WalletAPI
 entity Wallet {
   * lastSnapshot: StateSnapshot
 }
+WalletAPI <|-- Wallet
 
 Wallet ||--|{ StateSnapshot
 Wallet ||--|| KeyChain
@@ -34,13 +38,16 @@ StateSnapshot |o--|| StateSnapshot : previous
 
 TransactionHistory }|--o{ RelevantTransaction
 
-DAppConnection }o--o{ RelevantTransaction
-WalletBackendConnection |o--o{ SyncBlock
+DAppConnection }o--o{ WalletAPI
+SyncBlock }o--o| SyncConnection
+SyncConnection <|-- NodeConnection
+SyncConnection <|-- WalletBackendConnection
 SyncTransaction ||--o| RelevantTransaction
-SyncBlock ||--|{ SyncTransaction
+SyncTransaction }|--|| SyncBlock
 
 
 RelevantTxFilter ||--o| KeyChain
+RelevantTxFilter ||--o{ SyncTransaction : accepts or rejects
 
 KeyChain ||--|| ViewingKey : derives from private key
 KeyChain ||--|| KeyStore
