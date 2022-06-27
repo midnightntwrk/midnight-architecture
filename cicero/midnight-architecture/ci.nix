@@ -80,7 +80,6 @@
 
         git config user.name iohk-devops
         git config user.email devops@iohk.io
-        git config commit.gpgSign true
 
         git commit --all --message render
         git show # just for the log
