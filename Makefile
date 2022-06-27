@@ -7,8 +7,8 @@ $(pngs): %.png: %.puml
 	plantuml -p -tpng < $< > $@
 
 $(pdfs): %.pdf: %.puml
-	plantuml -p -tpdf -Sshadowing=false < $< > $@
+	plantuml -tpdf -Sshadowing=false < $< > $@
 
 .DEFAULT_GOAL=default
-default: $(pngs) # $(pdfs) don't work with !include directive
+default: $(pngs) $(pdfs)
 .PHONY: default
