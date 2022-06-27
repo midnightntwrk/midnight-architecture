@@ -22,6 +22,7 @@
   };
 
   outputs = {
+    self,
     nixpkgs,
     utils,
     devshell,
@@ -32,42 +33,31 @@
     utils.lib.eachSystem ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"]
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-    in rec {
-      packages = {
-        midnight-architecture = pkgs.stdenv.mkDerivation {
-          name = "midnight-architecture";
-          src = ./.;
-          buildInputs = with pkgs; [
-            plantuml
-            jre
-          ];
-          buildPhase = ''
-            function generate_png {
-
-              local filename=$1
-              local fileWithoutSuffix=$(filename%".puml")
-
-              java -jar ${pkgs.plantuml}/lib/plantuml.jar $(filename) -tpng > $(fileWithoutSuffix).png
-            }
-
-             # TODO enable pdf support for plantuml: https://plantuml.com/pdf
-            function generate_pdf {
-
-              local filename=$1
-              local fileWithoutSuffix=$(filename%".puml")
-
-              java -jar ${pkgs.plantuml}/lib/plantuml.jar $(filename) -tpdf > $(fileWithoutSuffix).pdf
-            }
-
-            generate_png flowlets/example.puml
-          '';
-
-          installPhase = ''
-            mkdir -p $out
-            cp --parents flowlets/example.png $out
-          '';
+      plantuml-pdf = (pkgs.plantuml.overrideAttrs (old: rec {
+        version = "1.2022.3";
+        src = pkgs.fetchurl {
+          url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
+          hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
         };
+      }));
+    in rec {
+      packages.midnight-architecture = pkgs.stdenv.mkDerivation {
+        name = "midnight-architecture";
+        src = ./.;
+        buildInputs = [
+          plantuml-pdf
+        ];
+        installPhase = ''
+          make -p \
+          | grep '^default:' \
+          | cut -d ' ' -f 2- --output-delimiter $'\n' \
+          | while read -r; do
+            mkdir -p $out/"$(dirname "$REPLY")"
+            mv "$REPLY" $out/"$REPLY"
+          done
+        '';
       };
+
       defaultPackage = packages.midnight-architecture;
 
       devShell = devshell.legacyPackages.${system}.mkShell {
@@ -80,9 +70,14 @@
             package = alejandra.defaultPackage.${system};
             category = "formatter";
           }
+          {
+            package = plantuml-pdf;
+            category = "diagram generator";
+          }
         ];
       };
-
+    })
+    // {
       ciceroActions =
         cicero.lib.callActionsWithExtraArgs
         rec {
@@ -91,5 +86,5 @@
           actionLib = import "${cicero}/action-lib.nix" {inherit std lib;};
         }
         ./cicero;
-    });
+    };
 }

@@ -7,28 +7,22 @@
 } @ args: {
   inputs.start = ''
     "${name}": start: {
-      // from both std/ci/{pr,push}
       sha: string
       clone_url: string
       statuses_url?: string
-
-      // only from std/ci/push
-      ref?: "refs/heads/\(default_branch)"
-      default_branch?: string
+      ref: "refs/heads/\(default_branch)"
+      default_branch: string
     }
   '';
 
   output = {start}: let
     cfg = start.value.${name}.start;
   in {
-    success.${name} =
-      {
-        ok = true;
-        revision = cfg.sha;
-      }
-      // lib.optionalAttrs (cfg ? ref) {
-        inherit (cfg) ref default_branch;
-      };
+    success.${name} = {
+      ok = true;
+      revision = cfg.sha;
+      inherit (cfg) ref default_branch;
+    };
   };
 
   job = {start}: let
@@ -36,7 +30,9 @@
   in
     std.chain args [
       actionLib.simpleJob
+
       (std.github.reportStatus cfg.statuses_url or null)
+
       {
         template = std.data-merge.append [
           {
@@ -48,37 +44,47 @@
             '';
           }
         ];
+
+        resources = {
+          cpu = 800;
+          memory = 1024 / 2;
+        };
       }
 
       {
         config.packages = std.data-merge.append [
-          "github:nixos/nixpkgs#plantuml"
+          "github:nixos/nixpkgs#rsync"
+          "github:nixos/nixpkgs#gnugrep"
+          "github:nixos/nixpkgs#findutils"
+          "github:nixos/nixpkgs#gnupg"
         ];
       }
 
       (std.git.clone cfg)
 
+      std.nix.build
+
       (std.script "bash" ''
-        set -x
+        set -euxo
 
-        function generate_png {
-          local filename=$1
-          java -jar /lib/plantuml.jar $(filename).puml -tpng > $(filename).png
-        }
+        rsync -r result/ .
 
-         # TODO enable pdf support for plantuml: https://plantuml.com/pdf
-        function generate_pdf {
-          local filename=$1
-          java -jar /lib/plantuml.jar $(filename).puml -tpdf > $(filename).pdf
-        }
+        if [[ -z "$(git status --porcelain)" ]]; then
+          exit 0
+        fi
 
-        mkdir -p $out
-        local unique_filenames=$(git diff --name-only | sed -n -E 's/.(png|puml)$//gp' | uniq -u)
-        #local unique_filenames=$(git diff --name-only HEAD HEAD~1 | sed -n -E 's/.(png|puml)$//gp' | uniq -u)
-        for line in $unique_filenames
-        do
-          generate_png $line
-        done
+        git status --porcelain \
+        | grep -E '*.(png|pdf)' \
+        | cut -d ' ' -f 2 \
+        | xargs git add
+
+        git config user.name iohk-devops
+        git config user.email devops@iohk.io
+
+        git commit --all --message render
+        git show # just for the log
+
+        git push origin HEAD:${lib.escapeShellArg (lib.removePrefix "refs/heads/" cfg.ref)}
       '')
     ];
 }
