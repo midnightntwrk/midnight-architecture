@@ -1,0 +1,27 @@
+@startuml
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+component DApp
+component Wallet
+interface "Background Script"
+interface "Content Script"
+
+[Wallet] -> [Content Script] : use
+[Content Script] -> [DApp] : inject\nAPI
+[DApp] ..> [Content Script] : request
+[DApp] <.. [Content Script] : response
+[Content Script] ..> [Background Script] : request
+[Content Script] <.. [Background Script] : response
+[Background Script] ..> [Wallet] : request
+[Background Script] <.. [Wallet] : response
+
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml

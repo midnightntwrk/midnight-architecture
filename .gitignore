@@ -12,3 +12,4 @@ README.html
 *.brf
 *.fdb_latexmk
 .auctex-auto
+.DS_Store

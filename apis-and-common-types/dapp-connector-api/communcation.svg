@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="321px" preserveAspectRatio="none" style="width:579px;height:321px;background:#FFFFFF;" version="1.1" viewBox="0 0 579 321" width="579px" zoomAndPan="magnify"><defs/><g><rect height="58.8867" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="123" x="442.14" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="98" x="467.14" y="9.668">communcation.puml</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="123" x="442.14" y="21.4453">2022.06.28 at 11:10 CEST</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="562.14" y="33.2227"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="562.14" y="45"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="562.14" y="56.7773"> </text><!--MD5=[ea833428b387fedfee6e337d2d6b9b7e]
+entity DApp--><g id="elem_DApp"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="78" x="431.14" y="204.8867"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="489.14" y="209.8867"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="487.14" y="211.8867"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="487.14" y="215.8867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="38" x="446.14" y="238.4219">DApp</text></g><!--MD5=[317e38288b99476981f0bdc2286c89a2]
+entity Wallet--><g id="elem_Wallet"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="81" x="65.64" y="66.8867"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="126.64" y="71.8867"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="124.64" y="73.8867"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="124.64" y="77.8867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="80.64" y="100.4219">Wallet</text></g><!--MD5=[7168f65bd1e2f7dd97ee71c45da002f6]
+entity Background Script--><g id="elem_Background Script"><ellipse cx="156.14" cy="227.8867" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="125" x="93.64" y="258.4219">Background Script</text></g><!--MD5=[e6cd2c7c82501865dca92bc1140b9df7]
+entity Content Script--><g id="elem_Content Script"><ellipse cx="343.14" cy="89.8867" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98" x="294.14" y="120.4219">Content Script</text></g><!--MD5=[0d85f6096b99594d7f8fa9875d56ad89]
+link Wallet to Content Script--><g id="link_Wallet_Content Script"><path d="M146.89,89.8867 C200.91,89.8867 293.52,89.8867 328.87,89.8867 " fill="none" id="Wallet-to-Content Script" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="334.03,89.8867,325.03,85.8867,329.03,89.8867,325.03,93.8867,334.03,89.8867" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="22" x="229.39" y="83.4551">use</text></g><!--MD5=[a97a23f8792392425ca33d05610275db]
+link Content Script to DApp--><g id="link_Content Script_DApp"><path d="M346.18,99.1167 C352.42,115.1867 367.99,151.2167 390.14,174.8867 C400.62,186.0767 413.97,195.9767 426.76,204.0467 " fill="none" id="Content Script-to-DApp" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="431.07,206.7167,425.5136,198.5849,426.8156,204.0899,421.3107,205.3919,431.07,206.7167" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="35" x="391.14" y="156.4551">inject</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="20" x="398.64" y="171.7656">API</text></g><!--MD5=[50e98805c49a2a0bee676e1f80f21942]
+link DApp to Content Script--><g id="link_DApp_Content Script"><path d="M463.95,204.8067 C457.94,186.5267 447.33,160.7667 431.14,142.8867 C410.13,119.6767 376.29,103.7667 357.28,96.1067 " fill="none" id="DApp-to-Content Script" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="352.33,94.1767,359.2455,101.1893,356.9841,96.0041,362.1693,93.7427,352.33,94.1767" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="47" x="452.14" y="163.9551">request</text></g><!--MD5=[7334495dbbf61187a82f8b9342d33de0]
+reverse link DApp to Content Script--><g id="link_DApp_Content Script"><path d="M495.72,200.5567 C509.41,183.1967 521.06,160.4967 508.14,142.8867 C470.31,91.2967 381.21,89.5567 352.34,90.4267 " fill="none" id="DApp-backto-Content Script" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="492.21,204.8467,500.9978,200.3999,495.37,200.9718,494.798,195.344,492.21,204.8467" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="57" x="514.14" y="163.9551">response</text></g><!--MD5=[9985dabc9e9da6d7711eb8c654d5522a]
+link Content Script to Background Script--><g id="link_Content Script_Background Script"><path d="M334.12,91.9967 C309.99,95.3867 243.05,107.6167 202.14,142.8867 C179.78,162.1767 166.3,195.1367 160.15,213.5067 " fill="none" id="Content Script-to-Background Script" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="158.47,218.7167,165.0315,211.3719,159.9996,213.9564,157.415,208.9245,158.47,218.7167" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="47" x="203.14" y="163.9551">request</text></g><!--MD5=[0e122c2b5ed43a4fe6ab93dbe60dcc5a]
+reverse link Content Script to Background Script--><g id="link_Content Script_Background Script"><path d="M332.34,103.1767 C316.59,120.6067 285.82,152.8467 255.14,174.8867 C224.55,196.8567 183.47,215.3967 165.37,223.0767 " fill="none" id="Content Script-backto-Background Script" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="336.02,99.0767,327.0261,103.0905,332.6752,102.7932,332.9725,108.4422,336.02,99.0767" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="57" x="291.14" y="163.9551">response</text></g><!--MD5=[4e6a0ec26a74fdc934f8ee83874e0273]
+link Background Script to Wallet--><g id="link_Background Script_Wallet"><path d="M147.1,226.8267 C121.05,226.1167 45.72,220.0767 14.14,174.8867 C6,163.2267 6.98,155.1667 14.14,142.8867 C24.29,125.5067 42.63,113.4667 60.28,105.3967 " fill="none" id="Background Script-to-Wallet" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="65.23,103.2167,55.3812,103.1739,60.6522,105.2275,58.5986,110.4985,65.23,103.2167" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="47" x="15.14" y="163.9551">request</text></g><!--MD5=[4f963aad6854c0260495becfcff57ab7]
+reverse link Background Script to Wallet--><g id="link_Background Script_Wallet"><path d="M142.39,218.2067 C129.49,209.1767 111.06,193.7267 103.14,174.8867 C94.9,155.2467 97.03,130.6867 100.39,113.2067 " fill="none" id="Background Script-backto-Wallet" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="146.86,221.2367,141.6566,212.8746,142.7219,218.4303,137.1663,219.4956,146.86,221.2367" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="57" x="104.14" y="163.9551">response</text></g><rect height="47.1094" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="222" x="171.57" y="265.9219"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="281.07" y="275.5898"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="281.07" y="287.3672"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="281.07" y="299.1445"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="222" x="171.57" y="310.9219">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[e645c6ea2ee641606f10b738fe6a26f3]
+@startuml
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+component DApp
+component Wallet
+interface "Background Script"
+interface "Content Script"
+
+[Wallet] -> [Content Script] : use
+[Content Script] -> [DApp] : inject\nAPI
+[DApp] ..> [Content Script] : request
+[DApp] <.. [Content Script] : response
+[Content Script] ..> [Background Script] : request
+[Content Script] <.. [Background Script] : response
+[Background Script] ..> [Wallet] : request
+[Background Script] <.. [Wallet] : response
+
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@enduml
+
+@startuml
+header communcation.puml\n2022.06.28 at 11:10 CEST\n\n\n
+
+component DApp
+component Wallet
+interface "Background Script"
+interface "Content Script"
+
+[Wallet] -> [Content Script] : use
+[Content Script] -> [DApp] : inject\nAPI
+[DApp] ..> [Content Script] : request
+[DApp] <.. [Content Script] : response
+[Content Script] ..> [Background Script] : request
+[Content Script] <.. [Background Script] : response
+[Background Script] ..> [Wallet] : request
+[Background Script] <.. [Wallet] : response
+
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+@enduml
+
+PlantUML version 1.2022.6(Tue Jun 21 19:34:49 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: XK
+--></g></svg>
