@@ -5,6 +5,7 @@ Please define each new component as a new subfolder here, and use the provided [
 - [Wallet Engine](./WalletEngine)
 - [Wallet Backend](./WalletBackend)
 - [Wallet Browser Extension](./WalletBrowserExtension)
+- [Client SDK](./ClientSDK)
 - Circuit Compiler
 - Lares Runtime (Typescript)
 - [Transaction kernel](kernel)
