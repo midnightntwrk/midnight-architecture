@@ -171,3 +171,25 @@ Following definitions taken verbatim from Richards and Ford (2020).
 | Security                | Does the data need to be encrypted in the database? Encrypted for network communication between internal systems? What type of authentication needs to be in place for remote user access? |
 | Supportability          | What level of technical support is needed by the application? What level of logging and other facilities are required to debug errors in the system? |
 | Usability/Achievability | Level of training required for users to achieve their goals with the application/solution. Usability requirements need to be treated as seriously as any other architectural issue. |
+
+
+## Aggregate
+
+A logical data entity that is an entry point for performing operations and protects its invariants.
+
+The implementation of Aggregate should take into consideration that operations on entities that are part of the 
+aggregate should always be implemented in a way that allows aggregate to protect its invariants. Preferably by 
+initiating any operations on aggregate itself, and allowing it to delegate more granular operations on its 
+comprising entities. 
+
+The term arises from the [Domain-Driven-Design book](https://www.amazon.com/gp/product/0321125215/ref=as_li_tl?
+ie=UTF8&camp=1789&creative=9325&creativeASIN=0321125215&linkCode=as2&tag=martinfowlerc-20) and below are links that 
+provide some useful definitions or insights to what aggregates are: 
+  - [Martin Fowler](https://www.martinfowler.com/bliki/DDD_Aggregate.html)
+  - [Kacper Gunia](https://domaincentric.net/blog/tag/aggregates)
+
+## Invariant
+
+A property which remains unchanged after operations or transformations are applied to the objects it relates to.
+
+

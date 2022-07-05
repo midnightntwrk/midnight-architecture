@@ -11,6 +11,9 @@ What are *flows*, *features*, *components* and so forth?  The essential terminol
   - [dAPP-User Flows](./user-flows/dapp-user/README.md)
     - [Flow: dApp User Generating a Transaction](./user-flows/dapp-user/dApp%20User%20Generating%20a%20Transaction.md)
 * [Components](./components/README.md)
+  - [Wallet Engine](./components/WalletEngine/README.md) 
+  - [Client SDK](./components/ClientSDK)
+  - [Wallet Browser Extension](./components/WalletBrowserExtension/README.md)
   - [Wallet Backend](./components/WalletBackend/README.md)
   - [Transaction Kernel](./components/kernel/README.md)
   - Lares Runtime

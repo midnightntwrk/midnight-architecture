@@ -1,0 +1,20 @@
+@startuml
+component ClientSDK {
+  component dappConnectorClient
+  component StateManagement
+  component Prover
+  component Sync
+  component LaresRuntime
+}
+interface ClientSDKAPI
+component DappClientCode
+
+
+DappClientCode -- ClientSDKAPI : "uses"
+ClientSDKAPI -- ClientSDK : "implemented by"
+
+LaresRuntime .> StateManagement : "uses"
+LaresRuntime .> Prover : "uses"
+StateManagement <. Sync : "uses"
+Sync ..> Prover : "uses"
+@enduml
