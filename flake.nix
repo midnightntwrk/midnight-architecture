@@ -61,6 +61,14 @@
       defaultPackage = packages.midnight-architecture;
 
       devShell = devshell.legacyPackages.${system}.mkShell {
+        # graphviz and setting GRAPHVIZ_DOT environment variables are needed for IntelliJ integration, though it doesn't work quite well
+        packages = [pkgs.graphviz];
+        env = [
+          {
+            name = "GRAPHVIZ_DOT";
+            eval = "$(which dot)";
+          }
+        ];
         commands = [
           {
             package = "treefmt";
