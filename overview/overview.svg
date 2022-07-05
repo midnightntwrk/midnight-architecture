@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="1586px" preserveAspectRatio="none" style="width:1745px;height:1586px;background:#FFFFFF;" version="1.1" viewBox="0 0 1745 1586" width="1745px" zoomAndPan="magnify"><defs/><g><!--MD5=[f560a0a13a9e20d048e11f93fa7900fb]
+cluster dApp--><g id="cluster_dApp"><rect height="304.5" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="744" x="7" y="129.5"/><path d="M54,129.5 L54,138.9883 L44,148.9883 L7,148.9883 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="37" x="10" y="144.0352">dApp</text></g><!--MD5=[c81b0129275e44a12ca0babb25b9a156]
+cluster ClientSDK--><g id="cluster_ClientSDK"><rect height="150" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="656" x="55" y="244"/><rect height="10" style="stroke:#181818;stroke-width:1.0;fill:none;" width="15" x="691" y="249"/><rect height="2" style="stroke:#181818;stroke-width:1.0;fill:none;" width="4" x="689" y="251"/><rect height="2" style="stroke:#181818;stroke-width:1.0;fill:none;" width="4" x="689" y="255"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="72" x="347" y="270.5352">ClientSDK</text></g><!--MD5=[fd4b328a882979459ca67ca89d940dd1]
+cluster browserExtensionWallet--><g id="cluster_browserExtensionWallet"><rect height="167" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="663" x="791" y="235.5"/><path d="M984,235.5 L984,244.9883 L974,254.9883 L791,254.9883 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="183" x="794" y="250.0352">Wallet Browser Extension</text></g><!--MD5=[04e9ef42c8cdc02e4fa60725f4406d20]
+cluster MidnightSDK--><g id="cluster_MidnightSDK"><polygon points="392,802,402,792,1465,792,1465,921,1455,931,392,931,392,802" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1455" x2="1465" y1="802" y2="792"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="392" x2="1455" y1="802" y2="802"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1455" x2="1455" y1="802" y2="931"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="94" x="877.5" y="818.5352">MidnightSDK</text></g><!--MD5=[27dd10277160989e0fc606d89327855c]
+cluster provingSystem--><g id="cluster_provingSystem"><rect height="134" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="487" x="277" y="503.5"/><rect height="10" style="stroke:#181818;stroke-width:1.0;fill:none;" width="15" x="744" y="508.5"/><rect height="2" style="stroke:#181818;stroke-width:1.0;fill:none;" width="4" x="742" y="510.5"/><rect height="2" style="stroke:#181818;stroke-width:1.0;fill:none;" width="4" x="742" y="514.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="112" x="464.5" y="530.0352">Proving System</text></g><!--MD5=[2ef939ad32157232fb3701599ffa1670]
+cluster walletBackend--><g id="cluster_walletBackend"><polygon points="1013,484,1023,474,1527,474,1527,652,1517,662,1013,662,1013,484" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1517" x2="1527" y1="484" y2="474"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1013" x2="1517" y1="484" y2="484"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1517" x2="1517" y1="484" y2="662"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="109" x="1211.5" y="500.5352">Wallet Backend</text></g><!--MD5=[91f52570193a9c7e268b7d4543d32553]
+cluster midnightNode--><g id="cluster_midnightNode"><polygon points="528,981,538,971,1318,971,1318,1116,1308,1126,528,1126,528,981" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1308" x2="1318" y1="981" y2="971"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="528" x2="1308" y1="981" y2="981"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1308" x2="1308" y1="981" y2="1126"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="107" x="865.5" y="997.5352">Midnight Node</text></g><!--MD5=[67ca2ca2d7adae247063e015c476cd14]
+cluster spoDeployment--><g id="cluster_spoDeployment"><polygon points="1307,1168,1317,1158,1728,1158,1728,1474,1718,1484,1307,1484,1307,1168" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1718" x2="1728" y1="1168" y2="1158"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1307" x2="1718" y1="1168" y2="1168"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1718" x2="1718" y1="1168" y2="1484"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="189" x="1419" y="1184.5352">Cardano Node Installation</text></g><!--MD5=[23808a94f86dc227a2578e4b090ddb3a]
+cluster mainChainFollower--><g id="cluster_mainChainFollower"><polygon points="1339,1224,1349,1214,1696,1214,1696,1376,1686,1386,1339,1386,1339,1224" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1686" x2="1696" y1="1224" y2="1214"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1339" x2="1686" y1="1224" y2="1224"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1686" x2="1686" y1="1224" y2="1386"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="148" x="1439.5" y="1240.5352">Main Chain Follower</text></g><!--MD5=[5285c40ef6f3bbbd8d8d00ce710b29e2]
+entity dappUser--><g id="elem_dappUser"><ellipse cx="799" cy="14" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M799,22 L799,49 M786,30 L812,30 M799,49 L786,64 M799,49 L812,64 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="72" x="763" y="79.0352">dApp User</text></g><!--MD5=[7c23aaca85fccc12a848f346d9eb9772]
+entity dappDeveloper--><g id="elem_dappDeveloper"><ellipse cx="925" cy="14" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M925,22 L925,49 M912,30 L938,30 M925,49 L912,64 M925,49 L938,64 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="870" y="79.0352">dApp Developer</text></g><!--MD5=[d5f4f0a76aa26032c33ae798e6d451df]
+entity dAppCode--><g id="elem_dAppCode"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="137" x="589.5" y="172.5"/><polygon fill="#F1F1F1" points="709.5,177.5,709.5,191.5,721.5,191.5,721.5,183.5,715.5,177.5,709.5,177.5" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="715.5" x2="715.5" y1="177.5" y2="183.5"/><line style="stroke:#181818;stroke-width:0.5;" x1="721.5" x2="715.5" y1="183.5" y2="183.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="107" x="599.5" y="199.0352">dApp own code</text></g><!--MD5=[dfc417658d554c2292e51ede2039dd3c]
+entity ClientSDKCRC--><g id="elem_ClientSDKCRC"><rect fill="#F1F1F1" height="83.4648" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="194" x="474" y="287"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="648" y="292"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="646" y="294"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="646" y="298"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="494" y="322.5352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="134" x="493" y="339.0234">run smart contracts</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="150" x="489" y="355.5117">provide API for dApps</text><line style="stroke:#000000;stroke-width:0.5;" x1="489" x2="643" y1="309" y2="309"/><line style="stroke:#000000;stroke-width:0.5;" x1="489" x2="643" y1="325.4883" y2="325.4883"/><line style="stroke:#000000;stroke-width:0.5;" x1="489" x2="643" y1="358.4648" y2="358.4648"/><line style="stroke:#000000;stroke-width:0.5;" x1="489" x2="489" y1="309" y2="358.4648"/><line style="stroke:#000000;stroke-width:0.5;" x1="643" x2="643" y1="309" y2="358.4648"/></g><!--MD5=[2d79dbaf0bf5b1bf8d3cf06830135970]
+entity laresRuntime--><g id="elem_laresRuntime"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="137" x="301.5" y="305.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="418.5" y="310.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="416.5" y="312.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="416.5" y="316.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="97" x="316.5" y="339.0352">Lares Runtime</text></g><!--MD5=[359b540abf666c100ee9dcd5364e3b6e]
+entity dAppConnectorClient--><g id="elem_dAppConnectorClient"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="187" x="79.5" y="309"/><polygon fill="#F1F1F1" points="249.5,314,249.5,328,261.5,328,261.5,320,255.5,314,249.5,314" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="255.5" x2="255.5" y1="314" y2="320"/><line style="stroke:#181818;stroke-width:0.5;" x1="261.5" x2="255.5" y1="320" y2="320"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="157" x="89.5" y="335.5352">dApp Connector Client</text></g><!--MD5=[d0e871b74c8e1b4688814c963fc6d1be]
+entity browserExtensionWalletCRC--><g id="elem_browserExtensionWalletCRC"><rect fill="#F1F1F1" height="99.9531" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="244" x="1013" y="278.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1237" y="283.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1235" y="285.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1235" y="289.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="1033" y="314.0352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="148" x="1032" y="330.5234">hold and protect keys</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="204" x="1028" y="347.0117">screate and send transactions</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="148" x="1028" y="363.5">expose API for dApps</text><line style="stroke:#000000;stroke-width:0.5;" x1="1028" x2="1232" y1="300.5" y2="300.5"/><line style="stroke:#000000;stroke-width:0.5;" x1="1028" x2="1232" y1="316.9883" y2="316.9883"/><line style="stroke:#000000;stroke-width:0.5;" x1="1028" x2="1232" y1="366.4531" y2="366.4531"/><line style="stroke:#000000;stroke-width:0.5;" x1="1028" x2="1028" y1="300.5" y2="366.4531"/><line style="stroke:#000000;stroke-width:0.5;" x1="1232" x2="1232" y1="300.5" y2="366.4531"/></g><!--MD5=[ed1409252206e815f0482f4cd067a4e3]
+entity dAppConnectorServer--><g id="elem_dAppConnectorServer"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="143" x="834.5" y="309"/><polygon fill="#F1F1F1" points="960.5,314,960.5,328,972.5,328,972.5,320,966.5,314,960.5,314" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="966.5" x2="966.5" y1="314" y2="320"/><line style="stroke:#181818;stroke-width:0.5;" x1="972.5" x2="966.5" y1="320" y2="320"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="113" x="844.5" y="335.5352">dApp Connector</text></g><!--MD5=[b9e7f16610b93f3b8eeb4d7e15bef1b3]
+entity walletEngineJS--><g id="elem_walletEngineJS"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="138" x="1292" y="309"/><polygon fill="#F1F1F1" points="1413,314,1413,328,1425,328,1425,320,1419,314,1413,314" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1419" x2="1419" y1="314" y2="320"/><line style="stroke:#181818;stroke-width:0.5;" x1="1425" x2="1419" y1="320" y2="320"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="108" x="1302" y="335.5352">Wallet Engine JS</text></g><!--MD5=[5226421c050bf4b889ffda7e6f336111]
+entity MidnightSDKCRC--><g id="elem_MidnightSDKCRC"><rect fill="#F1F1F1" height="66.9766" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="374" x="1048" y="840"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1402" y="845"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1400" y="847"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1400" y="851"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="1068" y="875.5352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="326" x="1067" y="892.0234">Provide toolkit and libraries for dApp developer</text><line style="stroke:#000000;stroke-width:0.5;" x1="1063" x2="1397" y1="862" y2="862"/><line style="stroke:#000000;stroke-width:0.5;" x1="1063" x2="1397" y1="878.4883" y2="878.4883"/><line style="stroke:#000000;stroke-width:0.5;" x1="1063" x2="1397" y1="894.9766" y2="894.9766"/><line style="stroke:#000000;stroke-width:0.5;" x1="1063" x2="1063" y1="862" y2="894.9766"/><line style="stroke:#000000;stroke-width:0.5;" x1="1397" x2="1397" y1="862" y2="894.9766"/></g><!--MD5=[3ee203b499fc4b095e4be629a66bb74c]
+entity abcirdCompiler--><g id="elem_abcirdCompiler"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="146" x="867" y="850.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="993" y="855.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="991" y="857.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="991" y="861.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="106" x="882" y="884.0352">abcirdCompiler</text></g><!--MD5=[4cb1a063983aa45bebc06aa61da24ae2]
+entity headlessWallet--><g id="elem_headlessWallet"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="131" x="700.5" y="854"/><polygon fill="#F1F1F1" points="814.5,859,814.5,873,826.5,873,826.5,865,820.5,859,814.5,859" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="820.5" x2="820.5" y1="859" y2="865"/><line style="stroke:#181818;stroke-width:0.5;" x1="826.5" x2="820.5" y1="865" y2="865"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="101" x="710.5" y="880.5352">headlessWallet</text></g><!--MD5=[6064a7fe65380b59f0eef4ebac6d0361]
+entity mockNode--><g id="elem_mockNode"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="103" x="562.5" y="854"/><polygon fill="#F1F1F1" points="648.5,859,648.5,873,660.5,873,660.5,865,654.5,859,648.5,859" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="654.5" x2="654.5" y1="859" y2="865"/><line style="stroke:#181818;stroke-width:0.5;" x1="660.5" x2="654.5" y1="865" y2="865"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73" x="572.5" y="880.5352">mockNode</text></g><!--MD5=[9fbfb74920ae51c1c8050ef5bc120e99]
+entity mockProver--><g id="elem_mockProver"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="111" x="416.5" y="854"/><polygon fill="#F1F1F1" points="510.5,859,510.5,873,522.5,873,522.5,865,516.5,859,510.5,859" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="516.5" x2="516.5" y1="859" y2="865"/><line style="stroke:#181818;stroke-width:0.5;" x1="522.5" x2="516.5" y1="865" y2="865"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="426.5" y="880.5352">mockProver</text></g><!--MD5=[9c5fe56f162cbbda1618be4e9095fb79]
+entity WalletAPI--><g id="elem_WalletAPI"><ellipse cx="877" cy="580" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="67" x="843.5" y="610.5352">Wallet API</text></g><!--MD5=[f359a0c4438d8d7808727106f469160d]
+entity walletEngine--><g id="elem_walletEngine"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="127" x="836.5" y="698"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="943.5" y="703"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="941.5" y="705"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="941.5" y="709"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="87" x="851.5" y="731.5352">walletEngine</text></g><!--MD5=[0ab8c9667ba5645b6171946289a4147e]
+entity proofServer--><g id="elem_proofServer"><polygon fill="#F1F1F1" points="126,567,136,557,250,557,250,593.4883,240,603.4883,126,603.4883,126,567" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="240" x2="250" y1="567" y2="557"/><line style="stroke:#181818;stroke-width:0.5;" x1="126" x2="240" y1="567" y2="567"/><line style="stroke:#181818;stroke-width:0.5;" x1="240" x2="240" y1="567" y2="603.4883"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="84" x="141" y="590.5352">Proof Server</text></g><!--MD5=[871efb3f965e4eee68ef45e3cc8bb0c9]
+entity provingSystemCRC--><g id="elem_provingSystemCRC"><rect fill="#F1F1F1" height="66.9766" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="419" x="320.5" y="546.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="719.5" y="551.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="717.5" y="553.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="717.5" y="557.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="340.5" y="582.0352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="371" x="339.5" y="598.5234">Generate and verify necessary zero-knowledge proofs</text><line style="stroke:#000000;stroke-width:0.5;" x1="335.5" x2="714.5" y1="568.5" y2="568.5"/><line style="stroke:#000000;stroke-width:0.5;" x1="335.5" x2="714.5" y1="584.9883" y2="584.9883"/><line style="stroke:#000000;stroke-width:0.5;" x1="335.5" x2="714.5" y1="601.4766" y2="601.4766"/><line style="stroke:#000000;stroke-width:0.5;" x1="335.5" x2="335.5" y1="568.5" y2="601.4766"/><line style="stroke:#000000;stroke-width:0.5;" x1="714.5" x2="714.5" y1="568.5" y2="601.4766"/></g><!--MD5=[d27a0316b1d5e5d7fdb9ea9d191e4854]
+entity walletBackendCRC--><g id="elem_walletBackendCRC"><rect fill="#F1F1F1" height="116.4414" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="237" x="1246.5" y="522"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1463.5" y="527"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1461.5" y="529"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1461.5" y="533"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="1266.5" y="557.5352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="193" x="1265.5" y="574.0234">Pre-process transactions to:</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="1265.5" y="590.5117">- save bandwith</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="1265.5" y="607">- save CPU</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="129" x="1261.5" y="623.4883">on user computers</text><line style="stroke:#000000;stroke-width:0.5;" x1="1261.5" x2="1458.5" y1="544" y2="544"/><line style="stroke:#000000;stroke-width:0.5;" x1="1261.5" x2="1458.5" y1="560.4883" y2="560.4883"/><line style="stroke:#000000;stroke-width:0.5;" x1="1261.5" x2="1458.5" y1="626.4414" y2="626.4414"/><line style="stroke:#000000;stroke-width:0.5;" x1="1261.5" x2="1261.5" y1="544" y2="626.4414"/><line style="stroke:#000000;stroke-width:0.5;" x1="1458.5" x2="1458.5" y1="544" y2="626.4414"/></g><!--MD5=[f8344d4d510452d94072e4b97032fa7f]
+entity walletEngineBackend--><g id="elem_walletEngineBackend"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="174" x="1037" y="560.5"/><polygon fill="#F1F1F1" points="1194,565.5,1194,579.5,1206,579.5,1206,571.5,1200,565.5,1194,565.5" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1200" x2="1200" y1="565.5" y2="571.5"/><line style="stroke:#181818;stroke-width:0.5;" x1="1206" x2="1200" y1="571.5" y2="571.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="144" x="1047" y="587.0352">walletEngineBackend</text></g><!--MD5=[7e34a496e95047e6161b2736a3fff3b9]
+entity midnightNodeCRC--><g id="elem_midnightNodeCRC"><rect fill="#F1F1F1" height="83.4648" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="167" x="1107.5" y="1019"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1254.5" y="1024"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1252.5" y="1026"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1252.5" y="1030"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="1127.5" y="1054.5352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="103" x="1126.5" y="1071.0234">Run consensus</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="91" x="1122.5" y="1087.5117">evolve ledger</text><line style="stroke:#000000;stroke-width:0.5;" x1="1122.5" x2="1249.5" y1="1041" y2="1041"/><line style="stroke:#000000;stroke-width:0.5;" x1="1122.5" x2="1249.5" y1="1057.4883" y2="1057.4883"/><line style="stroke:#000000;stroke-width:0.5;" x1="1122.5" x2="1249.5" y1="1090.4648" y2="1090.4648"/><line style="stroke:#000000;stroke-width:0.5;" x1="1122.5" x2="1122.5" y1="1041" y2="1090.4648"/><line style="stroke:#000000;stroke-width:0.5;" x1="1249.5" x2="1249.5" y1="1041" y2="1090.4648"/></g><!--MD5=[f68d7c1925338d21e68466958060f2ab]
+entity midnightLedger--><g id="elem_midnightLedger"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="149" x="923.5" y="1037.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1052.5" y="1042.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1050.5" y="1044.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1050.5" y="1048.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="109" x="938.5" y="1071.0352">midnightLedger</text></g><!--MD5=[79e458202c7137bc7361b5b91ed782d7]
+entity midnightConsensus--><g id="elem_midnightConsensus"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="177" x="711.5" y="1037.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="868.5" y="1042.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="866.5" y="1044.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="866.5" y="1048.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="137" x="726.5" y="1071.0352">midnightConsensus</text></g><!--MD5=[9015594f4b84d4d0c507a167f8abda6e]
+entity midnightAPI--><g id="elem_midnightAPI"><rect fill="#F1F1F1" height="46.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="124" x="552" y="1037.5"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="656" y="1042.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="654" y="1044.5"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="654" y="1048.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="84" x="567" y="1071.0352">midnightAPI</text></g><!--MD5=[0c48efa848c473bb61f48737588d0a20]
+entity cardanoNode--><g id="elem_cardanoNode"><polygon fill="#F1F1F1" points="1339.5,1432,1349.5,1422,1478.5,1422,1478.5,1458.4883,1468.5,1468.4883,1339.5,1468.4883,1339.5,1432" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1468.5" x2="1478.5" y1="1432" y2="1422"/><line style="stroke:#181818;stroke-width:0.5;" x1="1339.5" x2="1468.5" y1="1432" y2="1432"/><line style="stroke:#181818;stroke-width:0.5;" x1="1468.5" x2="1468.5" y1="1432" y2="1468.4883"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="99" x="1354.5" y="1455.5352">Cardano Node</text></g><!--MD5=[34d996af721b0848fb4c156490d9c7f9]
+entity mainChainFollowerCRC--><g id="elem_mainChainFollowerCRC"><rect fill="#F1F1F1" height="99.9531" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="289" x="1382.5" y="1262"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1651.5" y="1267"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1649.5" y="1269"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1649.5" y="1273"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="117" x="1402.5" y="1297.5352">Responsibilities</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="245" x="1401.5" y="1314.0234">Provide Midnight information about</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="132" x="1405.5" y="1330.5117">- stake distribution</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="116" x="1405.5" y="1347">- token transfers</text><line style="stroke:#000000;stroke-width:0.5;" x1="1397.5" x2="1646.5" y1="1284" y2="1284"/><line style="stroke:#000000;stroke-width:0.5;" x1="1397.5" x2="1646.5" y1="1300.4883" y2="1300.4883"/><line style="stroke:#000000;stroke-width:0.5;" x1="1397.5" x2="1646.5" y1="1349.9531" y2="1349.9531"/><line style="stroke:#000000;stroke-width:0.5;" x1="1397.5" x2="1397.5" y1="1284" y2="1349.9531"/><line style="stroke:#000000;stroke-width:0.5;" x1="1646.5" x2="1646.5" y1="1284" y2="1349.9531"/></g><!--MD5=[0e8cbf91ee92e326abc7a26d1c204c22]
+entity midnightNetwork--><g id="elem_midnightNetwork"><path d="M1177.0562,1537.987 C1179.5505,1532.0714 1184.0222,1531.219 1188.1124,1536.3964 C1191.1377,1530.9716 1195.5771,1530.5734 1199.253,1535.7101 C1202.8974,1529.307 1207.4938,1529.3372 1211.2913,1535.5641 C1214.8992,1529.5328 1218.5387,1530.0408 1222.6902,1535.0003 C1225.3484,1530.4423 1228.6231,1528.8936 1232.5452,1533.6651 C1235.5254,1527.8157 1240.6451,1528.8439 1243.8871,1533.3792 C1246.7787,1528.2129 1252.132,1527.9445 1255.1054,1533.2918 C1258.5259,1529.1857 1263.2787,1528.4348 1265.8382,1534.2256 C1269.5065,1530.2678 1273.6644,1529.9233 1276.2797,1535.3921 C1280.995,1530.1006 1285.0533,1529.9423 1289.3659,1535.8623 C1291.9333,1531.4102 1296.7087,1530.6737 1299.3897,1535.7428 C1303.3962,1530.9631 1307.8598,1532.4986 1310.3596,1537.4426 C1317.5504,1538.96 1319.9459,1545.2005 1315.9397,1551.2448 C1323.0859,1558.8445 1319.7388,1564.3553 1311.334,1567.567 C1308.56,1574.5067 1303.9217,1574.9095 1299.2534,1569.406 C1295.8395,1574.5142 1291.7942,1574.5811 1288.7967,1568.9987 C1285.5614,1574.4991 1280.5264,1575.9463 1276.3549,1570.0179 C1273.5884,1573.9963 1269.9254,1573.8908 1267.1095,1570.0766 C1263.9048,1576.0888 1259.8091,1575.4396 1255.8083,1570.9317 C1253.5282,1576.8641 1248.0539,1578.3304 1244.1201,1572.5871 C1240.519,1578.1236 1235.6228,1577.5894 1232.1255,1572.4702 C1228.6713,1577.0313 1224.2275,1576.3657 1221.5891,1571.5532 C1217.7495,1575.4389 1213.927,1575.0522 1211.4181,1570.0332 C1207.3599,1575.6901 1202.1433,1576.5848 1198.6913,1569.431 C1195.7769,1573.5808 1192.1854,1573.7302 1189.2605,1569.4428 C1184.1284,1573.7758 1179.7043,1572.6611 1177.0412,1566.5532 C1169.5353,1564.4869 1167.2051,1558.6008 1173.2123,1552.7783 C1166.3406,1546.4169 1168.6421,1540.3761 1177.0562,1537.987 " fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="119" x="1183.5" y="1556.5352">midnightNetwork</text></g><!--MD5=[5641fe9bd3872222756e1abb67c7fde6]
+entity cardanoNetwork--><g id="elem_cardanoNetwork"><path d="M1362.5102,1537.6777 C1366.1606,1530.8793 1370.1734,1530.8515 1374.687,1536.8566 C1377.1935,1530.0228 1383.8542,1529.8875 1387.9256,1535.1429 C1392.1222,1530.0024 1395.9556,1529.0509 1400.3392,1534.9324 C1403.6681,1528.2587 1408.9996,1528.7918 1413.1752,1534.0191 C1417.7836,1528.9541 1421.8025,1528.9867 1425.8666,1534.6621 C1429.2406,1528.5558 1433.4223,1528.8264 1437.6609,1533.7364 C1442.0657,1528.8094 1448.8452,1529.1795 1451.2754,1536.0208 C1454.4734,1530.6021 1458.7501,1530.5519 1462.6325,1535.2526 C1466.0813,1528.452 1472.2298,1528.7915 1475.4305,1535.4879 C1480.8466,1530.3363 1486.3625,1529.8828 1489.5289,1537.8971 C1496.337,1541.9455 1498.9494,1547.031 1491.6514,1553.0547 C1497.3234,1559.6203 1497.8228,1565.149 1488.3036,1568.4005 C1484.5263,1574.5759 1479.6577,1573.2542 1476.4645,1567.8056 C1473.8554,1574.0447 1469.2837,1575.8864 1464.0997,1570.558 C1460.5392,1578.0714 1453.988,1577.3607 1450.1583,1570.8251 C1446.7177,1577.7069 1442.7083,1577.5334 1438.0054,1572.0676 C1434.6459,1578.7553 1428.5383,1579.5077 1424.558,1572.6855 C1419.7744,1577.4016 1415.2222,1578.4414 1411.6666,1571.3452 C1407.6109,1577.0134 1402.6217,1577.2445 1398.7084,1571.1879 C1395.5814,1576.6967 1390.199,1575.6923 1387.639,1570.5962 C1382.5631,1577.1838 1377.949,1575.8105 1374.2858,1569.1701 C1370.1549,1574.5334 1364.7348,1574.8839 1361.5385,1568.1826 C1353.8564,1566.1835 1349.2824,1559.6496 1356.2851,1552.6756 C1350.5554,1544.2981 1353.5611,1539.9625 1362.5102,1537.6777 " fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="113" x="1367.5" y="1556.5352">cardanoNetwork</text></g><!--MD5=[190723f9bbd2c9a218bde0626b14ff9e]
+link dAppCode to ClientSDK--><g id="link_dAppCode_ClientSDK"><path d="M678.8,211.61 C680.79,214.1 682.59,216.75 684,219.5 C686.7425,224.8325 689.0978,230.4878 691.1197,236.3058 C691.6252,237.7602 692.1098,239.2249 692.5744,240.6972 C692.8067,241.4334 693.034,242.1714 693.2565,242.9111 C693.3121,243.096 693.3674,243.2811 693.4224,243.4662 " fill="none" id="dAppCode-ClientSDK" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[c6db5667ea175e5ecbb3cb6134790175]
+reverse link WalletAPI to walletEngine--><g id="link_WalletAPI_walletEngine"><path d="M881.65,609.08 C885.98,635.25 892.35,673.77 896.33,697.84 " fill="none" id="WalletAPI-backto-walletEngine" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="874.73,610.15,878.37,589.28,888.54,607.87,874.73,610.15" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[2dbdd2a0848e1e7e81ba43f157081925]
+link proofServer to provingSystem--><g id="link_proofServer_provingSystem"><path d="M250.14,580 C255.86,580 261.58,580 267.3,580 C270.16,580 273.02,580 275.88,580 C276.2375,580 276.595,580 276.9525,580 " fill="none" id="proofServer-to-provingSystem" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FFFFFF" points="276.9525,580,257.9525,573,257.9525,587,276.9525,580" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[28fd73d4f9b10c1db7317f2c789c0e15]
+link dappUser to browserExtensionWallet--><g id="link_dappUser_browserExtensionWallet"><path d="M799,81.79 C799,119.61 799,179.725 799,231.0263 C799,231.8278 799,232.6273 799,233.4244 C799,233.823 799,234.221 799,234.6184 " fill="none" id="dappUser-browserExtensionWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[101cdb55d3ecaf44e43d86da3f4eb4e6]
+link dappUser to dApp--><g id="link_dappUser_dApp"><path d="M762.93,45.07 C617.09,47.7 76.27,60.98 23,113.5 C20.0138,116.4438 17.6334,119.8109 15.7561,123.4559 C14.8174,125.2783 14.0045,127.1702 13.3044,129.1133 C13.2607,129.2348 13.2174,129.3564 13.1745,129.4783 " fill="none" id="dappUser-dApp" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[c25263c258cf423f640a0da4c7f53ab1]
+link walletEngineJS to walletEngine--><g id="link_walletEngineJS_walletEngine"><path d="M1353.94,348.35 C1342.31,376.34 1316.25,427.94 1275,450 C1250.1,463.32 1044.03,441.67 1021,458 C935.49,518.63 989.77,588.02 936,678 C935.22,679.3 934.41,680.6 933.56,681.89 " fill="none" id="walletEngineJS-to-walletEngine" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="939,686.3,921.31,697.98,927.86,677.82,939,686.3" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[d26594eddb04ba80e12f0546b640da9c]
+link walletEngineBackend to walletEngine--><g id="link_walletEngineBackend_walletEngine"><path d="M1098.28,599.58 C1069.89,619.78 1022.58,652.59 980,678 C974.19,681.47 968.06,684.96 961.89,688.38 " fill="none" id="walletEngineBackend-to-walletEngine" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="965,694.65,944.07,697.96,958.37,682.32,965,694.65" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6a6fce5f383429765a273a433a2d1c89]
+link walletEngineJS to walletBackend--><g id="link_walletEngineJS_walletBackend"><path d="M1390.94,348.13 C1423.5,370.13 1474.32,409.87 1500,458 C1501.5769,460.955 1503.0316,464.0044 1504.3734,467.1254 C1505.0442,468.686 1505.6868,470.2644 1506.3023,471.8578 C1506.4561,472.2562 1506.6083,472.6555 1506.7588,473.0557 C1506.834,473.2558 1506.9089,473.4561 1506.9833,473.6567 " fill="none" id="walletEngineJS-walletBackend" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[1f40f70fdc2362dcf1ea42b809540607]
+link walletBackend to midnightNode--><g id="link_walletBackend_midnightNode"><path d="M1526.9967,662.101 C1527.0202,662.5888 1527.0433,663.0783 1527.066,663.5692 C1527.7939,679.2807 1528.1625,696.5966 1527.8675,714.9363 C1526.6875,788.295 1514.89,878.035 1473,947 C1450.51,984.03 1410.6725,1011.8625 1376.0125,1030.58 C1358.6825,1039.9388 1342.6469,1047.0188 1330.7213,1051.8303 C1327.7398,1053.0332 1325.0153,1054.0943 1322.5917,1055.0138 C1321.3798,1055.4736 1320.2432,1055.8979 1319.1873,1056.2869 C1318.9233,1056.3841 1318.6644,1056.4791 1318.4106,1056.572 C1318.2837,1056.6184 1318.1581,1056.6642 1318.0338,1056.7095 " fill="none" id="walletBackend-midnightNode" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6b8fda18d652d05cf92c7d1e6a59507a]
+link mainChainFollower to cardanoNode--><g id="link_mainChainFollower_cardanoNode"><path d="M1358.9231,1386.2487 C1358.9772,1386.3966 1359.0316,1386.5445 1359.0863,1386.6922 C1359.3049,1387.2832 1359.5274,1387.8722 1359.7539,1388.4591 C1361.5664,1393.1539 1363.6363,1397.71 1366,1402 C1369.93,1409.13 1375.46,1415.81 1381.24,1421.66 " fill="none" id="mainChainFollower-cardanoNode" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[4cd560962ff4f03d32d19c6a9e8d8bbb]
+link cardanoNode to cardanoNetwork--><g id="link_cardanoNode_cardanoNetwork"><path d="M1412.18,1468.06 C1414.73,1485.7 1418.28,1510.34 1420.82,1527.98 " fill="none" id="cardanoNode-cardanoNetwork" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[18f812457474c84f7737824f2940da38]
+link midnightNode to mainChainFollower--><g id="link_midnightNode_mainChainFollower"><path d="M1318.1749,1116.6273 C1318.2351,1117.0333 1318.2955,1117.4406 1318.3561,1117.8494 C1318.4773,1118.667 1318.5994,1119.4903 1318.7223,1120.319 C1319.7053,1126.9488 1320.74,1133.9273 1321.8091,1141.1381 C1323.9475,1155.5598 1326.2238,1170.9112 1328.5,1186.2625 C1330.7763,1201.6138 1333.0525,1216.9648 1335.1909,1231.3859 C1336.26,1238.5965 1337.2947,1245.5745 1338.2777,1252.2038 C1338.4006,1253.0325 1338.5227,1253.8557 1338.6439,1254.6733 C1338.7045,1255.082 1338.7649,1255.4894 1338.8251,1255.8953 C1338.8552,1256.0982 1338.8852,1256.3008 1338.9152,1256.5031 " fill="none" id="midnightNode-mainChainFollower" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[433b20730ae89f7c86a098dc190f595a]
+link walletEngineJS to provingSystem--><g id="link_walletEngineJS_provingSystem"><path d="M1354.19,348.01 C1342.74,376.05 1316.73,428.3 1275,450 C1251.07,462.45 324.43,440.38 304,458 C298.9275,462.375 295.2013,471.925 292.4658,483.838 C291.098,489.7945 289.978,496.3417 289.0612,503.1281 " fill="none" id="walletEngineJS-provingSystem" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[f80672e13a9e31e721f9807993961a27]
+link laresRuntime to provingSystem--><g id="link_laresRuntime_provingSystem"><path d="M355.77,351.75 C340.54,376.65 316.83,418.66 304,458 C299.8475,470.7375 296.5881,484.5337 294.0338,498.0962 C293.7145,499.7916 293.4062,501.4832 293.1085,503.1687 " fill="none" id="laresRuntime-provingSystem" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[ca3bc1c72c14700d7014409da6ce212d]
+link ClientSDK to WalletAPI--><g id="link_ClientSDK_WalletAPI"><path d="M711,341.9353 C715.7356,349.2662 722.3025,359.3887 729.9575,371.07 C745.2675,394.4325 764.93,424.03 783,450 C815.29,496.4 855.81,550.77 870.94,570.94 " fill="none" id="ClientSDK-WalletAPI" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[9755b3fc5087c8ccc9839c043970e8cb]
+link midnightNode to midnightNetwork--><g id="link_midnightNode_midnightNetwork"><path d="M1300.9706,1127.3411 C1300.8104,1128.5095 1300.6485,1129.6899 1300.4849,1130.882 C1300.1579,1133.2661 1299.8245,1135.6969 1299.485,1138.1721 C1298.8061,1143.1225 1298.1028,1148.2502 1297.3778,1153.5361 C1295.9278,1164.1078 1294.391,1175.3121 1292.7886,1186.9955 C1289.5837,1210.3623 1286.1159,1235.6456 1282.5538,1261.6175 C1268.305,1365.505 1252.545,1480.41 1246.05,1527.75 " fill="none" id="midnightNode-midnightNetwork" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[5c853223bc6b4f579b2f55c74ff11245]
+link dappDeveloper to MidnightSDK--><g id="link_dappDeveloper_MidnightSDK"><path d="M980.08,55.83 C1137.99,89.88 1581,197.03 1581,327.5 C1581,327.5 1581,327.5 1581,581 C1581,650.295 1550.96,721.9925 1520.4513,776.9413 C1505.1969,804.4156 1489.8253,827.7028 1478.033,844.4089 C1475.0849,848.5854 1472.3605,852.3506 1469.9176,855.6671 C1468.6961,857.3254 1467.545,858.8714 1466.4715,860.3006 C1466.2031,860.6579 1465.9396,861.0079 1465.681,861.3505 C1465.5517,861.5219 1465.4237,861.6913 1465.2969,861.8589 " fill="none" id="dappDeveloper-MidnightSDK" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[7bdee3d2f7b98396ee7281fa10dbfba9]
+reverse link walletEngine to headlessWallet--><g id="link_walletEngine_headlessWallet"><path d="M865.45,759.01 C860.24,764.68 854.96,770.48 850,776 C825.96,802.77 798.71,834.31 781.94,853.85 " fill="none" id="walletEngine-backto-headlessWallet" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="860.45,754.11,879.17,744.19,870.72,763.62,860.45,754.11" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[31fc315b53248f164a399f34f8152493]
+link mockNode to midnightLedger--><g id="link_mockNode_midnightLedger"><path d="M625.59,893.28 C637.55,910.75 657.97,935.73 683,947 C728.22,967.36 861.19,933.77 906,955 C935.1,968.79 958.83,996.52 974.89,1019.96 " fill="none" id="mockNode-to-midnightLedger" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="980.99,1016.49,985.87,1037.11,969.19,1024.04,980.99,1016.49" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[2e4a08e313bc91cf1e4ec43b2929dd6c]
+link mockNode to midnightAPI--><g id="link_mockNode_midnightAPI"><path d="M614,893.26 C614,922.11 614,978.13 614,1017.12 " fill="none" id="mockNode-to-midnightAPI" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="none" points="621,1017.27,614,1037.27,607,1017.27,621,1017.27" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[1230e06ec15bf9cbec10884763af7820]
+reverse link provingSystem to mockProver--><g id="link_provingSystem_mockProver"><path d="M291.0346,637.7919 C291.0685,637.956 291.1025,638.1202 291.1368,638.2844 C291.2052,638.6129 291.2745,638.9416 291.3445,639.2707 C291.9045,641.9031 292.514,644.5534 293.1773,647.2047 C295.8306,657.81 299.345,668.4325 304,678 C340.42,752.83 412.94,821.86 449.63,853.82 " fill="none" id="provingSystem-backto-mockProver" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#FFFFFF" points="291.0346,637.7919,288.0185,657.8145,301.7297,654.9854,291.0346,637.7919" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[c4043a26b6a81a38c33e6a613c4d8d53]
+@startuml
+!function $crcName($name) !return $name + "CRC"
+!procedure $crc($name, $responsibilities)
+  component $crcName($name) as "
+  |= Responsibilities |
+  | $responsibilities |
+  "
+!endprocedure
+
+together {
+  actor dappUser as "dApp User"
+  actor dappDeveloper as "dApp Developer"
+}
+
+frame dApp {
+  artifact dAppCode as "dApp own code"
+
+  component ClientSDK {
+    $crc("ClientSDK", "run smart contracts\nprovide API for dApps")
+    component laresRuntime as "Lares Runtime"
+    artifact dAppConnectorClient as "dApp Connector Client"
+  }
+
+  dAppCode - - ClientSDK
+}
+
+frame browserExtensionWallet as "Wallet Browser Extension" {
+  $crc("browserExtensionWallet", "hold and protect keys\nscreate and send transactions\nexpose API for dApps")
+  artifact dAppConnectorServer as "dApp Connector"
+  artifact walletEngineJS as "Wallet Engine JS"
+}
+
+node MidnightSDK {
+  $crc("MidnightSDK", "Provide toolkit and libraries for dApp developer")
+  component abcirdCompiler
+  artifact headlessWallet
+  artifact mockNode
+  artifact mockProver
+}
+
+together {
+  interface WalletAPI as "Wallet API"
+  component walletEngine
+
+  walletEngine .u.^ WalletAPI
+}
+
+together {
+  component provingSystem as "Proving System" {
+    $crc("provingSystem", "Generate and verify necessary zero-knowledge proofs")
+  }
+  node proofServer as "Proof Server"
+
+  proofServer .r.^ provingSystem
+}
+
+node walletBackend as "Wallet Backend" {
+  $crc("walletBackend", "Pre-process transactions to:\n - save bandwith\n - save CPU\non user computers")
+  artifact walletEngineBackend
+}
+
+node midnightNode as "Midnight Node" {
+  $crc("midnightNode", "Run consensus\nevolve ledger")
+  component midnightLedger
+  component midnightConsensus
+  component midnightAPI
+}
+
+node spoDeployment as "Cardano Node Installation" {
+  node mainChainFollower as "Main Chain Follower" {
+    $crc("mainChainFollower", "Provide Midnight information about\n  - stake distribution\n  - token transfers")
+  }
+  node cardanoNode as "Cardano Node"
+}
+
+together {
+  cloud midnightNetwork
+  cloud cardanoNetwork
+}
+
+
+
+dappUser - - browserExtensionWallet
+dappUser - - dApp
+walletEngineJS ..^ walletEngine
+walletEngineBackend ..^ walletEngine
+walletEngineJS - - walletBackend
+walletBackend - - midnightNode
+mainChainFollower - - cardanoNode
+cardanoNode - - cardanoNetwork
+midnightNode - - mainChainFollower
+walletEngineJS -r- provingSystem
+laresRuntime - - provingSystem
+ClientSDK - - WalletAPI
+midnightNode - - midnightNetwork
+
+dappDeveloper - - MidnightSDK
+walletEngine ^.. headlessWallet
+mockNode ..^ midnightLedger
+mockNode ..^ midnightAPI
+provingSystem ^.. mockProver
+@enduml
+
+@startuml
+
+together {
+  actor dappUser as "dApp User"
+  actor dappDeveloper as "dApp Developer"
+}
+
+frame dApp {
+  artifact dAppCode as "dApp own code"
+
+  component ClientSDK {
+      component ClientSDKCRC as "
+  |= Responsibilities |
+  | run smart contracts\nprovide API for dApps |
+  "
+    component laresRuntime as "Lares Runtime"
+    artifact dAppConnectorClient as "dApp Connector Client"
+  }
+
+  dAppCode - - ClientSDK
+}
+
+frame browserExtensionWallet as "Wallet Browser Extension" {
+    component browserExtensionWalletCRC as "
+  |= Responsibilities |
+  | hold and protect keys\nscreate and send transactions\nexpose API for dApps |
+  "
+  artifact dAppConnectorServer as "dApp Connector"
+  artifact walletEngineJS as "Wallet Engine JS"
+}
+
+node MidnightSDK {
+    component MidnightSDKCRC as "
+  |= Responsibilities |
+  | Provide toolkit and libraries for dApp developer |
+  "
+  component abcirdCompiler
+  artifact headlessWallet
+  artifact mockNode
+  artifact mockProver
+}
+
+together {
+  interface WalletAPI as "Wallet API"
+  component walletEngine
+
+  walletEngine .u.^ WalletAPI
+}
+
+together {
+  component provingSystem as "Proving System" {
+      component provingSystemCRC as "
+  |= Responsibilities |
+  | Generate and verify necessary zero-knowledge proofs |
+  "
+  }
+  node proofServer as "Proof Server"
+
+  proofServer .r.^ provingSystem
+}
+
+node walletBackend as "Wallet Backend" {
+    component walletBackendCRC as "
+  |= Responsibilities |
+  | Pre-process transactions to:\n - save bandwith\n - save CPU\non user computers |
+  "
+  artifact walletEngineBackend
+}
+
+node midnightNode as "Midnight Node" {
+    component midnightNodeCRC as "
+  |= Responsibilities |
+  | Run consensus\nevolve ledger |
+  "
+  component midnightLedger
+  component midnightConsensus
+  component midnightAPI
+}
+
+node spoDeployment as "Cardano Node Installation" {
+  node mainChainFollower as "Main Chain Follower" {
+      component mainChainFollowerCRC as "
+  |= Responsibilities |
+  | Provide Midnight information about\n  - stake distribution\n  - token transfers |
+  "
+  }
+  node cardanoNode as "Cardano Node"
+}
+
+together {
+  cloud midnightNetwork
+  cloud cardanoNetwork
+}
+
+
+
+dappUser - - browserExtensionWallet
+dappUser - - dApp
+walletEngineJS ..^ walletEngine
+walletEngineBackend ..^ walletEngine
+walletEngineJS - - walletBackend
+walletBackend - - midnightNode
+mainChainFollower - - cardanoNode
+cardanoNode - - cardanoNetwork
+midnightNode - - mainChainFollower
+walletEngineJS -r- provingSystem
+laresRuntime - - provingSystem
+ClientSDK - - WalletAPI
+midnightNode - - midnightNetwork
+
+dappDeveloper - - MidnightSDK
+walletEngine ^.. headlessWallet
+mockNode ..^ midnightLedger
+mockNode ..^ midnightAPI
+provingSystem ^.. mockProver
+@enduml
+
+PlantUML version 1.2022.5(Sat Apr 30 12:55:52 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: PL
+--></g></svg>

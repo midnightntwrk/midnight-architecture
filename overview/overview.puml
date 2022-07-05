@@ -1,0 +1,102 @@
+@startuml
+!function $crcName($name) !return $name + "CRC"
+!procedure $crc($name, $responsibilities)
+  component $crcName($name) as "
+  |= Responsibilities |
+  | $responsibilities |
+  "
+!endprocedure
+
+together {
+  actor dappUser as "dApp User"
+  actor dappDeveloper as "dApp Developer"
+}
+
+frame dApp {
+  artifact dAppCode as "dApp own code"
+
+  component ClientSDK {
+    $crc("ClientSDK", "run smart contracts\nprovide API for dApps")
+    component laresRuntime as "Lares Runtime"
+    artifact dAppConnectorClient as "dApp Connector Client"
+  }
+
+  dAppCode -- ClientSDK
+}
+
+frame browserExtensionWallet as "Wallet Browser Extension" {
+  $crc("browserExtensionWallet", "hold and protect keys\nscreate and send transactions\nexpose API for dApps")
+  artifact dAppConnectorServer as "dApp Connector"
+  artifact walletEngineJS as "Wallet Engine JS"
+}
+
+node MidnightSDK {
+  $crc("MidnightSDK", "Provide toolkit and libraries for dApp developer")
+  component abcirdCompiler
+  artifact headlessWallet
+  artifact mockNode
+  artifact mockProver
+}
+
+together {
+  interface WalletAPI as "Wallet API"
+  component walletEngine
+
+  walletEngine .u.^ WalletAPI
+}
+
+together {
+  component provingSystem as "Proving System" {
+    $crc("provingSystem", "Generate and verify necessary zero-knowledge proofs")
+  }
+  node proofServer as "Proof Server"
+
+  proofServer .r.^ provingSystem
+}
+
+node walletBackend as "Wallet Backend" {
+  $crc("walletBackend", "Pre-process transactions to:\n - save bandwith\n - save CPU\non user computers")
+  artifact walletEngineBackend
+}
+
+node midnightNode as "Midnight Node" {
+  $crc("midnightNode", "Run consensus\nevolve ledger")
+  component midnightLedger
+  component midnightConsensus
+  component midnightAPI
+}
+
+node spoDeployment as "Cardano Node Installation" {
+  node mainChainFollower as "Main Chain Follower" {
+    $crc("mainChainFollower", "Provide Midnight information about\n  - stake distribution\n  - token transfers")
+  }
+  node cardanoNode as "Cardano Node"
+}
+
+together {
+  cloud midnightNetwork
+  cloud cardanoNetwork
+}
+
+
+
+dappUser -- browserExtensionWallet
+dappUser -- dApp
+walletEngineJS ..^ walletEngine
+walletEngineBackend ..^ walletEngine
+walletEngineJS -- walletBackend
+walletBackend -- midnightNode
+mainChainFollower -- cardanoNode
+cardanoNode -- cardanoNetwork
+midnightNode -- mainChainFollower
+walletEngineJS -r- provingSystem
+laresRuntime -- provingSystem
+ClientSDK -- WalletAPI
+midnightNode -- midnightNetwork
+
+dappDeveloper -- MidnightSDK
+walletEngine ^.. headlessWallet
+mockNode ..^ midnightLedger
+mockNode ..^ midnightAPI
+provingSystem ^.. mockProver
+@enduml
