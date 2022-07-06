@@ -40,13 +40,93 @@
           hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
         };
       });
+
+      inherit (pkgs.lib) hasSuffix mapAttrsToList drop splitString remove flatten;
+      inherit (builtins) concatStringsSep readFile isString match path readDir;
+      inherit (pkgs.lib.strings) sanitizeDerivationName;
+
+      # plantuml ext => args
+      transforms = {
+        svg = "-tsvg";
+        pdf = "-tpdf -Sshadowing=false";
+        png = "-tpng";
+      };
+
+      transform = parent: name:
+        pkgs.runCommandNoCC "transform-${sanitizeDerivationName name}" {
+          buildInputs = [pkgs.moreutils plantuml-pdf];
+          src = let
+            content = readFile (parent + "/${name}");
+            lines = splitString "\n" content;
+            maybeIncludes =
+              map (
+                line:
+                  if isString line
+                  then match "!include (.+)" line
+                  else null
+              )
+              lines;
+            includes = [name] ++ (flatten ((remove null) maybeIncludes));
+            toPath = include: {
+              name = include;
+              path = path {
+                name = sanitizeDerivationName include;
+                path = parent + "/${include}";
+              };
+            };
+          in
+            pkgs.linkFarm "includes" (map toPath includes);
+
+          XDG_CONFIG_HOME = let
+            fonts = with pkgs; [dejavu_fonts];
+            cachedir = pkgs.makeFontsCache {fontDirectories = fonts;};
+          in
+            pkgs.writeTextDir "fontconfig/fonts.conf" ''
+              <?xml version='1.0'?>
+              <!DOCTYPE fontconfig SYSTEM 'urn:fontconfig:fonts.dtd'>
+              <fontconfig>
+                ${concatStringsSep "\n" (map (font: "<dir>${font}</dir>") fonts)}
+                <cachedir>${cachedir}</cachedir>
+              </fontconfig>
+            '';
+        } ''
+          set -euo pipefail
+
+          mkdir -p "$out"
+
+          from="$src/${name}"
+          to="$out/$(basename -s .puml "${name}")"
+
+          ${concatStringsSep "\n" (mapAttrsToList (ext: args: ''
+              echo "generate $to.${ext}"
+              plantuml -failfast2 -pipe -charset UTF-8 -filedir "$src" ${args} < "$from" | sponge "$to.${ext}"
+            '')
+            transforms)}
+        '';
+
+      allPumls = parent:
+        mapAttrsToList (
+          name: type:
+            if type == "directory"
+            then allPumls (parent + "/${name}")
+            else if (hasSuffix ".puml" name)
+            then transform parent name
+            else null
+        ) (readDir parent);
+
+      pumls = remove null (flatten (allPumls ./.));
+
+      getName = s: concatStringsSep "/" (drop 4 (splitString "/" s));
     in rec {
+      packages.pumls = pkgs.symlinkJoin {
+        name = "pumls";
+        paths = pumls;
+      };
+
       packages.midnight-architecture = pkgs.stdenv.mkDerivation {
         name = "midnight-architecture";
         src = ./.;
-        buildInputs = [
-          plantuml-pdf
-        ];
+        buildInputs = [plantuml-pdf];
         installPhase = ''
           make -p \
           | grep '^default:' \
@@ -66,7 +146,7 @@
         env = [
           {
             name = "GRAPHVIZ_DOT";
-            eval = "$(which dot)";
+            value = "${pkgs.graphviz}/bin/dot";
           }
         ];
         commands = [
