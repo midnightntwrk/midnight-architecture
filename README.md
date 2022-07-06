@@ -63,6 +63,7 @@ The goal of it is to bring transparency, involvement of whole team at decision m
 Documents use text-based diagrams to enable version control of key illustrations. The
 tools used include:
 
+- [Nix](https://nixos.org) as build tool and dependency resolution mechanism
 - [plantUML](https://plantuml.com/)
 - [graphviz](https://www.graphviz.org/) (used by plantUML)
 
@@ -79,4 +80,22 @@ line `experimental-features = nix-command flakes` to `~/.config/nix/nix.conf` fi
 can run `nix develop` or `direnv allow` to enter a shell environment, where they all are
 available on `$PATH`.
 
+To use PlantUML easily there are couple of derivactions/commands available:
 
+1. Compiling PlantUML files in-place
+
+        $ nix run .#render-pumls [dir]
+
+    This may be useful for just ensuring files are properly rendered before commiting
+
+2. Watching PlantUML files
+
+        $ nix run .#watch [dir]
+
+    It runs a watchman process in foreground and calls the `render-pumls` script in order to update them in-place. It seems to be good enough for now, but no doubt it may be more involved in future to achieve better latency.
+
+3. Renders derivation
+
+        $ nix build
+
+    It contains `.svg` files in a directory structure matching the one of this repository. It could possibly be an input to the `render-pumls` script, though there may be concerns regarding amount of file operations needed first to do that (especially in watch mode), so it is a separate thing for now.

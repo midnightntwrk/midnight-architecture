@@ -5,17 +5,12 @@
     nixpkgs.url = "github:NixOS/nixpkgs/release-22.05";
     devshell = {
       url = "github:numtide/devshell";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     utils = {
       url = "github:numtide/flake-utils";
     };
     cicero = {
       url = "github:input-output-hk/cicero";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        utils.follows = "utils";
-      };
     };
   };
 
@@ -30,34 +25,50 @@
     utils.lib.eachSystem ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"]
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-      plantuml-pdf = pkgs.plantuml.overrideAttrs (old: rec {
-        version = "1.2022.3";
-        src = pkgs.fetchurl {
-          url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
-          hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
-        };
-      });
+
+      inherit (pkgs.lib.trivial) pipe;
+
+      plantLib = import ./nix/plantuml.nix {
+        pkgs = pkgs;
+      };
     in rec {
-      packages.midnight-architecture = pkgs.stdenv.mkDerivation {
-        name = "midnight-architecture";
-        src = ./.;
-        buildInputs = [
-          plantuml-pdf
-        ];
-        installPhase = ''
-          make -p \
-          | grep '^default:' \
-          | cut -d ' ' -f 2- --output-delimiter $'\n' \
-          | while read -r; do
-            mkdir -p $out/"$(dirname "$REPLY")"
-            mv "$REPLY" $out/"$REPLY"
-          done
-        '';
+      packages.puml-renders = pipe ./. [(plantLib.collectFiles) (plantLib.renderFiles)];
+      defaultPackage = packages.puml-renders;
+
+      apps.render-pumls = {
+        type = "app";
+        program = plantLib.renderPumlsScript + "/bin/render-pumls";
       };
 
-      packages.default = packages.midnight-architecture;
+      apps.watch = let
+        watcher = pkgs.writeShellApplication {
+          name = "watch-pumls";
+          runtimeInputs = [plantLib.renderPumlsScript pkgs.watchman];
+          text = ''
+            set -euxo pipefail
 
-      devShells.default = devshell.legacyPackages.${system}.mkShell {
+            if [ -v 1 ]; then
+              dir=$1
+            else
+              dir=$(pwd)
+            fi
+
+            echo "Starting watchman to watch over *.puml files"
+            watchman --foreground -j <<-EOT
+              ["trigger", "$dir", {
+                "name": "pumls",
+                "expression": ["pcre", "\\\\.puml$"],
+                "command": ["update-puml-renders", "$dir"]
+              }]
+            EOT
+          '';
+        };
+      in {
+        type = "app";
+        program = watcher + "/bin/watch-pumls";
+      };
+
+      devShell = devshell.legacyPackages.${system}.mkShell {
         # graphviz and setting GRAPHVIZ_DOT environment variables are needed for editors integration, though it doesn't work quite well
         packages = [pkgs.graphviz pkgs.jdk];
         env = [
@@ -84,7 +95,7 @@
             category = "formatter";
           }
           {
-            package = plantuml-pdf;
+            package = pkgs.plantuml;
             category = "diagram generator";
           }
         ];
