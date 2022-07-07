@@ -1,50 +1,38 @@
-@startuml Lares Backend Join
+@startuml Join Contract
 
 skinparam SequenceMessageAlignment center
 
 title
 
-  Install Callback
+  Join Contract
 
 end title
 
 "Application" -> "Lares Backend" : join(address, filter, privateStateConstructor)
-"Lares Backend" -> "Wallet" : installFilter(filter)
-"Wallet" --> "Lares Backend" : start
 "Lares Backend" -> "Lares Backend" : events = []
+"Lares Backend" -> "Filter Service" : installFilter(filter)
 loop Until all events are sent
-  "Wallet" -> "Lares Backend" : event
+  "Filter Service" -> "Lares Backend" : event
   "Lares Backend" -> "Lares Backend" : events = append(event, events)
 end
-"Wallet" -> "Lares Backend" : end
 note right
 The filter should specify when it no 
 longer applies
 end note
-"Lares Backend" -> "Wallet" : state(address)
-note right
-Should this query go to wallet or node?
-
-Should we rely on Wallet to retrieve 
-contract executable or assume the user 
-has access to it?
-end note
-"Wallet" --> "Lares Backend" : state
-"Lares Backend" -> "Contract Storage" : store(address, state.contract)
-"Lares Backend" -> "Public State Storage" : store(address, state.publicState)
-"Lares Backend" -> "Private State Storage" : store(address, privateStateConstructor(events))
-"Lares Backend" --> "Application" : ack
-"Lares Backend" -> "Wallet" : installFilter(txsFor(address))
+"Lares Backend" -> "Contract State Service" : getContract(address)
+"Contract State Service" --> "Lares Backend" : contract
+"Lares Backend" -> "Lares Backend": contract.privateState = privateStateConstructor(events)
+"Lares Backend" -> "Contract Storage" : store(address, contract)
+"Lares Backend" --> "Application" : end
+"Lares Backend" -> "Filter Service" : installFilter(txsFor(address))
 note right
 Should only return transactions from 
 blocks following the block corresponding 
 to the previously returned state
 end note
-"Wallet" --> "Lares Backend" : ack
+"Filter Service" --> "Lares Backend" : ack
 loop Until unjoin
-  "Wallet" -> "Lares Backend" : tx
+  "Filter Service" -> "Lares Backend" : tx
   "Lares Backend" -> "Lares Backend" : apply(tx)
 end
 @enduml
-
-' Sequence diagram for connecting to wallet

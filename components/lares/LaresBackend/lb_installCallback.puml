@@ -1,4 +1,4 @@
-@startuml Lares Backend Install Callback
+@startuml Install Callback
 
 skinparam SequenceMessageAlignment center
 
@@ -9,11 +9,9 @@ title
 end title
 
 "Application" -> "Lares Backend" : installCallback(filter, callback)
-"Lares Backend" -> "Wallet Backend" : installFilter(filter)
-"Wallet Backend" --> "Lares Backend" : ack
-"Lares Backend" --> "Application" : ack
+"Lares Backend" -> "Filter Service" : installFilter(filter)
 loop
-  "Wallet Backend" -> "Lares Backend" : event
+  "Filter Service" -> "Lares Backend" : event
   opt verify(event)
     "Lares Backend" -> "Lares Backend" : callback(event)
   end

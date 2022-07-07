@@ -1,4 +1,4 @@
-@startuml Lares Backend Datamodel
+@startuml Datamodel
 
 hide circle
 skinparam linetype ortho

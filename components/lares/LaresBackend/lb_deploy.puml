@@ -2,6 +2,12 @@
 
 skinparam SequenceMessageAlignment center
 
+title
+
+  Deploy Contract
+
+end title
+
 "Application" -> "Lares Backend" : deploy(contract)
 "Lares Backend" -> "TxRequestBuilder" : buildDeployTxRequest(contract)
 "TxRequestBuilder" -> "TxRequestBuilder" : nonce = random()
@@ -14,17 +20,17 @@ not private oracle.
 end note
 "Lares Backend" -> "Wallet" : submitTxRequest(deployTxRequest)
 par
-  "Wallet" -> "Network" : deployTx
+  "Wallet" -> "Network" : submitTx(deployTx)
   "Network" -> "Filter Service" : block
 else
   "Wallet" --> "Lares Backend" : deployTx.hash
-  "Lares Backend" --> "Application" : deployTx.hash
-  "Lares Backend" -> "TxProcessor" : deployTx.hash
-  "TxProcessor" -> "Filter Service" : installFilter(txHashOf(deployTx.hash))
+  "Lares Backend" -> "TxProcessor" : watch(deployTx.hash)
+  "TxProcessor" -> "Filter Service" : installTxFilter(txAddressFilter(deployTx.hash))
 end
 "Filter Service" -> "TxProcessor" : deployTx
 "TxProcessor" -> "Pending Contract Store" : get(deployTx.nonce)
 "Pending Contract Store" --> "TxProcessor" : contract
 "TxProcessor" -> "Pending Contract Store" : remove(deployTx.nonce)
 "TxProcessor" -> "Contract Store" : put(deployTx.hash, contract)
+"Lares Backend" --> "Application" : deployTx.hash
 @enduml
