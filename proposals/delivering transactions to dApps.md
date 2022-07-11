@@ -281,7 +281,8 @@ This approach changes one thing - it makes dApp developer responsible to maintai
 deploy all components needed for dApp to function. That means, there is a strong 
 distinction between wallet and dApp, where dApp, its servers, etc. has to provide all 
 the data needed for evolving its state, while wallet can be only queried for data it 
-owns or to issue a transaction. 
+owns or to issue a transaction. The indexer component can be augmented by developer in 
+order to be better optimized for specific dApp.
 
 #### Performance
 
@@ -328,9 +329,51 @@ library as well) allows dApp developer to arbitrarily include or discard transac
 to dApp front-end. In case of transaction-heavy use-cases like DEX it might be a big
 change.
 
+### #3b - Single-purpose Wallet backend account, dApp obtains transactions from a generic indexer
+
+This option is a slight variation on the above, with 2 pieces being changed:
+  - the indexer is a generic component, which connects to node on the one side, and 
+    allows to install and query filters on the other one
+  - the Client SDK component enables dApp user to switch dApp to use its own indexer 
+    instance (e.g. through a browser extension used for configuration)
+
+And while in most part this solution has similar characteristic as the #3, it changes 
+some aspects quite significantly.
+
+#### Performance, Load, Security
+
+It is expected to be similar to #3
+
+#### Privacy
+
+More privacy-oriented users have a way to run its own infrastructure for calling a 
+dApp. So less or no metadata at all can be collected by dApp developer.
+
+#### Decentralization
+
+At least when it comes to smart contract interaction - a dApp can be completely 
+decentralized because all or most of the code is part of the web application, and 
+smart contract itself is partially part of the web application, partially deployed 
+on-chain.
+
+#### Developer experience
+
+For Midnight developers the indexer is conceptually a component very similar to Wallet 
+Backend (receive blocks from node, process them, store the results), main difference 
+lies in fact it has to perform well saving large amounts of data continuously.
+
+A challenge for Midnight developers may lie in the design of filters/queries to the 
+indexer, so they are compact, expressible, lightweight and safe in execution. This 
+also includes proper collection of unused filters, which becomes particularly 
+important concern if it's the end user, who runs the indexer.
+
+For dApp developers it is a simplification though, because there is no reliance on 
+custom backend, but a very generic one, which may be well-prepared for performing a 
+production-grade deployment with ease.  
+
 ## Author's preference
 
-#3. Implementing a good ecosystem of focused tools that together work out of the box  
+#3b. Implementing a good ecosystem of focused tools that together work out of the box  
 seems to provide many of wins of #2 while having a good amount of flexibility. It also
 allows community to be more involved and potentially discover some unpredicted patterns
 that can be later embodied as libraries either from Midnight team or third parties.
@@ -339,7 +382,3 @@ While alternative #2 and #3 implemented naively (catch-up and join contract are 
 operations) can easily result in a slightly degraded performance for end-user, it
 (especially the #3) offers more flexibility and potential for reducing amount of data
 transferred and processed by dApp during operation, especially in case of joining.
-
-Potential drawbacks related to dApp developers having bigger control over user's  
-privacy may be addressed with education and making privacy the easier and well-documented
-way. 
