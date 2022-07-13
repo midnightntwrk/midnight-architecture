@@ -1,0 +1,55 @@
+@startuml
+allowmixing
+
+component MockedNode {
+
+  class MockLedger
+
+  class WebSocketsServer
+
+}
+
+component NodeApis {
+
+  interface NodeSetup
+  note bottom
+    To create node instance.
+    Depending on implementation or shape of the API
+    It is possible to choose between in-process or
+    separate process mocked node instance.
+  end note
+  interface SyncProtocol
+  interface TxSubmissionProtocol
+
+  interface JsonApi
+  note left : Similar or the same as Ogmios exposes
+
+  interface TsApi
+
+  JsonApi ..^ SyncProtocol
+  JsonApi ..^ TxSubmissionProtocol
+
+  TsApi ..^ SyncProtocol
+  TsApi ..^ TxSubmissionProtocol
+  TsApi ..^ NodeSetup
+}
+
+component MidnightSDK {
+  component Node
+  component Wallet
+
+  Node ..^ TsApi
+  Node -- MockedNode
+}
+
+component Lares
+
+MockedNode ..^ TsApi
+
+WebSocketsServer -- TsApi
+MockedNode ..^ JsonApi
+
+Wallet -- JsonApi
+
+MockLedger -- Lares
+@enduml
