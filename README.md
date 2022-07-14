@@ -11,7 +11,7 @@ architectural elements are defined in [definitions](definitions.md).
 ## TOC
 
 * [Definitions of Architectural Elements](./definitions.md)
-* [Decision Records](./adrs)
+* [Decision Record](./adrs)
 * [User Flows](./user-flows/README.md)
     - [dAPP-User Flows](./user-flows/dapp-user/README.md)
         - [Flow: dApp User Generating a Transaction](./user-flows/dapp-user/dApp%20User%20Generating%20a%20Transaction.md)
