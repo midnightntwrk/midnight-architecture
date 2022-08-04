@@ -15,25 +15,25 @@ major considerations to bear in mind.
 $\mathsf{apply}$ describing an effect of any transaction $\tau \in \mathcal{T}$
 in a state $\sigma$, $\sigma' \gets \mathsf{apply}(\tau, \sigma)$ (if $\sigma = \sigma'$, we say the transaction is *rejected*).
 * We define $\mathsf{reachable}(\sigma) := \\{\sigma\\} \cup \bigcup \\{\\;\mathsf{reachable}(\mathsf{apply}(\tau, \sigma)) \mid \tau \in \mathcal{T}\\;\\}$.
-* We assume a transaction $\tau \in \mathcal{T}$ induces a state precondition predicate $P_\tau$, and postcondition predicate $Q_\tau$.
+* We assume a transaction $\tau \in \mathcal{T}$ induces a state precondition predicate $P_\tau$, and postcondition predicate $Q_\tau$. (We can see $\mathcal{T}$ and $\mathcal{H}$ as sets of triples $(\tau, P_\tau, Q_\tau)$, although we will write $\tau \in \mathcal{T}$ for convenience)
 * We write $T(f, x_1, \ldots, x_n)$ for the execution time complexity of $f(x_1, \ldots, x_n)$.
 * We write $x \xleftarrow{*} S$ to denote $x$ being a randomly sampled value from $S$. We treat $\mathcal{H}$ as a random variable for anticipated user behaviour.
 
 ## Desired properties of transactions
 
 1. **Fairness.** Users should not pay for failed transactions.
-   $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0). \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot Q_\tau(\sigma, \sigma') \implies \sigma = \sigma'$
-2. **Consistency.** A transaction satisfying its preconditions should satisfy its postconditions.
+   $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0). \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot P_\tau(\sigma) \implies \sigma = \sigma'$
+2. **DoS Protection.** Transaction which cannot pay should be invalidated in $O(|\tau|)$.
+   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H} : V(\tau, \sigma) \iff P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : V(\tau, \sigma) \in O(|\tau|))$
+3. **Consistency.** A transaction satisfying its preconditions should satisfy its postconditions.
    $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0) . P_\tau(\sigma) \implies Q_\tau(\sigma, \mathsf{apply}(\tau, \sigma))$
-3. **DoS Resistance.** Transaction which cannot pay should be invalidated in $O(|\tau|)$.
-   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H} : V(\tau, \sigma) \implies P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : V(\tau, \sigma) \in O(|\tau|))$
 4. **Compressability.** Composition should heuristically compress: We want a composition operator
    $\circ$, such that for transactions $\tau_1, \tau_2 \in \mathcal{T}; \sigma \in \mathsf{reachable}(\sigma_0)$ (and when we say "heuristically", with large probability for $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}$):
    * $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \in \\{\sigma, \mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))\\}$ (and heuristically, it is likely that if $\mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))) \neq \sigma$ then $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \neq \sigma$)
-   * $|\tau_1 \circ \tau_2| \leq |\tau_1| + |\tau_2|$ (and heuristically, it is likely that $|\tau_1 \circ \tau_2| \ll |\tau_1| + |\tau_2|$
+   * $|\tau_1 \circ \tau_2| \leq |\tau_1| + |\tau_2|$ (and heuristically, it is likely that $|\tau_1 \circ \tau_2| \ll |\tau_1| + |\tau_2|$ )
    * $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \leq T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ (and heuristically, it is likely that $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \ll T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ )
-5. **Contention Resistance.** For $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}, \sigma \in \mathsf{reachable}{\sigma_0}$, it is likely that:
-$\mathsf{apply}(\tau_1, \sigma) \neq \sigma \land \mathsf{apply}(\tau_2, \sigma) \neq \sigma \implies \text{let } \sigma' \gets \mathsf{apply}(\tau_1, \sigma) \text{ in } \mathsf{apply}(\tau_2, \sigma') \neq \sigma'$
+5. **Contention Resistance.** For $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0)$, it is likely that:
+$P_{\tau_1}(\sigma) \land P_{\tau_2}(\sigma) \implies P_{\tau_2}(\mathsf{apply}(\tau_1, \sigma))$
 
 # Proposed Changes
 
