@@ -17,22 +17,22 @@ in a state $\sigma$, $\sigma' \gets \mathsf{apply}(\tau, \sigma)$ (if $\sigma = 
 * We define $\mathsf{reachable}(\sigma) := \\{\sigma\\} \cup \bigcup \\{\\;\mathsf{reachable}(\mathsf{apply}(\tau, \sigma)) \mid \tau \in \mathcal{T}\\;\\}$.
 * We assume a transaction $\tau \in \mathcal{T}$ induces a state precondition predicate $P_\tau$, and postcondition predicate $Q_\tau$. (We can see $\mathcal{T}$ and $\mathcal{H}$ as sets of triples $(\tau, P_\tau, Q_\tau)$, although we will write $\tau \in \mathcal{T}$ for convenience)
 * We write $T(f, x_1, \ldots, x_n)$ for the execution time complexity of $f(x_1, \ldots, x_n)$.
-* We write $x \xleftarrow{*} S$ to denote $x$ being a randomly sampled value from $S$. We treat $\mathcal{H}$ as a random variable for anticipated user behaviour.
+* We write $x \xleftarrow{*} S$ to denote $x$ being a randomly sampled value from $S$. We write $\mathcal{H}(\sigma)$ for the random variable of anticipated user behaviour when they observe state $\sigma$.
 
 ## Desired properties of transactions
 
 1. **Fairness.** Users should not pay for failed transactions.
-   $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0). \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot P_\tau(\sigma) \implies \sigma = \sigma'$
+   $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0) : \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot P_\tau(\sigma) \implies \sigma = \sigma'$
 2. **DoS Protection.** Transaction which cannot pay should be invalidated in $O(|\tau|)$.
-   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H} : V(\tau, \sigma) \iff P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : V(\tau, \sigma) \in O(|\tau|))$
+   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H} : V(\tau, \sigma) \implies P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : (P_\tau(\sigma) \implies V(\tau, \sigma)) \land V(\tau, \sigma) \in O(|\tau|))$
 3. **Consistency.** A transaction satisfying its preconditions should satisfy its postconditions.
-   $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0) . P_\tau(\sigma) \implies Q_\tau(\sigma, \mathsf{apply}(\tau, \sigma))$
+   $\forall \tau \in \mathcal{T}, \sigma \in \mathsf{reachable}(\sigma_0) . P_\tau(\sigma) \implies Q_\tau(\sigma, \mathsf{apply}(\tau, \sigma))$
 4. **Compressability.** Composition should heuristically compress: We want a composition operator
-   $\circ$, such that for transactions $\tau_1, \tau_2 \in \mathcal{T}; \sigma \in \mathsf{reachable}(\sigma_0)$ (and when we say "heuristically", with large probability for $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}$):
+   $\circ$, such that for transactions $\tau_1, \tau_2 \in \mathcal{T}; \sigma \in \mathsf{reachable}(\sigma_0)$ (and when we say "heuristically", with large probability for $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$):
    * $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \in \\{\sigma, \mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))\\}$ (and heuristically, it is likely that if $\mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))) \neq \sigma$ then $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \neq \sigma$)
    * $|\tau_1 \circ \tau_2| \leq |\tau_1| + |\tau_2|$ (and heuristically, it is likely that $|\tau_1 \circ \tau_2| \ll |\tau_1| + |\tau_2|$ )
    * $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \leq T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ (and heuristically, it is likely that $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \ll T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ )
-5. **Contention Resistance.** For $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0)$, it is likely that:
+5. **Contention Resistance.** For $\sigma \in \mathsf{reachable}(\sigma_0),\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$, it is likely that:
 $P_{\tau_1}(\sigma) \land P_{\tau_2}(\sigma) \implies P_{\tau_2}(\mathsf{apply}(\tau_1, \sigma))$
 
 # Proposed Changes
@@ -40,7 +40,106 @@ $P_{\tau_1}(\sigma) \land P_{\tau_2}(\sigma) \implies P_{\tau_2}(\mathsf{apply}(
 TODO
 
 ## "Ethereum-style" freely programmable
+
+Ethereum's (and many similar system's) approach to smart contract begins by
+letting transaction be (essentially) arbitrary functions $f$ over state. This
+necessitates tracking the execution cost of $f$, and having a computational
+bound (gas limit) placed on it ahead of time. Transactions therefore are
+composed of two parts: Fee payment, and transaction execution.
+
+### Fairness
+
+Fee payment is first done independently of transaction execution. As the payment
+of fees is itself a state modifications, this severely limits the shape $P_\tau$
+may take if fairness should hold: If the fee payment succeeds in a state
+$\sigma$, $P_\tau(\sigma)$ must hold. In effect, this limits $P_\tau$ to balance
+tests and signature checks.
+
+### DoS Protection
+
+DoS protection is not a challenge here, due to the limitation of precondition predicates.
+
+### Consistency
+
+Consistency, combined with the weakness of expressible preconditions, limits
+the expressiveness of potential postconditions—that is, we can say little about
+the effect of transactions, because we know little about the state they will be
+run against.
+
+### Compressability
+
+Compressability has been proven in a limited capacity, essentially relying
+on contract memory being independent of each other. Multiple interactions of a
+single contract can always be compressed into a single state replacement,
+although this relies on the state itself being succinct. In practice, this has
+been achieved in Ethereum roll-ups.
+
+### Contention Resistance
+
+Contention resistance is mostly achieved, again due to the limited
+expressive power of Ethereum's preconditions.
+
+### Conclusion
+
+Ethereum satisfies a weakened form of all of the desired properties, largely at
+the expense of constraining the pre- and post-condition predicates to a barely
+usable state.
+
 ## eUTXO-style
+
+Extended UTXO systems, such as Cardano's, begin at defining the shape of their
+state $\sigma$ as a set of transaction outputs. Transactions may produce new
+outputs, and may consume inputs. Each UTXO (unspent transaction output) sets
+conditions that must be satisfied to use it as an input. These conditions are
+arbitrarily programmable.
+
+As UTXOs have space for an arbitrary data field, it is possible to compute any
+function $f$ between UTXOs within a single transaction. The model is
+Turing-complete.
+
+### Fairness
+
+Fee payment is a part of Cardano, however happens only *after* the presence of
+all inputs consumed by a transaction $\tau$ is confined. After this, a "simple"
+input provides fee-payment for the computation the scripts checking the
+transaction validity and if any of these fail, this fee payment still goes
+through.
+
+As the validity of these scripts is entirely deterministic, honest users will
+not produce transactions containing scripts which fail to validate. Therefore,
+to satisfy fairness, it is sufficient to say that the "simple" input validating,
+and the presence of all input UTXOs in a transaction $\tau$ in state $\sigma$
+must imply $P_\tau(\sigma)$. As the presence of input UTXO check is a strong
+predicate about the state $\sigma$, essentially constraining a subset of it to
+match our expectations, this allows quite strong predicates to be constructed on
+the right hand side of this implication.
+
+### DoS Protection
+
+DoS protection is provided by:
+* The subset check being cheap (assuming a constant bound on the UTXO set).
+* The simple input validation being cheap.
+
+### Consistency
+
+We can derive much stronger postconditions while satisfying consistency, due to the ability of deriving strong preconditions.
+
+### Compressability
+
+As Hydra takes advantage of, any series of transactions can be compressed by
+removing any UTXOs that are both produced and consumed between them. This
+assumes data is arranged such that the transactions being compressed *do* share
+inputs and outputs, however under that condition.
+
+### Contention Resistance
+
+The eUTXO models performs poorly at contention resistance under certain
+conditions: Although any stateful object can be emulated with a UTXOs data
+field, any two transactions operating on the same UTXO are in contention, and
+cannot be applied in sequence. As users are likely to operate on UTXOs which
+they observe, there is a reasonably high chance that transactions
+$\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$ are contentious.
+
 ## Read-then-write ADTs
 
 # Desired Result
