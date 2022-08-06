@@ -33,13 +33,13 @@
     utils.lib.eachSystem ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"]
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-      plantuml-pdf = (pkgs.plantuml.overrideAttrs (old: rec {
+      plantuml-pdf = pkgs.plantuml.overrideAttrs (old: rec {
         version = "1.2022.3";
         src = pkgs.fetchurl {
           url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
           hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
         };
-      }));
+      });
     in rec {
       packages.midnight-architecture = pkgs.stdenv.mkDerivation {
         name = "midnight-architecture";
@@ -70,6 +70,10 @@
           }
         ];
         commands = [
+          {
+            package = "adrgen";
+            category = "ADR";
+          }
           {
             package = "treefmt";
             category = "formatter";
