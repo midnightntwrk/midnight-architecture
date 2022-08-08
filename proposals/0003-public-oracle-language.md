@@ -28,7 +28,7 @@ in a state $\sigma$, $\sigma' \gets \mathsf{apply}(\tau, \sigma)$ (if $\sigma = 
 3. **Consistency.** A transaction satisfying its preconditions should satisfy its postconditions.
    $\forall \tau \in \mathcal{T}, \sigma \in \mathsf{reachable}(\sigma_0) . P_\tau(\sigma) \implies Q_\tau(\sigma, \mathsf{apply}(\tau, \sigma))$
 4. **Compressability.** Composition should heuristically compress: We want a composition operator
-   $\circ$, such that for transactions $\tau_1, \tau_2 \in \mathcal{T}; \sigma \in \mathsf{reachable}(\sigma_0)$ (and when we say "heuristically", with large probability for $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$):
+   $\circ$, such that for transactions $\tau_1, \tau_2 \in \mathcal{T}; \sigma \in \mathsf{reachable}(\sigma_0)$ (and when we say "heuristically", with large probability for $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$ ):
    * $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \in \\{\sigma, \mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))\\}$ (and heuristically, it is likely that if $\mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))) \neq \sigma$ then $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \neq \sigma$)
    * $|\tau_1 \circ \tau_2| \leq |\tau_1| + |\tau_2|$ (and heuristically, it is likely that $|\tau_1 \circ \tau_2| \ll |\tau_1| + |\tau_2|$ )
    * $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \leq T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ (and heuristically, it is likely that $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \ll T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ )
