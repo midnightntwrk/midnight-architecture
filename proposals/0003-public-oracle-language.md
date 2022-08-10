@@ -18,13 +18,14 @@ in a state $\sigma$, $\sigma' \gets \mathsf{apply}(\tau, \sigma)$ (if $\sigma = 
 * We assume a transaction $\tau \in \mathcal{T}$ induces a state precondition predicate $P_\tau$, and postcondition predicate $Q_\tau$. (We can see $\mathcal{T}$ and $\mathcal{H}$ as sets of triples $(\tau, P_\tau, Q_\tau)$, although we will write $\tau \in \mathcal{T}$ for convenience)
 * We write $T(f, x_1, \ldots, x_n)$ for the execution time complexity of $f(x_1, \ldots, x_n)$.
 * We write $x \xleftarrow{*} S$ to denote $x$ being a randomly sampled value from $S$. We write $\mathcal{H}(\sigma)$ for the random variable of anticipated user behaviour when they observe state $\sigma$.
+* For simplicity, we assume that $\log(|\sigma|)$ is constant for all $\sigma \in \textsf{reachable}(\sigma_0)$.
 
 ## Desired properties of transactions
 
 1. **Fairness.** Users should not pay for failed transactions.
    $\forall \tau \in \mathcal{H}, \sigma \in \mathsf{reachable}(\sigma_0) : \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot P_\tau(\sigma) \implies \sigma = \sigma'$
 2. **DoS Protection.** Transaction which cannot pay should be invalidated in $O(|\tau|)$.
-   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H} : V(\tau, \sigma) \implies P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : (P_\tau(\sigma) \implies V(\tau, \sigma)) \land V(\tau, \sigma) \in O(|\tau|))$
+   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H}(\cdot) : V(\tau, \sigma) \implies P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : (P_\tau(\sigma) \implies V(\tau, \sigma)) \land V(\tau, \sigma) \in O(|\tau|))$
 3. **Consistency.** A transaction satisfying its preconditions should satisfy its postconditions.
    $\forall \tau \in \mathcal{T}, \sigma \in \mathsf{reachable}(\sigma_0) . P_\tau(\sigma) \implies Q_\tau(\sigma, \mathsf{apply}(\tau, \sigma))$
 4. **Compressability.** Composition should heuristically compress: We want a composition operator
@@ -37,7 +38,7 @@ $P_{\tau_1}(\sigma) \land P_{\tau_2}(\sigma) \implies P_{\tau_2}(\mathsf{apply}(
 
 # Proposed Changes
 
-TODO
+Here's a discussion of our current options.
 
 ## "Ethereum-style" freely programmable
 
@@ -141,6 +142,109 @@ they observe, there is a reasonably high chance that transactions
 $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$ are contentious.
 
 ## Read-then-write ADTs
+
+Suppose we generalize from $\sigma$ being a set to $\sigma$ being an arbitrarily
+nested ADT over builtin types. Such types might include:
+* Sets
+* Lists
+* Merkle trees
+* Counters
+* Records
+* Vectors
+* Primitive data types
+
+These ADTs have operations which can broadly be split into *reads*, *writes* (or
+updates), and *refinements*. The latter would be focusing on a specific part of
+the ADT, e.g. a specific record field, and can contain either reads, writes, or
+refinements themselves, making up a read or write overall. (Note: This
+corresponds to Lenses in Optics, and raises a question: Is there an equivalent
+for Prisms?) Crucially, *writes* are effectful, but *cannot fail*.
+
+Once this structure is imposed on state, we can require that a transaction $\tau$ consists of (in order):
+* Any number of ADT reads, each with complexity $O(1)$
+* Any number of ADT writes, with arbitrary complexity
+
+A transaction is applied by first checking that all the reads match those
+recorded in the transaction. If they do, the writes are carried out, if not, the
+transaction has not effect.
+
+### Fairness
+
+As fee payment is an update, and updates either all get carried out or none do,
+fairness is guaranteed. Note that the precondition predicates expressible
+through ADTs is strictly stronger than those in eUTXO, which can be seen as a
+set ADT.
+
+### DoS Protection
+
+DoS protection is provided by a transaction succeeding being determined by all
+ADT reads succeeding, which for $n$ reads is $O(n)$.
+
+### Consistency
+
+As with eUTXOs, we can derive strong postconditions.
+
+### Compressability
+
+We can derive *rewrite rules* for sequences of ADT interactions. Examples of these might be:
+* `add a || add b = add (a + b)`
+* `write a || write b = write b`
+* `read a || write a = read a`
+
+Ultimately, any part of the state ADT could be compressed into a single `read`
+query followed by a single `write` query, therefore large numbers of localized
+accesses are likely to be highly compressible.
+
+### Contention Resistance
+
+ADTs should provide better contention than eUTXO, due to allowing more
+flexibility in the assertions that can be made about the state at any time. In
+particular, it is possible for multiple ADT accesses to target the same part of
+the overall state while not conflicting with each other.
+
+## Maximally Programmable $V$
+
+Another idea is to optimise $V$ to be maximally programmable—what is the
+broadest class of programs that it can capture, while preserving the DoS
+constraint that $V(\tau, \sigma) \in O(|\tau|)$?
+
+Suppose a transaction consisted just of an encoding of $V$ and a correctness
+proof. A reasonable way to achieve the execution time bounds would simply be to
+have the language for $V$ be a low-level language without loops, such as SSA (or
+Abcird!). This language *would* need to be able to perform stateful (and $O(1)$)
+accesses to $\sigma$. These accesses themselves could fall under the above ADT
+approach.
+
+*Differences to ADT approach:*
+1. It is possible to apply custom predicates to ADT results
+2. It is possible to perform state writes in $V$
+3. It is possible to perform branching and variable binding in $V$
+
+$V$ could be followed by an arbitrary cost, write/update-only function, or it
+could be standalone. The latter would allow a case where *normal transactions do
+not pay any gas*.
+
+### Fairness
+
+Applying $V$ would be all-or-nothing, providing fairness for predicates
+expressible in the language for $V$. This language is strictly stronger than
+eUTXO and ADTs, but strictly weaker than a Turing-complete one.
+
+### DoS Protection
+
+DoS protection is provided by $V$ being $O(|V|)$.
+
+### Consistency
+
+As before, we can derive strong postconditions.
+
+### Compressability
+
+This fully depends on the compressability of $V$. This starts to look like a compiler optimization problem.
+
+### Contention Resistance
+
+As this permits the strongest possible language for precondition predicates, this should minimize contention.
 
 # Desired Result
 
