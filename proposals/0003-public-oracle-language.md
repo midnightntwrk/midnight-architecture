@@ -246,6 +246,59 @@ This fully depends on the compressability of $V$. This starts to look like a com
 
 As this permits the strongest possible language for precondition predicates, this should minimize contention.
 
+## Read set
+
+### Notation
+
+Let $\mathcal{O}$ be a public oracle with an internal state $\sigma \in V^L$. Let $\delta(q, \sigma) = \sigma'$ be the oracle transition function which executes query $q$. The transition function $\delta$ is expressed in language $\mathcal{L}$. Let $t \in T$ be a transaction. Then the read set for $(t, \sigma)$ is $$R(t, \sigma) = \bigcup_{i = 0}^n \{(l, v) \mid l \in L \wedge v \in V \wedge \delta(q_i, \sigma_i) \text{ reads } v \text{ from } l \text{ before any write to } l \text{ occurs } \, \}$$ where each $q_i$ is a query made to a public oracle, $\sigma_o = \sigma$ and the intermediate states $\sigma_j$ are carried through. This set is roughly the set of source verticies in the dependency graph for the public oracle execution. Assume that the read set can be computed during the evaluation of $\Delta(t, \sigma)$.
+
+Let $\sigma_A$ be the public state of the client and $\sigma_B$ be the public state of the node. Then define the node quick-check predicate as follows. $$V(t, \sigma_B) = \bigwedge_{(l, v) \in R(t, \sigma_A)} \sigma_B(l) = v$$
+
+In other words, $R(t, \sigma_{A})$ defines the substate of $\sigma_A$ and $\sigma_B$ must match for $t$ to be applicable.
+
+### Properties
+
+1. **Fairness** Trivially. We can always revert $\sigma_B'$ to $\sigma_B$.
+
+2. **DoS Protection** Let $P(t, \sigma)$ be the predicate that tests if a transcript was applied successfully. Given that $V(t, \sigma)$ is true and $\delta$ is deterministic, $\Delta(t, \sigma_A)$ and $\Delta(t, \sigma_B)$ should be equivalent with respect to the state locations updated by $t$. In other words, for all honest $t$, $V(t, \sigma) \implies P(t, \sigma)$. Furthermore, $V(t, \sigma) \in O(n)$ since each equality check is $O(1)$.
+
+3. **Consistency** Post condition is that $\Delta(t, \sigma_A) =_W \Delta(t, \sigma_B)$. That is, the two resulting states are equivalent with respect to the locations written by $t$.
+
+4. **Compressability** The compressability property needs to be elaborated. If public oracle queries are just ADT operations implemented in $\mathcal{L}$, then should have similar compressability to ADT approach. Could also investigate possibility of using Ethereum-style state roll-ups.
+
+5. **Contention Resistance** Because the read set is calculated automatically for a given execution, it may contain entries that cause a transaction to be rejected even if the transaction's transcript would succeed if applied. This issue does not exist in the ADT approach because the initial read sequence of the transcript is programmed by the developer. 
+
+### Assumptions
+
+1. The language $\mathcal{L}$ to express $\delta$ will be restricted to a language that is suitable for our domain, at least allowing basic assignments and branching.
+
+### Observations
+
+1. The ADT approach still requires a fee schedule, but it may be more difficult to attach costs to ADT operations than we anticipate. For example, binary search tree insertions have $O(\text{log } n)$ average case complexity and $O(n)$ worst case complexity. How then should we charge for insertions? It seems unlikely that we could attach a fixed cost to such operations, or even use a more sophisticated calculation that is fair and cheap.
+
+### Benefits
+
+1. Potential to reduce circuit size, therefore proving time, and therefore transaction latency. Some transition functions which have branching logic based on the results of queries could be written such that branching logic is executed within public oracle queries.
+
+2. Permits using future static analysis tools to minimize the change set included in the transaction.
+
+3. Subsumes the ADT approach if all ADT operations are expressible in $\mathcal{L}$.
+
+4. Transcripts only have one purpose, and doesn't require user to manually specify the initial read query sequence.
+
+5. Possibly more extensible. If language is restricted to pre-defined ADTs, introducing new ADTs (a fairly regular occurrence) will require more frequent updates that changes/corrections to the semantics of $\mathcal{L}$.
+
+## Costs
+
+1. Requires an additional compiler and interpreter, as well as more complex development environment.
+
+2. Makes transaction semantics more complex; an ADT language with a fixed set of operations requires no public oracle code distribution, whereas $\mathcal{L}$ might require a public oracle executable to be included in the deploy transaction.
+
+3. Less contention resistant than ADT approach when multiple parties touch the same state location.
+
+4. Query compression becomes more complex as the implemented public oracle queries become more complex.
+
 # Desired Result
 
 Our solution should satisfy properties 1. through 5. without compromising programmability.
+
