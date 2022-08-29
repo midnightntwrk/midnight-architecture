@@ -288,7 +288,7 @@ In other words, $R(t, \sigma_{A})$ defines the substate of $\sigma_A$ and $\sigm
 
 5. Possibly more extensible. If language is restricted to pre-defined ADTs, introducing new ADTs (a fairly regular occurrence) will require more frequent updates that changes/corrections to the semantics of $\mathcal{L}$.
 
-## Costs
+### Costs
 
 1. Requires an additional compiler and interpreter, as well as more complex development environment.
 
