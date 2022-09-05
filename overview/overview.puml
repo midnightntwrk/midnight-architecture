@@ -1,10 +1,22 @@
 @startuml overview
+
+'skinparam linetype ortho
+top to bottom direction
+
+<style>
+rectangle {
+  LineColor: transparent;
+  BackgroundColor: transparent;
+}
+</style>
+
+
 !function $crcName($name) !return $name + "CRC"
 !procedure $crc($name, $responsibilities)
-  component $crcName($name) as "
-  |= Responsibilities |
-  | $responsibilities |
-  "
+rectangle $crcName($name) as "
+|= Responsibilities |
+| $responsibilities |
+"
 !endprocedure
 
 together {
@@ -12,97 +24,81 @@ together {
   actor dappDeveloper as "dApp Developer"
 }
 
-together {
-    frame dApp {
-      artifact dAppCode as "dApp own code"
+node UserMachine as "User Machine (dev or dApp user)" {
+  frame dApp {
+    artifact dAppCode as "dApp own code"
 
-      component ClientSDK {
-        $crc("ClientSDK", "run smart contracts\nprovide API for dApps")
-        component laresRuntime as "Lares Runtime"
-        artifact dAppConnectorClient as "dApp Connector Client"
-        artifact abcirdProver as "Abcird Prover"
-      }
-
-      dAppCode -- ClientSDK
+    component MidnightTS {
+      $crc("MidnightTS", "run smart contracts\nprovide API for dApps")
+      component laresRuntime as "Lares Runtime"
+      artifact dAppConnectorClient as "dApp Connector Client"
     }
-
-    frame browserExtensionWallet as "Wallet Browser Extension" {
-      $crc("browserExtensionWallet", "hold and protect keys\nscreate and send transactions\nexpose API for dApps")
-      artifact dAppConnectorServer as "dApp Connector"
-      artifact walletEngineJS as "Wallet Engine JS"
-      artifact walletProver as "Wallet Prover"
-    }
-}
-
-together {
-
-    frame codeEditor as "Code Editor" {
-      component editorPlugin as "Editor Plugin" {
-        $crc("editorPlugin", "support for completions and syntax highligthing\nprovide integration with Midnight SDK for most common actions\nin-editor UI for most common actions")
-        component syntaxHighlighting
-        component testRunner
-        component inEditorSimulator
-      }
-    }
-
-    node midnightSDK as "Midnight SDK" {
-      $crc("MidnightSDK", "Provide toolkit and libraries for dApp developer")
-      component abcirdCompiler
-      component abcirdLanguageServicer
-      component midnightCLI
-      artifact headlessWallet
-      artifact mockNode
-      artifact mockProver
-    }
-
-    editorPlugin -- midnightSDK
-}
-
-together {
-    interface WalletAPI as "Wallet API"
-    component walletEngine {
-        $crc("walletEngine", "provide common building blocks for building Midnight wallets")
-    }
-
-    node walletBackend as "Wallet Backend" {
-        $crc("walletBackend", "Pre-process transactions to:\n - save bandwith\n - save CPU\non user computers")
-        artifact walletBackendEngine
-    }
-
-    WalletAPI ^.. walletEngine
-    walletEngineJS -- walletBackend
-    walletBackendEngine .^ walletEngine
-}
-
-together {
-  component provingSystem as "Proving System" {
-    $crc("provingSystem", "Generate and verify necessary zero-knowledge proofs")
   }
-  node proofServer as "Proof Server"
 
-  proofServer .u.^ provingSystem
+  frame browserExtensionWallet as "Wallet Browser Extension" {
+    $crc("browserExtensionWallet", "hold and protect keys\nscreate and send transactions\nexpose API for dApps")
+    artifact dAppConnectorServer as "dApp Connector"
+  }
+}
+node DevMachine as "dApp dev machine" {
+  frame codeEditor as "Code Editor" {
+    component editorPlugin as "Editor Plugin" {
+      $crc("editorPlugin", "support for completions and syntax highligthing\nprovide integration with Midnight SDK for most common actions\nin-editor UI for most common actions")
+      component syntaxHighlighting
+    }
+  }
+
+  frame midnightSDK as "Midnight SDK" {
+    $crc("MidnightSDK", "Provide toolkit and libraries for dApp developer")
+    component abcirdCompiler
+    component abcirdLanguageServicer
+    component midnightCLI
+    artifact headlessWallet
+    artifact mockNode
+    artifact mockProver
+  }
+}
+
+interface WalletAPI as "Wallet API"
+
+
+node walletBackend as "Wallet Backend" {
+  $crc("walletBackend", "Pre-process transactions to:\n - save bandwith\n - save CPU\non user computers")
 }
 
 
-together {
-    node midnightNode as "Midnight Node" {
-      $crc("midnightNode", "Run consensus\nevolve ledger")
-      component midnightLedger
-      component midnightConsensus
-      component midnightAPI
-    }
-
-    node spoDeployment as "Cardano Node Installation" {
-      node mainChainFollower as "Main Chain Follower" {
-        $crc("mainChainFollower", "Provide Midnight information about\n  - stake distribution\n  - token transfers")
-      }
-      node cardanoNode as "Cardano Node"
-    }
-
-    midnightNode -- mainChainFollower
+component walletEngine {
+  $crc("walletEngine", "provide common building blocks for building Midnight wallets")
 }
 
+component provingSystem as "Proving System" {
+  $crc("provingSystem", "Generate and verify necessary zero-knowledge proofs")
+  together {
+    component ZKIR
+    component Plonk
+  }
+}
+node proofServer as "Proof Server"
+
+component midnightLedger as "Midnight Ledger" {
+  $crc("midnightLedger", "Maintain the recent state, ensure data consistency")
+}
+
+interface midnightNodeAPI as "Midnight Node API"
+
 together {
+  node midnightNode as "Midnight Node" {
+    $crc("midnightNode", "Run consensus\nevolve ledger")
+    component midnightConsensus
+  }
+
+  node spoDeployment as "Cardano Node Installation" {
+    node mainChainFollower as "Main Chain Follower" {
+      $crc("mainChainFollower", "Provide Midnight information about\n  - stake distribution\n  - token transfers")
+    }
+    node cardanoNode as "Cardano Node"
+  }
+
   cloud midnightNetwork
   cloud cardanoNetwork
 }
@@ -111,24 +107,40 @@ together {
 
 dappUser -- browserExtensionWallet
 dappUser -- dApp
-walletEngineJS ..^ walletEngine
-walletBackend -- midnightNode
+dappDeveloper -- midnightSDK
+dappDeveloper -- codeEditor
+
+WalletAPI ^.. dAppConnectorServer
+WalletAPI <-- dAppConnectorClient
+dAppCode -- MidnightTS
+MidnightTS --> provingSystem
+
+
+browserExtensionWallet ----> walletEngine
+browserExtensionWallet --> walletBackend
+walletEngine -------> provingSystem
+
+walletEngine <---- walletBackend
+midnightNodeAPI <-- walletBackend
+
+
+headlessWallet ---> walletEngine
+WalletAPI ^.. headlessWallet
+mockProver ..^ provingSystem
+
+editorPlugin -- midnightSDK
+
+mockNode ---> midnightLedger
+mockNode ..^ midnightNodeAPI
+midnightLedger <-- midnightNode
+midnightLedger ---> provingSystem
+
+midnightNodeAPI ^.. midnightNode
+midnightNode -- mainChainFollower
+midnightNode -- midnightNetwork
 mainChainFollower -- cardanoNode
 cardanoNode -- cardanoNetwork
-walletEngineJS - walletProver
-laresRuntime - abcirdProver
-ClientSDK -- WalletAPI
-midnightNode -- midnightNetwork
-
-walletProver .u.^ provingSystem
-abcirdProver .u.^ provingSystem
-
-dappDeveloper -- midnightCLI
-dappDeveloper -- codeEditor
-headlessWallet ..^ walletEngine
-mockNode ..^ midnightLedger
-mockNode ..^ midnightAPI
-mockProver ..^ provingSystem
+provingSystem ^.. proofServer
 
 package Legend {
   together {
@@ -152,11 +164,19 @@ package Legend {
       An interface
     endnote
   }
+
+  together {
+    [E]
+    [F]
+  }
+
   A -[hidden]- C
+  D -[hidden]-- F
+  C -[hidden]-- E
 
   A - B : "A collaborates with B"
   C .^ D : "C is a specific version/implementation of D"
+  E -> F : "E depends on F"
 }
 
-spoDeployment -[hidden]- Legend
 @enduml
