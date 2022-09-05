@@ -1,4 +1,4 @@
-@startuml
+@startuml overview
 !function $crcName($name) !return $name + "CRC"
 !procedure $crc($name, $responsibilities)
   component $crcName($name) as "
