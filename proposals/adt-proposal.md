@@ -58,14 +58,14 @@ If all assumptions are valid, the author's preference is option one.
 
   circuit f (...) {
     ...
-    const set = public$get('a')
+    const set = ledger$get('a')
     ...
   }
   ```
 
-  In the transition function `f`, `public$get` is a public oracle query (built-in ADT operation) that always operates over the current public oracle state, which is initialized with the value returned from `initialize`. In the initialization circuit approach, each public oracle query is automatically applied to the current public state, as in `public$get`.
+  In the transition function `f`, `ledger$get` is a public oracle query (built-in ADT operation) that always operates over the current public oracle state, which is initialized with the value returned from `initialize`. In the initialization circuit approach, each public oracle query is automatically applied to the current public state, as in `ledger$get`.
 
-  If ADTs are not representable as Abcird data types, then queries like `public$get('a')`, which return ADTs are unsupportable. The only lookup queries supportable are those on ADTs that contain the basic Abcird data types. However, if ADTs *are* representable as Abcird data types, then the initialization circuit approach is still feasible.
+  If ADTs are not representable as Abcird data types, then queries like `ledger$get('a')`, which return ADTs are unsupportable. The only lookup queries supportable are those on ADTs that contain the basic Abcird data types. However, if ADTs *are* representable as Abcird data types, then the initialization circuit approach is still feasible.
 
   ### Representing Queries in Transactions
 
@@ -81,12 +81,12 @@ If all assumptions are valid, the author's preference is option one.
 
   where `AbcirdType` is a type representing Abcird values. In the initialization circuit approach where ADTs are representable as Abcird values, `AbcirdValue` would also include values representing ADTs used in the public oracle state.
 
-  Many ADT lookup queries will have a similar shape to `public$get('a')`. How these queries will be named is an open question. For example, one could alternatively refer to the built-in as `public$mapGet('a')` and the other ADT types similarly (e.g. `public$recordGet('a')`). In the event that we want to overload the query identifiers, the transcript entry would need to include a field to delineate the type of query being performed. For `public$get('a')`, the transcript entry would look something like
+  Many ADT lookup queries will have a similar shape to `ledger$get('a')`. How these queries will be named is an open question. For example, one could alternatively refer to the built-in as `ledger$mapGet('a')` and the other ADT types similarly (e.g. `ledger$recordGet('a')`). In the event that we want to overload the query identifiers, the transcript entry would need to include a field to delineate the type of query being performed. For `ledger$get('a')`, the transcript entry would look something like
 
   ```typescript
   {
     adtType: 'map',
-    query: 'public$get',
+    query: 'ledger$get',
     args: ['a'],
     result: Set { ... }
   }
