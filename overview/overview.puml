@@ -36,7 +36,7 @@ node UserMachine as "User Machine (dev or dApp user)" {
   }
 
   frame browserExtensionWallet as "Wallet Browser Extension" {
-    $crc("browserExtensionWallet", "hold and protect keys\nscreate and send transactions\nexpose API for dApps")
+    $crc("browserExtensionWallet", "hold and protect keys\ncreate and send transactions\nexpose API for dApps")
     artifact dAppConnectorServer as "dApp Connector"
   }
 }
