@@ -106,7 +106,7 @@ type Ledger = {
 }
 
 circuit foo() {
-  ledger.field3.write(ledger.field1.lookup(5).baz);
+  ledger.field3.write(ledger.field1.lookup(5).value.baz);
   ledger.field2.check_root(
     merkle_path_root(
       local.ledger.field2.find_element(
@@ -114,19 +114,19 @@ circuit foo() {
 }
 ```
 
-Some syntactic sugar is desirable but optional:
-* `x = y; => x.write(y);`
-* `y => y.read()` (in expression contexts)
-* `x[y] = z; => x.insert(y, z); OR x.insert_index(y, z);` (Depending on if `x`
-  is a `Map` or `[Historic]MerkleTree`)
-* `x[y] => x.lookup(y)` (in expression contexts)
-* `x += y; OR x -= y; => x.increment(y); OR x.decrement(y);`
-
-Note that the `ledger.field.operation(arguments)` notation is itself likely
+Note that the `ledger.field.operation(arguments)` notation is likely
 syntactic sugar for something like `ledger$operation("field", arguments)`,
 which corresponds to the query `operation("field", arguments)`, with `ledger`
 vs `local.ledger` distinguishing if this query is a public oracle or private
 oracle query.
+
+Some additional syntactic sugar is desirable but optional:
+* `x = y; => x.write(y);`
+* `y => y.read()` (in expression contexts)
+* `x[y] = z; => x.insert(y, z); OR x.insert_index(y, z);` (Depending on if `x`
+  is a `Map` or `[Historic]MerkleTree`)
+* `x[y] => let r = x.lookup(y) in assert "primitive map access failed" r.is_some; r.value` (in expression contexts—yes, this is messy because of the `Maybe`, and needs more work)
+* `x += y; OR x -= y; => x.increment(y); OR x.decrement(y);`
 
 On the Abcird side, non-Abcird types stored in ADTs would be represented as
 `Opaque<TypeScriptType>`, which the typescript side would instead see as just
