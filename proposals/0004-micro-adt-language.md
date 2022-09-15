@@ -4,13 +4,6 @@ This proposal suggests a language to adopt for public oracle states and queries
 for the 2022 workshop. This should be treated as a minimum viable language,
 with all intentions to extend this in future.
 
-
-
-This is a template for writing new Midnight Architecture Proposals.  We want
-this template to be lightweight, so that it does not impede the process of
-capturing the proposals, and we to evolve this template over the time, as we
-figure out the process of proposing changes to our architecture.
-
 # Problem Statement
 
 In light of [ADR-0005](../adrs/0005-public-oracle-language-direction.md)
@@ -29,7 +22,7 @@ side to use a subset of TypeScript making it suitable from that side as well.
 
 I propose supporting the following ADTs and public oracle queries:
 
-ADTs, where `1 < n <= 64` is a size parameter, and `T`, `K`, and `V` are
+ADTs, where `0 < n <= 64` is a size parameter, and `T`, `K`, and `V` are
 *either* Abcird types, *or* opaque serialized data (from the ledger's point of
 view).
 * `Counter`
@@ -38,11 +31,13 @@ view).
 * `Map<K, V>`
 * `List<T>`
 * `[Historic]MerkleTree<n, T>` (The difference between a `HistoricMerkleTree`
-  and a `MerkleTree` is that the former permits proofs against past states,
-  while the latter does not)
+  and a `MerkleTree` is that the former permits proofs against past states—as is the case in Zcash; this is desirable in cases where the Merkle tree is monotonically growing—while the latter does not)
 
 A contract's state would consist of a mapping of strings to ADTs, and a
 contract's state's type consist of a mapping of strings to ADT types.
+
+I propose that each ADT has a default value which it is initialized to, and can
+be reset to at any time.
 
 I propose supporting the following queries, where `field` is a key in the
 contract:
@@ -126,6 +121,12 @@ Some syntactic sugar is desirable but optional:
   is a `Map` or `[Historic]MerkleTree`)
 * `x[y] => x.lookup(y)` (in expression contexts)
 * `x += y; OR x -= y; => x.increment(y); OR x.decrement(y);`
+
+Note that the `ledger.field.operation(arguments)` notation is itself likely
+syntactic sugar for something like `ledger$operation("field", arguments)`,
+which corresponds to the query `operation("field", arguments)`, with `ledger`
+vs `local.ledger` distinguishing if this query is a public oracle or private
+oracle query.
 
 On the Abcird side, non-Abcird types stored in ADTs would be represented as
 `Opaque<TypeScriptType>`, which the typescript side would instead see as just

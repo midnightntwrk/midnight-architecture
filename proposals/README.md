@@ -10,3 +10,4 @@ File names should use `kebab-case` without any non-ASCII characters.
 ## List of proposals
 - [0001: Template Proposal](./0001-template.md) for writing new proposals.
 - [0003: A Language for Public Oracles](./0003-public-oracle-language.md) for the high-level options for public oracles.
+- [0004: Micro ADT language](./0004-micro-adt-language.md) for the details of our initial public oracle language.
