@@ -92,7 +92,10 @@ and ADT types.
 In Abcird, these will be exposed on a high-level by a) declaring a contract's
 `Ledger` type (as a typescript object type of ADT types), and b) allowing calls
 to this, though a `ledger` pseudo-variable (as `statement` external calls), or
-through a `local.ledger` pseudo-variable (as `witness` external calls):
+through a `local.ledger` pseudo-variable (as `witness` external calls).
+Finally, an `initialize` circuit (though in practice this need not be compiled)
+captures the calls made to initialize the ledger state from its default, for
+instance, by setting administrative keys.
 
 ```
 struct Foo {
