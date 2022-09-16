@@ -20,6 +20,10 @@ side to use a subset of TypeScript making it suitable from that side as well.
 
 # Proposed Changes
 
+Note: All ADTs and queries should be taken as a *preliminary specification*.
+Expect changes, but for now, they should serve to work against, not just as a
+sketch of what could be!
+
 I propose supporting the following ADTs and public oracle queries:
 
 ADTs, where `0 < n <= 64` is a size parameter, and `T`, `K`, and `V` are
@@ -31,13 +35,22 @@ view).
 * `Map<K, V>`
 * `List<T>`
 * `[Historic]MerkleTree<n, T>` (The difference between a `HistoricMerkleTree`
-  and a `MerkleTree` is that the former permits proofs against past states—as is the case in Zcash; this is desirable in cases where the Merkle tree is monotonically growing—while the latter does not)
+  and a `MerkleTree` is that the former permits proofs against past states—as
+  is the case in Zcash; this is desirable in cases where the Merkle tree is
+  monotonically growing—while the latter does not)
 
 A contract's state would consist of a mapping of strings to ADTs, and a
 contract's state's type consist of a mapping of strings to ADT types.
 
 I propose that each ADT has a default value which it is initialized to, and can
-be reset to at any time.
+be reset to at any time. This default value should be:
+* 0 for `Counter`
+* The natural empty collection for `Set<T>`, `Map<K, V>`, `List<T>`, `[Historic]MerkleTree<n, T>`
+* The default of `T` for `Cell<T>`
+  * For `T` being an Abcird type, this should the value represented by all in-memory zeroes.
+  * For `T` being a serialized TypeScript type, this should be an empty
+    bitstring (note that the TypeScript side needs to be careful with
+    deserialization anyway, as no structure can be enforced on-chain).
 
 I propose supporting the following queries, where `field` is a key in the
 contract:
@@ -114,6 +127,10 @@ circuit foo() {
     merkle_path_root(
       local.ledger.field2.find_element(
         local.ledger.field1.lookup(3))));
+}
+
+circuit initialize() {
+  ledger.field3.write(true);
 }
 ```
 
