@@ -17,23 +17,45 @@ in a state $\sigma$, $\sigma' \gets \mathsf{apply}(\tau, \sigma)$ (if $\sigma = 
 * We define $\mathsf{reachable}(\sigma) := \\{\sigma\\} \cup \bigcup \\{\\;\mathsf{reachable}(\mathsf{apply}(\tau, \sigma)) \mid \tau \in \mathcal{T}\\;\\}$.
 * We assume a transaction $\tau \in \mathcal{T}$ induces a state precondition predicate $P_\tau$, and postcondition predicate $Q_\tau$. (We can see $\mathcal{T}$ and $\mathcal{H}^*$ as sets of triples $(\tau, P_\tau, Q_\tau)$, although we will write $\tau \in \mathcal{T}$ for convenience)
 * We write $T(f, x_1, \ldots, x_n)$ for the execution time complexity of $f(x_1, \ldots, x_n)$.
-* We write $x \xleftarrow{*} S$ to denote $x$ being a randomly sampled value from $S$. We write $\mathcal{H}(\sigma)$ for the random variable of anticipated user behaviour when they observe state $\sigma$.
+* We write $x \xleftarrow{*} S$ to denote $x$ being a randomly sampled value from $S$. We write $\mathcal{H}(\sigma)$ for the probability distribution of anticipated user behaviour when they observe state $\sigma$.
 * For simplicity, we assume that $\log(|\sigma|)$ is constant for all $\sigma \in \textsf{reachable}(\sigma_0)$.
 
 ## Desired properties of transactions
 
 1. **Fairness.** Users should not pay for failed transactions.
-   $\forall \tau \in \mathcal{H}^*, \sigma \in \mathsf{reachable}(\sigma_0) : \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot P_\tau(\sigma) \implies \sigma = \sigma'$
+
+   Informal specification: If a transctions preconditions are not met, the
+   transaction will not have any effect.
+
+   Formal specification: $\forall \tau \in \mathcal{H}^*, \sigma \in \mathsf{reachable}(\sigma_0) : \text{let }\sigma' \gets \mathsf{apply}(\tau, \sigma) \text{ in } \lnot P_\tau(\sigma) \implies \sigma = \sigma'$
 2. **DoS Protection.** Transaction which cannot pay should be invalidated in $O(|\tau|)$.
-   $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H}^* : V(\tau, \sigma) \implies P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : (P_\tau(\sigma) \implies V(\tau, \sigma)) \land V(\tau, \sigma) \in O(|\tau|))$
+
+   Informal specification: There exists a validation predicate that can be
+   checked in $O(|\tau|)$ time, which implies a transaction's preconditions
+   hold. For honestly created transactions, the implication is bidirectional,
+   that is honest preconditions can be checked in $O(|\tau|)$.
+
+   Formal specification: $\exists V : \forall \sigma \in \mathsf{reachable}(\sigma_0) : (\forall \tau \in \mathcal{H}^* : V(\tau, \sigma) \implies P_\tau(\sigma)) \land (\forall \tau \in \mathcal{T} : (P_\tau(\sigma) \implies V(\tau, \sigma)) \land V(\tau, \sigma) \in O(|\tau|))$
 3. **Consistency.** A transaction satisfying its preconditions should satisfy its postconditions.
    $\forall \tau \in \mathcal{T}, \sigma \in \mathsf{reachable}(\sigma_0) . P_\tau(\sigma) \implies Q_\tau(\sigma, \mathsf{apply}(\tau, \sigma))$
-4. **Compressability.** Composition should heuristically compress: We want a composition operator
+4. **Compressability.** Composition should heuristically compress.
+
+   Informal specification: It's possible to combine transactions $\tau_1$ and
+   $\tau_2$ into a transaction $\tau_1 \circ \tau_2$, which may have stricter
+   validity criterea than either, but is heuristically smaller, and/or faster
+   to validate than its parts.
+
+   Formal specification: We want a composition operator
    $\circ$, such that for transactions $\tau_1, \tau_2 \in \mathcal{T}; \sigma \in \mathsf{reachable}(\sigma_0)$ (and when we say "heuristically", with large probability for $\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$ ):
    * $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \in \\{\sigma, \mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))\\}$ (and heuristically, it is likely that if $\mathsf{apply}(\tau_2, \mathsf{apply}(\tau_1, \sigma))) \neq \sigma$ then $\mathsf{apply}(\tau_1 \circ \tau_2, \sigma) \neq \sigma$)
    * $|\tau_1 \circ \tau_2| \leq |\tau_1| + |\tau_2|$ (and heuristically, it is likely that $|\tau_1 \circ \tau_2| \ll |\tau_1| + |\tau_2|$ )
    * $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \leq T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ (and heuristically, it is likely that $T(\mathsf{apply}, \tau_1 \circ \tau_2, \sigma) \ll T(\mathsf{apply}, \tau_2, \mathsf{apply}(\tau_1, \sigma)) + T(\mathsf{apply}, \tau_1, \sigma)$ )
-5. **Contention Resistance.** For $\sigma \in \mathsf{reachable}(\sigma_0),\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$, it is likely that:
+5. **Contention Resistance.**
+
+   Informal specification: Honest transactions should be unlikely to be in
+   conflict with each other.
+
+   Formal specification: For $\sigma \in \mathsf{reachable}(\sigma_0),\tau_1, \tau_2 \xleftarrow{*} \mathcal{H}(\sigma)$, it is likely that:
 $P_{\tau_1}(\sigma) \land P_{\tau_2}(\sigma) \implies P_{\tau_2}(\mathsf{apply}(\tau_1, \sigma))$
 
 # Proposed Changes
