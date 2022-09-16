@@ -88,9 +88,6 @@ contract:
   * `insert(field, item: T)`
   * `insert_index(field, item: T, index: uint)`
   * `insert_index_default(field, index: uint)`
-  * (in private queries only) `index_last_inserted(field) -> uint`
-  * (in private queries only) `path_to_index(field, index: uint) -> MerklePath<n>`
-  * (in private queries only) `find_element(field, elem: T) -> Maybe<MerklePath<n>>`
 * `HistoricMerkleTree<n, T>`
   * `reset_history(field)`
 * Kernel
@@ -99,13 +96,26 @@ contract:
   * `claim_contract_call(addr: ContractAddress, entry_point: Bytes, comm: HomomorphicCommitment)`
   * `mint(amount: uint)`
 
+A number of operations that are *not* public oracle queries should be available
+on an API level, either for access by dApps, or to expose directly as *private*
+oracle queries. These are:
+
+* Iterators over `List<T>`, `Map<K, V>`, and `Set<T>`. Note that due to the
+  nature of Merkle trees, their content is cryptographically hidden and can't
+  be iterated over.
+* In `[Historic]MerkleTree<n, T>`s:
+  * `index_last_inserted(field) -> uint`
+  * `path_to_index(field, index: uint) -> MerklePath<n>`
+  * `find_element(field, elem: T) -> Maybe<MerklePath<n>>`
+
 The ledger would own the data representation of queries, query types, ADTs,
 and ADT types.
 
 In Abcird, these will be exposed on a high-level by a) declaring a contract's
 `Ledger` type (as a typescript object type of ADT types), and b) allowing calls
 to this, though a `ledger` pseudo-variable (as `statement` external calls), or
-through a `local.ledger` pseudo-variable (as `witness` external calls).
+(potentially, pending discussions on private oracle structure) a `local.ledger`
+pseudo-variable (as `witness` external calls).
 Finally, an `initialize` circuit (though in practice this need not be compiled)
 captures the calls made to initialize the ledger state from its default, for
 instance, by setting administrative keys.
@@ -137,7 +147,7 @@ circuit initialize() {
 Note that the `ledger.field.operation(arguments)` notation is likely
 syntactic sugar for something like `ledger$operation("field", arguments)`,
 which corresponds to the query `operation("field", arguments)`, with `ledger`
-vs `local.ledger` distinguishing if this query is a public oracle or private
+vs (the potential) `local.ledger` distinguishing if this query is a public oracle or private
 oracle query.
 
 Some additional syntactic sugar is desirable but optional:

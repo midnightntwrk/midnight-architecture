@@ -10,7 +10,7 @@ proposed
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
 | date      | 2022-09-14                                                                                                                   |
 | deciders  | Thomas Kerber, Jakub Zalewski, Jon Rossie                                                                                    |
-| consulted | Joseph Denmanm, Kent Dybvig, Piotr Paradzinski, Andrzej Kopeć                                                                |
+| consulted | Joseph Denman, Kent Dybvig, Piotr Paradzinski, Andrzej Kopeć                                                                |
 ---
 
 ## Context and Problem Statement
