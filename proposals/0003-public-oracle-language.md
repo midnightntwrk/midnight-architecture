@@ -211,7 +211,7 @@ constraint that $V(\tau, \sigma) \in O(|\tau|)$?
 Suppose a transaction consisted just of an encoding of $V$ and a correctness
 proof. A reasonable way to achieve the execution time bounds would simply be to
 have the language for $V$ be a low-level language without loops, such as SSA (or
-Abcird!). This language *would* need to be able to perform stateful (and $O(1)$)
+Abcird!). This language *would* need to be able to perform stateful (and ${O(1)}$)
 accesses to $\sigma$. These accesses themselves could fall under the above ADT
 approach.
 
