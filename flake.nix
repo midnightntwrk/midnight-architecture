@@ -61,12 +61,16 @@
       defaultPackage = packages.midnight-architecture;
 
       devShell = devshell.legacyPackages.${system}.mkShell {
-        # graphviz and setting GRAPHVIZ_DOT environment variables are needed for IntelliJ integration, though it doesn't work quite well
-        packages = [pkgs.graphviz];
+        # graphviz and setting GRAPHVIZ_DOT environment variables are needed for editors integration, though it doesn't work quite well
+        packages = [pkgs.graphviz pkgs.jdk];
         env = [
           {
             name = "GRAPHVIZ_DOT";
-            eval = "$(which dot)";
+            value = pkgs.graphviz + "/bin/dot";
+          }
+          {
+            name = "JAVA_HOME";
+            value = pkgs.jdk;
           }
         ];
         commands = [

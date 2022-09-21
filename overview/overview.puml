@@ -1,0 +1,182 @@
+@startuml overview
+
+'skinparam linetype ortho
+top to bottom direction
+
+<style>
+rectangle {
+  LineColor: transparent;
+  BackgroundColor: transparent;
+}
+</style>
+
+
+!function $crcName($name) !return $name + "CRC"
+!procedure $crc($name, $responsibilities)
+rectangle $crcName($name) as "
+|= Responsibilities |
+| $responsibilities |
+"
+!endprocedure
+
+together {
+  actor dappUser as "dApp User"
+  actor dappDeveloper as "dApp Developer"
+}
+
+node UserMachine as "User Machine (dev or dApp user)" {
+  frame dApp {
+    artifact dAppCode as "dApp own code"
+
+    component MidnightTS {
+      $crc("MidnightTS", "run smart contracts\nprovide API for dApps")
+      component laresRuntime as "Lares Runtime"
+      artifact dAppConnectorClient as "dApp Connector Client"
+    }
+  }
+
+  frame browserExtensionWallet as "Wallet Browser Extension" {
+    $crc("browserExtensionWallet", "hold and protect keys\ncreate and send transactions\nexpose API for dApps")
+    artifact dAppConnectorServer as "dApp Connector"
+  }
+}
+node DevMachine as "dApp dev machine" {
+  frame codeEditor as "Code Editor" {
+    component editorPlugin as "Editor Plugin" {
+      $crc("editorPlugin", "support for completions and syntax highligthing\nprovide integration with Midnight SDK for most common actions\nin-editor UI for most common actions")
+      component syntaxHighlighting
+    }
+  }
+
+  frame midnightSDK as "Midnight SDK" {
+    $crc("MidnightSDK", "Provide toolkit and libraries for dApp developer")
+    component abcirdCompiler
+    component abcirdLanguageServicer
+    component midnightCLI
+    artifact headlessWallet
+    artifact mockNode
+    artifact mockProver
+  }
+}
+
+interface WalletAPI as "Wallet API"
+
+
+node walletBackend as "Wallet Backend" {
+  $crc("walletBackend", "Pre-process transactions to:\n - save bandwith\n - save CPU\non user computers")
+}
+
+
+component walletEngine {
+  $crc("walletEngine", "provide common building blocks for building Midnight wallets")
+}
+
+component provingSystem as "Proving System" {
+  $crc("provingSystem", "Generate and verify necessary zero-knowledge proofs")
+  together {
+    component ZKIR
+    component Plonk
+  }
+}
+node proofServer as "Proof Server"
+
+component midnightLedger as "Midnight Ledger" {
+  $crc("midnightLedger", "Maintain the recent state, ensure data consistency")
+}
+
+interface midnightNodeAPI as "Midnight Node API"
+
+together {
+  node midnightNode as "Midnight Node" {
+    $crc("midnightNode", "Run consensus\nevolve ledger")
+    component midnightConsensus
+  }
+
+  node spoDeployment as "Cardano Node Installation" {
+    node mainChainFollower as "Main Chain Follower" {
+      $crc("mainChainFollower", "Provide Midnight information about\n  - stake distribution\n  - token transfers")
+    }
+    node cardanoNode as "Cardano Node"
+  }
+
+  cloud midnightNetwork
+  cloud cardanoNetwork
+}
+
+
+
+dappUser -- browserExtensionWallet
+dappUser -- dApp
+dappDeveloper -- midnightSDK
+dappDeveloper -- codeEditor
+
+WalletAPI ^.. dAppConnectorServer
+WalletAPI <-- dAppConnectorClient
+dAppCode -- MidnightTS
+MidnightTS --> provingSystem
+
+
+browserExtensionWallet ----> walletEngine
+browserExtensionWallet --> walletBackend
+walletEngine -------> provingSystem
+
+walletEngine <---- walletBackend
+midnightNodeAPI <-- walletBackend
+
+
+headlessWallet ---> walletEngine
+WalletAPI ^.. headlessWallet
+mockProver ..^ provingSystem
+
+editorPlugin -- midnightSDK
+
+mockNode ---> midnightLedger
+mockNode ..^ midnightNodeAPI
+midnightLedger <-- midnightNode
+midnightLedger ---> provingSystem
+
+midnightNodeAPI ^.. midnightNode
+midnightNode -- mainChainFollower
+midnightNode -- midnightNetwork
+mainChainFollower -- cardanoNode
+cardanoNode -- cardanoNetwork
+provingSystem ^.. proofServer
+
+package Legend {
+  together {
+    [A]
+    [B]
+
+    note top of A
+      A component
+    endnote
+  }
+
+  together {
+    artifact C
+    interface D
+
+    note bottom of C
+      An artifact
+    endnote
+
+    note bottom of D
+      An interface
+    endnote
+  }
+
+  together {
+    [E]
+    [F]
+  }
+
+  A -[hidden]- C
+  D -[hidden]-- F
+  C -[hidden]-- E
+
+  A - B : "A collaborates with B"
+  C .^ D : "C is a specific version/implementation of D"
+  E -> F : "E depends on F"
+}
+
+@enduml
