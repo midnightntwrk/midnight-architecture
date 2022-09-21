@@ -1,8 +1,7 @@
-# Proposal 0000: Template for Midnight Architecture Proposals
-This is a template for writing new Midnight Architecture Proposals.  We want
-this template to be lightweight, so that it does not impede the process of
-capturing the proposals, and we to evolve this template over the time, as we
-figure out the process of proposing changes to our architecture.
+# Proposal 0002: Error Handling in TS for good quality and good developer experience
+
+Status: proposed, temporarily this proposal is freezed and development is moving forward with Option #3
+Jira ticker: https://input-output.atlassian.net/browse/PM-3878
 
 # Problem Statement
 We want a common, consistent approach to raise and handle error across different components, so that overall experience exposed to DApp developers and other Midnight developers does not cause surprises. It is important to provide a way to exhaustively handle all of the expected errors coming from a given API so that one can be sure about not leaving things to pure luck (and, for example, learning about specific error only after dapp is deployed) or the happy path.
@@ -78,13 +77,12 @@ in TypeScript and pure JS client code (including, for example, verification if f
 passed to `fold` has all the cases defined). 
 
 
-This approach has its problems though - it's not a common and widely used one in JS 
-community, also to work very well for JS code it has to come with well-defined 
-`resultType` helper. It can only work really well in code, which, at least, does not 
-rely on mutations, but on immutability (so that the result value is by default inspected) 
-Additionally, it does not use common error channels, because 
-those are almost by definition untyped in JS, which introduces new set of familiarity 
-issues. 
+This approach has its problems though:
+- it's not a common and widely used one in JS community
+- to work very well for JS code it has to come with well-defined `resultType` helper
+- it can only work really well in code, which, at least, does not rely on mutations, but on immutability (so that the result value is by default inspected) 
+- it does not use common error channels, because those are almost by definition untyped in JS, which introduces new set of familiarity issues
+- it has ergonomics issues related to function composition, which leads to further readability issues or, again, points to a need for a good `resultType` helper, which addresses that
 
 ## Possible solution 2 - exceptions and existing error channels all the way
 
@@ -105,18 +103,19 @@ I believe this proposal has couple of serious issues, which I'm not sure if are 
     developer not being reminded about need to handle certain errors
 
 To some extent, following ideas from React hooks and algebraic effects, it should be 
-possible to mitigate those issues by a couple of helpers:
-  - one to list all of error types of certain function/API
-  - one to help to handle all error types (within `catch` block, error callback in 
-    Promise, etc.) based on the list of all errors
-  - one to define "execution context" for certain function/API and at least helps to 
-    verify that errors from the list do not leave such zone at all (they might be 
-    converted into error more suitable to a layer above) or have proper marker, which 
-    shows that they are explicitly allowed to be handled somewhere else
-  - one to check whether certain function/API is run within such "execution context"
+possible to mitigate those issues by approaches like listed below:
+  - lazy wrapper for promises/functions, which forces error to be handled before execution
+  - "execution contexts", where a couple of helpers is defined:
+    - one to list all of error types of certain function/API
+    - one to help to handle all error types (within `catch` block, error callback in 
+      Promise, etc.) based on the list of all errors
+    - one to define "execution context" for certain function/API and at least helps to 
+      verify that errors from the list do not leave such zone at all (they might be 
+      converted into error more suitable to a layer above) or have proper marker, which 
+      shows that they are explicitly allowed to be handled somewhere else
+    - one to check whether certain function/API is run within such "execution context"
 
-While there may be serious limitations to such measures, which limit how much can be 
-done, it also may be a good enough effort in terms of making sure reported errors are 
+While there may be serious limitations to such measures, it also may be a good enough effort in terms of making sure reported errors are 
 not a surprise when app is already long deployed and also that errors from lower 
 layers do not leak to upper layers unnoticed.
 
