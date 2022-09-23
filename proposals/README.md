@@ -11,3 +11,5 @@ File names should use `kebab-case` without any non-ASCII characters.
 - [0001: Template Proposal](./0001-template.md) for writing new proposals.
 - [0003: A Language for Public Oracles](./0003-public-oracle-language.md) for the high-level options for public oracles.
 - [0004: Micro ADT language](./0004-micro-adt-language.md) for the details of our initial public oracle language.
+- [0005: Transaction Structure v1](./0005-transaction-structure-v1.md) for the initial specification of Midnight's transaction structure.
+- [0007: Interfaces in Abcird](./0007-abcird-interfaces.md) for handling private oracle calls and calls to other contracts in Abcird.
