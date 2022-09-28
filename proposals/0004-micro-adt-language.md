@@ -63,12 +63,16 @@ contract:
 * `Cell<T>`:
   * `read(field) -> T`
   * `write(field, value: T)`
+* `Cell<QualifiedCoinInfo>`:
+  * `write_coin(field, value: CoinInfo)`
 * `Set<T>`:
   * `is_empty(field) -> boolean`
   * `size(field) -> uint`
   * `member(field, elem: T) -> boolean`
   * `insert(field, elem: T)`
   * `remove(field, elem: T)`
+* `Set<QualifiedCoinInfo>`
+  * `inesrt_coin(field, elem: CoinInfo)`
 * `Map<K, V>`:
   * `is_empty(field) -> boolean`
   * `size(field) -> uint`
@@ -77,11 +81,15 @@ contract:
   * `insert(field, key: K, value: V)`
   * `insert_default(field, key: K)`
   * `remove(field, key: K)`
+* `Map<K, QualifiedCoinInfo>`
+  * `insert_coin(field, key: K, value: CoinInfo)`
 * `List<T>`:
   * `head(field) -> Maybe<T>`
   * `pop_front(field)`
   * `push_front(field, value: T)`
   * `length(field) -> uint`
+* `List<QualifiedCoinInfo>`
+  * `push_front_coin(field, value: CoinInfo)`
 * `[Historic]MerkleTree<n, T>`
   * `check_root(field, root: MerkleTreeDigest) -> boolean`
   * `is_full(field) -> boolean`
@@ -95,6 +103,7 @@ contract:
   * `claim_zswap_note(note: Note)`
   * `claim_contract_call(addr: ContractAddress, entry_point: Bytes, comm: HomomorphicCommitment)`
   * `mint(amount: uint)`
+  * `self` (gets the current contract's address)
 
 A number of operations that are *not* public oracle queries should be available
 on an API level, either for access by dApps, or to expose directly as *private*
