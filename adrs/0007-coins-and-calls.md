@@ -89,7 +89,7 @@ Chosen options:
 * Interaction model: **committed message passing**, as circuit embedding
   constrains the interactions (it forces the choice of a pre-defined DAG of
   contract calls), and does not align with our SNARK upgrade strategy.
-* Interaction restrictoins: **free-form graph without re-entrancy**, as
+* Interaction restrictions: **free-form graph without re-entrancy**, as
   re-entrancy is a common source of security flaws, and greatly complicates
   transaction processing from processing independent contract parts.
 * Contract coin model: **explicit coin objects**, as it requires the least
@@ -117,7 +117,7 @@ Chosen options:
 
 ## More Information
 
-Please see the following acompanying proposals for how these should be implemented in more detail:
+Please see the following accompanying proposals for how these should be implemented in more detail:
 * [Transaction Structure](../proposals/0005-transaction-structure-v1.md)
 * [Coins in Abcird](../proposals/0006-abcird-coins.md)
 * [Interfaces in Abcird](../proposals/0007-abcird-interfaces.md)

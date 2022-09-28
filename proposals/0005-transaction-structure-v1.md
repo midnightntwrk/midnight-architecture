@@ -248,6 +248,36 @@ For Kernel calls in this process, the transaction assembly as a whole may be aff
 It's important to note that randomness is shares between caller and callee, and
 that the binding commitment must be embedded in *all* of the proofs.
 
+## Binding and replays
+
+Binding is a subtle issue with this transaction structure, as it is attempting
+to preserve the ability to merge multiple transaction together in many cases.
+
+At the core of binding is the binding randomness from ZSwap, which ensures that
+you must know how to factor the binding randomness (typically by having seen its
+components) to factor the transaction. This isn't strictly speaking *binding*,
+so much as it introduces non-malleability: As any non-trivial transaction has at
+least two parts, and these are both randomly masking of each other, no-one can
+factor the binding randomness except for the original creator, and as the ZSwap
+parts need to prove the correctness of the binding signature (and therefore
+knowledge of the binding randomness), and the `CriticalSection` parts bind to
+the rest of the critical section in the Fiat Shamir proof of knowledge of
+exponent, no-one but the original creator or any (partial) transaction can
+replace any part of it.
+
+*Observation:* This can be not-ideal for merging, as it might be that Alice
+wants to provide funding only for a specific type of contract call, but Bob first
+creates a partial transaction that meets this criterea, intercepts the fully
+funded version, and then can maul their own part. We probaby want to eventually
+add stronger non-malleability guarantees.
+
+Replayability appears a problem at first glance, however this is trivially not
+the case for transactions with ZSwap inputs, if these inputs can be guaranteed
+to be unique. They are guaranteed to be so if we are resistant to Faerie Gold attacks.
+
+*Observation:* We are not currently resistant to Faerie Gold attacks. We need to
+mitigate these to guarantee non-replayability.
+
 # Desired Result
 This proposal is to describe what should take place of the mocked shapes of
 transactions in multiple places, and should be taken as a tool to understanding
