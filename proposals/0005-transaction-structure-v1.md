@@ -273,10 +273,8 @@ add stronger non-malleability guarantees.
 
 Replayability appears a problem at first glance, however this is trivially not
 the case for transactions with ZSwap inputs, if these inputs can be guaranteed
-to be unique. They are guaranteed to be so if we are resistant to Faerie Gold attacks.
-
-*Observation:* We are not currently resistant to Faerie Gold attacks. We need to
-mitigate these to guarantee non-replayability.
+to be unique. This is guaranteed, as they are only valid if their nullifiers
+are unique.
 
 # Desired Result
 This proposal is to describe what should take place of the mocked shapes of
