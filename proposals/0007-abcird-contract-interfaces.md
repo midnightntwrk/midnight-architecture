@@ -1,16 +1,11 @@
-# Proposal 0007: Interfaces in Abcird
+# Proposal 0007: Contract Interfaces in Abcird
 
-This proposal suggests a means of specifying:
-
-* The private oracle interface in Abcird
-* Callable for external contracts in Abcird
-* How these may be used
-* How these should look in Abcird target languages.
+This proposal suggests a means of specifying callable interface for external
+contracts in Abcird.
 
 # Problem Statement
 
-While TypeScript defines our private oracle interfaces, these must be exposed
-in to Abcird as external function declarations. Furthermore, the
+The
 [`claim_contract_call` public oracle
 query](./0004-micro-adt-language.md#proposed-changes) should not be used
 directly, but should instead be generated from another contract's public facing
@@ -32,48 +27,21 @@ let foo: Foo = ...;
 foo.bar("baz");
 ```
 
-I propose that we use adopt this subset of TypeScript's type-system in Abcird:
-Allow declaring interfaces, which consist of a sequence of method
-declarations. Objects of the interface type allow using dot notation to call
-these methods.
-
-## Use of `Local` for private oracle interface
-
-I propose that a special type `Local` (accessible via a pseudo-variable
-`local`) is used to declare an Abcird program's private oracle interface. For
-instance:
-
-```
-interface Local {
-  foo(x: Field): Field;
-}
-
-circuit foo(): Void {
-  assert !(404 == local.foo(42)) "Meaning of life not found";
-}
-```
-
-This would largely by syntactic sugar for:
-
-```
-witness local$foo(x: Field): Field;
-
-circuit foo(): Void {
-  assert !(404 == local$foo(42)) "Meaning of life not found";
-}
-```
+I propose that we use adopt a similar notation in Abcird:
+Allow declaring contract interfaces, with a `contract` keyword to distinguish
+them, which consist of a sequence of method declarations. Objects of the
+interface type allow using dot notation to call these methods.
 
 ## Use in calling contracts
 
-Outside of the `local` psuedo-variable, any variable with whose type is an
-interface will be treated as if it had the type `ContractAddress`, which should
-be part of a standard library (and will be an alias for `Field` for now), with
-exception of calls.
+Any variable with whose type is a `contract` interface will be treated as if it had the
+type `ContractAddress`, which should be part of a standard library (and will be
+an alias for `Field` for now), with exception of calls.
 
 Dot-notation should be usable to call methods on such an interface variable:
 
 ```
-interface Foo {
+contract Foo {
   foo(x: Field): Field;
 }
 
@@ -82,8 +50,7 @@ circuit bar(a: Foo): Void {
 }
 ```
 
-This notation is, as opposed to the use of `local.<function>(...)` not merely
-syntactic sugar, and should have the following meaningful effects in the Lares
+This notation should have the following meaningful effects in the Lares
 backend, and the circuit:
 
 ### Lares backend
@@ -136,7 +103,7 @@ circuit foo(x: Field): Field {
 Likewise,
 
 ```
-interface Foo {
+contract Foo {
   foo(x: Field): Field;
 }
 
@@ -165,5 +132,4 @@ call being the child of another.
 
 # Desired Result
 
-* It is no longer necessary to explicitly declare `statement` and `witness`s for each oracle query.
 * It is possible to call another contract in a mostly intuitive way in high-level Abcird.

@@ -120,5 +120,5 @@ Chosen options:
 Please see the following accompanying proposals for how these should be implemented in more detail:
 * [Transaction Structure](../proposals/0005-transaction-structure-v1.md)
 * [Coins in Abcird](../proposals/0006-abcird-coins.md)
-* [Interfaces in Abcird](../proposals/0007-abcird-interfaces.md)
+* [Contract Interfaces in Abcird](../proposals/0007-abcird-contract-interfaces.md)
 * [Signatures of Knowledge in Abcird](../proposals/0008-abcird-sok.md)
