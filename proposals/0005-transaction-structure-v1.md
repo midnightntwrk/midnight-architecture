@@ -49,7 +49,9 @@ This is only permissible if:
     function.
 * Any `claim_zswap_note` or `claim_zswap_nullifier` kernel call in the
   `CriticalSection`s is unique and corresponds to a note or nullifier present
-  in `ZSwapOffer`.
+  in `ZSwapOffer` with `contract_address` matching the contract making the call.
+* Any note of nullifier with a `contract_address` present in `ZSwapOffer` is
+  claimed by a kernel call made by the same contract address.
 
 **Effects**: A transaction has the effect of its parts, which are commutative.
 
