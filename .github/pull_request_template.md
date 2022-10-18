@@ -1,8 +1,8 @@
 __What does this PR do?__
-[ ] update the official architecture
-[ ] add more documentation (for discussion, an alternative or fill a gap)
-[ ] clean up or corrections
-[ ] other
+- [ ] update the official architecture
+- [ ] add more documentation (for discussion, an alternative or fill a gap)
+- [ ] clean up or corrections
+- [ ] other
 
 __Is there a Jira issue or story associated?__
 

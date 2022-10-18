@@ -1,4 +1,4 @@
-# 2. Consistent Development Environment
+# 3. Consistent Development Environment
 
 ## Status
 
