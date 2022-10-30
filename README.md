@@ -27,6 +27,7 @@ architectural elements are defined in [definitions](definitions.md).
 * [API’s and Common Types](./apis-and-common-types/README.org)
 * Example dApps
     - [Lares Private e-Voting Example](./example-dapps/evoting/README.org)
+    - [Private DAO Example](./example-dapps/dao/)
 * [Languages Architecture](./languages/README.org)
     - [Abcird](./languages/abcird.org)
     - [Reach](/languages/reach.org)
