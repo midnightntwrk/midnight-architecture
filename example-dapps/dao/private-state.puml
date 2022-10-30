@@ -1,0 +1,44 @@
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+state Private {
+    state Organizer {
+        state COrganizerCheck <<choice>>
+        [*] --> ImOrganizer : Do deploy setting own public key
+        [*] --> COrganizerCheck : Observe Deploy
+        COrganizerCheck --> ImOrganizer : public_key(local_secret_key) == ledger.organizer
+        COrganizerCheck --> NotOrganizer : public_key(local_secret_key) != ledger.organizer
+    }
+    --
+    state Voter {
+        VoterBoughtIn : public_key(local_secret_key) in ledger.elegible_voters
+
+        [*] --> VoterUnitialized : Deploy
+        VoterUnitialized --> VoterBoughtIn : Buy In
+        VoterBoughtIn --> VoterCommitted : Commit vote
+        VoterCommitted --> VoterRevealed : Reveal vote
+        VoterRevealed --> VoterBoughtIn : Observe advance to initial
+        VoterCommitted --> VoterBoughtIn : Observe advance to initial
+    }
+    --
+    state Beneficiary {
+        state CBeneficiaryCheck <<choice>>
+
+        [*] -d-> BeneficiaryUnitialized
+        BeneficiaryUnitialized -d-> CBeneficiaryCheck : Observe proposal init
+        CBeneficiaryCheck -d-> ImBeneficiary : public_key(local_secret_key) == ledger.beneficiary
+        CBeneficiaryCheck --> NotBeneficiary : public_key(local_secret_key) != ledger.beneficiary
+        ImBeneficiary -r-> BeneficiaryUnitialized : cash out
+        ImBeneficiary -r-> BeneficiaryUnitialized : observe advance to initial
+        NotBeneficiary -r-> BeneficiaryUnitialized : observe advance to initial
+    }
+}
+Private : it consists of 3 independent components which affect available actions
+Private : organizer depends on ledger.organizer field, which is set at deploy
+Private : beneficiary depends on ledger.beneficiary field, which is set at proposal init
+Private : voter depends on buy in, which can be performed at any time
+
+@enduml

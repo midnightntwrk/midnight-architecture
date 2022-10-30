@@ -1,0 +1,82 @@
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+actor User
+
+node UserComputer as "User Computer\n<<machine>>" {
+    node UserBrowser as "User Browser\n<<process>>" {
+        component DappFrontend as "Dapp Frontend"
+    }
+    node UserTerminal as "User Terminal\n<<process>>"
+}
+
+node Server as "Server\n<<machine>>" {
+    artifact DappFrontendBundle as "Dapp Frontend Bundle"
+
+    artifact DappSecretKey as "Dapp Secret Key\n<<per instance>>\nto initialize the private state"
+
+    node DappServer as "Dapp Server\n<<process>>" {
+        component DappBackend as "Dapp Backend"
+        component Contract as "DAO Contract"
+        component ApplicationBackend as "Application Backend"
+        storage DappPublicState as "Dapp Public State\n<<ephemeral>>"
+        storage DappPrivateState as "Dapp Private State\n<<ephemeral>>"
+        component DappSyncClient as "Sync Client"
+        component DappLedgerLib as "Ledger Lib" 
+        component WalletAPIClient as "Wallet Client"
+
+        DappBackend -- ApplicationBackend
+        ApplicationBackend -- Contract
+        ApplicationBackend -- DappPublicState
+        ApplicationBackend -- DappPrivateState
+        ApplicationBackend -- DappSyncClient
+        ApplicationBackend -- DappLedgerLib
+        Contract -- DappLedgerLib
+        ApplicationBackend -- WalletAPIClient
+        ApplicationBackend -- DappSecretKey : "initializes with"
+    }
+
+    node Wallet as "Wallet\n<<process>>" {
+        component WalletTUI as "Wallet TUI"
+        component WalletEngine as "Wallet Engine"
+        component WalletLedgerLib as "Ledger Lib"
+        component WalletSyncClient as "Sync Client"
+        artifact WalletSecretKey as "Wallet Secret Key\n<<per instance>>"
+        component WalletAPIServer as "Wallet API Server"
+
+        WalletEngine -- WalletSyncClient
+        WalletEngine -- WalletLedgerLib
+        WalletAPIServer -- WalletEngine
+        WalletTUI -- WalletEngine
+    }
+    WalletAPIClient -- WalletAPIServer 
+    DappServer -- DappFrontendBundle : "hosts"
+}
+
+node Node as "Node Host\n<<machine>>" {
+    artifact Bootstrap as "Bootstrap data\nto mint initial tokens"
+    node NodeInstance as "Node\n<<process>>" {
+        component NodeAPI as "Node API Server"
+        component NodeLedger as "Node Ledger"
+        component NodeLedgerLib as "Ledger Lib"
+        storage LedgerState as "Ledger State\n<<ephemeral>>"
+
+        NodeAPI -- NodeLedger
+        NodeLedger -- NodeLedgerLib
+    }
+
+    NodeLedger -- Bootstrap : "initializes with"
+}
+
+User -- UserBrowser
+User -- UserTerminal
+
+DappFrontend -- DappBackend : "communicates over network"
+DappSyncClient -- NodeAPI
+WalletSyncClient -- NodeAPI
+UserTerminal -- WalletTUI : "renders, over network"
+
+@enduml

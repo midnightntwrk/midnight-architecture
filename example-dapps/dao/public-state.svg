@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="653px" preserveAspectRatio="none" style="width:931px;height:653px;background:#FFFFFF;" version="1.1" viewBox="0 0 931 653" width="931px" zoomAndPan="magnify"><defs/><g><rect height="58.8867" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="118" x="799" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="87" x="830" y="9.668">public-state.puml</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="118" x="799" y="21.4453">2022.10.30 at 22:26 CET</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="914" y="33.2227"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="914" y="45"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="914" y="56.7773"> </text><ellipse cx="300" cy="75.8867" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><g id="Setup"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="59" x="270.5" y="162.8867"/><line style="stroke:#181818;stroke-width:0.5;" x1="270.5" x2="329.5" y1="189.375" y2="189.375"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="39" x="280.5" y="181.4219">Setup</text></g><g id="Commit"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="74" x="7" y="289.8867"/><line style="stroke:#181818;stroke-width:0.5;" x1="7" x2="81" y1="316.375" y2="316.375"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="54" x="17" y="308.4219">Commit</text></g><g id="Reveal"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="64" x="23" y="416.8867"/><line style="stroke:#181818;stroke-width:0.5;" x1="23" x2="87" y1="443.375" y2="443.375"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="33" y="435.4219">Reveal</text></g><g id="Final"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="53" x="273.5" y="543.8867"/><line style="stroke:#181818;stroke-width:0.5;" x1="273.5" x2="326.5" y1="570.375" y2="570.375"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="33" x="283.5" y="562.4219">Final</text></g><!--MD5=[927f07f7a187749b6c90a9e4e71dac58]
+link *start to Setup--><g id="link_*start_Setup"><path d="M300,85.8867 C300,101.3467 300,133.5667 300,157.4867 " fill="none" id="*start-to-Setup" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="300,162.7567,304,153.7567,300,157.7567,296,153.7567,300,162.7567" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="44" x="301" y="129.4551">Deploy</text></g><!--MD5=[3a31e25197b651a0a23eeca3ee5c2358]
+link Setup to Commit--><g id="link_Setup_Commit"><path d="M270.45,195.2767 C236.45,203.3567 179.56,219.1567 135,242.8867 C112.99,254.6067 90.87,271.7167 73.96,286.1967 " fill="none" id="Setup-to-Commit" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="69.77,289.8167,79.195,286.9587,73.5532,286.5475,73.9643,280.9056,69.77,289.8167" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="137" x="136" y="256.4551">Set topic by organizer</text></g><!--MD5=[728b716ad89cc035d8743aef6e98c6eb]
+link Commit to Commit--><g id="link_Commit_Commit"><path d="M81.05,303.6067 C99.52,302.0467 116,305.8067 116,314.8867 C116,323.1167 102.47,326.9767 86.18,326.4667 " fill="none" id="Commit-to-Commit" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="81.05,326.1667,89.8064,330.6751,86.0418,326.4528,90.2641,322.6882,81.05,326.1667" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="136" x="122" y="319.9551">Commit vote by voter</text></g><!--MD5=[22a6efd6caec040b647780af43dd7072]
+link Commit to Reveal--><g id="link_Commit_Reveal"><path d="M46.12,339.9867 C47.92,360.4767 50.52,389.9667 52.44,411.7667 " fill="none" id="Commit-to-Reveal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="52.89,416.8567,56.078,407.5381,52.4476,411.8763,48.1094,408.2459,52.89,416.8567" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="133" x="52" y="383.4551">advance by organizer</text></g><!--MD5=[ff8995a06d3c39c811b87fd61aa61dfb]
+link Reveal to Reveal--><g id="link_Reveal_Reveal"><path d="M87.06,430.8567 C105.2,428.7067 122,432.3767 122,441.8867 C122,450.4967 108.2,454.3267 92.11,453.3667 " fill="none" id="Reveal-to-Reveal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="87.06,452.9167,95.6708,457.6973,92.0404,453.3591,96.3786,449.7287,87.06,452.9167" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="126" x="128" y="446.9551">Reveal vote by voter</text></g><!--MD5=[062af51a925b5efbc016e4da1e78c9fb]
+link Reveal to Final--><g id="link_Reveal_Final"><path d="M78.5,467.0067 C94.4,482.1867 116.54,501.2467 139,513.8867 C180.82,537.4267 234.56,552.8667 268.15,560.9867 " fill="none" id="Reveal-to-Final" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="273.36,562.2267,265.532,556.2499,268.4961,561.068,263.678,564.0321,273.36,562.2267" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="133" x="140" y="510.4551">advance by organizer</text></g><!--MD5=[14aa5e11dcae50751613d106257d9625]
+link Final to Setup--><g id="link_Final_Setup"><path d="M299.27,543.8067 C298.23,506.5367 296.48,432.6267 297,369.8867 C297.44,316.2667 298.63,253.7267 299.37,217.9667 " fill="none" id="Final-to-Setup" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="299.48,212.8967,295.3008,221.8149,299.38,217.8957,303.2992,221.9749,299.48,212.8967" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="316" x="298" y="383.4551">Cash out by beneficiary if there's more "yes" votes</text></g><!--MD5=[14aa5e11dcae50751613d106257d9625]
+link Final to Setup--><g id="link_Final_Setup"><path d="M326.73,563.7067 C415.32,548.5967 689.69,491.2767 619,369.8867 C556.54,262.6267 404.25,213.7767 335.14,196.5667 " fill="none" id="Final-to-Setup-1" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="329.92,195.2867,337.7146,201.307,334.7774,196.4725,339.6119,193.5352,329.92,195.2867" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="296" x="627" y="383.4551">advance by organizer if there's more "no" votes</text></g><rect height="47.1094" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="200" x="358.5" y="598.8867"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="457" y="608.5547"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="457" y="620.332"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="457" y="632.1094"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="200" x="358.5" y="643.8867">Copyright 2022, Input Output Global, Ltd.</text><!--MD5=[e92ae148b1ddfff6b3c984dfe833cbd0]
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+[*] - -> Setup : Deploy
+Setup - -> Commit : Set topic by organizer
+Commit - -> Commit : Commit vote by voter
+Commit - -> Reveal : advance by organizer
+Reveal - -> Reveal : Reveal vote by voter
+Reveal - -> Final : advance by organizer
+Final - -> Setup : Cash out by beneficiary if there's more "yes" votes
+Final - -> Setup : advance by organizer if there's more "no" votes
+
+@enduml
+
+@startuml
+
+header public-state.puml\n2022.10.30 at 22:26 CET\n\n\n
+
+footer \n\n\nCopyright 2022, Input Output Global, Ltd.
+
+[*] - -> Setup : Deploy
+Setup - -> Commit : Set topic by organizer
+Commit - -> Commit : Commit vote by voter
+Commit - -> Reveal : advance by organizer
+Reveal - -> Reveal : Reveal vote by voter
+Reveal - -> Final : advance by organizer
+Final - -> Setup : Cash out by beneficiary if there's more "yes" votes
+Final - -> Setup : advance by organizer if there's more "no" votes
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 18:10:57 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: PL
+--></g></svg>

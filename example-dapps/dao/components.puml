@@ -1,0 +1,104 @@
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+actor User
+
+component DaoDapp {
+    interface DaoStateAPI as "Dao State API                                "
+
+    component DappFrontend {
+        component DappUI
+        component DappClient
+        DaoStateAPI <|-- DappClient
+        DappUI -- DappClient
+    }
+
+    component DappServer {
+        component DappController
+
+        component DappBackend {
+            component Contract {
+                component TypeScriptRunnable
+                component zkKeys
+            }
+
+            component DAOState
+        }
+
+        DappController -- DAOState
+        DaoStateAPI <|-- DAOState
+    }
+
+    DappClient -- DappController : "over network"
+}
+
+component SyncClient
+
+component Wallet {
+    interface WalletAPI as "Wallet API                              "
+
+    component WalletTUI
+
+    component WalletServer
+
+    component WalletState
+
+    component WalletClient
+
+    WalletTUI -- WalletState
+    WalletServer -- WalletState
+    WalletAPI <|-- WalletState
+    WalletClient --|> WalletAPI
+    WalletClient -- WalletServer : "over network"
+}
+
+component WalletEngine
+
+component LedgerLib
+
+component Node {
+    component SyncServer
+
+    component NodeLedger
+
+    SyncServer -- NodeLedger
+}
+
+component ZKIR
+
+component Plonk
+
+component Abcirdc
+
+component LedgerADTs {
+    component ADTInterface
+    component ADTImplmentation
+}
+
+component ApplicationBackend
+
+User -- DappUI
+DAOState -- ApplicationBackend
+User -- WalletTUI
+ApplicationBackend -- SyncClient
+WalletEngine -- SyncClient
+WalletEngine -- LedgerLib
+NodeLedger -- LedgerLib
+ApplicationBackend -- LedgerLib
+Contract -- ApplicationBackend
+WalletAPI -- ApplicationBackend
+ZKIR -- Plonk
+LedgerLib -- Plonk
+Contract .. Abcirdc : "is produced by"
+Abcirdc -- ZKIR
+LedgerLib -- ZKIR
+Abcirdc -- ADTInterface
+ADTImplmentation -- LedgerLib
+SyncClient -- SyncServer : "over network"
+WalletState -- WalletEngine
+
+
+@enduml
