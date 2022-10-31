@@ -2,14 +2,13 @@
   description = "Flake for the midnight-architecture";
 
   inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/release-22.05";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    utils.url = "github:numtide/flake-utils";
-    alejandra = {
-      url = "github:kamadorueda/alejandra";
+    utils = {
+      url = "github:numtide/flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     cicero = {
@@ -26,7 +25,6 @@
     nixpkgs,
     utils,
     devshell,
-    alejandra,
     cicero,
     ...
   }:
@@ -83,7 +81,7 @@
             category = "formatter";
           }
           {
-            package = alejandra.defaultPackage.${system};
+            package = pkgs.alejandra;
             category = "formatter";
           }
           {
