@@ -23,6 +23,8 @@ footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
 !endfunction
 
 node NodeHost as "Node Host\n<<machine>>" {
+    artifact BootstrapFile
+
     component NodeInstance as "Node Instance\n<<process>>" {
         artifact NodeImplementation
 

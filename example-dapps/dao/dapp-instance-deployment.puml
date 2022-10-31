@@ -7,10 +7,11 @@ footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
 actor User
 
 node UserComputer as "User Computer\n<<machine>>" {
+    node UserTerminal as "User Terminal\n<<process>>"
+
     node UserBrowser as "User Browser\n<<process>>" {
         component DappFrontend as "Dapp Frontend"
     }
-    node UserTerminal as "User Terminal\n<<process>>"
 }
 
 node Server as "Server\n<<machine>>" {
@@ -25,7 +26,8 @@ node Server as "Server\n<<machine>>" {
         storage DappPublicState as "Dapp Public State\n<<ephemeral>>"
         storage DappPrivateState as "Dapp Private State\n<<ephemeral>>"
         component DappSyncClient as "Sync Client"
-        component DappLedgerLib as "Ledger Lib" 
+        component DappLedgerLib as "Ledger Lib"
+        component DappPlonk as "Plonk" 
         component WalletAPIClient as "Wallet Client"
 
         DappBackend -- ApplicationBackend
@@ -35,6 +37,7 @@ node Server as "Server\n<<machine>>" {
         ApplicationBackend -- DappSyncClient
         ApplicationBackend -- DappLedgerLib
         Contract -- DappLedgerLib
+        DappLedgerLib -- DappPlonk
         ApplicationBackend -- WalletAPIClient
         ApplicationBackend -- DappSecretKey : "initializes with"
     }
@@ -43,12 +46,14 @@ node Server as "Server\n<<machine>>" {
         component WalletTUI as "Wallet TUI"
         component WalletEngine as "Wallet Engine"
         component WalletLedgerLib as "Ledger Lib"
+        component WalletPlonk as "Plonk"
         component WalletSyncClient as "Sync Client"
         artifact WalletSecretKey as "Wallet Secret Key\n<<per instance>>"
         component WalletAPIServer as "Wallet API Server"
 
         WalletEngine -- WalletSyncClient
         WalletEngine -- WalletLedgerLib
+        WalletLedgerLib -- WalletPlonk
         WalletAPIServer -- WalletEngine
         WalletTUI -- WalletEngine
     }
@@ -62,10 +67,12 @@ node Node as "Node Host\n<<machine>>" {
         component NodeAPI as "Node API Server"
         component NodeLedger as "Node Ledger"
         component NodeLedgerLib as "Ledger Lib"
+        component NodePlonk as "Plonk"
         storage LedgerState as "Ledger State\n<<ephemeral>>"
 
         NodeAPI -- NodeLedger
         NodeLedger -- NodeLedgerLib
+        NodeLedgerLib -- NodePlonk
     }
 
     NodeLedger -- Bootstrap : "initializes with"
