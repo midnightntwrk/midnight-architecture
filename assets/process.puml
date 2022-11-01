@@ -1,0 +1,18 @@
+@startuml
+
+state InProgress {
+    Meetings --> Research
+    Research --> Documentation
+    Documentation --> Meetings
+}
+
+[*] --> NewTicket : (offline or Tech Assembly) create a new ticket
+NewTicket --> Open : (Tech Assembly) prioritize, refine, identify stakeholders
+Open --> InProgress
+InProgress --> InProgress : (Tech Assembly) status update
+InProgress --> InReview : (offline) prepare an update to the Architecture Repository
+InReview --> InReview : (Tech Assembly) status update
+InReview --> UpdateMerged : (offline) all stakeholders agree on the final outcome
+UpdateMerged --> [*] : (Tech Assembly) short presentation of the outcome
+
+@enduml

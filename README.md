@@ -12,6 +12,7 @@ architectural elements are defined in [definitions](definitions.md).
 
 * [Definitions of Architectural Elements](./definitions.md)
 * [Decision Record](./adrs)
+* [Proposals](./proposals/)
 * [Midnight Architecture Overview](./overview)
 * [User Flows](./user-flows/README.md)
     - [dAPP-User Flows](./user-flows/dapp-user/README.md)
@@ -32,6 +33,30 @@ architectural elements are defined in [definitions](definitions.md).
     - [Reach](/languages/reach.org)
 * [Flowlets](./flowlets/README.md)
 * [Architectural Issue Tracking](./risks-and-issues.md)
+
+
+## How to update contents of this repository
+
+There is a process in place, which ties this repository, [Jira Midnight Architecture Board](https://input-output.atlassian.net/jira/software/c/projects/PM/boards/799) and Midnight Tech Assembly meetings. Parts of it are already mentioned in ADRs:
+  - [0, about using ADRs in the first place](./adrs/0000-use-adrs-and-adrgen.md)
+  - [1, about PR template](./adrs/0001-extended-pr-template.md) 
+
+The goal of it is to bring transparency, involvement of whole team at decision making and  a team-wide habit of documenting important decisions. Because of that - essentially every team member is allowed (and encouraged) to update contents of this repository and add tickets to the Jira board.
+
+### The process
+
+![Process](./assets/process.svg)
+
+1. Create a new ticket. Essentially any kind of issue is allowed - be it raising a concern, documenting a gap, research related to new feature or asking for decision/consultancy.
+2. On following Tech Assembly call the scope of the ticket is discussed, its priority and stakeholders are being identified, including the ticket owner. In that way it becomes clear how and with who to proceed offline
+3. After work on ticket starts, all of following is meant to happen:
+   -  stakeholders meet to discuss
+   -  necessary research is done
+   - documentation is created, in form of proposals, which are the "fast path" to adding non-obligating contents to this repository, the final decision in form of ADR or update to the official architecture
+   - on Tech Assembly calls the ticket owner provides a status update to the whole Midnight team
+4. Once a pull request with an update to the official architecture or an ADR is ready (at this stage all stakeholders should be already on the same page) - the ticket is moved to review stage, where the whole team can learn and comment the outcome. 
+5. When all the feedback is addressed and the pull request merged - on following Tech Assembly the owner gives a short presentation of the contents of the update so that whole team knows where to find necessary documentation and what is the decision made.
+
 
 ## Tools
 
