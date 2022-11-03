@@ -41,7 +41,7 @@ There are multiple parts to this ADR with independent options.
 
 ### Native currency
 
-* Zcash-clone (likely of Sprout or Orchard)
+* Zcash-clone (likely of Sapling or Orchard)
 * ZSwap (in-house multi-currency variant of ZCash with additional benefits)
 
 ### Ledger structure
