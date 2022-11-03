@@ -114,6 +114,11 @@ Chosen options:
 * The high-level language of Abcird will be reviewed to comply with this ADR.
 * Integration tests of intra-contract calls and fund transfers will be
   produced.
+  * These should test that contracts can rely on received funds being real,
+    non-duplicate, and spendable.
+  * These should also test that a contract A can call a contract B, effecting
+    both contract's states, and that breaking up a transaction to miss the call
+    does not validate.
 
 ## More Information
 
