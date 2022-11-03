@@ -63,12 +63,16 @@ contract:
 * `Cell<T>`:
   * `read(field) -> T`
   * `write(field, value: T)`
+* `Cell<QualifiedCoinInfo>`:
+  * `write_coin(field, value: CoinInfo)`
 * `Set<T>`:
   * `is_empty(field) -> boolean`
   * `size(field) -> uint`
   * `member(field, elem: T) -> boolean`
   * `insert(field, elem: T)`
   * `remove(field, elem: T)`
+* `Set<QualifiedCoinInfo>`
+  * `inesrt_coin(field, elem: CoinInfo)`
 * `Map<K, V>`:
   * `is_empty(field) -> boolean`
   * `size(field) -> uint`
@@ -77,11 +81,15 @@ contract:
   * `insert(field, key: K, value: V)`
   * `insert_default(field, key: K)`
   * `remove(field, key: K)`
+* `Map<K, QualifiedCoinInfo>`
+  * `insert_coin(field, key: K, value: CoinInfo)`
 * `List<T>`:
   * `head(field) -> Maybe<T>`
   * `pop_front(field)`
   * `push_front(field, value: T)`
   * `length(field) -> uint`
+* `List<QualifiedCoinInfo>`
+  * `push_front_coin(field, value: CoinInfo)`
 * `[Historic]MerkleTree<n, T>`
   * `check_root(field, root: MerkleTreeDigest) -> boolean`
   * `is_full(field) -> boolean`
@@ -95,6 +103,7 @@ contract:
   * `claim_zswap_note(note: Note)`
   * `claim_contract_call(addr: ContractAddress, entry_point: Bytes, comm: HomomorphicCommitment)`
   * `mint(amount: uint)`
+  * `self` (gets the current contract's address)
 
 A number of operations that are *not* public oracle queries should be available
 on an API level, either for access by dApps, or to expose directly as *private*
@@ -112,10 +121,9 @@ The ledger would own the data representation of queries, query types, ADTs,
 and ADT types.
 
 In Abcird, these will be exposed on a high-level by a) declaring a contract's
-`Ledger` type (as a typescript object type of ADT types), and b) allowing calls
-to this, though a `ledger` pseudo-variable (as `statement` external calls), or
-(potentially, pending discussions on private oracle structure) a `local.ledger`
-pseudo-variable (as `witness` external calls).
+on-chain type through a `ledger` keyword (with similar notation as a typescript
+object type with ADT types for fields), and b) allowing calls
+to this, though a `ledger` pseudo-variable (as `statement` external calls).
 Finally, an `initialize` circuit (though in practice this need not be compiled)
 captures the calls made to initialize the ledger state from its default, for
 instance, by setting administrative keys.
@@ -125,7 +133,7 @@ struct Foo {
   bar: Bytes<32>;
   baz: Boolean;
 }
-type Ledger = {
+ledger {
   field1: Map<Field, Foo>;
   field2: HistoricMerkleTree<10, Foo>;
   field3: Cell<Boolean>;
@@ -133,10 +141,7 @@ type Ledger = {
 
 circuit foo() {
   ledger.field3.write(ledger.field1.lookup(5).value.baz);
-  ledger.field2.check_root(
-    merkle_path_root(
-      local.ledger.field2.find_element(
-        local.ledger.field1.lookup(3))));
+  ledger.field2.check_root(merkle_path_root(...));
 }
 
 circuit initialize() {
@@ -147,8 +152,7 @@ circuit initialize() {
 Note that the `ledger.field.operation(arguments)` notation is likely
 syntactic sugar for something like `ledger$operation("field", arguments)`,
 which corresponds to the query `operation("field", arguments)`, with `ledger`
-vs (the potential) `local.ledger` distinguishing if this query is a public oracle or private
-oracle query.
+providing a namespace for public state fields.
 
 Some additional syntactic sugar is desirable but optional:
 * `x = y; => x.write(y);`
