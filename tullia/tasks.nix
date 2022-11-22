@@ -28,6 +28,8 @@
     command.text = ''
       set -euxo
 
+      nix build -L
+
       rsync -r result/ .
 
       if [[ -z "$(git status --porcelain)" ]]; then
@@ -45,7 +47,8 @@
       git commit --all --message render
       git show # just for the log
 
-      git push origin HEAD:${lib.escapeShellArg (lib.removePrefix "refs/heads/" cfg.ref)}
+      # Commenting to check the rest - this expectedly fails
+      # git push origin HEAD:$ {lib.escapeShellArg (lib.removePrefix "refs/heads/" cfg.ref)}
     '';
 
     memory = 1024 * 8;
