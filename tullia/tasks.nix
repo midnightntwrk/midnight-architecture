@@ -1,12 +1,14 @@
 {
-  CI = {config, ...}: {
+  CI = {config, pkgs, ...}: let
+    ghLib = config.preset.github.lib;
+  in {
     preset = {
       nix.enable = true;
 
       github = let
         enable = config.actionRun.facts != {};
         repository = "input-output-hk/midnight-architecture";
-        revision = config.preset.github.lib.readRevision "GitHub event" "";
+        revision = ghLib.readRevision "GitHub event" "";
       in {
         ci = {
           inherit enable repository revision;
@@ -18,11 +20,11 @@
       };
     };
 
-    dependencies = [
-      "github:nixos/nixpkgs#rsync"
-      "github:nixos/nixpkgs#gnugrep"
-      "github:nixos/nixpkgs#findutils"
-      "github:nixos/nixpkgs#gnupg"
+    dependencies = with pkgs; [
+      rsync
+      gnugrep
+      findutils
+      gnupg
     ];
 
     command.text = ''
@@ -47,8 +49,7 @@
       git commit --all --message render
       git show # just for the log
 
-      # Commenting to check the rest - this expectedly fails
-      # git push origin HEAD:$ {lib.escapeShellArg (lib.removePrefix "refs/heads/" cfg.ref)}
+      git push origin HEAD:${ghLib.escapeShellArg (ghLib.removePrefix "refs/heads/" ghLib.ref)}
     '';
 
     memory = 1024 * 8;
@@ -65,14 +66,6 @@
             machine api.github.com
             login git
             password {{with secret "kv/data/cicero/github"}}{{.Data.data.token}}{{end}}
-
-            machine nexus.p42.at
-            {{with secret "kv/data/cicero/nexus" -}}
-              {{with .Data.data -}}
-                login {{.user}}{{"\n" -}}
-                password {{.password}}
-              {{- end}}
-            {{- end}}
           '';
         }
       ];
