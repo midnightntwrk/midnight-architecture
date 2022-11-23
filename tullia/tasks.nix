@@ -41,12 +41,12 @@
       git config advice.addEmptyPathspec false
 
       git status --porcelain \
-      | grep -E '*.(png|pdf)' \
+      | grep -sE '*.(png|pdf)' \
       | cut -d ' ' -f 2 \
       | xargs git add
 
       echo "Previous step failed"
-      
+
       git config user.name iohk-devops
       git config user.email devops@iohk.io
 
