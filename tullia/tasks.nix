@@ -41,7 +41,7 @@
       git config advice.addEmptyPathspec false
 
       git status --porcelain \
-      | grep -E '\*.(png|pdf)' \
+      | grep -E '*.(png|pdf)' \
       | cut -d ' ' -f 2 \
       | xargs git add
 
