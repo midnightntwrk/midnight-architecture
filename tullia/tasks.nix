@@ -38,6 +38,9 @@
         exit 0
       fi
 
+      //In case it doesn't find anything
+      git config advice.addEmptyPathspec false
+
       git status --porcelain \
       | grep -E '\*.(png|pdf)' \
       | cut -d ' ' -f 2 \
