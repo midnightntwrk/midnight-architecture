@@ -49,7 +49,8 @@
       git commit --all --message render
       git show # just for the log
 
-      git push origin HEAD:${ghLib.escapeShellArg (ghLib.removePrefix "refs/heads/" ghLib.ref)}
+      # Commenting for now
+      # git push origin HEAD:$ {ghLib.escapeShellArg (ghLib.removePrefix "refs/heads/" ghLib.ref)}
     '';
 
     memory = 1024 * 8;
