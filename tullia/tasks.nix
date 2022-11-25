@@ -1,7 +1,11 @@
 {
   CI = {config, pkgs, lib, ...}: let
     ghLib = config.preset.github.lib;
-  in rec {
+    getBranch = factName: let
+      fact = config.actionRun.facts.${factName};
+    in
+      fact.value.github_body.pull_request.head.ref;
+  in {
     preset = {
       nix.enable = true;
 
@@ -56,7 +60,7 @@
       git commit --all --message render
       git show # just for the log
 
-      git push origin HEAD:"$(${lib.escapeShellArg (ghLib.readRevision "GitHub event" "")})"
+      git push origin HEAD:"$(${lib.escapeShellArg (getBranch "GitHub event")})"
     '';
 
     memory = 1024 * 8;
