@@ -56,7 +56,7 @@
       git commit --all --message render
       git show # just for the log
 
-      git push origin HEAD:$(${lib.escapeShellArg (ghLib.readRevision "GitHub event" "")})
+      git push origin HEAD:"$(${lib.escapeShellArg (ghLib.readRevision "GitHub event" "")})"
     '';
 
     memory = 1024 * 8;
