@@ -34,6 +34,9 @@
 
       rsync -r result/ .
 
+      # disable octal utf8 display
+      git config core.quotepath off
+
       if [[ -z "$(git status --porcelain)" ]]; then
         exit 0
       fi
