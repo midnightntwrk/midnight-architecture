@@ -55,10 +55,12 @@
       git config user.name iohk-devops
       git config user.email devops@iohk.io
 
-      git commit --all --message render
-      git show # just for the log
-
-      git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub event")}
+      if git commit --all --message render; then
+        git show # just for the log
+        git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub event")}
+      else
+        echo "Nothing to do"
+      fi
     '';
 
     memory = 1024 * 8;
