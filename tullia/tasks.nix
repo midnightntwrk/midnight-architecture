@@ -57,7 +57,7 @@
       git show # just for the log
 
       # Commenting for now
-      git push origin HEAD:${lib.escapeShellArg (lib.removePrefix "refs/heads/" preset.github.ci.revision)}
+      git push origin HEAD:${lib.removePrefix "refs/heads/" preset.github.ci.revision}
     '';
 
     memory = 1024 * 8;
