@@ -57,7 +57,7 @@
       git show # just for the log
 
       # Commenting for now
-      git push origin HEAD:${lib.removePrefix "refs/heads/" preset.github.ci.revision}
+      git push origin HEAD:${ghLib.readRevision "GitHub event" ""}
     '';
 
     memory = 1024 * 8;
