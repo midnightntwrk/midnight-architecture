@@ -60,7 +60,7 @@
       git commit --all --message render
       git show # just for the log
 
-      git push origin HEAD:"$(${lib.escapeShellArg (getBranch "GitHub event")})"
+      git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub event")}
     '';
 
     memory = 1024 * 8;
