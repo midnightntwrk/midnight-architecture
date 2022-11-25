@@ -50,7 +50,7 @@
       git status --porcelain \
       | grep -E '.*.(png|pdf)' \
       | cut -d ' ' -f 2 \
-      | xargs git add
+      | xargs git add &> /dev/null
 
       git config user.name iohk-devops
       git config user.email devops@iohk.io
