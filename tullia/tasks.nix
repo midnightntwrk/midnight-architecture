@@ -1,7 +1,7 @@
 {
-  CI = {config, pkgs, ...}: let
+  CI = {config, pkgs, lib, ...}: let
     ghLib = config.preset.github.lib;
-  in {
+  in rec {
     preset = {
       nix.enable = true;
 
@@ -57,7 +57,7 @@
       git show # just for the log
 
       # Commenting for now
-      git push origin HEAD:${ghLib.escapeShellArg (ghLib.removePrefix "refs/heads/" ghLib.ref)}
+      git push origin HEAD:${lib.escapeShellArg (lib.removePrefix "refs/heads/" preset.github.ci.revision)}
     '';
 
     memory = 1024 * 8;
