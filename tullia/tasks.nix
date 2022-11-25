@@ -56,8 +56,7 @@
       git commit --all --message render
       git show # just for the log
 
-      # Commenting for now
-      git push origin HEAD:${ghLib.readRevision "GitHub event" ""}
+      git push origin
     '';
 
     memory = 1024 * 8;
