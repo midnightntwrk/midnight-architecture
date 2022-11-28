@@ -9,7 +9,6 @@
     };
     utils = {
       url = "github:numtide/flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     tullia = {
       url = "github:input-output-hk/tullia?rev=f75ad427298eb8adf1a14cf08a5c48d3d3aa8ca1";
@@ -54,7 +53,7 @@
           '';
         };
 
-        defaultPackage = packages.midnight-architecture;
+        packages.default = packages.midnight-architecture;
 
         devShell = devshell.legacyPackages.${system}.mkShell {
           # graphviz and setting GRAPHVIZ_DOT environment variables are needed for editors integration, though it doesn't work quite well
