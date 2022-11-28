@@ -9,7 +9,6 @@
     };
     utils = {
       url = "github:numtide/flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     cicero = {
       url = "github:input-output-hk/cicero";
@@ -56,9 +55,9 @@
         '';
       };
 
-      defaultPackage = packages.midnight-architecture;
+      packages.default = packages.midnight-architecture;
 
-      devShell = devshell.legacyPackages.${system}.mkShell {
+      devShells.default = devshell.legacyPackages.${system}.mkShell {
         # graphviz and setting GRAPHVIZ_DOT environment variables are needed for editors integration, though it doesn't work quite well
         packages = [pkgs.graphviz pkgs.jdk];
         env = [
