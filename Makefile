@@ -8,7 +8,7 @@ $(pngs): %.png: %.puml
 	plantuml -p -tpng < $< > $@
 
 $(pdfs): %.pdf: %.puml
-	plantuml -tpdf -Sshadowing=false < $< > $@
+	plantuml -tpdf -Sshadowing=false "$<" $@
 
 $(svgs): %.svg: %.puml
 	plantuml -tsvg < $< > $@
