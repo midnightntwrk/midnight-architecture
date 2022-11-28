@@ -49,7 +49,7 @@
             | cut -d ' ' -f 2- --output-delimiter $'\n' \
             | while read -r; do
               mkdir -p $out/"$(dirname "$REPLY")"
-              [ ! -f "$REPLY" ] || mv "$REPLY" $out/"$REPLY"
+              mv "$REPLY" $out/"$REPLY"
             done
           '';
         };
