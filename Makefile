@@ -7,7 +7,7 @@ $(pngs): %.png: %.puml
 	plantuml -p -tpng < $< > $@
 
 $(svgs): %.svg: %.puml
-	plantuml -tsvg < $< > $@
+	plantuml -p -tsvg < $< > $@
 
 .DEFAULT_GOAL=default
 default: $(pngs) $(svgs)
