@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="1704px" preserveAspectRatio="none" style="width:1141px;height:1704px;background:#FFFFFF;" version="1.1" viewBox="0 0 1141 1704" width="1141px" zoomAndPan="magnify"><defs/><g><rect fill="#AFE4E4" height="1583.5547" style="stroke:#181818;stroke-width:0.5;" width="136" x="18" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="50.4375" x="60.7813" y="77.27">Voter A</text><rect fill="#C2EBD0" height="1583.5547" style="stroke:#181818;stroke-width:0.5;" width="325.4063" x="156" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="50.4375" x="293.4844" y="77.27">Voter B</text><rect fill="#EAECC6" height="1583.5547" style="stroke:#181818;stroke-width:0.5;" width="350.4063" x="483.4063" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="73.6563" x="621.7813" y="77.27">Consensus</text><rect fill="#F6E4E9" height="1583.5547" style="stroke:#181818;stroke-width:0.5;" width="298" x="835.8125" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="150.125" x="909.75" y="77.27">Election Coordinator C</text><rect fill="#FFFFFF" height="352.3906" style="stroke:#181818;stroke-width:1.0;" width="10" x="168.5" y="340.8594"/><rect fill="#FFFFFF" height="247.5938" style="stroke:#181818;stroke-width:1.0;" width="10" x="168.5" y="1301.5703"/><rect fill="#FFFFFF" height="294.125" style="stroke:#181818;stroke-width:1.0;" width="10" x="426.9063" y="369.9922"/><rect fill="#FFFFFF" height="218.4609" style="stroke:#181818;stroke-width:1.0;" width="10" x="426.9063" y="1330.7031"/><rect fill="#FFFFFF" height="608.3203" style="stroke:#181818;stroke-width:1.0;" width="10" x="508.9063" y="693.25"/><rect fill="#FFFFFF" height="29.1328" style="stroke:#181818;stroke-width:1.0;" width="10" x="717.3125" y="830.9141"/><rect fill="#FFFFFF" height="29.1328" style="stroke:#181818;stroke-width:1.0;" width="10" x="792.3125" y="722.3828"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="35" x2="35" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="104" x2="104" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="173" x2="173" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="431.4063" x2="431.4063" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="513.4063" x2="513.4063" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="721.8125" x2="721.8125" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="796.8125" x2="796.8125" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="882.8125" x2="882.8125" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="981.8125" x2="981.8125" y1="162.9297" y2="1567.1641"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="1083.8125" x2="1083.8125" y1="162.9297" y2="1567.1641"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="9" x="28" y="159.6279">A</text><ellipse cx="35.5" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M35.5,103.1328 L35.5,130.1328 M22.5,111.1328 L48.5,111.1328 M35.5,130.1328 L22.5,145.1328 M35.5,130.1328 L48.5,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="9" x="28" y="1579.1592">A</text><ellipse cx="35.5" cy="1590.9609" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M35.5,1598.9609 L35.5,1625.9609 M22.5,1606.9609 L48.5,1606.9609 M35.5,1625.9609 L22.5,1640.9609 M35.5,1625.9609 L48.5,1640.9609 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="59" y="159.6279">private state</text><path d="M86.5,110.6328 C86.5,100.6328 104.5,100.6328 104.5,100.6328 C104.5,100.6328 122.5,100.6328 122.5,110.6328 L122.5,136.6328 C122.5,146.6328 104.5,146.6328 104.5,146.6328 C104.5,146.6328 86.5,146.6328 86.5,136.6328 L86.5,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M86.5,110.6328 C86.5,120.6328 104.5,120.6328 104.5,120.6328 C104.5,120.6328 122.5,120.6328 122.5,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="59" y="1579.1592">private state</text><path d="M86.5,1592.4609 C86.5,1582.4609 104.5,1582.4609 104.5,1582.4609 C104.5,1582.4609 122.5,1582.4609 122.5,1592.4609 L122.5,1618.4609 C122.5,1628.4609 104.5,1628.4609 104.5,1628.4609 C104.5,1628.4609 86.5,1628.4609 86.5,1618.4609 L86.5,1592.4609 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M86.5,1592.4609 C86.5,1602.4609 104.5,1602.4609 104.5,1602.4609 C104.5,1602.4609 122.5,1602.4609 122.5,1592.4609 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="10" x="165.5" y="159.6279">B</text><ellipse cx="173.5" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M173.5,103.1328 L173.5,130.1328 M160.5,111.1328 L186.5,111.1328 M173.5,130.1328 L160.5,145.1328 M173.5,130.1328 L186.5,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="10" x="165.5" y="1579.1592">B</text><ellipse cx="173.5" cy="1590.9609" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M173.5,1598.9609 L173.5,1625.9609 M160.5,1606.9609 L186.5,1606.9609 M173.5,1625.9609 L160.5,1640.9609 M173.5,1625.9609 L186.5,1640.9609 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="386.4063" y="159.6279">private state</text><path d="M413.9063,110.6328 C413.9063,100.6328 431.9063,100.6328 431.9063,100.6328 C431.9063,100.6328 449.9063,100.6328 449.9063,110.6328 L449.9063,136.6328 C449.9063,146.6328 431.9063,146.6328 431.9063,146.6328 C431.9063,146.6328 413.9063,146.6328 413.9063,136.6328 L413.9063,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M413.9063,110.6328 C413.9063,120.6328 431.9063,120.6328 431.9063,120.6328 C431.9063,120.6328 449.9063,120.6328 449.9063,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="386.4063" y="1579.1592">private state</text><path d="M413.9063,1592.4609 C413.9063,1582.4609 431.9063,1582.4609 431.9063,1582.4609 C431.9063,1582.4609 449.9063,1582.4609 449.9063,1592.4609 L449.9063,1618.4609 C449.9063,1628.4609 431.9063,1628.4609 431.9063,1628.4609 C431.9063,1628.4609 413.9063,1628.4609 413.9063,1618.4609 L413.9063,1592.4609 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M413.9063,1592.4609 C413.9063,1602.4609 431.9063,1602.4609 431.9063,1602.4609 C431.9063,1602.4609 449.9063,1602.4609 449.9063,1592.4609 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47" x="487.4063" y="159.6279">Verifier</text><ellipse cx="513.9063" cy="130.6328" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><polygon fill="#181818" points="509.9063,118.6328,515.9063,113.6328,513.9063,118.6328,515.9063,123.6328,509.9063,118.6328" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47" x="487.4063" y="1579.1592">Verifier</text><ellipse cx="513.9063" cy="1598.4609" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><polygon fill="#181818" points="509.9063,1586.4609,515.9063,1581.4609,513.9063,1586.4609,515.9063,1591.4609,509.9063,1586.4609" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="689.8125" y="143.3311">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="700.8125" y="159.6279">Code</text><path d="M704.3125,94.3359 C704.3125,84.3359 722.3125,84.3359 722.3125,84.3359 C722.3125,84.3359 740.3125,84.3359 740.3125,94.3359 L740.3125,120.3359 C740.3125,130.3359 722.3125,130.3359 722.3125,130.3359 C722.3125,130.3359 704.3125,130.3359 704.3125,120.3359 L704.3125,94.3359 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M704.3125,94.3359 C704.3125,104.3359 722.3125,104.3359 722.3125,104.3359 C722.3125,104.3359 740.3125,104.3359 740.3125,94.3359 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="689.8125" y="1579.1592">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="700.8125" y="1595.4561">Code</text><path d="M704.3125,1608.7578 C704.3125,1598.7578 722.3125,1598.7578 722.3125,1598.7578 C722.3125,1598.7578 740.3125,1598.7578 740.3125,1608.7578 L740.3125,1634.7578 C740.3125,1644.7578 722.3125,1644.7578 722.3125,1644.7578 C722.3125,1644.7578 704.3125,1644.7578 704.3125,1634.7578 L704.3125,1608.7578 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M704.3125,1608.7578 C704.3125,1618.7578 722.3125,1618.7578 722.3125,1618.7578 C722.3125,1618.7578 740.3125,1618.7578 740.3125,1608.7578 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="764.8125" y="143.3311">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="772.3125" y="159.6279">States</text><path d="M779.3125,94.3359 C779.3125,84.3359 797.3125,84.3359 797.3125,84.3359 C797.3125,84.3359 815.3125,84.3359 815.3125,94.3359 L815.3125,120.3359 C815.3125,130.3359 797.3125,130.3359 797.3125,130.3359 C797.3125,130.3359 779.3125,130.3359 779.3125,120.3359 L779.3125,94.3359 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M779.3125,94.3359 C779.3125,104.3359 797.3125,104.3359 797.3125,104.3359 C797.3125,104.3359 815.3125,104.3359 815.3125,94.3359 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="764.8125" y="1579.1592">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="772.3125" y="1595.4561">States</text><path d="M779.3125,1608.7578 C779.3125,1598.7578 797.3125,1598.7578 797.3125,1598.7578 C797.3125,1598.7578 815.3125,1598.7578 815.3125,1608.7578 L815.3125,1634.7578 C815.3125,1644.7578 797.3125,1644.7578 797.3125,1644.7578 C797.3125,1644.7578 779.3125,1644.7578 779.3125,1634.7578 L779.3125,1608.7578 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M779.3125,1608.7578 C779.3125,1618.7578 797.3125,1618.7578 797.3125,1618.7578 C797.3125,1618.7578 815.3125,1618.7578 815.3125,1608.7578 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="839.8125" y="159.6279">Coordinator</text><ellipse cx="883.3125" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M883.3125,103.1328 L883.3125,130.1328 M870.3125,111.1328 L896.3125,111.1328 M883.3125,130.1328 L870.3125,145.1328 M883.3125,130.1328 L896.3125,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="839.8125" y="1579.1592">Coordinator</text><ellipse cx="883.3125" cy="1590.9609" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M883.3125,1598.9609 L883.3125,1625.9609 M870.3125,1606.9609 L896.3125,1606.9609 M883.3125,1625.9609 L870.3125,1640.9609 M883.3125,1625.9609 L896.3125,1640.9609 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="936.8125" y="159.6279">private state</text><path d="M964.3125,110.6328 C964.3125,100.6328 982.3125,100.6328 982.3125,100.6328 C982.3125,100.6328 1000.3125,100.6328 1000.3125,110.6328 L1000.3125,136.6328 C1000.3125,146.6328 982.3125,146.6328 982.3125,146.6328 C982.3125,146.6328 964.3125,146.6328 964.3125,136.6328 L964.3125,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M964.3125,110.6328 C964.3125,120.6328 982.3125,120.6328 982.3125,120.6328 C982.3125,120.6328 1000.3125,120.6328 1000.3125,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="936.8125" y="1579.1592">private state</text><path d="M964.3125,1592.4609 C964.3125,1582.4609 982.3125,1582.4609 982.3125,1582.4609 C982.3125,1582.4609 1000.3125,1582.4609 1000.3125,1592.4609 L1000.3125,1618.4609 C1000.3125,1628.4609 982.3125,1628.4609 982.3125,1628.4609 C982.3125,1628.4609 964.3125,1628.4609 964.3125,1618.4609 L964.3125,1592.4609 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M964.3125,1592.4609 C964.3125,1602.4609 982.3125,1602.4609 982.3125,1602.4609 C982.3125,1602.4609 1000.3125,1602.4609 1000.3125,1592.4609 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="1037.8125" y="159.6279">registrations</text><path d="M1065.8125,110.6328 C1065.8125,100.6328 1083.8125,100.6328 1083.8125,100.6328 C1083.8125,100.6328 1101.8125,100.6328 1101.8125,110.6328 L1101.8125,136.6328 C1101.8125,146.6328 1083.8125,146.6328 1083.8125,146.6328 C1083.8125,146.6328 1065.8125,146.6328 1065.8125,136.6328 L1065.8125,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M1065.8125,110.6328 C1065.8125,120.6328 1083.8125,120.6328 1083.8125,120.6328 C1083.8125,120.6328 1101.8125,120.6328 1101.8125,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="1037.8125" y="1579.1592">registrations</text><path d="M1065.8125,1592.4609 C1065.8125,1582.4609 1083.8125,1582.4609 1083.8125,1582.4609 C1083.8125,1582.4609 1101.8125,1582.4609 1101.8125,1592.4609 L1101.8125,1618.4609 C1101.8125,1628.4609 1083.8125,1628.4609 1083.8125,1628.4609 C1083.8125,1628.4609 1065.8125,1628.4609 1065.8125,1618.4609 L1065.8125,1592.4609 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M1065.8125,1592.4609 C1065.8125,1602.4609 1083.8125,1602.4609 1083.8125,1602.4609 C1083.8125,1602.4609 1101.8125,1602.4609 1101.8125,1592.4609 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><rect fill="#FFFFFF" height="352.3906" style="stroke:#181818;stroke-width:1.0;" width="10" x="168.5" y="340.8594"/><rect fill="#FFFFFF" height="247.5938" style="stroke:#181818;stroke-width:1.0;" width="10" x="168.5" y="1301.5703"/><rect fill="#FFFFFF" height="294.125" style="stroke:#181818;stroke-width:1.0;" width="10" x="426.9063" y="369.9922"/><rect fill="#FFFFFF" height="218.4609" style="stroke:#181818;stroke-width:1.0;" width="10" x="426.9063" y="1330.7031"/><rect fill="#FFFFFF" height="608.3203" style="stroke:#181818;stroke-width:1.0;" width="10" x="508.9063" y="693.25"/><rect fill="#FFFFFF" height="29.1328" style="stroke:#181818;stroke-width:1.0;" width="10" x="717.3125" y="830.9141"/><rect fill="#FFFFFF" height="29.1328" style="stroke:#181818;stroke-width:1.0;" width="10" x="792.3125" y="722.3828"/><polygon fill="#00FFFF" points="720,177.9297,874,177.9297,884,188.9297,874,200.9297,720,200.9297,710,188.9297,720,177.9297" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="150" x="722" y="193.9966">��� phase = VOTING</text><path d="M10,211.0625 L10,266.0625 L337,266.0625 L337,221.0625 L327,211.0625 L10,211.0625 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M327,211.0625 L327,221.0625 L337,221.0625 L327,211.0625 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="286" x="16" y="228.1294">Assume Voter B is registered with REG token</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="306" y="228.1294">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="4" x="311" y="228.1294">.</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="306" x="16" y="243.2622">B learns the contract is in the VOTING state and</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="303" x="16" y="258.395">chooses to turn its REG token into a VOT token.</text><polygon fill="#00FFFF" points="309,276.4609,553,276.4609,563,295.4609,553,314.4609,309,314.4609,299,295.4609,309,276.4609" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="240" x="311" y="292.5278">��� keys = ���pk[B],sk[B]���</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="311" y="307.6606">���</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="49.25" x="354" y="307.6606">verified</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="26" x="407.25" y="307.6606">REG</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="437.25" y="307.6606">r</text><polygon fill="#181818" points="189.5,336.8594,179.5,340.8594,189.5,344.8594,185.5,340.8594" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="183.5" x2="512.9063" y1="340.8594" y2="340.8594"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="195.5" y="335.7935">1</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="33" x="207.9063" y="335.7935">state</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="244.9063" y="335.7935">s</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="136" x="255.9063" y="335.7935">with phase = VOTING</text><polygon fill="#181818" points="414.9063,365.9922,424.9063,369.9922,414.9063,373.9922,418.9063,369.9922" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="178.5" x2="420.9063" y1="369.9922" y2="369.9922"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="185.5" y="364.9263">2</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="197.9063" y="364.9263">Swap(</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="236.9063" y="364.9263">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="144" x="241.9063" y="364.9263">, option, code, circuits,</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="389.9063" y="364.9263">s</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="396.9063" y="364.9263">)</text><path d="M315,382.9922 L315,573.9922 L548,573.9922 L548,392.9922 L538,382.9922 L315,382.9922 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M538,382.9922 L538,392.9922 L548,392.9922 L538,382.9922 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="212" x="321" y="400.0591">Create a commitment to "spend"</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="129" x="321" y="415.1919">the given REG token</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="454" y="415.1919">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="25" x="463" y="415.1919">with</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="191" x="321" y="430.3247">output to a new VOT token we</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="54" x="321" y="445.4575">shall call</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="379" y="445.4575">v</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="102" x="386" y="445.4575">, whose payload</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="164" x="321" y="460.5903">is the given voting option.</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="165" x="321" y="475.7231">Yields a proof of validity of</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108" x="321" y="490.856">the commitment</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="19" x="433" y="490.856">wrt</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="48" x="456" y="490.856">state s,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="193" x="321" y="505.9888">and bytecode for updating the</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="183" x="321" y="521.1216">REG and VOT Merkle trie and</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="67" x="321" y="536.2544">nullifiers in</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="392" y="536.2544">s</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="35" x="399" y="536.2544">.  The</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="97" x="321" y="551.3872">commitment is</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="51" x="422" y="551.3872">pending</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="27" x="477" y="551.3872">until</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="180" x="321" y="566.52">witnessed under consensus.</text><polygon fill="#00FFFF" points="340,584.5859,521,584.5859,531,610.5859,521,637.5859,340,637.5859,330,610.5859,340,584.5859" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="342" y="600.6528">���</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="98.875" x="385" y="600.6528">pending spend</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="487.875" y="600.6528">RET</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="514.875" y="600.6528">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="342" y="615.7856">���</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="83.0625" x="385" y="615.7856">pending add</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="26" x="472.0625" y="615.7856">VOT</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="502.0625" y="615.7856">v</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="69" x="370" y="630.9185">with option</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="8" x="443" y="630.9185">o</text><polygon fill="#181818" points="189.5,660.1172,179.5,664.1172,189.5,668.1172,185.5,664.1172" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="183.5" x2="430.9063" y1="664.1172" y2="664.1172"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="195.5" y="659.0513">3</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="212" x="207.9063" y="659.0513">Swapped(proof, public_bytecode)</text><polygon fill="#181818" points="496.9063,689.25,506.9063,693.25,496.9063,697.25,500.9063,693.25" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="173.5" x2="502.9063" y1="693.25" y2="693.25"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="180.5" y="688.1841">4</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="214" x="192.9063" y="688.1841">Call(addr, public_bytecode, proof)</text><polygon fill="#181818" points="780.3125,718.3828,790.3125,722.3828,780.3125,726.3828,784.3125,722.3828" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="518.9063" x2="786.3125" y1="722.3828" y2="722.3828"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="525.9063" y="717.3169">5</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="74" x="538.3125" y="717.3169">Fetch(addr)</text><polygon fill="#181818" points="529.9063,747.5156,519.9063,751.5156,529.9063,755.5156,525.9063,751.5156" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="523.9063" x2="796.3125" y1="751.5156" y2="751.5156"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="535.9063" y="746.4497">6</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="10" x="548.3125" y="746.4497">s'</text><path d="M413,764.5156 L413,804.5156 L614,804.5156 L614,774.5156 L604,764.5156 L413,764.5156 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M604,764.5156 L604,774.5156 L614,774.5156 L604,764.5156 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="141" x="419" y="781.5825">In this case s = s', but</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="180" x="419" y="796.7153">Kachina assumes s ��� s'</text><polygon fill="#181818" points="705.3125,826.9141,715.3125,830.9141,705.3125,834.9141,709.3125,830.9141" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="518.9063" x2="711.3125" y1="830.9141" y2="830.9141"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="525.9063" y="825.8481">7</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="74" x="538.3125" y="825.8481">Fetch(addr)</text><polygon fill="#181818" points="529.9063,856.0469,519.9063,860.0469,529.9063,864.0469,525.9063,860.0469" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="523.9063" x2="721.3125" y1="860.0469" y2="860.0469"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="535.9063" y="854.981">8</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="162" x="548.3125" y="854.981">���code, circuits���</text><path d="M377,873.0469 L377,973.0469 L649,973.0469 L649,883.0469 L639,873.0469 L377,873.0469 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M639,873.0469 L639,883.0469 L649,883.0469 L639,873.0469 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="221" x="383" y="890.1138">Verify the ZK proof using the given</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="199" x="383" y="905.2466">circuits, proof, and state s'.  On</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="211" x="383" y="920.3794">success, compute a new state s''</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="251" x="383" y="935.5122">using inputs s' and the public_bytecode</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="219" x="383" y="950.645">operations. On success, install the</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="94" x="383" y="965.7778">updated state.</text><path d="M684,983.8438 L684,1068.8438 L909,1068.8438 L909,993.8438 L899,983.8438 L684,983.8438 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M899,983.8438 L899,993.8438 L909,993.8438 L899,983.8438 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="162" x="690" y="1000.9106">The new state s'' includes</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="199" x="690" y="1016.0435">everything from s' with the REG</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="172" x="690" y="1031.1763">token added to its nullifiers</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="204" x="690" y="1046.3091">set and the VOT token added to</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="95" x="690" y="1061.4419">its Merkle tree.</text><polygon fill="#181818" points="785.3125,1091.6406,795.3125,1095.6406,785.3125,1099.6406,789.3125,1095.6406" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="518.9063" x2="791.3125" y1="1095.6406" y2="1095.6406"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="525.9063" y="1090.5747">9</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="107" x="538.3125" y="1090.5747">Update(addr, s'')</text><polygon fill="#00FFFF" points="709,1108.6406,885,1108.6406,895,1127.6406,885,1146.6406,709,1146.6406,699,1127.6406,709,1108.6406" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="172" x="711" y="1124.7075">��� REG.nulls += r.hash</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="141" x="711" y="1139.8403">��� VOT.Merk += v</text><polygon fill="#181818" points="46.5,1169.0391,36.5,1173.0391,46.5,1177.0391,42.5,1173.0391" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="40.5" x2="507.9063" y1="1173.0391" y2="1173.0391"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="16.8125" x="52.5" y="1167.9731">10</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="73.3125" y="1167.9731">verifiedTx_2</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="190" x="152.3125" y="1167.9731">including B's encrypted nonce</text><path d="M5,1186.0391 L5,1211.0391 L66,1211.0391 L66,1196.0391 L56,1186.0391 L5,1186.0391 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M56,1186.0391 L56,1196.0391 L66,1196.0391 L56,1186.0391 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="40" x="11" y="1203.106">ignore</text><polygon fill="#181818" points="871.3125,1233.3047,881.3125,1237.3047,871.3125,1241.3047,875.3125,1237.3047" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="518.9063" x2="877.3125" y1="1237.3047" y2="1237.3047"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="16.8125" x="525.9063" y="1232.2388">11</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="546.7188" y="1232.2388">verifiedTx_2</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="190" x="625.7188" y="1232.2388">including B's encrypted nonce</text><path d="M852,1250.3047 L852,1275.3047 L913,1275.3047 L913,1260.3047 L903,1250.3047 L852,1250.3047 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M903,1250.3047 L903,1260.3047 L913,1260.3047 L903,1250.3047 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="40" x="858" y="1267.3716">ignore</text><polygon fill="#181818" points="189.5,1297.5703,179.5,1301.5703,189.5,1305.5703,185.5,1301.5703" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="183.5" x2="512.9063" y1="1301.5703" y2="1301.5703"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="16.8125" x="195.5" y="1296.5044">12</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="216.3125" y="1296.5044">verifiedTx_2</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="190" x="295.3125" y="1296.5044">including B's encrypted nonce</text><polygon fill="#181818" points="414.9063,1326.7031,424.9063,1330.7031,414.9063,1334.7031,418.9063,1330.7031" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="178.5" x2="420.9063" y1="1330.7031" y2="1330.7031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="16.8125" x="185.5" y="1325.6372">13</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="120" x="206.3125" y="1325.6372">Apply(verifiedTx_2)</text><path d="M325,1343.7031 L325,1458.7031 L537,1458.7031 L537,1353.7031 L527,1343.7031 L325,1343.7031 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M527,1343.7031 L527,1353.7031 L537,1353.7031 L527,1343.7031 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="191" x="331" y="1360.77">B is able to decrypt the nonce</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="156" x="331" y="1375.9028">using sk[B]. It marks the</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="164" x="331" y="1391.0356">pending commitments as</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="187" x="331" y="1406.1685">confirmed, ensuring B will not</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="74" x="331" y="1421.3013">try to reuse</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="409" y="1421.3013">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="67" x="418" y="1421.3013">and that B</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="119" x="331" y="1436.4341">now knows its vote</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="454" y="1436.4341">v</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="43" x="465" y="1436.4341">can be</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="191" x="331" y="1451.5669">used in the COUNTING phase.</text><polygon fill="#00FFFF" points="331,1469.6328,532,1469.6328,542,1495.6328,532,1522.6328,331,1522.6328,321,1495.6328,331,1469.6328" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="333" y="1485.6997">���</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="38.0313" x="376" y="1485.6997">spent</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="418.0313" y="1485.6997">RET</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="445.0313" y="1485.6997">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64" x="450.0313" y="1485.6997">                </text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="333" y="1500.8325">���</text><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="49.25" x="376" y="1500.8325">verified</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="26" x="429.25" y="1500.8325">VOT</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="459.25" y="1500.8325">v</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64" x="466.25" y="1500.8325">                </text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="69" x="361" y="1515.9653">with option</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="8" x="434" y="1515.9653">o</text><polygon fill="#181818" points="184.5,1545.1641,174.5,1549.1641,184.5,1553.1641,180.5,1549.1641" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="178.5" x2="430.9063" y1="1549.1641" y2="1549.1641"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="16.8125" x="190.5" y="1544.0981">14</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="88" x="211.3125" y="1544.0981">Voted(option)</text><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="1012.8125" y="5"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1130.8125" y="14.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="1012.8125" y="25.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1130.8125" y="37.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1130.8125" y="49.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1130.8125" y="60.8447"> </text><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="454.4063" y="1649.7578"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="565.4063" y="1659.04"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="565.4063" y="1670.6807"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="565.4063" y="1682.3213"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="454.4063" y="1693.9619">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[300ac26d27f5eab7abf23429f262fa8f]
+@startuml
+autonumber
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+!include example-dapps/evoting/participants.puml
+
+hnote over state #aqua
+        ��� phase = VOTING
+end note
+
+
+note over B #lightyellow
+        Assume Voter B is registered with REG token //r//.
+        B learns the contract is in the VOTING state and
+        chooses to turn its REG token into a VOT token.
+end note
+
+hnote over rho_b #aqua
+        ��� keys = ���pk[B],sk[B]���
+        ��� **verified** REG //r//
+end note
+
+
+
+verifier -> B : state //s// with phase = VOTING
+activate B
+        B -> rho_b ++ : Swap(//r//, option, code, circuits, //s//)
+        note over rho_b #lightyellow
+                Create a commitment to "spend"
+                the given REG token //r// with
+                output to a new VOT token we
+                shall call //v//, whose payload
+                is the given voting option.
+                Yields a proof of validity of
+                the commitment //wrt// state s,
+                and bytecode for updating the
+                REG and VOT Merkle trie and
+                nullifiers in //s//.  The
+                commitment is //pending// until
+                witnessed under consensus.
+        end note
+        hnote over rho_b #aqua
+                ��� **pending spend** RET //r//
+                ��� **pending add** VOT //v//
+                       with option //o//
+        end note
+        return Swapped(proof, public_bytecode)
+        B -> verifier : Call(addr, public_bytecode, proof)
+deactivate B
+
+activate verifier
+        verifier -> state ++ : Fetch(addr)
+        return s'
+        note over verifier #lightyellow
+                In this case s = s', but
+                Kachina assumes s ��� s'
+        end note
+        verifier -> contracts ++ : Fetch(addr)
+        return ���code, circuits���
+        note over verifier #lightyellow
+                Verify the ZK proof using the given
+                circuits, proof, and state s'.  On
+                success, compute a new state s''
+                using inputs s' and the public_bytecode
+                operations. On success, install the
+                updated state.
+        end note
+        note over state #lightyellow
+                The new state s'' includes
+                everything from s' with the REG
+                token added to its nullifiers
+                set and the VOT token added to
+                its Merkle tree.
+        end note
+        verifier -> state : Update(addr, s'')
+        hnote over state #aqua
+                ��� REG.nulls += r.hash
+                ��� VOT.Merk += v
+        end note
+        verifier -> A: verifiedTx_2 //including B's encrypted nonce//
+        note over A #lightyellow : ignore
+        verifier -> C : verifiedTx_2 //including B's encrypted nonce//
+        note over C #lightyellow : ignore
+        verifier -> B : verifiedTx_2 //including B's encrypted nonce//
+deactivate verifier
+
+activate B
+        B -> rho_b ++ : Apply(verifiedTx_2)
+        note over rho_b #lightyellow
+                B is able to decrypt the nonce
+                using sk[B]. It marks the
+                pending commitments as
+                confirmed, ensuring B will not
+                try to reuse //r// and that B
+                now knows its vote //v// can be
+                used in the COUNTING phase.
+        end note
+        hnote over rho_b #aqua
+                ��� **spent** RET //r//                
+                ��� **verified** VOT //v//                
+                       with option //o//
+        end note
+        rho_b - -> B - -: Voted(option)
+deactivate B
+
+
+
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@enduml
+
+@startuml
+autonumber
+
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+
+skinparam SequenceGroupBodyBackgroundColor transparent
+
+
+box "Voter A" #afe4e4 
+        actor "A" as A
+        database "private state" as rho_a
+end box
+
+box "Voter B" #c2ebd0 
+        actor "B" as B
+        database "private state" as rho_b
+end box
+
+box "Consensus" #eaecc6
+        control "Verifier" as verifier
+        database "Contract\nCode" as contracts
+        database "Contract\nStates" as state
+end box
+
+box "Election Coordinator C" #f6e4e9 
+        actor "Coordinator" as C
+        database "private state" as rho_c
+        database "registrations" as regs
+end box
+
+
+
+
+hnote over state #aqua
+        ��� phase = VOTING
+end note
+
+
+note over B #lightyellow
+        Assume Voter B is registered with REG token //r//.
+        B learns the contract is in the VOTING state and
+        chooses to turn its REG token into a VOT token.
+end note
+
+hnote over rho_b #aqua
+        ��� keys = ���pk[B],sk[B]���
+        ��� **verified** REG //r//
+end note
+
+
+
+verifier -> B : state //s// with phase = VOTING
+activate B
+        B -> rho_b ++ : Swap(//r//, option, code, circuits, //s//)
+        note over rho_b #lightyellow
+                Create a commitment to "spend"
+                the given REG token //r// with
+                output to a new VOT token we
+                shall call //v//, whose payload
+                is the given voting option.
+                Yields a proof of validity of
+                the commitment //wrt// state s,
+                and bytecode for updating the
+                REG and VOT Merkle trie and
+                nullifiers in //s//.  The
+                commitment is //pending// until
+                witnessed under consensus.
+        end note
+        hnote over rho_b #aqua
+                ��� **pending spend** RET //r//
+                ��� **pending add** VOT //v//
+                       with option //o//
+        end note
+        return Swapped(proof, public_bytecode)
+        B -> verifier : Call(addr, public_bytecode, proof)
+deactivate B
+
+activate verifier
+        verifier -> state ++ : Fetch(addr)
+        return s'
+        note over verifier #lightyellow
+                In this case s = s', but
+                Kachina assumes s ��� s'
+        end note
+        verifier -> contracts ++ : Fetch(addr)
+        return ���code, circuits���
+        note over verifier #lightyellow
+                Verify the ZK proof using the given
+                circuits, proof, and state s'.  On
+                success, compute a new state s''
+                using inputs s' and the public_bytecode
+                operations. On success, install the
+                updated state.
+        end note
+        note over state #lightyellow
+                The new state s'' includes
+                everything from s' with the REG
+                token added to its nullifiers
+                set and the VOT token added to
+                its Merkle tree.
+        end note
+        verifier -> state : Update(addr, s'')
+        hnote over state #aqua
+                ��� REG.nulls += r.hash
+                ��� VOT.Merk += v
+        end note
+        verifier -> A: verifiedTx_2 //including B's encrypted nonce//
+        note over A #lightyellow : ignore
+        verifier -> C : verifiedTx_2 //including B's encrypted nonce//
+        note over C #lightyellow : ignore
+        verifier -> B : verifiedTx_2 //including B's encrypted nonce//
+deactivate verifier
+
+activate B
+        B -> rho_b ++ : Apply(verifiedTx_2)
+        note over rho_b #lightyellow
+                B is able to decrypt the nonce
+                using sk[B]. It marks the
+                pending commitments as
+                confirmed, ensuring B will not
+                try to reuse //r// and that B
+                now knows its vote //v// can be
+                used in the COUNTING phase.
+        end note
+        hnote over rho_b #aqua
+                ��� **spent** RET //r//                
+                ��� **verified** VOT //v//                
+                       with option //o//
+        end note
+        rho_b - -> B - -: Voted(option)
+deactivate B
+
+
+
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

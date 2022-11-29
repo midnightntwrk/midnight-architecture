@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="1484px" preserveAspectRatio="none" style="width:900px;height:1484px;background:#FFFFFF;" version="1.1" viewBox="0 0 900 1484" width="900px" zoomAndPan="magnify"><defs/><g><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="765.5" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="883.5" y="9.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="765.5" y="20.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="883.5" y="32.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="883.5" y="44.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="883.5" y="55.8447"> </text><!--MD5=[f9a29335b499db729be669fd1bd54958]
+class Account--><g id="elem_Account"><rect codeLine="6" fill="#F1F1F1" height="96.8906" id="Account" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="364" x="105" y="414.2031"/><ellipse cx="254.25" cy="430.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M249.4219,423.7813 L257.7813,423.7813 L257.7813,425.7188 L251.625,425.7188 L251.625,428.8594 L257.5313,428.8594 L257.5313,430.7969 L251.625,430.7969 L251.625,434.7656 L257.9375,434.7656 L257.9375,436.7031 L249.4219,436.7031 L249.4219,423.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57" x="274.75" y="435.0498">Account</text><line style="stroke:#181818;stroke-width:0.5;" x1="106" x2="468" y1="446.2031" y2="446.2031"/><ellipse cx="116" cy="457.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="190" x="125" y="463.1982">accountId : AccountId «PK»</text><ellipse cx="116" cy="473.5" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="192" x="125" y="479.4951">auth : AuthorizationScheme</text><line style="stroke:#181818;stroke-width:1.0;" x1="106" x2="468" y1="486.7969" y2="486.7969"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="352" x="111" y="503.792">freshSnapshots : Seq&lt;StateSnapshot&gt; «Memory»</text></g><!--MD5=[a1ac47e0f9ce059b1e682aaa025d5292]
+class AccountRelevantBlock--><g id="elem_AccountRelevantBlock"><rect codeLine="13" fill="#F1F1F1" height="80.5938" id="AccountRelevantBlock" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="203" x="367.5" y="729.2031"/><ellipse cx="389.7" cy="745.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M384.8719,738.7813 L393.2313,738.7813 L393.2313,740.7188 L387.075,740.7188 L387.075,743.8594 L392.9813,743.8594 L392.9813,745.7969 L387.075,745.7969 L387.075,749.7656 L393.3875,749.7656 L393.3875,751.7031 L384.8719,751.7031 L384.8719,738.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="155" x="405.3" y="750.0498">AccountRelevantBlock</text><line style="stroke:#181818;stroke-width:0.5;" x1="368.5" x2="569.5" y1="761.2031" y2="761.2031"/><ellipse cx="378.5" cy="772.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="177" x="387.5" y="778.1982">account : AccountId «FK»</text><ellipse cx="378.5" cy="788.5" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="162" x="387.5" y="794.4951">block : BlockHash «FK»</text><line style="stroke:#181818;stroke-width:0.5;" x1="368.5" x2="569.5" y1="801.7969" y2="801.7969"/></g><!--MD5=[89fbe391bf5da9154a19830674070e1d]
+class ExecutedBlock--><g id="elem_ExecutedBlock"><rect codeLine="18" fill="#F1F1F1" height="96.8906" id="ExecutedBlock" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="369" x="261.5" y="1028.2031"/><ellipse cx="390.25" cy="1044.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M385.4219,1037.7813 L393.7813,1037.7813 L393.7813,1039.7188 L387.625,1039.7188 L387.625,1042.8594 L393.5313,1042.8594 L393.5313,1044.7969 L387.625,1044.7969 L387.625,1048.7656 L393.9375,1048.7656 L393.9375,1050.7031 L385.4219,1050.7031 L385.4219,1037.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="103" x="410.75" y="1049.0498">ExecutedBlock</text><line style="stroke:#181818;stroke-width:0.5;" x1="262.5" x2="629.5" y1="1060.2031" y2="1060.2031"/><ellipse cx="272.5" cy="1071.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="160" x="281.5" y="1077.1982">hash : BlockHash «PK»</text><ellipse cx="272.5" cy="1087.5" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="170" x="281.5" y="1093.4951">parent : BlockHash «FK»</text><ellipse cx="272.5" cy="1103.7969" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="343" x="281.5" y="1109.792">transactionsOrder : Seq&lt;TransactionHash&gt; «FK»</text><line style="stroke:#181818;stroke-width:0.5;" x1="262.5" x2="629.5" y1="1117.0938" y2="1117.0938"/></g><!--MD5=[4555bb1b0911a5adf28ce6dbe60fed2e]
+class Transaction--><g id="elem_Transaction"><rect codeLine="24" fill="#F1F1F1" height="113.1875" id="Transaction" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="259" x="486.5" y="1311.2031"/><ellipse cx="571.25" cy="1327.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M566.4219,1320.7813 L574.7813,1320.7813 L574.7813,1322.7188 L568.625,1322.7188 L568.625,1325.8594 L574.5313,1325.8594 L574.5313,1327.7969 L568.625,1327.7969 L568.625,1331.7656 L574.9375,1331.7656 L574.9375,1333.7031 L566.4219,1333.7031 L566.4219,1320.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="591.75" y="1332.0498">Transaction</text><line style="stroke:#181818;stroke-width:0.5;" x1="487.5" x2="744.5" y1="1343.2031" y2="1343.2031"/><ellipse cx="497.5" cy="1354.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="203" x="506.5" y="1360.1982">hash : TransactionHash «PK»</text><ellipse cx="497.5" cy="1370.5" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="153" x="506.5" y="1376.4951">contractId : ContractId</text><ellipse cx="497.5" cy="1386.7969" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="233" x="506.5" y="1392.792">publicTranscript : PublicTranscript</text><ellipse cx="497.5" cy="1403.0938" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="144" x="506.5" y="1409.0889">signature : Signature</text><line style="stroke:#181818;stroke-width:0.5;" x1="487.5" x2="744.5" y1="1416.3906" y2="1416.3906"/></g><!--MD5=[27a20adf81a1f4cc49e648fa48ec3743]
+class ExecutedTransaction--><g id="elem_ExecutedTransaction"><rect codeLine="31" fill="#F1F1F1" height="64.2969" id="ExecutedTransaction" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="238" x="327" y="1186.2031"/><ellipse cx="369" cy="1202.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M364.1719,1195.7813 L372.5313,1195.7813 L372.5313,1197.7188 L366.375,1197.7188 L366.375,1200.8594 L372.2813,1200.8594 L372.2813,1202.7969 L366.375,1202.7969 L366.375,1206.7656 L372.6875,1206.7656 L372.6875,1208.7031 L364.1719,1208.7031 L364.1719,1195.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="146" x="389" y="1207.0498">ExecutedTransaction</text><line style="stroke:#181818;stroke-width:0.5;" x1="328" x2="564" y1="1218.2031" y2="1218.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="226" x="333" y="1235.1982">publicState : ContractPublicState</text><line style="stroke:#181818;stroke-width:0.5;" x1="328" x2="564" y1="1242.5" y2="1242.5"/></g><!--MD5=[faa8368c08b92218b1cd7c7dffb59809]
+class PendingTransaction--><g id="elem_PendingTransaction"><rect codeLine="35" fill="#F1F1F1" height="64.2969" id="PendingTransaction" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="170" x="658" y="541.2031"/><ellipse cx="673" cy="557.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M668.1719,550.7813 L676.5313,550.7813 L676.5313,552.7188 L670.375,552.7188 L670.375,555.8594 L676.2813,555.8594 L676.2813,557.7969 L670.375,557.7969 L670.375,561.7656 L676.6875,561.7656 L676.6875,563.7031 L668.1719,563.7031 L668.1719,550.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="138" x="687" y="562.0498">PendingTransaction</text><line style="stroke:#181818;stroke-width:0.5;" x1="659" x2="827" y1="573.2031" y2="573.2031"/><ellipse cx="669" cy="584.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="51" x="678" y="590.1982">ttl : TTL</text><line style="stroke:#181818;stroke-width:0.5;" x1="659" x2="827" y1="597.5" y2="597.5"/></g><!--MD5=[8a9e29ecc2689c2a451edf970d7ba09b]
+class RelevantTransactionFilter--><g id="elem_RelevantTransactionFilter"><rect codeLine="39" fill="#F1F1F1" height="64.2969" id="RelevantTransactionFilter" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="206" x="7" y="934.2031"/><ellipse cx="22" cy="950.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M17.1719,943.7813 L25.5313,943.7813 L25.5313,945.7188 L19.375,945.7188 L19.375,948.8594 L25.2813,948.8594 L25.2813,950.7969 L19.375,950.7969 L19.375,954.7656 L25.6875,954.7656 L25.6875,956.7031 L17.1719,956.7031 L17.1719,943.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="174" x="36" y="955.0498">RelevantTransactionFilter</text><line style="stroke:#181818;stroke-width:0.5;" x1="8" x2="212" y1="966.2031" y2="966.2031"/><ellipse cx="18" cy="977.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="174" x="27" y="983.1982">definition : FilterDefinition</text><line style="stroke:#181818;stroke-width:0.5;" x1="8" x2="212" y1="990.5" y2="990.5"/></g><!--MD5=[f18cbbd586a3bb29b8d64278e80b7c4d]
+class StateSnapshot--><g id="elem_StateSnapshot"><rect codeLine="43" fill="#F1F1F1" height="145.7813" id="StateSnapshot" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="373" x="399.5" y="207.2031"/><ellipse cx="530.75" cy="223.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M525.9219,216.7813 L534.2813,216.7813 L534.2813,218.7188 L528.125,218.7188 L528.125,221.8594 L534.0313,221.8594 L534.0313,223.7969 L528.125,223.7969 L528.125,227.7656 L534.4375,227.7656 L534.4375,229.7031 L525.9219,229.7031 L525.9219,216.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102" x="551.25" y="228.0498">StateSnapshot</text><line style="stroke:#181818;stroke-width:0.5;" x1="400.5" x2="771.5" y1="239.2031" y2="239.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="309" x="405.5" y="256.1982">hook : Either&lt;BlockHash, Timestamp&gt; «FK»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="177" x="405.5" y="272.4951">account : AccountId «FK»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="185" x="405.5" y="288.792">derivedState: DerivedState</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="273" x="405.5" y="305.0889">relevantBlocks: Seq&lt;BlockHash&gt; «FK»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="361" x="405.5" y="321.3857">pendingTransactions: Seq&lt;TransactionHash&gt; «FK»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="185" x="405.5" y="337.6826">newEvents : AccountEvent</text><line style="stroke:#181818;stroke-width:0.5;" x1="400.5" x2="771.5" y1="344.9844" y2="344.9844"/></g><!--MD5=[1d2bd2b33140acd538c0cd6f9615e69f]
+class NodeConnectionPool--><g id="elem_NodeConnectionPool"><rect codeLine="52" fill="#F1F1F1" height="64.2969" id="NodeConnectionPool" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="273" x="163.5" y="635.2031"/><ellipse cx="222.25" cy="651.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M217.4219,644.7813 L225.7813,644.7813 L225.7813,646.7188 L219.625,646.7188 L219.625,649.8594 L225.5313,649.8594 L225.5313,651.7969 L219.625,651.7969 L219.625,655.7656 L225.9375,655.7656 L225.9375,657.7031 L217.4219,657.7031 L217.4219,644.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="147" x="242.75" y="656.0498">NodeConnectionPool</text><line style="stroke:#181818;stroke-width:0.5;" x1="164.5" x2="435.5" y1="667.2031" y2="667.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="261" x="169.5" y="684.1982">availableNodes : Seq&lt;NodeAddress&gt;</text><line style="stroke:#181818;stroke-width:0.5;" x1="164.5" x2="435.5" y1="691.5" y2="691.5"/></g><!--MD5=[5eb643d002b7733cc783a5a4d1c8876d]
+class ActiveNodeConnection--><g id="elem_ActiveNodeConnection"><rect codeLine="56" fill="#F1F1F1" height="64.2969" id="ActiveNodeConnection" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="190" x="211" y="840.2031"/><ellipse cx="226" cy="856.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M221.1719,849.7813 L229.5313,849.7813 L229.5313,851.7188 L223.375,851.7188 L223.375,854.8594 L229.2813,854.8594 L229.2813,856.7969 L223.375,856.7969 L223.375,860.7656 L229.6875,860.7656 L229.6875,862.7031 L221.1719,862.7031 L221.1719,849.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="158" x="240" y="861.0498">ActiveNodeConnection</text><line style="stroke:#181818;stroke-width:0.5;" x1="212" x2="400" y1="872.2031" y2="872.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="163" x="217" y="889.1982">address : NodeAddress</text><line style="stroke:#181818;stroke-width:0.5;" x1="212" x2="400" y1="896.5" y2="896.5"/></g><!--MD5=[3ab53cff3967273453769b9d7ac678cc]
+class ClientConnection--><g id="elem_ClientConnection"><rect codeLine="60" fill="#F1F1F1" height="64.2969" id="ClientConnection" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="245" x="193.5" y="66.2031"/><ellipse cx="252.25" cy="82.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M247.4219,75.7813 L255.7813,75.7813 L255.7813,77.7188 L249.625,77.7188 L249.625,80.8594 L255.5313,80.8594 L255.5313,82.7969 L249.625,82.7969 L249.625,86.7656 L255.9375,86.7656 L255.9375,88.7031 L247.4219,88.7031 L247.4219,75.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="119" x="272.75" y="87.0498">ClientConnection</text><line style="stroke:#181818;stroke-width:0.5;" x1="194.5" x2="437.5" y1="98.2031" y2="98.2031"/><ellipse cx="204.5" cy="109.2031" fill="#000000" rx="3" ry="3" style="stroke:#000000;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="219" x="213.5" y="115.1982">targetAccount : AccountId «FK»</text><line style="stroke:#181818;stroke-width:0.5;" x1="194.5" x2="437.5" y1="122.5" y2="122.5"/></g><!--MD5=[ec778904a062892debc555c507dc2577]
+link RelevantTransactionFilter to ExecutedTransaction--><g id="link_RelevantTransactionFilter_ExecutedTransaction"><path codeLine="65" d="M103.27,1006.5831 C99.62,1041.7431 100.46,1092.5931 128,1125.2031 C153.27,1155.1331 241.8,1179.2731 319.05,1195.3031 " fill="none" id="RelevantTransactionFilter-ExecutedTransaction" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="319.1315" x2="328.1693" y1="1195.324" y2="1191.0442"/><line style="stroke:#181818;stroke-width:1.0;" x1="319.1315" x2="325.7707" y1="1195.324" y2="1202.802"/><line style="stroke:#181818;stroke-width:1.0;" x1="319.1315" x2="326.97" y1="1195.324" y2="1196.9231"/><ellipse cx="313.2525" cy="1194.1247" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="99.7933" x2="107.7394" y1="1001.9525" y2="1002.8798"/><line style="stroke:#181818;stroke-width:1.0;" x1="99.4456" x2="107.3917" y1="1004.9323" y2="1005.8596"/><line style="stroke:#181818;stroke-width:1.0;" x1="103.3027" x2="104.23" y1="1006.3892" y2="998.4431"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114" x="129" y="1081.27">accepts or rejects</text></g><!--MD5=[76f5d53c8a9ce74d75f5974fa79d1244]
+link Account to RelevantTransactionFilter--><g id="link_Account_RelevantTransactionFilter"><path codeLine="67" d="M228.82,517.4631 C198.83,548.7631 164.71,590.7431 146,635.2031 C104.6,733.5731 104.26,862.3031 107.24,926.0031 " fill="none" id="Account-RelevantTransactionFilter" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="107.2355" x2="113.6419" y1="926.1839" y2="933.8623"/><line style="stroke:#181818;stroke-width:1.0;" x1="107.2355" x2="101.6581" y1="926.1839" y2="934.484"/><line style="stroke:#181818;stroke-width:1.0;" x1="107.2355" x2="107.65" y1="926.1839" y2="934.1731"/><line style="stroke:#181818;stroke-width:1.0;" x1="111.1265" x2="103.1373" y1="923.9793" y2="924.3938"/><line style="stroke:#181818;stroke-width:1.0;" x1="229.0938" x2="234.8357" y1="511.4388" y2="517.0093"/><line style="stroke:#181818;stroke-width:1.0;" x1="227.0049" x2="232.7468" y1="513.592" y2="519.1625"/><line style="stroke:#181818;stroke-width:1.0;" x1="229.1795" x2="234.75" y1="517.095" y2="511.3531"/></g><!--MD5=[ee60b60bea5082753a5774e6e8841712]
+link ExecutedBlock to ExecutedBlock--><g id="link_ExecutedBlock_ExecutedBlock"><path codeLine="69" d="M638.59,1065.2831 C655.15,1067.7131 665.5,1071.5131 665.5,1076.7031 C665.5,1081.8931 655.15,1085.6931 638.59,1088.1231 " fill="none" id="ExecutedBlock-ExecutedBlock" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="641.4614" x2="630.55" y1="1087.7498" y2="1089.1431"/><ellipse cx="641.4614" cy="1087.7498" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="635.0245" x2="634.0111" y1="1092.6042" y2="1084.6687"/><line style="stroke:#181818;stroke-width:1.0;" x1="634.0111" x2="635.0245" y1="1068.7376" y2="1060.802"/><line style="stroke:#181818;stroke-width:1.0;" x1="636.9869" x2="638.0003" y1="1069.1176" y2="1061.182"/><line style="stroke:#181818;stroke-width:1.0;" x1="638.4856" x2="630.55" y1="1065.2765" y2="1064.2631"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="72" x="671.5" y="1081.27">is parent of</text></g><!--MD5=[0234cf13e5258a9ecbbac95ad5803c84]
+link ExecutedBlock to ExecutedTransaction--><g id="link_ExecutedBlock_ExecutedTransaction"><path codeLine="70" d="M446,1133.4331 C446,1148.2531 446,1163.9531 446,1177.7131 " fill="none" id="ExecutedBlock-ExecutedTransaction" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="446" x2="452" y1="1177.9931" y2="1185.9931"/><line style="stroke:#181818;stroke-width:1.0;" x1="446" x2="440" y1="1177.9931" y2="1185.9931"/><line style="stroke:#181818;stroke-width:1.0;" x1="446" x2="446" y1="1177.9931" y2="1185.9931"/><ellipse cx="446" cy="1171.9931" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="442" x2="450" y1="1129.3231" y2="1129.3231"/><line style="stroke:#181818;stroke-width:1.0;" x1="442" x2="450" y1="1132.3231" y2="1132.3231"/><line style="stroke:#181818;stroke-width:1.0;" x1="446" x2="446" y1="1133.3231" y2="1125.3231"/></g><!--MD5=[fdd606a838b802ab5d790e25cf5ea02e]
+link AccountRelevantBlock to ExecutedBlock--><g id="link_AccountRelevantBlock_ExecutedBlock"><path codeLine="72" d="M465.4,818.4231 C461.29,872.9831 454.56,962.1831 450.21,1019.9131 " fill="none" id="AccountRelevantBlock-ExecutedBlock" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="453.875" x2="445.8986" y1="1024.5117" y2="1023.8981"/><line style="stroke:#181818;stroke-width:1.0;" x1="454.1051" x2="446.1287" y1="1021.5205" y2="1020.907"/><line style="stroke:#181818;stroke-width:1.0;" x1="450.1936" x2="449.58" y1="1020.2167" y2="1028.1931"/><line style="stroke:#181818;stroke-width:1.0;" x1="465.4206" x2="460.0369" y1="818.2406" y2="809.8136"/><line style="stroke:#181818;stroke-width:1.0;" x1="465.4206" x2="472.0031" y1="818.2406" y2="810.7127"/><line style="stroke:#181818;stroke-width:1.0;" x1="465.4206" x2="466.02" y1="818.2406" y2="810.2631"/><line style="stroke:#181818;stroke-width:1.0;" x1="461.282" x2="469.2595" y1="819.9353" y2="820.5347"/></g><!--MD5=[8efeca22e13df9d27912b0f29f78afff]
+link StateSnapshot to Account--><g id="link_StateSnapshot_Account"><path codeLine="74" d="M459.37,357.6431 C430.27,375.2131 399.99,393.4931 373.07,409.7431 " fill="none" id="StateSnapshot-Account" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="371.4313" x2="367.2985" y1="415.4117" y2="408.5618"/><line style="stroke:#181818;stroke-width:1.0;" x1="374" x2="369.8672" y1="413.8619" y2="407.012"/><line style="stroke:#181818;stroke-width:1.0;" x1="372.7898" x2="365.94" y1="409.9203" y2="414.0531"/><line style="stroke:#181818;stroke-width:1.0;" x1="459.6927" x2="463.4373" y1="357.4601" y2="348.1876"/><line style="stroke:#181818;stroke-width:1.0;" x1="459.6927" x2="469.6427" y1="357.4601" y2="358.4586"/><line style="stroke:#181818;stroke-width:1.0;" x1="459.6927" x2="466.54" y1="357.4601" y2="353.3231"/><line style="stroke:#181818;stroke-width:1.0;" x1="455.9124" x2="460.0493" y1="355.0706" y2="361.9179"/></g><!--MD5=[d6c1f9c596478bdeac9440b806ffdca8]
+link StateSnapshot to AccountRelevantBlock--><g id="link_StateSnapshot_AccountRelevantBlock"><path codeLine="75" d="M566.8,361.1831 C542.23,463.5731 500.45,637.6831 480.39,721.2231 " fill="none" id="StateSnapshot-AccountRelevantBlock" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="480.3794" x2="484.3557" y1="721.2422" y2="730.4177"/><line style="stroke:#181818;stroke-width:1.0;" x1="480.3794" x2="472.6843" y1="721.2422" y2="727.6286"/><line style="stroke:#181818;stroke-width:1.0;" x1="480.3794" x2="478.52" y1="721.2422" y2="729.0231"/><ellipse cx="481.774" cy="715.4065" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="566.8003" x2="562.8362" y1="361.1716" y2="351.9909"/><line style="stroke:#181818;stroke-width:1.0;" x1="566.8003" x2="574.5038" y1="361.1716" y2="354.7954"/><line style="stroke:#181818;stroke-width:1.0;" x1="566.8003" x2="568.67" y1="361.1716" y2="353.3931"/><line style="stroke:#181818;stroke-width:1.0;" x1="562.4437" x2="570.2221" y1="362.1813" y2="364.051"/></g><!--MD5=[aa79fe0c87717b7c3c8738099e5634bd]
+link StateSnapshot to PendingTransaction--><g id="link_StateSnapshot_PendingTransaction"><path codeLine="76" d="M628.87,360.6731 C659.29,417.0531 698.77,490.2131 722.42,534.0631 " fill="none" id="StateSnapshot-PendingTransaction" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="722.4212" x2="731.5004" y1="534.0626" y2="538.2541"/><line style="stroke:#181818;stroke-width:1.0;" x1="722.4212" x2="720.9396" y1="534.0626" y2="543.9522"/><line style="stroke:#181818;stroke-width:1.0;" x1="722.4212" x2="726.22" y1="534.0626" y2="541.1031"/><ellipse cx="719.5722" cy="528.7822" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="628.8147" x2="619.732" y1="360.5505" y2="356.3667"/><line style="stroke:#181818;stroke-width:1.0;" x1="628.8147" x2="630.288" y1="360.5505" y2="350.6596"/><line style="stroke:#181818;stroke-width:1.0;" x1="628.8147" x2="625.01" y1="360.5505" y2="353.5131"/><line style="stroke:#181818;stroke-width:1.0;" x1="626.2473" x2="633.2846" y1="364.2122" y2="360.4074"/></g><!--MD5=[015a4b6ae7e07f5fdcf297a519ac9d87]
+link StateSnapshot to ExecutedBlock--><g id="link_StateSnapshot_ExecutedBlock"><path codeLine="77" d="M590.47,361.8731 C591.84,393.0531 593,429.0331 593,461.7031 C593,461.7031 593,461.7031 593,873.2031 C593,931.9631 551.96,985.1631 513.25,1022.2731 " fill="none" id="StateSnapshot-ExecutedBlock" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="512.7143" x2="507.2313" y1="1028.2645" y2="1022.4389"/><line style="stroke:#181818;stroke-width:1.0;" x1="514.8989" x2="509.4159" y1="1026.2084" y2="1020.3828"/><line style="stroke:#181818;stroke-width:1.0;" x1="512.8856" x2="507.06" y1="1022.6102" y2="1028.0931"/><line style="stroke:#181818;stroke-width:1.0;" x1="590.4474" x2="584.096" y1="361.6251" y2="353.9012"/><line style="stroke:#181818;stroke-width:1.0;" x1="590.4474" x2="596.084" y1="361.6251" y2="353.3651"/><line style="stroke:#181818;stroke-width:1.0;" x1="590.4474" x2="590.09" y1="361.6251" y2="353.6331"/><line style="stroke:#181818;stroke-width:1.0;" x1="586.5408" x2="594.5328" y1="363.8019" y2="363.4444"/></g><!--MD5=[c4f3e82f27b32a11313cf9a67f530cbb]
+link StateSnapshot to StateSnapshot--><g id="link_StateSnapshot_StateSnapshot"><path codeLine="78" d="M780.66,265.3331 C797.19,268.5031 807.5,273.4631 807.5,280.2031 C807.5,286.9431 797.19,291.9031 780.66,295.0731 " fill="none" id="StateSnapshot-StateSnapshot" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="783.4909" x2="772.64" y1="294.6079" y2="296.4131"/><ellipse cx="783.4909" cy="294.6079" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="777.2422" x2="775.9293" y1="299.7025" y2="291.8109"/><line style="stroke:#181818;stroke-width:1.0;" x1="775.9293" x2="777.2422" y1="268.5953" y2="260.7038"/><line style="stroke:#181818;stroke-width:1.0;" x1="778.8887" x2="780.2015" y1="269.0877" y2="261.1961"/><line style="stroke:#181818;stroke-width:1.0;" x1="780.5315" x2="772.64" y1="265.306" y2="263.9931"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="74" x="813.5" y="284.77">evolution of</text></g><!--MD5=[e13fb93b3233147e87f5ceb13f334ccc]
+link ExecutedTransaction to Transaction--><g id="link_ExecutedTransaction_Transaction"><path codeLine="80" d="M488.15,1255.7731 C505.49,1270.8131 526.05,1288.6631 545.56,1305.5831 " fill="none" id="ExecutedTransaction-Transaction" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="551.45" x2="546.2073" y1="1305.4004" y2="1311.4431"/><line style="stroke:#181818;stroke-width:1.0;" x1="549.184" x2="543.9413" y1="1303.4344" y2="1309.4771"/><line style="stroke:#181818;stroke-width:1.0;" x1="545.8073" x2="551.85" y1="1305.8004" y2="1311.0431"/><line style="stroke:#181818;stroke-width:1.0;" x1="490.3587" x2="482.05" y1="1257.6918" y2="1250.4831"/><ellipse cx="490.3587" cy="1257.6918" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="482.45" x2="487.6927" y1="1256.1258" y2="1250.0831"/></g><!--MD5=[44f33a86f69091e13126ebf305bb3cbb]
+link PendingTransaction to Transaction--><g id="link_PendingTransaction_Transaction"><path codeLine="82" d="M756.91,613.3431 C769.47,652.2331 786,713.8131 786,768.7031 C786,768.7031 786,768.7031 786,1219.2031 C786,1254.6231 764.69,1283.4531 737.15,1305.9131 " fill="none" id="PendingTransaction-Transaction" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="736.4268" x2="731.4817" y1="1311.5749" y2="1305.2863"/><line style="stroke:#181818;stroke-width:1.0;" x1="738.785" x2="733.8399" y1="1309.7204" y2="1303.4319"/><line style="stroke:#181818;stroke-width:1.0;" x1="737.0986" x2="730.81" y1="1305.958" y2="1310.9031"/><line style="stroke:#181818;stroke-width:1.0;" x1="757.7372" x2="754.3" y1="615.8523" y2="605.4031"/><ellipse cx="757.7372" cy="615.8523" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="751.7502" x2="759.3496" y1="610.4527" y2="607.9529"/></g><!--MD5=[3e31df75d782d11c2e0ee174dd841945]
+link Account to NodeConnectionPool--><g id="link_Account_NodeConnectionPool"><path codeLine="84" d="M290.59,519.7031 C292.78,553.7631 295.52,596.4131 297.48,626.9031 " fill="none" id="Account-NodeConnectionPool" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="301.7447" x2="293.7612" y1="630.9143" y2="631.4285"/><line style="stroke:#181818;stroke-width:1.0;" x1="301.5519" x2="293.5684" y1="627.9205" y2="628.4347"/><line style="stroke:#181818;stroke-width:1.0;" x1="297.4959" x2="298.01" y1="627.1797" y2="635.1631"/><line style="stroke:#181818;stroke-width:1.0;" x1="290.5741" x2="284.0724" y1="519.4166" y2="511.8187"/><line style="stroke:#181818;stroke-width:1.0;" x1="290.5741" x2="296.0476" y1="519.4166" y2="511.0475"/><line style="stroke:#181818;stroke-width:1.0;" x1="290.5741" x2="290.06" y1="519.4166" y2="511.4331"/><ellipse cx="290.9597" cy="525.4042" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[969e71f9c161530ea16c06c6801d61ed]
+link NodeConnectionPool to ActiveNodeConnection--><g id="link_NodeConnectionPool_ActiveNodeConnection"><path codeLine="85" d="M291.09,707.6131 C289.8,714.7631 288.68,722.1731 288,729.2031 C284.51,765.0331 282.85,774.5731 288,810.2031 C289.04,817.4231 290.75,824.9831 292.7,832.2231 " fill="none" id="NodeConnectionPool-ActiveNodeConnection" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="292.7022" x2="300.6691" y1="832.2309" y2="838.2748"/><line style="stroke:#181818;stroke-width:1.0;" x1="292.7022" x2="289.1309" y1="832.2309" y2="841.5715"/><line style="stroke:#181818;stroke-width:1.0;" x1="292.7022" x2="294.9" y1="832.2309" y2="839.9231"/><ellipse cx="291.0539" cy="826.4618" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="287.9809" x2="295.839" y1="702.5521" y2="704.0523"/><line style="stroke:#181818;stroke-width:1.0;" x1="287.4183" x2="295.2764" y1="705.4989" y2="706.999"/><line style="stroke:#181818;stroke-width:1.0;" x1="291.1598" x2="292.66" y1="707.2312" y2="699.3731"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="60" x="289" y="774.27">manages</text></g><!--MD5=[51378a453cd93a7810098308cf223778]
+link ActiveNodeConnection to ExecutedBlock--><g id="link_ActiveNodeConnection_ExecutedBlock"><path codeLine="86" d="M327.79,911.4331 C342.57,936.6131 362.99,970.0131 383,998.2031 C388.49,1005.9331 394.51,1013.9031 400.58,1021.6431 " fill="none" id="ActiveNodeConnection-ExecutedBlock" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="400.7191" x2="410.3871" y1="1021.817" y2="1024.3725"/><line style="stroke:#181818;stroke-width:1.0;" x1="400.7191" x2="400.9729" y1="1021.817" y2="1031.8138"/><line style="stroke:#181818;stroke-width:1.0;" x1="400.7191" x2="405.68" y1="1021.817" y2="1028.0931"/><line style="stroke:#181818;stroke-width:1.0;" x1="402.617" x2="396.3409" y1="1017.7675" y2="1022.7284"/><line style="stroke:#181818;stroke-width:1.0;" x1="327.6281" x2="318.4104" y1="911.1392" y2="907.2617"/><line style="stroke:#181818;stroke-width:1.0;" x1="327.6281" x2="328.7696" y1="911.1392" y2="901.2046"/><line style="stroke:#181818;stroke-width:1.0;" x1="327.6281" x2="323.59" y1="911.1392" y2="904.2331"/><ellipse cx="330.6566" cy="916.3188" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="384" y="970.77">streams</text></g><!--MD5=[7d23e45292349907bed075b678b3ea4b]
+link ClientConnection to Account--><g id="link_ClientConnection_Account"><path codeLine="88" d="M311.7,138.5231 C309.54,158.9931 306.96,184.4331 305,207.2031 C299.11,275.4831 293.76,354.1931 290.46,405.7831 " fill="none" id="ClientConnection-Account" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="294.1888" x2="286.2053" y1="410.0885" y2="409.5743"/><line style="stroke:#181818;stroke-width:1.0;" x1="294.3816" x2="286.3981" y1="407.0947" y2="406.5805"/><line style="stroke:#181818;stroke-width:1.0;" x1="290.4541" x2="289.94" y1="405.8397" y2="413.8231"/><line style="stroke:#181818;stroke-width:1.0;" x1="311.7273" x2="306.6034" y1="138.3286" y2="129.7411"/><line style="stroke:#181818;stroke-width:1.0;" x1="311.7273" x2="318.5366" y1="138.3286" y2="131.0051"/><line style="stroke:#181818;stroke-width:1.0;" x1="311.7273" x2="312.57" y1="138.3286" y2="130.3731"/><ellipse cx="311.0953" cy="144.2952" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="306" y="284.77">connects to</text></g><!--MD5=[96380d31070d9e62834e3bfa214d50d2]
+link ClientConnection to StateSnapshot--><g id="link_ClientConnection_StateSnapshot"><path codeLine="89" d="M369.59,134.9331 C398.64,154.2931 435.72,179.0131 470.95,202.5031 " fill="none" id="ClientConnection-StateSnapshot" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="471.3058" x2="481.2907" y1="202.7422" y2="202.1925"/><line style="stroke:#181818;stroke-width:1.0;" x1="471.3058" x2="474.6293" y1="202.7422" y2="212.1738"/><line style="stroke:#181818;stroke-width:1.0;" x1="471.3058" x2="477.96" y1="202.7422" y2="207.1831"/><line style="stroke:#181818;stroke-width:1.0;" x1="471.8627" x2="467.4218" y1="198.3049" y2="204.9591"/><line style="stroke:#181818;stroke-width:1.0;" x1="369.3808" x2="359.3967" y1="134.7841" y2="135.3487"/><line style="stroke:#181818;stroke-width:1.0;" x1="369.3808" x2="366.0433" y1="134.7841" y2="125.3575"/><line style="stroke:#181818;stroke-width:1.0;" x1="369.3808" x2="362.72" y1="134.7841" y2="130.3531"/><ellipse cx="374.3764" cy="138.1074" fill="none" rx="4" ry="4" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="53" x="427" y="173.27">receives</text></g><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="330.75" y="1430.3906"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="441.75" y="1439.6729"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="441.75" y="1451.3135"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="441.75" y="1462.9541"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="330.75" y="1474.5947">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[3a81809b335b7507446fae5f1cbcc2e7]
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+
+entity Account {
+  * accountId : AccountId <<PK>>
+  * auth : AuthorizationScheme
+  - -
+  freshSnapshots : Seq<StateSnapshot> <<Memory>>
+}
+
+entity AccountRelevantBlock {
+  * account : AccountId <<FK>>
+  * block : BlockHash <<FK>>
+}
+
+entity ExecutedBlock {
+  * hash : BlockHash <<PK>>
+  * parent : BlockHash <<FK>>
+  * transactionsOrder : Seq<TransactionHash> <<FK>>
+}
+
+entity Transaction {
+  * hash : TransactionHash <<PK>>
+  * contractId : ContractId
+  * publicTranscript : PublicTranscript
+  * signature : Signature
+}
+
+entity ExecutedTransaction {
+  publicState : ContractPublicState
+}
+
+entity PendingTransaction {
+  * ttl : TTL
+}
+
+entity RelevantTransactionFilter {
+  * definition : FilterDefinition
+}
+
+entity StateSnapshot {
+  hook : Either<BlockHash, Timestamp> <<FK>>
+  account : AccountId <<FK>>
+  derivedState: DerivedState
+  relevantBlocks: Seq<BlockHash> <<FK>>
+  pendingTransactions: Seq<TransactionHash> <<FK>>
+  newEvents : AccountEvent
+}
+
+entity NodeConnectionPool {
+  availableNodes : Seq<NodeAddress>
+}
+
+entity ActiveNodeConnection {
+  address : NodeAddress
+}
+
+entity ClientConnection {
+  * targetAccount : AccountId <<FK>>
+}
+
+
+RelevantTransactionFilter ||..o{ ExecutedTransaction : "accepts or rejects"
+
+Account ||- -|{ RelevantTransactionFilter
+
+ExecutedBlock ||- -o| ExecutedBlock : "is parent of"
+ExecutedBlock ||- -o{ ExecutedTransaction
+
+AccountRelevantBlock }|- -|| ExecutedBlock
+
+StateSnapshot }|- -|| Account
+StateSnapshot }|- -o{ AccountRelevantBlock
+StateSnapshot }|- -o{ PendingTransaction
+StateSnapshot }|- -|| ExecutedBlock
+StateSnapshot ||- -o| StateSnapshot : "evolution of"
+
+ExecutedTransaction |o- -|| Transaction
+
+PendingTransaction |o- -|| Transaction
+
+Account }o- -|| NodeConnectionPool
+NodeConnectionPool ||- -o{ ActiveNodeConnection : "manages"
+ActiveNodeConnection }o..|{ ExecutedBlock : "streams"
+
+ClientConnection }o- -|| Account : "connects to"
+ClientConnection }o..|{ StateSnapshot : "receives"
+
+@enduml
+
+@startuml
+
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+entity Account {
+  * accountId : AccountId <<PK>>
+  * auth : AuthorizationScheme
+  - -
+  freshSnapshots : Seq<StateSnapshot> <<Memory>>
+}
+
+entity AccountRelevantBlock {
+  * account : AccountId <<FK>>
+  * block : BlockHash <<FK>>
+}
+
+entity ExecutedBlock {
+  * hash : BlockHash <<PK>>
+  * parent : BlockHash <<FK>>
+  * transactionsOrder : Seq<TransactionHash> <<FK>>
+}
+
+entity Transaction {
+  * hash : TransactionHash <<PK>>
+  * contractId : ContractId
+  * publicTranscript : PublicTranscript
+  * signature : Signature
+}
+
+entity ExecutedTransaction {
+  publicState : ContractPublicState
+}
+
+entity PendingTransaction {
+  * ttl : TTL
+}
+
+entity RelevantTransactionFilter {
+  * definition : FilterDefinition
+}
+
+entity StateSnapshot {
+  hook : Either<BlockHash, Timestamp> <<FK>>
+  account : AccountId <<FK>>
+  derivedState: DerivedState
+  relevantBlocks: Seq<BlockHash> <<FK>>
+  pendingTransactions: Seq<TransactionHash> <<FK>>
+  newEvents : AccountEvent
+}
+
+entity NodeConnectionPool {
+  availableNodes : Seq<NodeAddress>
+}
+
+entity ActiveNodeConnection {
+  address : NodeAddress
+}
+
+entity ClientConnection {
+  * targetAccount : AccountId <<FK>>
+}
+
+
+RelevantTransactionFilter ||..o{ ExecutedTransaction : "accepts or rejects"
+
+Account ||- -|{ RelevantTransactionFilter
+
+ExecutedBlock ||- -o| ExecutedBlock : "is parent of"
+ExecutedBlock ||- -o{ ExecutedTransaction
+
+AccountRelevantBlock }|- -|| ExecutedBlock
+
+StateSnapshot }|- -|| Account
+StateSnapshot }|- -o{ AccountRelevantBlock
+StateSnapshot }|- -o{ PendingTransaction
+StateSnapshot }|- -|| ExecutedBlock
+StateSnapshot ||- -o| StateSnapshot : "evolution of"
+
+ExecutedTransaction |o- -|| Transaction
+
+PendingTransaction |o- -|| Transaction
+
+Account }o- -|| NodeConnectionPool
+NodeConnectionPool ||- -o{ ActiveNodeConnection : "manages"
+ActiveNodeConnection }o..|{ ExecutedBlock : "streams"
+
+ClientConnection }o- -|| Account : "connects to"
+ClientConnection }o..|{ StateSnapshot : "receives"
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

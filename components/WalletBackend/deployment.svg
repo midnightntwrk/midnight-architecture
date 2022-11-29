@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="449px" preserveAspectRatio="none" style="width:547px;height:449px;background:#FFFFFF;" version="1.1" viewBox="0 0 547 449" width="547px" zoomAndPan="magnify"><defs/><g><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="412" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="530" y="9.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="412" y="20.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="530" y="32.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="530" y="44.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="530" y="55.8447"> </text><!--MD5=[ffdb7220b13b8e8f1dc66f1e6f769067]
+cluster Light Wallet 1--><g id="cluster_Light Wallet 1"><rect height="97" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="162" x="7" y="66.2031"/><path d="M113.25,66.2031 L113.25,75.5 L103.25,85.5 L7,85.5 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="96.25" x="10" y="80.1982">Light Wallet 1</text></g><!--MD5=[2e75a3ea58ff560f429e0c4d3a8c961a]
+cluster Light Wallet 2--><g id="cluster_Light Wallet 2"><rect height="97" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="162" x="193" y="66.2031"/><path d="M299.25,66.2031 L299.25,75.5 L289.25,85.5 L193,85.5 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="96.25" x="196" y="80.1982">Light Wallet 2</text></g><!--MD5=[3fdfbb66039da97cce6a7f5cc32edd51]
+cluster Light Wallet 3--><g id="cluster_Light Wallet 3"><rect height="97" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="162" x="379" y="66.2031"/><path d="M485.25,66.2031 L485.25,75.5 L475.25,85.5 L379,85.5 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="96.25" x="382" y="80.1982">Light Wallet 3</text></g><!--MD5=[437559a01da21cffe2336829742af2ce]
+cluster Backend Server--><g id="cluster_Backend Server"><rect height="203" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="174" x="187" y="187.2031"/><path d="M311.6875,187.2031 L311.6875,196.5 L301.6875,206.5 L187,206.5 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="114.6875" x="190" y="201.1982">Backend Server</text></g><!--MD5=[39deac1dad6f09c1eeaa5f2be1521a0c]
+entity WalletClient1--><g id="elem_WalletClient1"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="129" x="23.5" y="101.2031"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="132.5" y="106.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="130.5" y="108.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="130.5" y="112.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="89" x="38.5" y="134.1982">WalletClient1</text></g><!--MD5=[48db9354bbbca080d756f4429d7fafc0]
+entity WalletClient2--><g id="elem_WalletClient2"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="129" x="209.5" y="101.2031"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="318.5" y="106.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="316.5" y="108.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="316.5" y="112.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="89" x="224.5" y="134.1982">WalletClient2</text></g><!--MD5=[48fc0c008e670776911db1b5c1395571]
+entity WalletClient3--><g id="elem_WalletClient3"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="129" x="395.5" y="101.2031"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="504.5" y="106.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="502.5" y="108.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="502.5" y="112.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="89" x="410.5" y="134.1982">WalletClient3</text></g><!--MD5=[819b714973854245f84e262b3615792d]
+entity WalletBackend--><g id="elem_WalletBackend"><rect fill="#F0F8FF" height="46.2969" rx="2.5" ry="2.5" style="stroke:#0000FF;stroke-width:0.5;" width="142" x="203" y="222.2031"/><rect fill="#F0F8FF" height="10" style="stroke:#0000FF;stroke-width:0.5;" width="15" x="325" y="227.2031"/><rect fill="#F0F8FF" height="2" style="stroke:#0000FF;stroke-width:0.5;" width="4" x="323" y="229.2031"/><rect fill="#F0F8FF" height="2" style="stroke:#0000FF;stroke-width:0.5;" width="4" x="323" y="233.2031"/><text fill="#0000FF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="102" x="218" y="255.1982">WalletBackend</text></g><!--MD5=[ed3747ad05e6730ca3536a40b62ba942]
+entity Node--><g id="elem_Node"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="77" x="235.5" y="328.2031"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="292.5" y="333.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="290.5" y="335.2031"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="290.5" y="339.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="250.5" y="361.1982">Node</text></g><!--MD5=[e943b930e7c1b0c9b845c0200315ea46]
+link WalletClient1 to WalletBackend--><g id="link_WalletClient1_WalletBackend"><path d="M122.55,147.3031 C155.85,168.6131 205.97,200.6831 239.32,222.0131 " fill="none" id="WalletClient1-WalletBackend" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/></g><!--MD5=[ea1baed870ed99c0ea75b55a0fe02c7e]
+link WalletClient2 to WalletBackend--><g id="link_WalletClient2_WalletBackend"><path d="M274,147.3031 C274,168.5431 274,200.4831 274,221.8131 " fill="none" id="WalletClient2-WalletBackend" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/></g><!--MD5=[a7ff6696a0c3e43fdb080dbdd11bf608]
+link WalletClient3 to WalletBackend--><g id="link_WalletClient3_WalletBackend"><path d="M425.45,147.3031 C392.15,168.6131 342.03,200.6831 308.68,222.0131 " fill="none" id="WalletClient3-WalletBackend" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/></g><!--MD5=[c1582e502f9bb0273396f7d6be061b74]
+link WalletBackend to Node--><g id="link_WalletBackend_Node"><path d="M274,268.2631 C274,285.9031 274,310.5431 274,328.1831 " fill="none" id="WalletBackend-Node" style="stroke:#181818;stroke-width:1.0;"/></g><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="154" y="395.2031"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="265" y="404.4854"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="265" y="416.126"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="265" y="427.7666"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="154" y="439.4072">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[c4ff368c7c848375cfe6eac7673b0d6a]
+@startuml
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+frame "Light Wallet 1" {
+        [WalletClient1]
+}
+frame "Light Wallet 2" {
+        [WalletClient2]
+}
+frame "Light Wallet 3" {
+        [WalletClient3]
+}
+
+
+frame "Backend Server" {
+        [WalletBackend] #aliceblue;line:blue;text:blue
+        [Node]
+}
+
+[WalletClient1] .. [WalletBackend]
+[WalletClient2] .. [WalletBackend]
+[WalletClient3] .. [WalletBackend]
+
+
+[WalletBackend] - - [Node]
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+@enduml
+
+@startuml
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+frame "Light Wallet 1" {
+        [WalletClient1]
+}
+frame "Light Wallet 2" {
+        [WalletClient2]
+}
+frame "Light Wallet 3" {
+        [WalletClient3]
+}
+
+
+frame "Backend Server" {
+        [WalletBackend] #aliceblue;line:blue;text:blue
+        [Node]
+}
+
+[WalletClient1] .. [WalletBackend]
+[WalletClient2] .. [WalletBackend]
+[WalletClient3] .. [WalletBackend]
+
+
+[WalletBackend] - - [Node]
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

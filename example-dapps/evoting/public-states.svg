@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="778px" preserveAspectRatio="none" style="width:599px;height:778px;background:#FFFFFF;" version="1.1" viewBox="0 0 599 778" width="599px" zoomAndPan="magnify"><defs/><g><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="464" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="582" y="9.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="464" y="20.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="582" y="32.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="582" y="44.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="582" y="55.8447"> </text><ellipse cx="149" cy="75.2031" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><g id="REGISTERING"><rect fill="#F1F1F1" height="52.5938" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="222" x="38" y="177.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="38" x2="260" y1="203.5" y2="203.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="94" x="102" y="195.1982">REGISTERING</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="202" x="43" y="221.4951">init REG.merkle_trie := empty</text></g><g id="VOTING"><rect fill="#F1F1F1" height="85.1875" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="223" x="37.5" y="308.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="37.5" x2="260.5" y1="334.5" y2="334.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="53" x="122.5" y="326.1982">VOTING</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="158" x="42.5" y="352.4951">freeze REG.merkle_trie</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="203" x="42.5" y="368.792">init REG.nullifier_set := empty</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="201" x="42.5" y="385.0889">init VOT.merkle_trie := empty</text></g><g id="COUNTING"><rect fill="#F1F1F1" height="117.7813" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="284" x="7" y="471.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="7" x2="291" y1="497.5" y2="497.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="112" y="489.1982">COUNTING</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="264" x="12" y="515.4951">init ��� x ��� options, tally[x] := 0</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="159" x="12" y="531.792">delete REG.nullifier_set</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="158" x="12" y="548.0889">delete REG.merkle_trie</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="157" x="12" y="564.3857">freeze VOT.merkle_trie</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="202" x="12" y="580.6826">init VOT.nullifier_set := empty</text></g><g id="CALLED"><rect fill="#F1F1F1" height="52.5938" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="94" x="102" y="666.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="102" x2="196" y1="692.5" y2="692.5"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="53" x="122.5" y="684.1982">CALLED</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="107" y="710.4951">freeze tally</text></g><!--MD5=[69ff6aa5e96d7e800f3de68a240b82cb]
+link *start to REGISTERING--><g id="link_*start_REGISTERING"><path d="M149,85.3031 C149,103.1631 149,143.5631 149,171.9631 " fill="none" id="*start-to-REGISTERING" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="149,177.1131,153,168.1131,149,172.1131,145,168.1131,149,177.1131" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="77.4688" x="150" y="128.27">coordinator</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="308" x="231.4688" y="128.27">: deploy(prompt, options, t_open, t_close, t_call)</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="170" x="263.7344" y="143.4028">[t_open &lt; t_close &lt; t_call]</text></g><!--MD5=[678bfebb10ff6069d8669acdf57fb9db]
+link REGISTERING to REGISTERING--><g id="link_REGISTERING_REGISTERING"><path d="M260.09,192.3431 C280.59,193.7631 295,197.5431 295,203.7031 C295,209.3331 282.96,212.9831 265.23,214.6431 " fill="none" id="REGISTERING-to-REGISTERING" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="260.09,215.0631,269.3811,218.3306,265.074,214.6633,268.7413,210.3562,260.09,215.0631" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="77.4688" x="301.2656" y="200.77">coordinator</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="4" x="382.7344" y="200.77">:</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="66" x="390.7344" y="200.77">Mint REG r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="156" x="301" y="215.9028">add r to REG.merkle_trie</text></g><!--MD5=[0ecb879f2fdfaa63f69e2b2b42052084]
+link REGISTERING to VOTING--><g id="link_REGISTERING_VOTING"><path d="M149,230.2931 C149,250.4031 149,278.9631 149,303.1031 " fill="none" id="REGISTERING-to-VOTING" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="149,308.1831,153,299.1831,149,303.1831,145,299.1831,149,308.1831" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="24.2188" x="150" y="273.27">any</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="152" x="178.2188" y="273.27">: Open [t ��� t_open]</text></g><!--MD5=[0ffc23d9cfd9d63d8bb0c467aae47109]
+link VOTING to VOTING--><g id="link_VOTING_VOTING"><path d="M260.78,336.1731 C281.19,338.0131 295.5,342.8531 295.5,350.7031 C295.5,357.8731 283.54,362.5431 265.9,364.6931 " fill="none" id="VOTING-to-VOTING" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="260.78,365.2331,270.1515,368.262,265.7521,364.706,269.3081,360.3066,260.78,365.2331" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="35.0313" x="309.9844" y="325.27">voter</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="4" x="349.0156" y="325.27">:</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="131" x="357.0156" y="325.27">Swap REG r to VOT v</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="168" x="315" y="340.4028">verify r in REG.merkle_trie;</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="193" x="302.5" y="355.5356">verify r not in REG.nullifier_set;</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="195" x="301.5" y="370.6685">add r.hash to REG.nullifier_set;</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="158" x="320" y="385.8013">add v to VOT.merkle_trie</text></g><!--MD5=[289c308427ac8c64b476958f5157b980]
+link VOTING to COUNTING--><g id="link_VOTING_COUNTING"><path d="M149,393.3231 C149,414.9431 149,441.8131 149,465.9431 " fill="none" id="VOTING-to-COUNTING" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="149,471.0531,153,462.0531,149,466.0531,145,462.0531,149,471.0531" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="24.2188" x="150" y="437.27">any</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="154" x="178.2188" y="437.27">: Close [t ��� t_close]</text></g><!--MD5=[2dfa465a4ff60523ffccda1b48f2f5f9]
+link COUNTING to COUNTING--><g id="link_COUNTING_COUNTING"><path d="M291.01,513.9131 C311.9,516.4731 326,521.9031 326,530.2031 C326,537.7831 314.22,542.9731 296.24,545.7631 " fill="none" id="COUNTING-to-COUNTING" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="291.01,546.4931,300.4743,549.2185,295.9626,545.8061,299.375,541.2944,291.01,546.4931" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="35.0313" x="353.9844" y="512.27">voter</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="4" x="393.0156" y="512.27">:</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="163" x="401.0156" y="512.27">Count VOT v with option x</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="254" x="332" y="527.4028">verify v in VOT.merkle_trie with option x;</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="195" x="361.5" y="542.5356">verify v not in VOT.nullifier_set;</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="69" x="424.5" y="557.6685">tally[x] ++</text></g><!--MD5=[6a3826aee59e8d9639eaaf752a544907]
+link COUNTING to CALLED--><g id="link_COUNTING_CALLED"><path d="M149,589.6031 C149,613.6231 149,640.4831 149,660.6131 " fill="none" id="COUNTING-to-CALLED" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="149,665.8431,153,656.8431,149,660.8431,145,656.8431,149,665.8431" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="24.2188" x="150" y="632.27">any</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="130" x="178.2188" y="632.27">: Call [t ��� t_call]</text></g><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="180" y="723.7969"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="291" y="733.0791"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="291" y="744.7197"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="291" y="756.3604"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="180" y="768.001">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[bb65c38acd4cdfdcd4e218ef4ecd7ee0]
+@startuml
+'scale 300 width
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+[*] - -> REGISTERING : **coordinator** : deploy(prompt, options, t_open, t_close, t_call) \n [t_open < t_close < t_call]
+
+REGISTERING : init REG.merkle_trie := empty
+
+REGISTERING - -> REGISTERING : **coordinator** : //Mint REG r//\nadd r to REG.merkle_trie
+REGISTERING - -> VOTING : **any** : Open [t ��� t_open]
+
+VOTING: freeze REG.merkle_trie 
+VOTING: init REG.nullifier_set := empty
+VOTING: init VOT.merkle_trie := empty
+
+VOTING - -> VOTING : **voter** : //Swap REG r to VOT v//\nverify r in REG.merkle_trie;\nverify r not in REG.nullifier_set;\nadd r.hash to REG.nullifier_set;\nadd v to VOT.merkle_trie
+VOTING - -> COUNTING : **any** : Close [t ��� t_close]
+
+COUNTING: init ��� x ��� options, tally[x] := 0
+COUNTING: delete REG.nullifier_set
+COUNTING: delete REG.merkle_trie
+COUNTING: freeze VOT.merkle_trie
+COUNTING: init VOT.nullifier_set := empty
+
+COUNTING - -> COUNTING : **voter** : //Count VOT v with option x//\nverify v in VOT.merkle_trie with option x;\nverify v not in VOT.nullifier_set;\ntally[x] ++
+COUNTING - -> CALLED : **any** : Call [t ��� t_call]
+
+CALLED: freeze tally
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@enduml
+
+@startuml
+
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+
+[*] - -> REGISTERING : **coordinator** : deploy(prompt, options, t_open, t_close, t_call) \n [t_open < t_close < t_call]
+
+REGISTERING : init REG.merkle_trie := empty
+
+REGISTERING - -> REGISTERING : **coordinator** : //Mint REG r//\nadd r to REG.merkle_trie
+REGISTERING - -> VOTING : **any** : Open [t ��� t_open]
+
+VOTING: freeze REG.merkle_trie 
+VOTING: init REG.nullifier_set := empty
+VOTING: init VOT.merkle_trie := empty
+
+VOTING - -> VOTING : **voter** : //Swap REG r to VOT v//\nverify r in REG.merkle_trie;\nverify r not in REG.nullifier_set;\nadd r.hash to REG.nullifier_set;\nadd v to VOT.merkle_trie
+VOTING - -> COUNTING : **any** : Close [t ��� t_close]
+
+COUNTING: init ��� x ��� options, tally[x] := 0
+COUNTING: delete REG.nullifier_set
+COUNTING: delete REG.merkle_trie
+COUNTING: freeze VOT.merkle_trie
+COUNTING: init VOT.nullifier_set := empty
+
+COUNTING - -> COUNTING : **voter** : //Count VOT v with option x//\nverify v in VOT.merkle_trie with option x;\nverify v not in VOT.nullifier_set;\ntally[x] ++
+COUNTING - -> CALLED : **any** : Call [t ��� t_call]
+
+CALLED: freeze tally
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>
