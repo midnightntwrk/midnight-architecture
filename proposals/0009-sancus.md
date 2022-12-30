@@ -117,6 +117,8 @@ queries, which should be callable.
 Modules can be compiled with some of these operations disabled, for instance
 due to not requiring proving operations on a verifier node.
 
+### Core operations
+
 The core operations are:
 
 * `random_setup(rand) -> srs` -- produce an srs from a known randomness seed
@@ -148,14 +150,40 @@ used along the way. The core proving system defines a `pk` and `vk`, and each
 language conversion may add metadata to `pk` and `vk` that assists with
 converting `statement` and `witness` between languages.
 
+### Conversion layer operations
+
 A language conversion layer `A->B` must implement the following:
 
-* `translate(circuitA) -> (circuitB, pk_metadataA)`
+* `translate(circuitA) -> (circuitB, pk_metadataA, sourceMap)`
 * `vk_metadata(pk_metadataA) -> vk_metadataA`
 * `statement_translate(statementA, vk_metadataA) -> statementB`
 * `witness_translate(statementA, witnessA, pk_metadataA) -> (statementB, witnessB)`
 
-### Low-level ABI design
+Where source map is a mapping of source location ranges in `circuitB` to
+`circuitA`.
+
+### Top-level ABI calls
+
+As the main operations are parameterised by a language and proving system, the
+top-level ABI has some additional functionality to talk about these.
+
+* `proving_systems() -> [ps_name]` -- returns a list of proving systems
+* `proving_system_info(ps_name) -> ...` -- returns supported parameters with
+  description, native language, version, and available operations.
+* `languages() -> [lang_name]` -- returns a list of supported languages with
+  versions. The same language may be supported with different major versions.
+* `language_info(lang_name, version) -> ...` -- returns supported parameters
+  with description.
+* `info() -> ...` -- returns version info, compile metadata, target
+  architecture, etc.
+* `load_proving_system(ps_name, version, parameters) -> psid` -- loads a given
+  proving system with parameters, and returns the identifier
+* `load_language(lang_name, lang_version, lang_parameters, target_name,
+  target_version, target_parameters) -> langid` -- loads a given language
+  translation layer, and returns the identifier
+* All calls listed in Core Operations, supplied with `langid` and `psid`.
+
+## Low-level ABI design
 
 The ABI shall use a CBOR RPC design, with each message consisting of a single
 CBOR object. Each message shall contain a protocol version, as well as a unique
@@ -163,6 +191,25 @@ request ID. Requests to a specific language/proving system pair shall also
 contains versions for both. A final version of this proposal shall include a
 CDDL specification for the CBOR.
 
+## C API design
+
+The top-level C API should be minimal:
+
+```
+struct result {
+  uint64_t length;
+  uint8_t *const buffer;
+}
+void serve_requests();
+result handle_request(uint64_t length, uint8_t *const request_buffer);
+void free_result(result *result);
+```
+
+This may also be compiled to an executable with `server_requests` as its entry
+point, which runs the library as a CLI application.
+
 # Desired Result
-Finally, describe what you hope to achieve and how you can evaluate that you
-have achieved it.
+
+Switching proving systems should be a matter of:
+a) Implementing a new translation layer, and
+b) Changing arguments in interacting with the unified proving system ABI.
