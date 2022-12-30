@@ -130,9 +130,11 @@ The core operations are:
   of an SRS update
 * `compile(srs, circuit) -> pk` -- compile an circuit to prover key (including
   verifier key)
+* `witness_generation_compile(circuit) -> witgen_data` -- compile a circuit to
+  witness-generation instructions
 * `verifier_key(pk) -> vk` -- extract verifier key from prover key
-* `generate_witness(circuit, input) -> (statement, witness) | error` -- perform
-  witness generation and relationship check
+* `generate_witness(witgen_data, input) -> (statement, witness) | error` --
+  perform witness generation and relationship check
 * `prove(pk, statement, witness) -> pi | error` -- prove relation
 * `verify(vk, statement, pi) -> b` -- verify proof
 * `batch_verify(vk, statement*, pi*) -> b` -- batch verify proofs, default
@@ -207,6 +209,8 @@ void free_result(result *result);
 
 This may also be compiled to an executable with `server_requests` as its entry
 point, which runs the library as a CLI application.
+
+We may need a separate top-level WASM API?
 
 # Desired Result
 
