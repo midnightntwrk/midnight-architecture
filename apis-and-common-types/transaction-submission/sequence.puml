@@ -1,0 +1,19 @@
+@startuml
+
+Client --> ServerNode : Transaction submission request
+
+alt transaction well-formed
+    ServerNode --> ServerNode : Add to mempool
+    ServerNode --> Network : Broadcast
+    Client <-- ServerNode : Transaction Submitted
+    alt transaction included
+        ServerNode <-- Network : Block including transaction
+        Client <-- ServerNode : TransactionIncluded
+    else transaction failed
+        ServerNode <-- Network : Transaction inclusion failure
+        Client <-- ServerNode : Submission error - transaction failure
+    end
+else transaction not well-formed
+    Client <-- ServerNode : Submission error - tx not well-formed
+end
+@enduml
