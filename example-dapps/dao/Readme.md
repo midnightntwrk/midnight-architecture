@@ -83,3 +83,48 @@ Demo deployment, from a high-level perspective, consists of 4 dapp instance depl
 Diagram below shows in more detail, from a single dapp instance perspective, where different components are being actually run:
 
 ![Dapp Instance](./dapp-instance-deployment.svg)
+
+## Important decisions made / shortcuts taken
+
+### No accessible wallet private keys, voter scans chain looking for deployment
+
+Jira ticket - [PM-5284](https://input-output.atlassian.net/browse/PM-5284)
+
+In the demo setup we know there's only one instance of the contract deployed, we are 
+safe to assume then that the first deployment transaction observed is the wanted one. 
+
+In this way we can simplify deployment, as well as the UI/configuration code in the 
+interest of time. Eventually though this should change.
+
+There is also a wallet initial state case - it is serialized as a 
+whole, which reduced effort related to some bits like learning about minted coins or 
+format of the private key.
+
+### How to learn if specific instance is an organizer
+
+Jira ticket - [PM-5283](https://input-output.atlassian.net/browse/PM-5283)
+
+Currently, the only reliable way of knowing this is by making the deployment and 
+storing a flag. There is a follow-up ticket created for enabling it generally after 
+join - [PM-5532](https://input-output.atlassian.net/browse/PM-5532).
+
+### Who and when calls zkir to generate prover and verifier keys?
+
+It's abcird compiler, prover and verifier keys are part of compiler output.
+
+### Minting start tokens
+
+There's a flag in ledger code which allows non-balanced transactions to be accepted. 
+
+This allows to create a script which creates: 
+  - wallets (whole state as mentioned in [state initialization](#no-accessible-wallet-private-keys-voter-scans-chain-looking-for-deployment))
+  - mint transactions
+  - dapp secret keys
+
+### Evolving state in dapp backend
+
+Dapp backend uses the same synchronization mechanism as wallet and evolves the state 
+using ledger code, which allows to track state only of specified contracts.
+
+
+
