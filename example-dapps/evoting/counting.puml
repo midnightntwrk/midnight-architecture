@@ -6,7 +6,7 @@ autonumber
 header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 '-----------------------------------------------------------
 
-!include participants.puml
+!include example-dapps/evoting/participants.puml
 
 hnote over state #aqua
         • phase = COUNTING
@@ -102,7 +102,7 @@ activate B
                 tally.
         end note
         hnote over rho_b #aqua
-                • **spent** VOT //v//                
+                • **spent** VOT //v//            
         end note
         rho_b --> B --: Counted(option)
 deactivate B

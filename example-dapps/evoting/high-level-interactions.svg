@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="658px" preserveAspectRatio="none" style="width:642px;height:658px;background:#FFFFFF;" version="1.1" viewBox="0 0 642 658" width="642px" zoomAndPan="magnify"><defs/><g><!--MD5=[770389ab9df153645bc6ef28055eb2b5]
+entity A--><g id="elem_A"><ellipse cx="495.5" cy="200.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M495.5,208.5 L495.5,235.5 M482.5,216.5 L508.5,216.5 M495.5,235.5 L482.5,250.5 M495.5,235.5 L508.5,250.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="477" y="264.9951">Voter</text></g><!--MD5=[0db9dde077dbaaf3e8af1b8cdc181c2f]
+entity any--><g id="elem_any"><ellipse cx="241.5" cy="585.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M241.5,593.5 L241.5,620.5 M228.5,601.5 L254.5,601.5 M241.5,620.5 L228.5,635.5 M241.5,620.5 L254.5,635.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="25" x="229" y="649.9951">Any</text></g><!--MD5=[16fab723be418f7eaf2ea4bd895a8e51]
+entity C--><g id="elem_C"><ellipse cx="104.5" cy="200.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M104.5,208.5 L104.5,235.5 M91.5,216.5 L117.5,216.5 M104.5,235.5 L91.5,250.5 M104.5,235.5 L117.5,250.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="64" y="264.9951">Coordinator</text></g><!--MD5=[36e7cd95dd69b8fc9c44ee72248e17a6]
+entity O--><g id="elem_O"><ellipse cx="342.5" cy="585.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M342.5,593.5 L342.5,620.5 M329.5,601.5 L355.5,601.5 M342.5,620.5 L329.5,635.5 M342.5,620.5 L355.5,635.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63" x="311" y="649.9951">Observer</text></g><!--MD5=[626ad08abde0879284d52f51a0eb42aa]
+entity P--><g id="elem_P"><path d="M288.396,206.5428 C292.5908,200.7 297.6369,199.7936 302.2689,206.0411 C307.3737,199.2043 311.9292,198.926 316.4706,206.5928 C321.6335,199.4855 326.5329,201.1492 330.8982,207.451 C334.3746,200.6105 340.4925,200.7022 344.0485,207.3736 C351.443,208.6476 353.7376,214.6431 347.8367,219.9287 C353.6908,221.7843 353.796,226.1517 349.625,229.8198 C355.6189,234.8564 353.3893,240.8161 346.8016,243.1971 C351.7414,247.7543 350.5331,253.5803 343.6105,254.904 C339.9746,262.459 335.2141,262.2224 330.4018,256.0347 C327.4062,262.6271 320.6819,263.0819 316.5289,257.3361 C311.2526,263.4631 306.4351,262.4141 302.3514,255.9892 C297.5216,261.2251 292.6482,261.2727 289.6172,254.1376 C282.5444,251.4353 282.3462,246.7725 286.9484,241.5875 C282.2987,239.8158 281.0186,234.865 285.0279,231.4524 C279.3527,227.7385 280.3622,222.5545 286.359,220.2243 C280.4947,215.1799 282.1013,209.7768 288.396,206.5428 " fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="42" x="294.5" y="226.4951">Out of</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="36" x="294.5" y="242.792">Band</text></g><!--MD5=[f2ae232240a0e72921e100317d96e147]
+entity chain--><g id="elem_chain"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="115" x="234" y="392"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="329" y="397"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="327" y="399"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="327" y="403"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="75" x="249" y="424.9951">Blockchain</text></g><!--MD5=[06959a3f3cbea176f36acf10396f6fcf]
+entity public--><g id="elem_public"><path d="M384,370 C384,360 469.5,360 469.5,360 C469.5,360 555,360 555,370 L555,460.4844 C555,470.4844 469.5,470.4844 469.5,470.4844 C469.5,470.4844 384,470.4844 384,460.4844 L384,370 " fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><path d="M384,370 C384,380 469.5,380 469.5,380 C469.5,380 555,380 555,370 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="43.625" x="394" y="396.9951">Public</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="140" x="394" y="413.292">phase &amp; timeouts &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="151" x="394" y="429.5889">REG notes/nullifiers &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="150" x="394" y="445.8857">VOT notes/nullifiers &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="26" x="394" y="462.1826">tally</text></g><!--MD5=[c11c5786abc6ddf9ae2e935e2b523177]
+entity rho_c--><g id="elem_rho_c"><path d="M6,16 C6,6 104.5,6 104.5,6 C104.5,6 203,6 203,16 L203,90.1875 C203,100.1875 104.5,100.1875 104.5,100.1875 C104.5,100.1875 6,100.1875 6,90.1875 L6,16 " fill="#FFFFFF" style="stroke:#181818;stroke-width:0.5;"/><path d="M6,16 C6,26 104.5,26 104.5,26 C104.5,26 203,26 203,16 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="49.0625" x="16" y="42.9951">Private</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="177" x="16" y="59.292">���pk[C],sk[C]��� &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="142" x="16" y="75.5889">all REG token data &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="16" y="91.8857">registrations</text></g><!--MD5=[28b147adf0afc44568259bbd1671f44d]
+entity rho_a--><g id="elem_rho_a"><path d="M398,16 C398,6 495.5,6 495.5,6 C495.5,6 593,6 593,16 L593,90.1875 C593,100.1875 495.5,100.1875 495.5,100.1875 C495.5,100.1875 398,100.1875 398,90.1875 L398,16 " fill="#FFFFFF" style="stroke:#181818;stroke-width:0.5;"/><path d="M398,16 C398,26 495.5,26 495.5,26 C495.5,26 593,26 593,16 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="49.0625" x="408" y="42.9951">Private</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="175" x="408" y="59.292">���pk[A],sk[A]��� &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="148" x="408" y="75.5889">my REG token data &amp;</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="131" x="408" y="91.8857">my VOT token data</text></g><!--MD5=[023792028a260bf48e48287097bdad72]
+link chain to public--><g id="link_chain_public"><path d="M349.21,415 C360.8,415 372.39,415 383.98,415 " fill="none" id="chain-public" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6fb24074b721fac0fca77022afb8e41b]
+link C to P--><g id="link_C_P"><path d="M145.18,230 C182.16,230 236.49,230 273.79,230 " fill="none" id="C-to-P" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="279.17,230,270.17,226,274.17,230,270.17,234,279.17,230" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="85" x="163.25" y="223.0669">3. Announce(</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="8" x="248.25" y="223.0669">a</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="256.25" y="223.0669">)</text></g><!--MD5=[259427ea60620ede12df875d30602118]
+link rho_c to C--><g id="link_rho_c_C"><path d="M104.5,100.44 C104.5,128.99 104.5,165.09 104.5,191.76 " fill="none" id="rho_c-C" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[bdef656478dc98c8bb2a133a4a273a45]
+link C to chain--><g id="link_C_chain"><path d="M93.2,268.09 C89.43,287.97 88.75,311.99 100.5,330 C128.71,373.23 184.7,394.36 228.8,404.6 " fill="none" id="C-to-chain" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="233.85,405.74,225.9521,399.8559,228.9728,404.6387,224.19,407.6594,233.85,405.74" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64" x="110.5" y="311.0669">1. Deploy,</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="73" x="101.5" y="326.1997">6. Mint REG</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="178.5" y="326.1997">r</text></g><!--MD5=[8721d318b82c42f75b6ae1de69a8871e]
+reverse link C to chain--><g id="link_C_chain"><path d="M149.41,264.5 C162.41,274.81 176.36,286.48 188.5,298 C220.55,328.4 253.8,367.45 273.57,391.6 " fill="none" id="C-backto-chain" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:1.0,3.0;"/><polygon fill="#181818" points="145.41,261.35,149.9974,270.0652,149.3351,264.4473,154.9531,263.785,145.41,261.35" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="67" x="227.5" y="318.5669">2. address</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="8" x="298.5" y="318.5669">a</text></g><!--MD5=[5851da52440e58b1e74b4473db4b28ba]
+link P to A--><g id="link_P_A"><path d="M351.93,230 C387.66,230 441.12,230 471.72,230 " fill="none" id="P-to-A" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="476.79,230,467.79,226,471.79,230,467.79,234,476.79,230" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="63" x="376.75" y="216.0669">4. witness</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="8" x="443.75" y="216.0669">a</text><path d="M406.6777,222.9289 A10,10 0 0 0 406.6777 237.0711" fill="none" style="stroke:#181818;stroke-width:1.5;"/><ellipse cx="413.7488" cy="230" fill="#FFFFFF" rx="6" ry="6" style="stroke:#181818;stroke-width:1.5;"/></g><!--MD5=[40aeabc12e07d418dde8752d7736351b]
+link rho_a to A--><g id="link_rho_a_A"><path d="M495.5,100.44 C495.5,128.99 495.5,165.09 495.5,191.76 " fill="none" id="rho_a-A" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[af6f073b7b5163b432cedcd91e02d35b]
+reverse link C to A--><g id="link_C_A"><path d="M147.15,188.41 C167.83,171.11 194.1,152.99 221.5,144 C258.24,131.95 359.25,130.55 395.5,144 C428.99,156.42 458.8,185.64 476.98,206.57 " fill="none" id="C-backto-A" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="143.09,191.86,152.5438,189.0985,146.9064,188.6296,147.3752,182.9923,143.09,191.86" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="112" x="252.5" y="143.0669">5. Register(pk[A])</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="120" x="274.5" y="158.1997">with eligibility proof</text></g><!--MD5=[7e9be0ee088a7109ef698fb8b1577ded]
+reverse link A to chain--><g id="link_A_chain"><path d="M471.67,237.17 C441.08,246.12 387.85,265.32 353.5,298 C325.7,324.44 307.69,366.13 298.59,391.68 " fill="none" id="A-backto-chain" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:1.0,3.0;"/><polygon fill="#181818" points="476.75,235.71,466.9974,234.3364,471.9424,237.0836,469.1952,242.0286,476.75,235.71" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="89" x="354.5" y="318.5669">7. Registered(</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="443.5" y="318.5669">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="5" x="448.5" y="318.5669">)</text></g><!--MD5=[65792c383b5e71c0ef851a8f2773fcb5]
+link A to chain--><g id="link_A_chain"><path d="M489.72,268.31 C484.71,289 475.46,313.75 458.5,330 C427.45,359.76 404.85,340.54 366.5,360 C350.94,367.9 335.07,378.83 321.95,388.79 " fill="none" id="A-to-chain" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="317.97,391.85,327.5376,389.5131,321.9267,388.7932,322.6467,383.1823,317.97,391.85" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="46" x="495.5" y="311.0669">9. Vote</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="5" x="545.5" y="311.0669">r</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="69" x="554.5" y="311.0669">��� VOT</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="627.5" y="311.0669">v</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="62" x="520.5" y="326.1997">11. Count</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="7" x="586.5" y="326.1997">v</text></g><!--MD5=[2638105ab95402e903cb8ead72133e15]
+reverse link chain to any--><g id="link_chain_any"><path d="M269.34,442.45 C257.68,458.11 244.58,478.95 238.5,500 C231.3,524.92 232.25,554.18 234.9,576.82 " fill="none" id="chain-backto-any" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="272.58,438.17,263.9609,442.9355,269.564,442.158,270.3416,447.7611,272.58,438.17" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="50" x="244" y="513.0669">8. Open</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="59" x="239.5" y="528.1997">10. Close</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="47" x="245.5" y="543.3325">12. Call</text></g><!--MD5=[0cd639b9924e7a1902241ec20123f941]
+link chain to O--><g id="link_chain_O"><path d="M297.25,438.33 C305.59,470.69 321.18,531.22 331.7,572.07 " fill="none" id="chain-to-O" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:1.0,3.0;"/><polygon fill="#181818" points="332.96,576.95,334.5972,567.2382,331.7171,572.1069,326.8483,569.2268,332.96,576.95" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="97" x="326.5" y="520.5669">all transactions</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="347.5" y="535.6997">&amp; states</text></g><!--MD5=[a22402b6b752097a96d3d178af52f808]
+@startuml
+
+actor "Voter" as A
+actor "Any" as any
+actor "Coordinator" as C
+actor "Observer" as O
+cloud "Out of\nBand" as P
+
+component Blockchain as chain
+database "**Public**\nphase & timeouts &\nREG notes/nullifiers &\nVOT notes/nullifiers &\ntally" as public
+chain -r- public
+
+/'
+ ' frame Blockchain as chain {
+ '         node b0
+ '         node b1
+ '         node b2
+ '         node b3
+ '         node b4
+ '         storage " s " as s2
+ '         storage "s' " as s3
+ '         storage "s''" as s4
+ ' }
+ '/
+
+/'
+ ' 'blocks
+ ' b4 -l-> b3
+ ' b3 -l-> b2
+ ' b2 -l-> b1
+ ' b1 -l-> b0
+ ' 
+ ' 'contract states
+ ' s2 -u-> b2
+ ' s3 -u-> b3
+ ' s4 -u-> b4
+ '/
+
+
+'coordinator
+C -r-> P : "3. Announce(//a//)"
+database "**Private**\n���pk[C],sk[C]��� &\nall REG token data &\nregistrations" as rho_c #white
+rho_c - - C
+C -d-> chain : "1. Deploy,\n6. Mint REG //r//"
+chain ~up~> C : "  2. address //a//"
+
+'voter
+P -r(0-> A : "4. witness //a//"
+database "**Private**\n���pk[A],sk[A]��� &\nmy REG token data &\nmy VOT token data" as rho_a #white
+A -u- rho_a
+A -l-> C : "5. Register(pk[A])\n             with eligibility proof"
+chain ~up~> A : "7. Registered(//r//)"
+A -do-> chain : "    9. Vote //r// ��� VOT //v//\n11. Count //v//"
+
+'any
+any -up-> chain : "8. Open\n10. Close\n12. Call"
+
+'observer
+chain ~do~> O : "all transactions\n& states"
+
+@enduml
+
+@startuml
+
+actor "Voter" as A
+actor "Any" as any
+actor "Coordinator" as C
+actor "Observer" as O
+cloud "Out of\nBand" as P
+
+component Blockchain as chain
+database "**Public**\nphase & timeouts &\nREG notes/nullifiers &\nVOT notes/nullifiers &\ntally" as public
+chain -r- public
+
+
+
+
+C -r-> P : "3. Announce(//a//)"
+database "**Private**\n���pk[C],sk[C]��� &\nall REG token data &\nregistrations" as rho_c #white
+rho_c - - C
+C -d-> chain : "1. Deploy,\n6. Mint REG //r//"
+chain ~up~> C : "  2. address //a//"
+
+P -r(0-> A : "4. witness //a//"
+database "**Private**\n���pk[A],sk[A]��� &\nmy REG token data &\nmy VOT token data" as rho_a #white
+A -u- rho_a
+A -l-> C : "5. Register(pk[A])\n             with eligibility proof"
+chain ~up~> A : "7. Registered(//r//)"
+A -do-> chain : "    9. Vote //r// ��� VOT //v//\n11. Count //v//"
+
+any -up-> chain : "8. Open\n10. Close\n12. Call"
+
+chain ~do~> O : "all transactions\n& states"
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

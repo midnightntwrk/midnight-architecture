@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="531px" preserveAspectRatio="none" style="width:424px;height:531px;background:#FFFFFF;" version="1.1" viewBox="0 0 424 531" width="424px" zoomAndPan="magnify"><defs/><g><!--MD5=[770389ab9df153645bc6ef28055eb2b5]
+entity A--><g id="elem_A"><ellipse cx="372.5" cy="136.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M372.5,144.5 L372.5,171.5 M359.5,152.5 L385.5,152.5 M372.5,171.5 L359.5,186.5 M372.5,171.5 L385.5,186.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="354" y="200.9951">Voter</text></g><!--MD5=[0db9dde077dbaaf3e8af1b8cdc181c2f]
+entity any--><g id="elem_any"><ellipse cx="64.5" cy="458.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M64.5,466.5 L64.5,493.5 M51.5,474.5 L77.5,474.5 M64.5,493.5 L51.5,508.5 M64.5,493.5 L77.5,508.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="25" x="52" y="522.9951">Any</text></g><!--MD5=[16fab723be418f7eaf2ea4bd895a8e51]
+entity C--><g id="elem_C"><ellipse cx="46.5" cy="136.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M46.5,144.5 L46.5,171.5 M33.5,152.5 L59.5,152.5 M46.5,171.5 L33.5,186.5 M46.5,171.5 L59.5,186.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="6" y="200.9951">Coordinator</text></g><!--MD5=[36e7cd95dd69b8fc9c44ee72248e17a6]
+entity O--><g id="elem_O"><ellipse cx="224.5" cy="458.5" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M224.5,466.5 L224.5,493.5 M211.5,474.5 L237.5,474.5 M224.5,493.5 L211.5,508.5 M224.5,493.5 L237.5,508.5 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="63" x="193" y="522.9951">Observer</text></g><!--MD5=[626ad08abde0879284d52f51a0eb42aa]
+entity P--><g id="elem_P"><path d="M196.396,142.5428 C200.5908,136.7 205.6369,135.7936 210.2689,142.0411 C215.3737,135.2043 219.9292,134.926 224.4706,142.5928 C229.6335,135.4855 234.5329,137.1492 238.8982,143.451 C242.3746,136.6105 248.4925,136.7022 252.0485,143.3736 C259.443,144.6476 261.7376,150.6431 255.8367,155.9287 C261.6908,157.7843 261.796,162.1517 257.625,165.8198 C263.6189,170.8564 261.3893,176.8161 254.8016,179.1971 C259.7414,183.7543 258.5331,189.5803 251.6105,190.904 C247.9746,198.459 243.2141,198.2224 238.4018,192.0347 C235.4062,198.6271 228.6819,199.0819 224.5289,193.3361 C219.2526,199.4631 214.4351,198.4141 210.3514,191.9892 C205.5216,197.2251 200.6482,197.2727 197.6172,190.1376 C190.5444,187.4353 190.3462,182.7725 194.9484,177.5875 C190.2987,175.8158 189.0186,170.865 193.0279,167.4524 C187.3527,163.7385 188.3622,158.5545 194.359,156.2243 C188.4947,151.1799 190.1013,145.7768 196.396,142.5428 " fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="42" x="202.5" y="162.4951">Out of</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="36" x="202.5" y="178.792">Band</text></g><!--MD5=[f2ae232240a0e72921e100317d96e147]
+entity chain--><g id="elem_chain"><rect fill="#F1F1F1" height="46.2969" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="115" x="87" y="289"/><rect fill="#F1F1F1" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="182" y="294"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="180" y="296"/><rect fill="#F1F1F1" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="180" y="300"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="75" x="102" y="321.9951">Blockchain</text></g><!--MD5=[06959a3f3cbea176f36acf10396f6fcf]
+entity public--><g id="elem_public"><path d="M237.5,291 C237.5,281 293.5,281 293.5,281 C293.5,281 349.5,281 349.5,291 L349.5,332.5938 C349.5,342.5938 293.5,342.5938 293.5,342.5938 C293.5,342.5938 237.5,342.5938 237.5,332.5938 L237.5,291 " fill="#F1F1F1" style="stroke:#181818;stroke-width:0.5;"/><path d="M237.5,291 C237.5,301 293.5,301 293.5,301 C293.5,301 349.5,301 349.5,291 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="43.625" x="247.5" y="317.9951">Public</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="92" x="247.5" y="334.292">including tally</text></g><!--MD5=[c11c5786abc6ddf9ae2e935e2b523177]
+entity rho_c--><g id="elem_rho_c"><path d="M12,16 C12,6 46.5313,6 46.5313,6 C46.5313,6 81.0625,6 81.0625,16 L81.0625,41.2969 C81.0625,51.2969 46.5313,51.2969 46.5313,51.2969 C46.5313,51.2969 12,51.2969 12,41.2969 L12,16 " fill="#FFFFFF" style="stroke:#181818;stroke-width:0.5;"/><path d="M12,16 C12,26 46.5313,26 46.5313,26 C46.5313,26 81.0625,26 81.0625,16 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="49.0625" x="22" y="42.9951">Private</text></g><!--MD5=[28b147adf0afc44568259bbd1671f44d]
+entity rho_a--><g id="elem_rho_a"><path d="M338,16 C338,6 372.5313,6 372.5313,6 C372.5313,6 407.0625,6 407.0625,16 L407.0625,41.2969 C407.0625,51.2969 372.5313,51.2969 372.5313,51.2969 C372.5313,51.2969 338,51.2969 338,41.2969 L338,16 " fill="#FFFFFF" style="stroke:#181818;stroke-width:0.5;"/><path d="M338,16 C338,26 372.5313,26 372.5313,26 C372.5313,26 407.0625,26 407.0625,16 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="49.0625" x="348" y="42.9951">Private</text></g><!--MD5=[023792028a260bf48e48287097bdad72]
+link chain to public--><g id="link_chain_public"><path d="M202.12,312 C213.9,312 225.68,312 237.46,312 " fill="none" id="chain-public" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6fb24074b721fac0fca77022afb8e41b]
+link C to P--><g id="link_C_P"><path d="M87.11,166 C115.55,166 153.43,166 182.06,166 " fill="none" id="C-to-P" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="187.29,166,178.29,162,182.29,166,178.29,170,187.29,166" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="64" x="105.25" y="159.0669">Announce</text></g><!--MD5=[259427ea60620ede12df875d30602118]
+link rho_c to C--><g id="link_rho_c_C"><path d="M46.5,51.27 C46.5,71.92 46.5,103.35 46.5,127.95 " fill="none" id="rho_c-C" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[bdef656478dc98c8bb2a133a4a273a45]
+link C to chain--><g id="link_C_chain"><path d="M60.43,204.08 C75.36,229.34 98.1,262.17 116.53,284.75 " fill="none" id="C-to-chain" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="119.91,288.84,117.2247,279.3643,116.7105,284.9977,111.077,284.4835,119.91,288.84" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[8721d318b82c42f75b6ae1de69a8871e]
+reverse link C to chain--><g id="link_C_chain"><path d="M86.9,208.23 C106.86,234.48 128.54,267.43 139.49,288.84 " fill="none" id="C-backto-chain" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:1.0,3.0;"/><polygon fill="#181818" points="83.71,204.08,86.0302,213.6517,86.7599,208.0421,92.3695,208.7718,83.71,204.08" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[5851da52440e58b1e74b4473db4b28ba]
+link P to A--><g id="link_P_A"><path d="M259.57,166 C287.27,166 324.74,166 348.77,166 " fill="none" id="P-to-A" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="353.98,166,344.98,162,348.98,166,344.98,170,353.98,166" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="44" x="284.75" y="152.0669">           </text><path d="M298.4752,158.9289 A10,10 0 0 0 298.4752 173.0711" fill="none" style="stroke:#181818;stroke-width:1.5;"/><ellipse cx="305.5463" cy="166" fill="#FFFFFF" rx="6" ry="6" style="stroke:#181818;stroke-width:1.5;"/></g><!--MD5=[40aeabc12e07d418dde8752d7736351b]
+link rho_a to A--><g id="link_rho_a_A"><path d="M372.5,51.27 C372.5,71.92 372.5,103.35 372.5,127.95 " fill="none" id="rho_a-A" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[af6f073b7b5163b432cedcd91e02d35b]
+reverse link C to A--><g id="link_C_A"><path d="M91.61,132.48 C131.46,107 191.47,78.58 245.5,93 C287.52,104.22 330.07,133.02 353.69,150.91 " fill="none" id="C-backto-A" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="87.34,135.26,97.0639,133.6961,91.5286,132.5295,92.6951,126.9943,87.34,135.26" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="52" x="192.5" y="94.0669">Register</text></g><!--MD5=[7e9be0ee088a7109ef698fb8b1577ded]
+reverse link A to chain--><g id="link_A_chain"><path d="M350.95,205.29 C340.28,221.33 326.11,238.99 309.5,251 C275.68,275.46 259.7,266.67 220.5,281 C213.71,283.48 206.6,286.17 199.58,288.88 " fill="none" id="A-backto-chain" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:1.0,3.0;"/><polygon fill="#181818" points="353.87,200.82,345.6043,206.1751,351.1395,205.0086,352.3061,210.5439,353.87,200.82" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="76" x="327.5" y="247.0669">Registration</text></g><!--MD5=[65792c383b5e71c0ef851a8f2773fcb5]
+link A to chain--><g id="link_A_chain"><path d="M353.75,174.3 C314.15,189.81 224.65,225.29 212.5,234 C192.99,247.99 175.2,268.55 162.71,284.91 " fill="none" id="A-to-chain" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="159.65,288.97,168.2609,284.1896,162.6591,284.9769,161.8719,279.375,159.65,288.97" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="87" x="213.5" y="247.0669">Vote &amp; Count</text></g><!--MD5=[2638105ab95402e903cb8ead72133e15]
+reverse link chain to any--><g id="link_chain_any"><path d="M94.18,338.04 C81.16,347.14 68.77,358.78 61.5,373 C49.47,396.54 50.81,426.53 54.83,449.84 " fill="none" id="chain-backto-any" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="98.61,335.05,88.9107,336.7601,94.463,337.8432,93.3799,343.3954,98.61,335.05" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="92" x="75.5" y="386.0669">Advance state</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="84" x="79.5" y="401.1997">after timeout</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="118" x="62.5" y="416.3325">(Open, Close, Call)</text></g><!--MD5=[0cd639b9924e7a1902241ec20123f941]
+link chain to O--><g id="link_chain_O"><path d="M161.79,335.19 C169.75,346.14 178.89,359.8 185.5,373 C196.96,395.86 206.37,422.89 213.07,444.89 " fill="none" id="chain-to-O" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:1.0,3.0;"/><polygon fill="#181818" points="214.54,449.79,215.7718,440.0185,213.0967,445.0028,208.1123,442.3277,214.54,449.79" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="98" x="205.5" y="393.5669">All transactions</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="55" x="227" y="408.6997">&amp; states</text></g><!--MD5=[02f34c785d0ac0f38ecfd878904b6c6f]
+@startuml
+
+actor "Voter" as A
+actor "Any" as any
+actor "Coordinator" as C
+actor "Observer" as O
+cloud "Out of\nBand" as P
+
+component Blockchain as chain
+database "**Public**\nincluding tally" as public
+chain -r- public
+
+/'
+ ' frame Blockchain as chain {
+ '         node b0
+ '         node b1
+ '         node b2
+ '         node b3
+ '         node b4
+ '         storage " s " as s2
+ '         storage "s' " as s3
+ '         storage "s''" as s4
+ ' }
+ '/
+
+/'
+ ' 'blocks
+ ' b4 -l-> b3
+ ' b3 -l-> b2
+ ' b2 -l-> b1
+ ' b1 -l-> b0
+ ' 
+ ' 'contract states
+ ' s2 -u-> b2
+ ' s3 -u-> b3
+ ' s4 -u-> b4
+ '/
+
+
+'coordinator
+C -r-> P : "Announce"
+database "**Private**" as rho_c #white
+rho_c - - C
+C -d-> chain
+chain ~up~> C
+
+'voter
+P -r(0-> A : "           "
+database "**Private**" as rho_a #white
+A -u- rho_a
+A -l-> C : "Register"
+chain ~up~> A : "//Registration//"
+A -do-> chain : "Vote & Count"
+
+'any
+any -up-> chain : "Advance state\nafter timeout\n(Open, Close, Call)"
+
+'observer
+chain ~do~> O : "All transactions\n& states"
+
+@enduml
+
+@startuml
+
+actor "Voter" as A
+actor "Any" as any
+actor "Coordinator" as C
+actor "Observer" as O
+cloud "Out of\nBand" as P
+
+component Blockchain as chain
+database "**Public**\nincluding tally" as public
+chain -r- public
+
+
+
+
+C -r-> P : "Announce"
+database "**Private**" as rho_c #white
+rho_c - - C
+C -d-> chain
+chain ~up~> C
+
+P -r(0-> A : "           "
+database "**Private**" as rho_a #white
+A -u- rho_a
+A -l-> C : "Register"
+chain ~up~> A : "//Registration//"
+A -do-> chain : "Vote & Count"
+
+any -up-> chain : "Advance state\nafter timeout\n(Open, Close, Call)"
+
+chain ~do~> O : "All transactions\n& states"
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

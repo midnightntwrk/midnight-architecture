@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="489px" preserveAspectRatio="none" style="width:927px;height:489px;background:#FFFFFF;" version="1.1" viewBox="0 0 927 489" width="927px" zoomAndPan="magnify"><defs/><g><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="792.48" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="910.48" y="9.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="792.48" y="20.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="910.48" y="32.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="910.48" y="44.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="910.48" y="55.8447"> </text><!--MD5=[c92af56c5e4ec93f362ef26f9ad6913f]
+cluster Lares--><g id="cluster_Lares"><path d="M582.5,65.2031 L622.6875,65.2031 A3.75,3.75 0 0 1 625.1875,67.7031 L632.1875,87.5 L884.5,87.5 A2.5,2.5 0 0 1 887,90 L887,269.7031 A2.5,2.5 0 0 1 884.5,272.2031 L582.5,272.2031 A2.5,2.5 0 0 1 580,269.7031 L580,67.7031 A2.5,2.5 0 0 1 582.5,65.2031 " style="stroke:#000000;stroke-width:1.5;fill:none;"/><line style="stroke:#000000;stroke-width:1.5;fill:none;" x1="580" x2="632.1875" y1="87.5" y2="87.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="39.1875" x="584" y="80.1982">Lares</text></g><!--MD5=[656eb36be2b8a68373905507bc47b8fb]
+cluster MyDapp--><g id="cluster_MyDapp"><path d="M8.5,173.2031 L68.125,173.2031 A3.75,3.75 0 0 1 70.625,175.7031 L77.625,195.5 L553.5,195.5 A2.5,2.5 0 0 1 556,198 L556,426.7031 A2.5,2.5 0 0 1 553.5,429.2031 L8.5,429.2031 A2.5,2.5 0 0 1 6,426.7031 L6,175.7031 A2.5,2.5 0 0 1 8.5,173.2031 " style="stroke:#000000;stroke-width:1.5;fill:none;"/><line style="stroke:#000000;stroke-width:1.5;fill:none;" x1="6" x2="77.625" y1="195.5" y2="195.5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="58.625" x="10" y="188.1982">MyDapp</text></g><!--MD5=[c0e9ea58bf8b79ef4b67c13d275fe055]
+entity ##2--><!--MD5=[23ecca50af37a8902407ba0fdb0e75c8]
+class Lares::ContractBase--><g id="elem_Lares::ContractBase"><rect codeLine="11" fill="#FFFFFF" height="48" id="Lares::ContractBase" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="126" x="745" y="100.2031"/><ellipse cx="760" cy="116.2031" fill="#A9DCDF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M760.5781,111.4688 L758.6719,116.5938 L762.4844,116.5938 L760.5781,111.4688 Z M759.4375,108.7813 L761.7188,108.7813 L766.6406,121.7031 L764.3281,121.7031 L763.1875,118.5313 L757.9844,118.5313 L756.8594,121.7031 L754.5156,121.7031 L759.4375,108.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="94" x="774" y="121.0498">ContractBase</text><line style="stroke:#181818;stroke-width:0.5;" x1="746" x2="870" y1="132.2031" y2="132.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="746" x2="870" y1="140.2031" y2="140.2031"/></g><!--MD5=[e7638340a9563ef104b7da3e3df1fc54]
+class Lares::OracleBase--><g id="elem_Lares::OracleBase"><rect codeLine="13" fill="#FFFFFF" height="48" id="Lares::OracleBase" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="111" x="598.5" y="100.2031"/><ellipse cx="613.5" cy="116.2031" fill="#A9DCDF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M614.0781,111.4688 L612.1719,116.5938 L615.9844,116.5938 L614.0781,111.4688 Z M612.9375,108.7813 L615.2188,108.7813 L620.1406,121.7031 L617.8281,121.7031 L616.6875,118.5313 L611.4844,118.5313 L610.3594,121.7031 L608.0156,121.7031 L612.9375,108.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="79" x="627.5" y="121.0498">OracleBase</text><line style="stroke:#181818;stroke-width:0.5;" x1="599.5" x2="708.5" y1="132.2031" y2="132.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="599.5" x2="708.5" y1="140.2031" y2="140.2031"/></g><!--MD5=[4e9b158acf3c92e158f3d009f79264a6]
+class Lares::PrivateOracle--><g id="elem_Lares::PrivateOracle"><rect codeLine="15" fill="#FFFFFF" height="48" id="Lares::PrivateOracle" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="122" x="596" y="208.2031"/><ellipse cx="611" cy="224.2031" fill="#A9DCDF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M611.5781,219.4688 L609.6719,224.5938 L613.4844,224.5938 L611.5781,219.4688 Z M610.4375,216.7813 L612.7188,216.7813 L617.6406,229.7031 L615.3281,229.7031 L614.1875,226.5313 L608.9844,226.5313 L607.8594,229.7031 L605.5156,229.7031 L610.4375,216.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="90" x="625" y="229.0498">PrivateOracle</text><line style="stroke:#181818;stroke-width:0.5;" x1="597" x2="717" y1="240.2031" y2="240.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="597" x2="717" y1="248.2031" y2="248.2031"/></g><!--MD5=[e1dd7ffd6223d919cb7d841e1a0439ea]
+class Lares::PublicOracle--><g id="elem_Lares::PublicOracle"><rect codeLine="16" fill="#FFFFFF" height="48" id="Lares::PublicOracle" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="117" x="753.5" y="208.2031"/><ellipse cx="768.5" cy="224.2031" fill="#A9DCDF" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M769.0781,219.4688 L767.1719,224.5938 L770.9844,224.5938 L769.0781,219.4688 Z M767.9375,216.7813 L770.2188,216.7813 L775.1406,229.7031 L772.8281,229.7031 L771.6875,226.5313 L766.4844,226.5313 L765.3594,229.7031 L763.0156,229.7031 L767.9375,216.7813 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="85" x="782.5" y="229.0498">PublicOracle</text><line style="stroke:#181818;stroke-width:0.5;" x1="754.5" x2="869.5" y1="240.2031" y2="240.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="754.5" x2="869.5" y1="248.2031" y2="248.2031"/></g><!--MD5=[043fd88a852f12cec0131abd2db6022b]
+class MyDapp::MyDapp--><g id="elem_MyDapp::MyDapp"><rect codeLine="21" fill="#00FFFF" height="48" id="MyDapp::MyDapp" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="88" x="418" y="208.2031"/><ellipse cx="433" cy="224.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M437.2344,218.6094 L437.2344,221.125 Q435.9844,219.9688 435.0625,219.5938 Q434.1563,219.2188 433.125,219.2188 Q431.125,219.2188 430.0625,220.4375 Q429,221.6406 429,224 Q429,226.3594 430.0625,227.5781 Q431.125,228.7813 433.125,228.7813 Q434.1563,228.7813 435.0625,228.4063 Q435.9844,228.0313 437.2344,226.875 L437.2344,229.375 Q436.1875,230.0781 435.1719,230.3906 Q434.1719,230.6875 433.0156,230.6875 Q430.0938,230.6875 428.3906,228.8906 Q426.7031,227.0938 426.7031,224 Q426.7031,220.9063 428.3906,219.1094 Q430.0938,217.2969 433.0156,217.2969 Q434.1875,217.2969 435.1875,217.6094 Q436.2031,217.9063 437.2344,218.6094 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="447" y="229.0498">MyDapp</text><line style="stroke:#181818;stroke-width:0.5;" x1="419" x2="505" y1="240.2031" y2="240.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="419" x2="505" y1="248.2031" y2="248.2031"/></g><!--MD5=[8bc1ebdd3bc091a95e56bcad6d53b15d]
+class MyDapp::Contract--><g id="elem_MyDapp::Contract"><rect codeLine="23" fill="#90EE90" height="80.5938" id="MyDapp::Contract" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="156" x="384" y="324.2031"/><ellipse cx="428.25" cy="340.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M432.4844,334.6094 L432.4844,337.125 Q431.2344,335.9688 430.3125,335.5938 Q429.4063,335.2188 428.375,335.2188 Q426.375,335.2188 425.3125,336.4375 Q424.25,337.6406 424.25,340 Q424.25,342.3594 425.3125,343.5781 Q426.375,344.7813 428.375,344.7813 Q429.4063,344.7813 430.3125,344.4063 Q431.2344,344.0313 432.4844,342.875 L432.4844,345.375 Q431.4375,346.0781 430.4219,346.3906 Q429.4219,346.6875 428.2656,346.6875 Q425.3438,346.6875 423.6406,344.8906 Q421.9531,343.0938 421.9531,340 Q421.9531,336.9063 423.6406,335.1094 Q425.3438,333.2969 428.2656,333.2969 Q429.4375,333.2969 430.4375,333.6094 Q431.4531,333.9063 432.4844,334.6094 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="448.75" y="345.0498">Contract</text><line style="stroke:#181818;stroke-width:0.5;" x1="385" x2="539" y1="356.2031" y2="356.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="385" x2="539" y1="364.2031" y2="364.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="143" x="390" y="381.1982">transitionFunctionA()</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="144" x="390" y="397.4951">transitionFunctionB()</text></g><!--MD5=[b3e09c5504a2d3927fa6588ef17a8c0a]
+class MyDapp::PublicOracle--><g id="elem_MyDapp::PublicOracle"><rect codeLine="27" fill="#F1F1F1" height="96.8906" id="MyDapp::PublicOracle" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="144" x="205" y="316.2031"/><ellipse cx="232.15" cy="332.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M236.3844,326.6094 L236.3844,329.125 Q235.1344,327.9688 234.2125,327.5938 Q233.3063,327.2188 232.275,327.2188 Q230.275,327.2188 229.2125,328.4375 Q228.15,329.6406 228.15,332 Q228.15,334.3594 229.2125,335.5781 Q230.275,336.7813 232.275,336.7813 Q233.3063,336.7813 234.2125,336.4063 Q235.1344,336.0313 236.3844,334.875 L236.3844,337.375 Q235.3375,338.0781 234.3219,338.3906 Q233.3219,338.6875 232.1656,338.6875 Q229.2438,338.6875 227.5406,336.8906 Q225.8531,335.0938 225.8531,332 Q225.8531,328.9063 227.5406,327.1094 Q229.2438,325.2969 232.1656,325.2969 Q233.3375,325.2969 234.3375,325.6094 Q235.3531,325.9063 236.3844,326.6094 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="248.85" y="337.0498">PublicOracle</text><line style="stroke:#181818;stroke-width:0.5;" x1="206" x2="348" y1="348.2031" y2="348.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="206" x2="348" y1="356.2031" y2="356.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="103" x="211" y="373.1982">publicQueryQ()</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="132" x="211" y="389.4951">publicCommandR()</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="101" x="211" y="405.792">publicQueryS()</text></g><!--MD5=[906c354f92a194c676b9e51fe0ad0fe3]
+class MyDapp::PrivateOracle--><g id="elem_MyDapp::PrivateOracle"><rect codeLine="32" fill="#F1F1F1" height="80.5938" id="MyDapp::PrivateOracle" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="148" x="22" y="324.2031"/><ellipse cx="48.7" cy="340.2031" fill="#ADD1B2" rx="11" ry="11" style="stroke:#181818;stroke-width:1.0;"/><path d="M52.9344,334.6094 L52.9344,337.125 Q51.6844,335.9688 50.7625,335.5938 Q49.8563,335.2188 48.825,335.2188 Q46.825,335.2188 45.7625,336.4375 Q44.7,337.6406 44.7,340 Q44.7,342.3594 45.7625,343.5781 Q46.825,344.7813 48.825,344.7813 Q49.8563,344.7813 50.7625,344.4063 Q51.6844,344.0313 52.9344,342.875 L52.9344,345.375 Q51.8875,346.0781 50.8719,346.3906 Q49.8719,346.6875 48.7156,346.6875 Q45.7938,346.6875 44.0906,344.8906 Q42.4031,343.0938 42.4031,340 Q42.4031,336.9063 44.0906,335.1094 Q45.7938,333.2969 48.7156,333.2969 Q49.8875,333.2969 50.8875,333.6094 Q51.9031,333.9063 52.9344,334.6094 Z " fill="#000000"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90" x="65.3" y="345.0498">PrivateOracle</text><line style="stroke:#181818;stroke-width:0.5;" x1="23" x2="169" y1="356.2031" y2="356.2031"/><line style="stroke:#181818;stroke-width:0.5;" x1="23" x2="169" y1="364.2031" y2="364.2031"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="106" x="28" y="381.1982">privateQueryX()</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="136" x="28" y="397.4951">privateCommandY()</text></g><!--MD5=[db62ed60d3ddd511b4a357717fed34f5]
+reverse link Lares::OracleBase to Lares::PrivateOracle--><g id="link_Lares::OracleBase_Lares::PrivateOracle"><path codeLine="17" d="M655.22,168.2231 C655.6,181.7831 656.01,196.2431 656.34,207.8831 " fill="none" id="Lares::OracleBase-backto-Lares::PrivateOracle" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="none" points="648.22,168.3931,654.65,148.2031,662.21,167.9931,648.22,168.3931" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[8f107002ee1cf43405ed89e4cb448717]
+reverse link Lares::OracleBase to Lares::PublicOracle--><g id="link_Lares::OracleBase_Lares::PublicOracle"><path codeLine="18" d="M724.46,158.0431 C728.42,160.3631 732.3,162.7531 736,165.2031 C754.95,177.7331 774.25,194.5631 788.66,208.0831 " fill="none" id="Lares::OracleBase-backto-Lares::PublicOracle" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="none" points="720.97,164.1131,706.75,148.4031,727.66,151.8131,720.97,164.1131" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[705151a7dcc4c374bdd6771cc3abc6b3]
+link MyDapp::MyDapp to MyDapp::Contract--><g id="link_MyDapp::MyDapp_MyDapp::Contract"><path codeLine="38" d="M462,256.2331 C462,274.9631 462,301.8331 462,324.0131 " fill="none" id="MyDapp::MyDapp-MyDapp::Contract" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="437.0953" y="313.1432">1..*</text></g><!--MD5=[fefc4b512adf4f6caf82d6cec4becf0e]
+reverse link Lares::ContractBase to MyDapp::Contract--><g id="link_Lares::ContractBase_MyDapp::Contract"><path codeLine="41" d="M885.9,162.0631 C886.63,163.0831 887.34,164.1331 888,165.2031 C914.87,208.6831 920.48,240.7431 888,280.2031 C844.78,332.7231 650.73,352.6931 540.03,359.9031 " fill="none" id="Lares::ContractBase-backto-MyDapp::Contract" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="none" points="880.75,166.8231,871.35,147.8331,890.54,156.8231,880.75,166.8231" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[dd4adeae0eb3b3902780dc1642760fba]
+reverse link Lares::PrivateOracle to MyDapp::PrivateOracle--><g id="link_Lares::PrivateOracle_MyDapp::PrivateOracle"><path codeLine="42" d="M596.96,265.1631 C583.78,271.0331 569.66,276.4731 556,280.2031 C397.03,323.5831 344.94,269.2131 187,316.2031 C179.74,318.3631 172.38,321.1131 165.16,324.2031 " fill="none" id="Lares::PrivateOracle-backto-MyDapp::PrivateOracle" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="none" points="594.38,258.6431,615.46,256.4031,600.37,271.2931,594.38,258.6431" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[453a1dc6e007b12677919c6f538c7dc7]
+reverse link Lares::PublicOracle to MyDapp::PublicOracle--><g id="link_Lares::PublicOracle_MyDapp::PublicOracle"><path codeLine="43" d="M764.65,266.9931 C755.5,272.1931 745.73,276.9231 736,280.2031 C579.45,333.0231 524.15,268.3831 366,316.2031 C360.38,317.9031 354.71,319.9731 349.1,322.2831 " fill="none" id="Lares::PublicOracle-backto-MyDapp::PublicOracle" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="none" points="761.14,260.9331,781.81,256.3031,768.54,272.8231,761.14,260.9331" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[441e381f888911096525900cfce1f0fa]
+reverse link MyDapp::Contract to MyDapp::PublicOracle--><g id="link_MyDapp::Contract_MyDapp::PublicOracle"><path codeLine="45" d="M370.47,364.7031 C363.4,364.7031 356.33,364.7031 349.27,364.7031 " fill="none" id="MyDapp::Contract-backto-MyDapp::PublicOracle" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="383.61,364.7031,377.61,360.7031,371.61,364.7031,377.61,368.7031,383.61,364.7031" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[137329c6494179f2358a888739d01962]
+reverse link MyDapp::Contract to MyDapp::PrivateOracle--><g id="link_MyDapp::Contract_MyDapp::PrivateOracle"><path codeLine="46" d="M394.62,317.5031 C380.03,309.5331 364.24,302.4731 348.5,298.2031 C286.73,281.4431 266.1,280.8331 204.5,298.2031 C185.26,303.6331 166.06,313.5331 149.28,324.0631 " fill="none" id="MyDapp::Contract-backto-MyDapp::PrivateOracle" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="406.03,324.0431,402.8148,317.5885,395.62,318.0739,398.8353,324.5285,406.03,324.0431" style="stroke:#181818;stroke-width:1.0;"/></g><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="344.24" y="435.2031"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="455.24" y="444.4854"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="455.24" y="456.126"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="455.24" y="467.7666"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="344.24" y="479.4072">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[5df8c264619d2ce9f723d6d9f08f16b4]
+@startuml
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+set namespaceSeparator ::
+
+
+together {
+        abstract Lares::ContractBase #white {
+        }
+        abstract Lares::OracleBase #white
+        }
+abstract Lares::PrivateOracle #white
+abstract Lares::PublicOracle #white
+Lares::OracleBase <|- - Lares::PrivateOracle
+Lares::OracleBase <|- - Lares::PublicOracle
+
+
+class MyDapp::MyDapp #cyan
+
+class MyDapp::Contract #lightgreen {
+        transitionFunctionA()
+        transitionFunctionB()
+}
+class MyDapp::PublicOracle {
+        publicQueryQ()
+        publicCommandR()
+        publicQueryS()
+}
+class MyDapp::PrivateOracle {
+        privateQueryX()
+        privateCommandY()
+}
+
+namespace MyDapp {
+MyDapp  - - "1..*" Contract
+}
+
+Lares::ContractBase  <|- - MyDapp::Contract
+Lares::PrivateOracle <|- - MyDapp::PrivateOracle
+Lares::PublicOracle  <|- - MyDapp::PublicOracle
+
+MyDapp::Contract *- MyDapp::PublicOracle
+MyDapp::Contract *- MyDapp::PrivateOracle
+
+
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+@enduml
+
+@startuml
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+
+set namespaceSeparator ::
+
+
+together {
+        abstract Lares::ContractBase #white {
+        }
+        abstract Lares::OracleBase #white
+        }
+abstract Lares::PrivateOracle #white
+abstract Lares::PublicOracle #white
+Lares::OracleBase <|- - Lares::PrivateOracle
+Lares::OracleBase <|- - Lares::PublicOracle
+
+
+class MyDapp::MyDapp #cyan
+
+class MyDapp::Contract #lightgreen {
+        transitionFunctionA()
+        transitionFunctionB()
+}
+class MyDapp::PublicOracle {
+        publicQueryQ()
+        publicCommandR()
+        publicQueryS()
+}
+class MyDapp::PrivateOracle {
+        privateQueryX()
+        privateCommandY()
+}
+
+namespace MyDapp {
+MyDapp  - - "1..*" Contract
+}
+
+Lares::ContractBase  <|- - MyDapp::Contract
+Lares::PrivateOracle <|- - MyDapp::PrivateOracle
+Lares::PublicOracle  <|- - MyDapp::PublicOracle
+
+MyDapp::Contract *- MyDapp::PublicOracle
+MyDapp::Contract *- MyDapp::PrivateOracle
+
+
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

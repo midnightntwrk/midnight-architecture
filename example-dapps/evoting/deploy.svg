@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="767px" preserveAspectRatio="none" style="width:1041px;height:767px;background:#FFFFFF;" version="1.1" viewBox="0 0 1041 767" width="1041px" zoomAndPan="magnify"><defs/><g><rect fill="#AFE4E4" height="646.7813" style="stroke:#181818;stroke-width:0.5;" width="136" x="1" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="50.4375" x="43.7813" y="77.27">Voter A</text><rect fill="#C2EBD0" height="646.7813" style="stroke:#181818;stroke-width:0.5;" width="136" x="139" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="50.4375" x="181.7813" y="77.27">Voter B</text><rect fill="#EAECC6" height="646.7813" style="stroke:#181818;stroke-width:0.5;" width="436.4063" x="277" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="73.6563" x="458.375" y="77.27">Consensus</text><rect fill="#F6E4E9" height="646.7813" style="stroke:#181818;stroke-width:0.5;" width="298" x="715.4063" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="150.125" x="789.3438" y="77.27">Election Coordinator C</text><rect fill="#FFFFFF" height="210.9297" style="stroke:#181818;stroke-width:1.0;" width="10" x="302.5" y="304.8594"/><rect fill="#FFFFFF" height="527.0547" style="stroke:#181818;stroke-width:1.0;" width="10" x="757.9063" y="172.9297"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="18" x2="18" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="87" x2="87" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="156" x2="156" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="225" x2="225" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="307" x2="307" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="601.4063" x2="601.4063" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="676.4063" x2="676.4063" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="762.4063" x2="762.4063" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="861.4063" x2="861.4063" y1="162.9297" y2="717.9844"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="963.4063" x2="963.4063" y1="162.9297" y2="717.9844"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="9" x="11" y="159.6279">A</text><ellipse cx="18.5" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M18.5,103.1328 L18.5,130.1328 M5.5,111.1328 L31.5,111.1328 M18.5,130.1328 L5.5,145.1328 M18.5,130.1328 L31.5,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="42" y="159.6279">private state</text><path d="M69.5,110.6328 C69.5,100.6328 87.5,100.6328 87.5,100.6328 C87.5,100.6328 105.5,100.6328 105.5,110.6328 L105.5,136.6328 C105.5,146.6328 87.5,146.6328 87.5,146.6328 C87.5,146.6328 69.5,146.6328 69.5,136.6328 L69.5,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M69.5,110.6328 C69.5,120.6328 87.5,120.6328 87.5,120.6328 C87.5,120.6328 105.5,120.6328 105.5,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="10" x="148.5" y="159.6279">B</text><ellipse cx="156.5" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M156.5,103.1328 L156.5,130.1328 M143.5,111.1328 L169.5,111.1328 M156.5,130.1328 L143.5,145.1328 M156.5,130.1328 L169.5,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="180" y="159.6279">private state</text><path d="M207.5,110.6328 C207.5,100.6328 225.5,100.6328 225.5,100.6328 C225.5,100.6328 243.5,100.6328 243.5,110.6328 L243.5,136.6328 C243.5,146.6328 225.5,146.6328 225.5,146.6328 C225.5,146.6328 207.5,146.6328 207.5,136.6328 L207.5,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M207.5,110.6328 C207.5,120.6328 225.5,120.6328 225.5,120.6328 C225.5,120.6328 243.5,120.6328 243.5,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47" x="281" y="159.6279">Verifier</text><ellipse cx="307.5" cy="130.6328" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><polygon fill="#181818" points="303.5,118.6328,309.5,113.6328,307.5,118.6328,309.5,123.6328,303.5,118.6328" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="569.4063" y="143.3311">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="580.4063" y="159.6279">Code</text><path d="M583.9063,94.3359 C583.9063,84.3359 601.9063,84.3359 601.9063,84.3359 C601.9063,84.3359 619.9063,84.3359 619.9063,94.3359 L619.9063,120.3359 C619.9063,130.3359 601.9063,130.3359 601.9063,130.3359 C601.9063,130.3359 583.9063,130.3359 583.9063,120.3359 L583.9063,94.3359 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M583.9063,94.3359 C583.9063,104.3359 601.9063,104.3359 601.9063,104.3359 C601.9063,104.3359 619.9063,104.3359 619.9063,94.3359 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="644.4063" y="143.3311">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="651.9063" y="159.6279">States</text><path d="M658.9063,94.3359 C658.9063,84.3359 676.9063,84.3359 676.9063,84.3359 C676.9063,84.3359 694.9063,84.3359 694.9063,94.3359 L694.9063,120.3359 C694.9063,130.3359 676.9063,130.3359 676.9063,130.3359 C676.9063,130.3359 658.9063,130.3359 658.9063,120.3359 L658.9063,94.3359 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M658.9063,94.3359 C658.9063,104.3359 676.9063,104.3359 676.9063,104.3359 C676.9063,104.3359 694.9063,104.3359 694.9063,94.3359 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="719.4063" y="159.6279">Coordinator</text><ellipse cx="762.9063" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M762.9063,103.1328 L762.9063,130.1328 M749.9063,111.1328 L775.9063,111.1328 M762.9063,130.1328 L749.9063,145.1328 M762.9063,130.1328 L775.9063,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="816.4063" y="159.6279">private state</text><path d="M843.9063,110.6328 C843.9063,100.6328 861.9063,100.6328 861.9063,100.6328 C861.9063,100.6328 879.9063,100.6328 879.9063,110.6328 L879.9063,136.6328 C879.9063,146.6328 861.9063,146.6328 861.9063,146.6328 C861.9063,146.6328 843.9063,146.6328 843.9063,136.6328 L843.9063,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M843.9063,110.6328 C843.9063,120.6328 861.9063,120.6328 861.9063,120.6328 C861.9063,120.6328 879.9063,120.6328 879.9063,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="917.4063" y="159.6279">registrations</text><path d="M945.4063,110.6328 C945.4063,100.6328 963.4063,100.6328 963.4063,100.6328 C963.4063,100.6328 981.4063,100.6328 981.4063,110.6328 L981.4063,136.6328 C981.4063,146.6328 963.4063,146.6328 963.4063,146.6328 C963.4063,146.6328 945.4063,146.6328 945.4063,136.6328 L945.4063,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M945.4063,110.6328 C945.4063,120.6328 963.4063,120.6328 963.4063,120.6328 C963.4063,120.6328 981.4063,120.6328 981.4063,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><rect fill="#FFFFFF" height="210.9297" style="stroke:#181818;stroke-width:1.0;" width="10" x="302.5" y="304.8594"/><rect fill="#FFFFFF" height="527.0547" style="stroke:#181818;stroke-width:1.0;" width="10" x="757.9063" y="172.9297"/><path d="M507,177.9297 L507,277.9297 L1017,277.9297 L1017,187.9297 L1007,177.9297 L507,177.9297 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M1007,177.9297 L1007,187.9297 L1017,187.9297 L1007,177.9297 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="460" x="513" y="194.9966">We assume the coordinator has access to the contract source code and</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="426" x="513" y="210.1294">corresponding ZK circuits.  It creates an initial state of the contract</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="489" x="513" y="225.2622">consisting of at least the election's prompt text (what are we voting on?) and</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="481" x="513" y="240.395">the legal vote options.  The state will also include some data encrypted with</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="439" x="513" y="255.5278">the cooordinator's public key pk[C] that will enable the coordinator to</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="428" x="513" y="270.6606">perform authorized operations such as minting registration tokens.</text><polygon fill="#181818" points="323.5,300.8594,313.5,304.8594,323.5,308.8594,319.5,304.8594" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="317.5" x2="756.9063" y1="304.8594" y2="304.8594"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="329.5" y="299.7935">1</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="200" x="341.9063" y="299.7935">Deploy(code, circuits, initState)</text><line style="stroke:#181818;stroke-width:1.0;" x1="312.5" x2="354.5" y1="333.9922" y2="333.9922"/><line style="stroke:#181818;stroke-width:1.0;" x1="354.5" x2="354.5" y1="333.9922" y2="346.9922"/><line style="stroke:#181818;stroke-width:1.0;" x1="313.5" x2="354.5" y1="346.9922" y2="346.9922"/><polygon fill="#181818" points="323.5,342.9922,313.5,346.9922,323.5,350.9922,319.5,346.9922" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="319.5" y="328.9263">2</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="106" x="331.9063" y="328.9263">Alloc ��� addr</text><polygon fill="#181818" points="589.9063,372.125,599.9063,376.125,589.9063,380.125,593.9063,376.125" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="312.5" x2="595.9063" y1="376.125" y2="376.125"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="319.5" y="371.0591">3</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="253" x="331.9063" y="371.0591">Deploy(addr, ���code, circuits���)</text><polygon fill="#00FFFF" points="518,389.125,684,389.125,694,400.125,684,412.125,518,412.125,508,400.125,518,389.125" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="162" x="520" y="405.1919">���code, circuits���</text><polygon fill="#181818" points="664.9063,434.3906,674.9063,438.3906,664.9063,442.3906,668.9063,438.3906" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="312.5" x2="670.9063" y1="438.3906" y2="438.3906"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="319.5" y="433.3247">4</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="120" x="331.9063" y="433.3247">Init(addr, initState)</text><polygon fill="#00FFFF" points="603,451.3906,749,451.3906,759,470.3906,749,489.3906,603,489.3906,593,470.3906,603,451.3906" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="142" x="605" y="467.4575">phase = REGISTERING</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="121" x="605" y="482.5903">REG.Merk = empty</text><polygon fill="#181818" points="745.9063,511.7891,755.9063,515.7891,745.9063,519.7891,749.9063,515.7891" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="307.5" x2="751.9063" y1="515.7891" y2="515.7891"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="314.5" y="510.7231">5</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="326.9063" y="510.7231">verifiedTx_1</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="89" x="405.9063" y="510.7231">including addr</text><path d="M496,528.7891 L496,643.7891 L1029,643.7891 L1029,538.7891 L1019,528.7891 L496,528.7891 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><path d="M1019,528.7891 L1019,538.7891 L1029,538.7891 L1019,528.7891 " fill="#FFFFE0" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="492" x="502" y="545.856">The coordinator now shares the on-chain address of the election contract out</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="509" x="502" y="560.9888">of band in some way.  This could be via some broadcast medium, multicast to a</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="512" x="502" y="576.1216">membership list, or any other means.  The information must contain an address</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="367" x="502" y="591.2544">where the coordinator will listen for registration requests (</text><text fill="#000000" font-family="sans-serif" font-size="13" font-style="italic" lengthAdjust="spacing" textLength="22" x="869" y="591.2544">self</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="38" x="895" y="591.2544">in this</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="506" x="502" y="606.3872">example), the on-chain address of the contract, and any information the voters</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="466" x="502" y="621.52">will find useful, such as the voting prompt and legal votes. (Those specific</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="412" x="502" y="636.6528">details are also found on chain in this case, but might be useful.)</text><polygon fill="#181818" points="29.5,666.8516,19.5,670.8516,29.5,674.8516,25.5,670.8516" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="23.5" x2="756.9063" y1="670.8516" y2="670.8516"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="35.5" y="665.7856">6</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="367" x="47.9063" y="665.7856">RegistrationOpen(self, addr, ���prompt, options���)</text><polygon fill="#181818" points="167.5,695.9844,157.5,699.9844,167.5,703.9844,163.5,699.9844" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="161.5" x2="761.9063" y1="699.9844" y2="699.9844"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="173.5" y="694.9185">7</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="367" x="185.9063" y="694.9185">RegistrationOpen(self, addr, ���prompt, options���)</text><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="912" y="5"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1030" y="14.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="912" y="25.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1030" y="37.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1030" y="49.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1030" y="60.8447"> </text><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="404" y="712.9844"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="515" y="722.2666"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="515" y="733.9072"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="515" y="745.5479"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="404" y="757.1885">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[a81d33837bcbc067bec099d6c83bddc4]
+@startuml
+autonumber
+hide footbox
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+!include example-dapps/evoting/participants.puml
+
+activate C
+        note over C #lightyellow
+                We assume the coordinator has access to the contract source code and
+                corresponding ZK circuits.  It creates an initial state of the contract
+                consisting of at least the election's prompt text (what are we voting on?) and
+                the legal vote options.  The state will also include some data encrypted with
+                the cooordinator's public key pk[C] that will enable the coordinator to
+                perform authorized operations such as minting registration tokens.
+        end note
+        C -> verifier ++ : Deploy(code, circuits, initState)
+        verifier -> verifier : Alloc ��� addr
+        verifier -> contracts : Deploy(addr, ���code, circuits���)
+        hnote over contracts #aqua
+                ���code, circuits���
+        end note
+        'activate contracts #DarkSalmon
+        verifier -> state : Init(addr, initState)
+        hnote over state #aqua
+                phase = REGISTERING
+                REG.Merk = empty
+        end note
+        'activate state #DarkSalmon
+        verifier - -> C - - : verifiedTx_1 //including addr//
+
+        note over C #lightyellow
+                The coordinator now shares the on-chain address of the election contract out
+                of band in some way.  This could be via some broadcast medium, multicast to a
+                membership list, or any other means.  The information must contain an address
+                where the coordinator will listen for registration requests (//self// in this
+                example), the on-chain address of the contract, and any information the voters
+                will find useful, such as the voting prompt and legal votes. (Those specific
+                details are also found on chain in this case, but might be useful.)
+        end note
+        
+        C -> A : RegistrationOpen(self, addr, ���prompt, options���)
+        C -> B : RegistrationOpen(self, addr, ���prompt, options���)
+deactivate C
+
+
+
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@enduml
+
+@startuml
+autonumber
+hide footbox
+
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+
+skinparam SequenceGroupBodyBackgroundColor transparent
+
+
+box "Voter A" #afe4e4 
+        actor "A" as A
+        database "private state" as rho_a
+end box
+
+box "Voter B" #c2ebd0 
+        actor "B" as B
+        database "private state" as rho_b
+end box
+
+box "Consensus" #eaecc6
+        control "Verifier" as verifier
+        database "Contract\nCode" as contracts
+        database "Contract\nStates" as state
+end box
+
+box "Election Coordinator C" #f6e4e9 
+        actor "Coordinator" as C
+        database "private state" as rho_c
+        database "registrations" as regs
+end box
+
+
+
+
+activate C
+        note over C #lightyellow
+                We assume the coordinator has access to the contract source code and
+                corresponding ZK circuits.  It creates an initial state of the contract
+                consisting of at least the election's prompt text (what are we voting on?) and
+                the legal vote options.  The state will also include some data encrypted with
+                the cooordinator's public key pk[C] that will enable the coordinator to
+                perform authorized operations such as minting registration tokens.
+        end note
+        C -> verifier ++ : Deploy(code, circuits, initState)
+        verifier -> verifier : Alloc ��� addr
+        verifier -> contracts : Deploy(addr, ���code, circuits���)
+        hnote over contracts #aqua
+                ���code, circuits���
+        end note
+        verifier -> state : Init(addr, initState)
+        hnote over state #aqua
+                phase = REGISTERING
+                REG.Merk = empty
+        end note
+        verifier - -> C - - : verifiedTx_1 //including addr//
+
+        note over C #lightyellow
+                The coordinator now shares the on-chain address of the election contract out
+                of band in some way.  This could be via some broadcast medium, multicast to a
+                membership list, or any other means.  The information must contain an address
+                where the coordinator will listen for registration requests (//self// in this
+                example), the on-chain address of the contract, and any information the voters
+                will find useful, such as the voting prompt and legal votes. (Those specific
+                details are also found on chain in this case, but might be useful.)
+        end note
+        
+        C -> A : RegistrationOpen(self, addr, ���prompt, options���)
+        C -> B : RegistrationOpen(self, addr, ���prompt, options���)
+deactivate C
+
+
+
+
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>

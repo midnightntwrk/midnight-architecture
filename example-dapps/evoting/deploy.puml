@@ -7,7 +7,7 @@ hide footbox
 header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 '-----------------------------------------------------------
 
-!include participants.puml
+!include example-dapps/evoting/participants.puml
 
 activate C
         note over C #lightyellow

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="541px" preserveAspectRatio="none" style="width:861px;height:541px;background:#FFFFFF;" version="1.1" viewBox="0 0 861 541" width="861px" zoomAndPan="magnify"><defs/><g><rect fill="#AFE4E4" height="421.0547" style="stroke:#181818;stroke-width:0.5;" width="157.4063" x="24" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="50.4375" x="77.4844" y="77.27">Voter A</text><rect fill="#C2EBD0" height="421.0547" style="stroke:#181818;stroke-width:0.5;" width="157.4063" x="183.4063" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="50.4375" x="236.8906" y="77.27">Voter B</text><rect fill="#EAECC6" height="421.0547" style="stroke:#181818;stroke-width:0.5;" width="211" x="342.8125" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="73.6563" x="411.4844" y="77.27">Consensus</text><rect fill="#F6E4E9" height="421.0547" style="stroke:#181818;stroke-width:0.5;" width="298" x="555.8125" y="65.2031"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="150.125" x="629.75" y="77.27">Election Coordinator C</text><rect fill="#FFFFFF" height="107.5313" style="stroke:#181818;stroke-width:1.0;" width="10" x="36.5" y="172.9297"/><rect fill="#FFFFFF" height="62.2656" style="stroke:#181818;stroke-width:1.0;" width="10" x="126.9063" y="218.1953"/><rect fill="#FFFFFF" height="93.3984" style="stroke:#181818;stroke-width:1.0;" width="10" x="195.9063" y="280.4609"/><rect fill="#FFFFFF" height="62.2656" style="stroke:#181818;stroke-width:1.0;" width="10" x="286.3125" y="311.5938"/><rect fill="#FFFFFF" height="93.3984" style="stroke:#181818;stroke-width:1.0;" width="10" x="598.3125" y="373.8594"/><rect fill="#FFFFFF" height="62.2656" style="stroke:#181818;stroke-width:1.0;" width="10" x="697.3125" y="404.9922"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="41" x2="41" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="131.4063" x2="131.4063" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="200.4063" x2="200.4063" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="290.8125" x2="290.8125" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="372.8125" x2="372.8125" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="441.8125" x2="441.8125" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="516.8125" x2="516.8125" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="602.8125" x2="602.8125" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="701.8125" x2="701.8125" y1="162.9297" y2="492.2578"/><line style="stroke:#181818;stroke-width:0.5;stroke-dasharray:5.0,5.0;" x1="803.8125" x2="803.8125" y1="162.9297" y2="492.2578"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="9" x="34" y="159.6279">A</text><ellipse cx="41.5" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M41.5,103.1328 L41.5,130.1328 M28.5,111.1328 L54.5,111.1328 M41.5,130.1328 L28.5,145.1328 M41.5,130.1328 L54.5,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="86.4063" y="159.6279">private state</text><path d="M113.9063,110.6328 C113.9063,100.6328 131.9063,100.6328 131.9063,100.6328 C131.9063,100.6328 149.9063,100.6328 149.9063,110.6328 L149.9063,136.6328 C149.9063,146.6328 131.9063,146.6328 131.9063,146.6328 C131.9063,146.6328 113.9063,146.6328 113.9063,136.6328 L113.9063,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M113.9063,110.6328 C113.9063,120.6328 131.9063,120.6328 131.9063,120.6328 C131.9063,120.6328 149.9063,120.6328 149.9063,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="10" x="192.9063" y="159.6279">B</text><ellipse cx="200.9063" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M200.9063,103.1328 L200.9063,130.1328 M187.9063,111.1328 L213.9063,111.1328 M200.9063,130.1328 L187.9063,145.1328 M200.9063,130.1328 L213.9063,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="245.8125" y="159.6279">private state</text><path d="M273.3125,110.6328 C273.3125,100.6328 291.3125,100.6328 291.3125,100.6328 C291.3125,100.6328 309.3125,100.6328 309.3125,110.6328 L309.3125,136.6328 C309.3125,146.6328 291.3125,146.6328 291.3125,146.6328 C291.3125,146.6328 273.3125,146.6328 273.3125,136.6328 L273.3125,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M273.3125,110.6328 C273.3125,120.6328 291.3125,120.6328 291.3125,120.6328 C291.3125,120.6328 309.3125,120.6328 309.3125,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="47" x="346.8125" y="159.6279">Verifier</text><ellipse cx="373.3125" cy="130.6328" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><polygon fill="#181818" points="369.3125,118.6328,375.3125,113.6328,373.3125,118.6328,375.3125,123.6328,369.3125,118.6328" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="409.8125" y="143.3311">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="420.8125" y="159.6279">Code</text><path d="M424.3125,94.3359 C424.3125,84.3359 442.3125,84.3359 442.3125,84.3359 C442.3125,84.3359 460.3125,84.3359 460.3125,94.3359 L460.3125,120.3359 C460.3125,130.3359 442.3125,130.3359 442.3125,130.3359 C442.3125,130.3359 424.3125,130.3359 424.3125,120.3359 L424.3125,94.3359 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M424.3125,94.3359 C424.3125,104.3359 442.3125,104.3359 442.3125,104.3359 C442.3125,104.3359 460.3125,104.3359 460.3125,94.3359 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="484.8125" y="143.3311">Contract</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="492.3125" y="159.6279">States</text><path d="M499.3125,94.3359 C499.3125,84.3359 517.3125,84.3359 517.3125,84.3359 C517.3125,84.3359 535.3125,84.3359 535.3125,94.3359 L535.3125,120.3359 C535.3125,130.3359 517.3125,130.3359 517.3125,130.3359 C517.3125,130.3359 499.3125,130.3359 499.3125,120.3359 L499.3125,94.3359 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M499.3125,94.3359 C499.3125,104.3359 517.3125,104.3359 517.3125,104.3359 C517.3125,104.3359 535.3125,104.3359 535.3125,94.3359 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="559.8125" y="159.6279">Coordinator</text><ellipse cx="603.3125" cy="95.1328" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M603.3125,103.1328 L603.3125,130.1328 M590.3125,111.1328 L616.3125,111.1328 M603.3125,130.1328 L590.3125,145.1328 M603.3125,130.1328 L616.3125,145.1328 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="656.8125" y="159.6279">private state</text><path d="M684.3125,110.6328 C684.3125,100.6328 702.3125,100.6328 702.3125,100.6328 C702.3125,100.6328 720.3125,100.6328 720.3125,110.6328 L720.3125,136.6328 C720.3125,146.6328 702.3125,146.6328 702.3125,146.6328 C702.3125,146.6328 684.3125,146.6328 684.3125,136.6328 L684.3125,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M684.3125,110.6328 C684.3125,120.6328 702.3125,120.6328 702.3125,120.6328 C702.3125,120.6328 720.3125,120.6328 720.3125,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="757.8125" y="159.6279">registrations</text><path d="M785.8125,110.6328 C785.8125,100.6328 803.8125,100.6328 803.8125,100.6328 C803.8125,100.6328 821.8125,100.6328 821.8125,110.6328 L821.8125,136.6328 C821.8125,146.6328 803.8125,146.6328 803.8125,146.6328 C803.8125,146.6328 785.8125,146.6328 785.8125,136.6328 L785.8125,110.6328 " fill="#E2E2F0" style="stroke:#181818;stroke-width:1.5;"/><path d="M785.8125,110.6328 C785.8125,120.6328 803.8125,120.6328 803.8125,120.6328 C803.8125,120.6328 821.8125,120.6328 821.8125,110.6328 " fill="none" style="stroke:#181818;stroke-width:1.5;"/><rect fill="#FFFFFF" height="107.5313" style="stroke:#181818;stroke-width:1.0;" width="10" x="36.5" y="172.9297"/><rect fill="#FFFFFF" height="62.2656" style="stroke:#181818;stroke-width:1.0;" width="10" x="126.9063" y="218.1953"/><rect fill="#FFFFFF" height="93.3984" style="stroke:#181818;stroke-width:1.0;" width="10" x="195.9063" y="280.4609"/><rect fill="#FFFFFF" height="62.2656" style="stroke:#181818;stroke-width:1.0;" width="10" x="286.3125" y="311.5938"/><rect fill="#FFFFFF" height="93.3984" style="stroke:#181818;stroke-width:1.0;" width="10" x="598.3125" y="373.8594"/><rect fill="#FFFFFF" height="62.2656" style="stroke:#181818;stroke-width:1.0;" width="10" x="697.3125" y="404.9922"/><path d="M9,179.9297 L76.2188,179.9297 L76.2188,187.0625 L66.2188,197.0625 L9,197.0625 L9,179.9297 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="295.3281" style="stroke:#000000;stroke-width:1.5;" width="815" x="9" y="179.9297"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="22.2188" x="24" y="192.9966">par</text><polygon fill="#181818" points="114.9063,214.1953,124.9063,218.1953,114.9063,222.1953,118.9063,218.1953" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="46.5" x2="120.9063" y1="218.1953" y2="218.1953"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="53.5" y="213.1294">1</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="49" x="65.9063" y="213.1294">KeyGen</text><polygon fill="#00FFFF" points="29,231.1953,234,231.1953,244,242.1953,234,254.1953,29,254.1953,19,242.1953,29,231.1953" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="201" x="31" y="247.2622">keys := ���pk[A],sk[A]���</text><polygon fill="#181818" points="52.5,276.4609,42.5,280.4609,52.5,284.4609,48.5,280.4609" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="46.5" x2="130.9063" y1="280.4609" y2="280.4609"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="58.5" y="275.395">2</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="70.9063" y="275.395">pk[A]</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="9" x2="824" y1="289.4609" y2="289.4609"/><polygon fill="#181818" points="274.3125,307.5938,284.3125,311.5938,274.3125,315.5938,278.3125,311.5938" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="205.9063" x2="280.3125" y1="311.5938" y2="311.5938"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="212.9063" y="306.5278">3</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="49" x="225.3125" y="306.5278">KeyGen</text><polygon fill="#00FFFF" points="188,324.5938,393,324.5938,403,335.5938,393,347.5938,188,347.5938,178,335.5938,188,324.5938" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="201" x="190" y="340.6606">keys := ���pk[B],sk[B]���</text><polygon fill="#181818" points="211.9063,369.8594,201.9063,373.8594,211.9063,377.8594,207.9063,373.8594" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="205.9063" x2="290.3125" y1="373.8594" y2="373.8594"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="217.9063" y="368.7935">4</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="230.3125" y="368.7935">pk[B]</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="9" x2="824" y1="382.8594" y2="382.8594"/><polygon fill="#181818" points="685.3125,400.9922,695.3125,404.9922,685.3125,408.9922,689.3125,404.9922" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="608.3125" x2="691.3125" y1="404.9922" y2="404.9922"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="615.3125" y="399.9263">5</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="49" x="627.7188" y="399.9263">KeyGen</text><polygon fill="#00FFFF" points="599,417.9922,804,417.9922,814,428.9922,804,440.9922,599,440.9922,589,428.9922,599,417.9922" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="201" x="601" y="434.0591">keys := ���pk[C],sk[C]���</text><polygon fill="#181818" points="614.3125,463.2578,604.3125,467.2578,614.3125,471.2578,610.3125,467.2578" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="608.3125" x2="701.3125" y1="467.2578" y2="467.2578"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="8.4063" x="620.3125" y="462.1919">6</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="632.7188" y="462.1919">pk[C]</text><rect height="58.2031" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="121" x="732.8125" y="5"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="850.8125" y="14.2822"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="121" x="732.8125" y="25.9229">2022.11.29 at 14:47 UTC</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="850.8125" y="37.5635"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="850.8125" y="49.2041"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="850.8125" y="60.8447"> </text><rect height="46.5625" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="225" x="314.4063" y="487.2578"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="425.4063" y="496.54"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="425.4063" y="508.1807"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="425.4063" y="519.8213"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="225" x="314.4063" y="531.4619">Copyright 2022, Input Output Hong Kong, Ltd.</text><!--MD5=[17ab53ed9640c99054bcfef90aa3aee9]
+@startuml 
+autonumber
+hide footbox 
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+!include example-dapps/evoting/participants.puml
+
+par
+activate A
+        A -> rho_a ++ : KeyGen
+                hnote over rho_a #aqua
+                        keys := ���pk[A],sk[A]���
+                end note
+        return pk[A]
+deactivate A
+else
+        
+activate B
+        B -> rho_b ++ : KeyGen
+                hnote over rho_b #aqua
+                        keys := ���pk[B],sk[B]���
+                end note
+        return pk[B]
+deactivate B
+else
+
+activate C
+        C -> rho_c ++ : KeyGen
+                hnote over rho_c #aqua
+                        keys := ���pk[C],sk[C]���
+                end note
+        return pk[C]
+deactivate C
+end
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@enduml
+
+@startuml 
+autonumber
+hide footbox 
+header \n2022.11.29 at 14:47 UTC\n\n\n
+
+
+skinparam SequenceGroupBodyBackgroundColor transparent
+
+
+box "Voter A" #afe4e4 
+        actor "A" as A
+        database "private state" as rho_a
+end box
+
+box "Voter B" #c2ebd0 
+        actor "B" as B
+        database "private state" as rho_b
+end box
+
+box "Consensus" #eaecc6
+        control "Verifier" as verifier
+        database "Contract\nCode" as contracts
+        database "Contract\nStates" as state
+end box
+
+box "Election Coordinator C" #f6e4e9 
+        actor "Coordinator" as C
+        database "private state" as rho_c
+        database "registrations" as regs
+end box
+
+
+
+
+par
+activate A
+        A -> rho_a ++ : KeyGen
+                hnote over rho_a #aqua
+                        keys := ���pk[A],sk[A]���
+                end note
+        return pk[A]
+deactivate A
+else
+        
+activate B
+        B -> rho_b ++ : KeyGen
+                hnote over rho_b #aqua
+                        keys := ���pk[B],sk[B]���
+                end note
+        return pk[B]
+deactivate B
+else
+
+activate C
+        C -> rho_c ++ : KeyGen
+                hnote over rho_c #aqua
+                        keys := ���pk[C],sk[C]���
+                end note
+        return pk[C]
+deactivate C
+end
+footer \n\n\nCopyright 2022, Input Output Hong Kong, Ltd.
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>
