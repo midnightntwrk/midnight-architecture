@@ -8,7 +8,7 @@
     ghLib = config.preset.github.lib;
     getBranch = factName: let
       fact = config.actionRun.facts.${factName};
-      ghEvent = fact.value.github_body.github_event;
+      ghEvent = fact.value.github_event;
     in
       if ghEvent == "pull_request"
       then fact.value.github_body.pull_request.head.ref
