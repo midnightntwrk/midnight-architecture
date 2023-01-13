@@ -1,10 +1,18 @@
 {
-  CI = {config, pkgs, lib, ...}: let
+  CI = {
+    config,
+    pkgs,
+    lib,
+    ...
+  }: let
     ghLib = config.preset.github.lib;
     getBranch = factName: let
       fact = config.actionRun.facts.${factName};
+      ghEvent = fact.value.github_event;
     in
-      fact.value.github_body.pull_request.head.ref;
+      if ghEvent == "pull_request"
+      then fact.value.github_body.pull_request.head.ref
+      else fact.value.github_body.ref;
   in {
     preset = {
       nix.enable = true;
@@ -60,7 +68,7 @@
         git show # just for the log
         git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub event")}
       else
-        echo "Nothing to do"
+        echo "No diagrams updates required"
       fi
     '';
 
