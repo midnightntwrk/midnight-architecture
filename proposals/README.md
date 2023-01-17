@@ -15,3 +15,4 @@ File names should use `kebab-case` without any non-ASCII characters.
 - [0006: Coins in Abcird](./0006-abcird-coins.md) for specifying how coins should be used in Abcird.
 - [0007: Contract Interfaces in Abcird](./0007-abcird-contract-interfaces.md) for handling private oracle calls and calls to other contracts in Abcird.
 - [0008: Signatures of Knowledge in Abcird](./0008-abcird-sok.md) for noting that we want to target SoKs.
+- [0009: Unified Flake Dependencies within Midnight](./0009-flake-dependencies.md) for extracting common nix flake inputs.
