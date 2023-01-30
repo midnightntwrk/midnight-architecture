@@ -1,0 +1,43 @@
+@startuml [System Diagram] Decentralized Application
+!include <C4/C4_Context>
+title [System Context] Decentralized Application
+Person(user, "User")
+System(dapp, "Decentralized Application", "Provides application functionality to user")
+Person_Ext(ipfsNodeOperator, "IPFS Node Operator")
+Person_Ext(chainIndexOperator, "Chain Index Operator")
+Person_Ext(midnightNodeOperator, "Midnight Provider Operator")
+System_Ext(ipfsNode, "IPFS Node", "Delivers static content to SPA and browser")
+System_Ext(chainIndex, "Chain Index", "Receives and indexes blockchain data")
+System_Ext(midnightNode, "Midnight Provider", "Exposes Midnight Node RPC API")
+System_Ext(wallet, "Lace", "Manages private keys and balances transactions")
+
+Rel_D(ipfsNodeOperator, ipfsNode, "Operates")
+Rel_R(ipfsNode, dapp, "Delivers to user browser")
+Rel_R(dapp, chainIndex, "Queries")
+Rel_R(chainIndexOperator, chainIndex, "Operates")
+Rel_R(dapp, midnightNode, "Submits transactions using")
+Rel_D(midnightNodeOperator, midnightNode, "Operates")
+Rel_U(chainIndex, midnightNode, "Queries")
+Rel_D(user, ipfsNode, "Visits URL")
+Rel_D(user, dapp, "Uses")
+Rel_U(dapp, wallet, "Balances transactions using")
+Rel_D(user, wallet, "Manages tokens using")
+SHOW_LEGEND()
+
+@enduml
+
+- Wallet is necessary for dapp to construct contract transactions, but dapp
+  is not necessary for wallet to construct call transactions. Hence, transaction
+  submissions should go through wallet.
+- Assumes that wallet is an independently deployable and necessary system
+- Assumes that dapp submits transactions, not wallet
+- Explain what a provider is, and how "Lace" and "Midnight Provider" may in practice be the same system, 
+  as is the case for Ethereum Provider and MetaMask.
+
+- Does not show midnight node and operator, since dapp does not directly interact with them.
+- Should we separate out the private oracle management system? IOW, the backend only receives the oracle reference and executes the contract, producing artifacts for building transactions.
+- Unsure whether dapp calls to wallet and MAB are synchronous or asynchronous
+- Who runs the MAB? If it is the user, then there should be a relation from the user to the MAB. If it is the dapp,
+  then there should be a relation from user to dapp and dapp should have a MAB container.
+- Should MAB be a separate system, or contained within the dapp. Does the dapp instantiate a backend, or does it access
+  an existing backend?

@@ -1,0 +1,24 @@
+@startuml [System Diagram] Decentralized Application
+!include <C4/C4_Context>
+title [System Context] Decentralized Application
+Person(user, "User")
+System(dapp, "Decentralized Application", "Provides application functionality to user")
+Person_Ext(ipfsNodeOperator, "IPFS Node Operator")
+Person_Ext(chainIndexOperator, "Chain Index Operator")
+System_Ext(ipfsNode, "IPFS Node", "Delivers static content to SPA and browser")
+System_Ext(chainIndex, "Chain Index", "Receives and indexes blockchain data")
+System_Ext(wallet, "Lace", "Manages private keys and balances transactions")
+
+Rel_D(ipfsNodeOperator, ipfsNode, "Operates")
+Rel_R(ipfsNode, dapp, "Delivers to user browser")
+Rel_R(dapp, chainIndex, "Queries")
+Rel_D(chainIndexOperator, chainIndex, "Operates")
+Rel_D(user, ipfsNode, "Visits URL")
+Rel_D(user, dapp, "Uses")
+Rel_U(dapp, wallet, "Submits transactions using")
+Rel_R(user, wallet, "Manages tokens using")
+SHOW_LEGEND()
+
+@enduml
+
+- Since the dapp doesn't interact directly with the node, the node and node operator are not depicted.
