@@ -47,8 +47,10 @@ Boundary(midnight, "Midnight Testnet", $type="Blockchain Network"){
     Rel(lace, mempool, "sends confirmed transactions to")
     Rel(lace, indexer, "subscribes to updates from")
 
+    ' Mempool relationships
+    Rel(mempool, node, "sends transactions to")
+
     ' Node relationships
     Rel(node, indexer, "sends blocks to")
-    Rel(mempool, node, "sends transactions to")
 }
 @enduml
