@@ -1,39 +1,27 @@
-@startuml
+@startuml Container diagram for Lace Browser Extension
 
-'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4.puml
-'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 skinparam defaultFontName Liberation Sans
 
+title [Container] Lace Browser Extension
+
 Person(user, "DApp User", "User of a Midnight DApp")
 
-Component(dappUI, "DApp UI")
+Container_Ext(spa, "Single Page Application", "JavaScript with ReactJS", "Exposes DApp functionality to the user via their browser")
+Container(extension, "Lace Browser Extension", "Chrome Extension", "Provides Light Wallet functionality to the user")
 
-Container_Boundary(lace, "Lace") {
-  Component(dappConnector, "Midnight DApp connector")
-  Component(walletUI, "Wallet UI")
-}
+System_Ext(mempool, "Midnight Mempool", "Mempool for Midnight transactions")
+System_Ext(indexer, "Midnight PubSub Indexer", "PubSub service for Midnight")
 
-Container_Boundary(dapp, "Dapp") {
-  Component(dappBackend, "DApp backend")
-  Component(dappIndexer, "Dapp indexer")
-}
+Rel(user, spa, "interacts with")
+Rel(user, extension, "has a wallet at")
 
-Container_Boundary(wallet, "Wallet") {
-  Component(walletBackend, "Wallet Backend")
-}
+Rel(spa, extension, "submit transactions to")
+Rel(spa, indexer, "subscribes for updates from")
 
-Component(node, "Node")
+Rel(extension, mempool, "sends transactions to")
+Rel(extension, user, "confirm transactions with")
+Rel(extension, indexer, "subscribes for updates from")
 
-Rel(dappUI, dappBackend, "is UI for")
-Rel(dappUI, dappConnector, "Submits txns")
-Rel(dappConnector, walletBackend, "uses")
-Rel(dappBackend, dappIndexer, "fetches data")
-Rel(dappIndexer, node, "fetches data")
-Rel(walletUI, walletBackend, "is presentation for")
-Rel(walletBackend, node, "uses")
-Rel(user, dappUI, "uses")
-Rel(user, walletUI, "uses")
 @enduml
