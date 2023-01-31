@@ -36,20 +36,19 @@ Boundary(midnight, "Midnight Testnet", $type="Blockchain Network"){
     System_Ext(lace, "Lace", "Lightwallet Service")
 
     ' User Relationships
-    Rel_R(user, lace, "manages wallet and approves transactions using")
+    Rel(user, lace, "manages wallet and approves transactions using")
     Rel(user, dapp, "interacts with")
     
     ' DAppp Relationships
-    Rel_R(dapp, indexer, "subscribes to updates from")
-    Rel_U(dapp, lace, "sends unconfirmed transactions to")
-    
+    Rel(dapp, indexer, "subscribes to updates from")
+    Rel_R(dapp, lace, "sends unconfirmed transactions to")
 
     ' Lace Relationships
     Rel(lace, mempool, "sends confirmed transactions to")
     Rel(lace, indexer, "subscribes to updates from")
 
     ' Node relationships
-    Rel_D(node, indexer, "sends blocks to")
-    Rel_D(mempool, node, "sends transactions to")
+    Rel(node, indexer, "sends blocks to")
+    Rel(mempool, node, "sends transactions to")
 }
 @enduml
