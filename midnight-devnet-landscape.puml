@@ -1,0 +1,38 @@
+@startuml System Landscape diagram for Midnight Devnet
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' set font
+skinparam defaultFontName Liberation Sans
+
+' Enable legend
+LAYOUT_WITH_LEGEND()
+
+' Title
+title [System Landscape] Midnight Devnet
+
+' DApp user
+Person(user, "DApp Developer", "DApp Developer testing a DApp locally")
+
+' Midnight Network
+Boundary(midnight, "Midnight Devnet", $type="Blockchain Network"){
+    System_Ext(simulator, "Midnight Network Simulator", "Simulates Midnight Network")    
+
+    ' Midnight DApp
+    System_Ext(dapp, "Midnight DApp", "DApp built on top of Midnight")
+    
+    ' Lace
+    System_Ext(lace, "Mocked Wallet", "Mocked version of the Wallet")
+    
+    ' DAppp Relationships
+    Rel(dapp, simulator, "subscribes to updates from")
+    Rel(dapp, lace, "sends unconfirmed transactions to")
+
+    ' User Relationships
+    Rel(user, lace, "manages wallet and approves transactions with")
+    Rel(user, dapp, "interacts with")
+
+    ' Lace Relationships
+    Rel(lace, simulator, "sends confirmed transactions to")
+    Rel(lace, simulator, "subscribes to updates from")    
+}
+@enduml
