@@ -1,0 +1,31 @@
+@startuml System Context diagram for Midnight DApp
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' set font
+skinparam defaultFontName Liberation Sans
+
+' Enable legend
+
+LAYOUT_WITH_LEGEND()
+
+' Title
+title [System Context] Midnight DApp
+
+' DApp User
+Person(user, "DApp User", "User of the DApp")
+
+' Midnight DApp
+System(dapp, "Midnight DApp", "DApp built on top of Midnight")
+Rel_D(user, dapp, "interacts with")
+
+' Midnight Indexer
+System_Ext(indexer, "Midnight PubSub Indexer", "Processes Blocks and Indexes Ledger")
+Rel_R(dapp, indexer, "gets ledger state from")
+Rel_L(indexer, dapp, "pushes updates to")
+
+' Lace
+System_Ext(lace, "Lace", "Lightwallet Service")
+Rel_R(user, lace, "has a wallet with")
+Rel_U(dapp, lace, "sends unconfirmed transactions to")
+Rel_L(lace, user, "confirms transactions with")
+@enduml
