@@ -8,39 +8,36 @@ title [Component] Lace Browser Extension
 
 Person(user, "DApp User", "User of a Midnight DApp")
 
-' Container(extension, "Lace Browser Extension", "Chrome Extension", "Provides Light Wallet functionality to the user")
 Container_Boundary(extension, "Lace Browser Extension"){
-  Component_Ext(walletCore, "Wallet Core")
-  Component_Ext(uiLib, "UI Lib")
-  Component_Ext(dappConnector, "DApp connector")
+  Component(dappConnector, "Midnight DApp Connector", "JavaScript and Lace DApp Connector",  "receives usigned transactions from DApps")
+  Component(walletUI, "Midnight Wallet UI", "JavaScript and Lace UI Lib", "exposes Midnight Wallet functionality to the user")
+  Component(walletEngine, "Midnight Wallet Engine", "JavaScript and Lace Wallet Core", "provides the core functionality of Midnight Wallet")  
+  Component(midnightCrypto, "Midnight Crypto", "JavaScript and WASM", "Provides Midnight-specific cryptography operations")
 
-  Component(walletUI, "Midnight Wallet UI")
-  Component(walletEngine, "Midnight Wallet Engine")
-  Component(midnightCrypto, "Midnight Crypto")
-  
-  Component(midnightDAppConnector, "Midnight DApp Connector")
+  Rel(walletEngine, walletUI, "Uses")
+  Rel(dappConnector, walletEngine, "connects to")
+  Rel(walletEngine, midnightCrypto, "signs transactions using")
 
-  Rel(walletEngine, walletCore, "Crypto operations")
-  Rel(walletCore, midnightCrypto, "does Midnight-specific operations with")
-  Rel(walletUI, uiLib, "Uses")
-  Rel(walletUI, walletEngine, "Uses")
-  Rel(dappConnector, midnightDAppConnector, "Submits Midnight txs with")
-  Rel(midnightDAppConnector, walletEngine, "connects to")
+  Rel(walletEngine, user, "confirms transactions with")
 }
 
-Container_Ext(spa, "Single Page Application", "JavaScript with ReactJS", "Exposes DApp functionality to the user via their browser")
+ContainerDb(storage, "Browser's Local Storage", "Web Storage and IndexedDB", "stores encrypted private keys, address book, etc.")
+
+Container_Ext(spa, "DApp Single Page Application", "JavaScript with ReactJS", "Exposes DApp functionality to the user via their browser")
 
 System_Ext(mempool, "Midnight Mempool", "Mempool for Midnight transactions")
 System_Ext(indexer, "Midnight PubSub Indexer", "PubSub service for Midnight")
 
 Rel(user, spa, "interacts with")
-Rel(user, extension, "has a wallet at")
+Rel(user, walletEngine, "has a wallet at")
 
-Rel(spa, extension, "submit transactions to")
+Rel_R(spa, dappConnector, "submit signed transactions to")
 Rel(spa, indexer, "subscribes for updates from")
 
-Rel(extension, mempool, "sends transactions to")
-Rel(extension, user, "confirm transactions with")
-Rel(extension, indexer, "subscribes for updates from")
+Rel(walletEngine, mempool, "sends signed transactions to")
+Rel_D(walletEngine, storage, "reads from and writes to")
+
+' Layout fixes
+Lay_R(spa, dappConnector)
 
 @enduml
