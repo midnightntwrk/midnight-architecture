@@ -1,0 +1,55 @@
+@startuml System Landscape diagram for Midnight Testnet
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' set font
+skinparam defaultFontName Liberation Sans
+
+' Enable legend
+LAYOUT_WITH_LEGEND()
+
+' Title
+title [System Landscape] Midnight Testnet (DApp User Perspective)
+
+' DApp user
+Person(user, "DApp User", "User of a Midnight DApp")
+
+' IOG
+' Person_Ext(iog, "IOG", "Midnight Infrastructure Operator")
+
+' Midnight Network
+Boundary(midnight, "Midnight Testnet", $type="Blockchain Network"){
+    Boundary(testnet, "Hosted by IOG", $type="Testnet"){
+        ' Midnight Mempool
+        System_Ext(mempool, "Midnight Mempool", "Contains unprocessed transactions")   
+        
+        ' Midnight Node
+        System_Ext(node, "Midnight Network Simulator", "processing Transactions and bundling them into Blocks")
+        
+        ' Midnight PubSub Indexer
+        System_Ext(indexer, "Midnight PubSub Indexer", "Processes Blocks and Indexes the Ledger")
+    }
+
+    ' Midnight DApp
+    System_Ext(dapp, "Midnight DApp", "DApp built on top of Midnight")
+    
+    ' Lace
+    System_Ext(lace, "Lace", "Lightwallet Service")
+
+    ' User Relationships
+    Rel_R(user, lace, "manages wallet and approves transactions using")
+    Rel(user, dapp, "interacts with")
+    
+    ' DAppp Relationships
+    Rel_R(dapp, indexer, "subscribes to updates from")
+    Rel_U(dapp, lace, "sends unconfirmed transactions to")
+    
+
+    ' Lace Relationships
+    Rel(lace, mempool, "sends confirmed transactions to")
+    Rel(lace, indexer, "subscribes to updates from")
+
+    ' Node relationships
+    Rel_D(node, indexer, "sends blocks to")
+    Rel_D(mempool, node, "sends transactions to")
+}
+@enduml
