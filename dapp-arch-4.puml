@@ -1,0 +1,31 @@
+@startuml Component diagram for Lace Browser Extension
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+skinparam defaultFontName Liberation Sans
+
+title [Component] Lace Browser Extension
+
+Person(user, "DApp User", "User of a Midnight DApp")
+
+' Container(extension, "Lace Browser Extension", "Chrome Extension", "Provides Light Wallet functionality to the user")
+Container_Boundary(extension, "Lace Browser Extension"){
+    
+}
+
+Container_Ext(spa, "Single Page Application", "JavaScript with ReactJS", "Exposes DApp functionality to the user via their browser")
+
+System_Ext(mempool, "Midnight Mempool", "Mempool for Midnight transactions")
+System_Ext(indexer, "Midnight PubSub Indexer", "PubSub service for Midnight")
+
+Rel(user, spa, "interacts with")
+Rel(user, extension, "has a wallet at")
+
+Rel(spa, extension, "submit transactions to")
+Rel(spa, indexer, "subscribes for updates from")
+
+Rel(extension, mempool, "sends transactions to")
+Rel(extension, user, "confirm transactions with")
+Rel(extension, indexer, "subscribes for updates from")
+
+@enduml
