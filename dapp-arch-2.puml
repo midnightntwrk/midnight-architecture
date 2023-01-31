@@ -9,7 +9,9 @@ title [Container] Lace Browser Extension
 Person(user, "DApp User", "User of a Midnight DApp")
 
 Container_Ext(spa, "Single Page Application", "JavaScript with ReactJS", "Exposes DApp functionality to the user via their browser")
+
 Container(extension, "Lace Browser Extension", "Chrome Extension", "Provides Light Wallet functionality to the user")
+ContainerDb(storage, "Browser's Local Storage", "Web Storage and IndexedDB", "Stores encrypted private keys, address book, etc.")
 
 System_Ext(mempool, "Midnight Mempool", "Mempool for Midnight transactions")
 System_Ext(indexer, "Midnight PubSub Indexer", "PubSub service for Midnight")
@@ -23,5 +25,6 @@ Rel(spa, indexer, "subscribes for updates from")
 Rel(extension, mempool, "sends transactions to")
 Rel(extension, user, "confirm transactions with")
 Rel(extension, indexer, "subscribes for updates from")
+Rel(extension, storage, "reads from and writes to")
 
 @enduml
