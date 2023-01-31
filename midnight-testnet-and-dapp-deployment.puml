@@ -1,0 +1,72 @@
+@startuml Deployemnt Diagram for Midnight Testnet and Midnight DApp as SPA on Chrome
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+' set font
+skinparam defaultFontName Liberation Sans
+
+' Enable Legend
+LAYOUT_WITH_LEGEND()
+
+title [Deployment] Midnight Testnet and Midnight DApp as SPA on Chrome
+
+Deployment_Node(user_computer, "User's computer"){
+    Deployment_Node(user_browser, "Web Browser", "Chrome or Chromium-based"){
+        ' Singe-Page Application
+        Container(spa_app, "Single-Page Application", "JavaScript and ReactJS", "Provides all the functionality to users via their web browser")
+
+        ' Browser Extension
+        Container_Ext(browser_extension, "Lace Browser Extension", "Chrome Extension", "Provides Lightwallet integration in Browser")        
+    }
+}
+
+Deployment_Node(dapp_server, "DApp's Server"){
+    Deployment_Node(nodejs_process, "NodeJS process"){
+        ' Web Application
+        Container(web_app, "Web Application", "JavaScript and NodeJS", "Delivers the DApp to the user")
+    
+        ' API Application
+        Container(api_app, "API Application", "JavaScript and NodeJS", "Provides DApp functionality via JSON/HTTPS API")    
+    }
+    
+    ' DApp Database
+    ContainerDb(db, "Database", "PostgreSQL or other persistent store", "Stores DApp information")
+}
+
+Deployment_Node(testnet, "IOG's Infrastructure", $type="Testnet"){
+       Deployment_Node(mempool_docker, "Mempool container", "Docker"){
+        ' Midnight Mempool
+        System_Ext(mempool, "Midnight Mempool", "Contains unprocessed transactions")   
+       }
+        
+       Deployment_Node(indexer_docker, "Indexer container", "Docker"){
+        ' Midnight PubSub Indexer
+        System_Ext(indexer, "Midnight PubSub Indexer", "Processes Blocks and Indexes the Ledger")
+       }
+
+      Deployment_Node(simulator_docker, "Network Simulator Container", "Docker"){
+        ' Midnight Node
+        System_Ext(simulator, "Midnight Network Simulator", "processing Transactions and bundling them into Blocks")
+      }
+    }
+
+' Web App relations
+Rel(web_app, spa_app, "deliver's to the user's web browser", "HTTPS")
+
+' SPA App relations
+Rel(spa_app, api_app, "makes API calls to", "JSON/HTTPS")
+Rel(spa_app, browser_extension, "sends transactions to", "JavaScript")
+Rel(spa_app, indexer, "subscribes to updates from")
+
+' Lace Extension relations
+Rel(browser_extension, mempool, "sends transactions to")
+
+' API App relations
+Rel(api_app, db, "reads from and writes to")
+Rel(api_app, indexer, "subscribes to updates from")
+
+' Mempool relationships
+Rel(mempool, simulator, "sends transactions to")
+
+' Node relationships
+Rel(simulator, indexer, "sends blocks to")
+@enduml
