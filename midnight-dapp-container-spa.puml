@@ -1,0 +1,64 @@
+@startuml Container diagram for Midnight DApp as SPA on Chrome
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' set font
+skinparam defaultFontName Liberation Sans
+
+' Enable Legend
+LAYOUT_WITH_LEGEND()
+
+' Title
+title [Container Diagram] Midnight DApp as SPA on Chrome
+
+' DApp User
+Person(user, "DApp User", "User of the DApp")
+
+System_Boundary(dapp, "Midnight DApp"){
+    ' Web Application
+    Container(web_app, "Web Application", "JavaScript and NodeJS", "Delivers the DApp and static assets to the user")
+
+    ' DApp Database
+    ContainerDb(db, "Database", "PostgreSQL or other persistens store", "Stores DApp information")
+
+    ' API Application
+    Container(api_app, "API Application", "JavaScript and NodeJS", "Provides DApp functionality via JSON/HTTPS API")
+
+    ' Singe-Page Application
+    Container(spa_app, "Single-Page Application", "JavaScript and ReactJS", "Provides all the functionality to users via their web browser")
+
+    ' Browser Extension
+    Container_Ext(browser_extension, "Lace Browser Extension", "Chrome Extension", "Provides Lightwallet integration in Browser")
+}
+
+' Lace
+System_Ext(lace, "Lace", "Lightwallet Service")
+
+' Midnight Indexer
+System_Ext(midnight, "Midnight PubSub Indexer", "Processes Blocks and Indexes Ledger")
+
+' User relations
+Rel_D(user, web_app, "visitis DApp URL using", "HTTPS")
+Rel_D(user, spa_app, "interacts with the DApp using")
+Rel(user, lace, "has a wallet with")
+Rel(user, browser_extension, "views their wallet and transactions history using")
+
+' Web App relations
+Rel_R(web_app, spa_app, "deliver's to the user's web browser", "HTTPS")
+
+' SPA App relations
+Rel_D(spa_app, api_app, "makes API calls to", "JSON/HTTPS")
+Rel_R(spa_app, browser_extension, "sends transactions to", "JavaScript")
+Rel(spa_app, midnight, "makes API calls to", "JSON/HTTPS")
+
+' Browser extension relations
+Rel_U(browser_extension, user, "confirms transactions with")
+Rel_R(browser_extension, lace, "makes API calls to", "JSON/HTTPS")
+
+' API App relations
+Rel_R(api_app, midnight, "makes API calls to", "JSON/HTTPS")
+Rel_L(api_app, db, "reads from and writes to")
+
+' Layout Fixes
+Lay_D(web_app, db)
+
+@enduml
