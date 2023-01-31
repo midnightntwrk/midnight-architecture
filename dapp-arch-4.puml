@@ -10,7 +10,22 @@ Person(user, "DApp User", "User of a Midnight DApp")
 
 ' Container(extension, "Lace Browser Extension", "Chrome Extension", "Provides Light Wallet functionality to the user")
 Container_Boundary(extension, "Lace Browser Extension"){
-    
+  Component_Ext(walletCore, "Wallet Core")
+  Component_Ext(uiLib, "UI Lib")
+  Component_Ext(dappConnector, "DApp connector")
+
+  Component(walletUI, "Midnight Wallet UI")
+  Component(walletEngine, "Midnight Wallet Engine")
+  Component(midnightCrypto, "Midnight Crypto")
+  
+  Component(midnightDAppConnector, "Midnight DApp Connector")
+
+  Rel(walletEngine, walletCore, "Crypto operations")
+  Rel(walletCore, midnightCrypto, "does Midnight-specific operations with")
+  Rel(walletUI, uiLib, "Uses")
+  Rel(walletUI, walletEngine, "Uses")
+  Rel(dappConnector, midnightDAppConnector, "Submits Midnight txs with")
+  Rel(midnightDAppConnector, walletEngine, "connects to")
 }
 
 Container_Ext(spa, "Single Page Application", "JavaScript with ReactJS", "Exposes DApp functionality to the user via their browser")
