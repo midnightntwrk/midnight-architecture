@@ -1,0 +1,39 @@
+@startuml
+
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4.puml
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+skinparam defaultFontName Liberation Sans
+
+Person(user, "DApp User", "User of a Midnight DApp")
+
+Component(dappUI, "DApp UI")
+
+Container_Boundary(lace, "Lace") {
+  Component(dappConnector, "Midnight DApp connector")
+  Component(walletUI, "Wallet UI")
+}
+
+Container_Boundary(dapp, "Dapp") {
+  Component(dappBackend, "DApp backend")
+  Component(dappIndexer, "Dapp indexer")
+}
+
+Container_Boundary(wallet, "Wallet") {
+  Component(walletBackend, "Wallet Backend")
+}
+
+Component(node, "Node")
+
+Rel(dappUI, dappBackend, "is UI for")
+Rel(dappUI, dappConnector, "Submits txns")
+Rel(dappConnector, walletBackend, "uses")
+Rel(dappBackend, dappIndexer, "fetches data")
+Rel(dappIndexer, node, "fetches data")
+Rel(walletUI, walletBackend, "is presentation for")
+Rel(walletBackend, node, "uses")
+Rel(user, dappUI, "uses")
+Rel(user, walletUI, "uses")
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4.puml
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+'!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+skinparam defaultFontName Liberation Sans
+
+Person(user, "DApp User", "User of a Midnight DApp")
+
+Container_Boundary(dappDeployment, "Dapp deployment") {
+  Component(dappUI, "DApp UI")
+  Component(dappBackend, "DApp backend")
+}
+
+Container_Boundary(lace, "Lace") {
+  Component_Ext(walletCore, "Wallet Core")
+  Component_Ext(uiLib, "UI Lib")
+  Component(walletUI, "Midnight Wallet UI")
+  Component(walletEngine, "Midnight Wallet Engine")
+  Component(midnightCrypto, "Midnight Crypto")
+  Component_Ext(dappConnector, "DApp connector")
+  Component(midnightDAppConnector, "Midnight DApp Connector")
+
+  Rel(walletEngine, walletCore, "Crypto operations")
+  Rel(walletCore, midnightCrypto, "does Midnight-specific operations with")
+  Rel(walletUI, uiLib, "Uses")
+  Rel(walletUI, walletEngine, "Uses")
+  Rel(dappConnector, midnightDAppConnector, "Submits Midnight txs with")
+  Rel(midnightDAppConnector, walletEngine, "connects to")
+}
+
+Component(dappIndexer, "Dapp indexer")
+
+Container_Boundary(wallet, "Wallet") {
+  Component(walletBackend, "Wallet Backend")
+}
+
+Component(node, "Node")
+
+Rel(dappUI, dappBackend, "is UI for")
+Rel(dappUI, dappConnector, "Dapp connector")
+Rel(dappBackend, dappIndexer, "fetches data")
+Rel(dappIndexer, node, "fetches data")
+Rel(walletEngine, walletBackend, "is presentation for")
+Rel(walletBackend, node, "uses")
+Rel(user, dappUI, "uses")
+Rel(user, walletUI, "uses")
+@enduml
