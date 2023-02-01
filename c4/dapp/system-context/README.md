@@ -31,7 +31,7 @@ The following sections describe possible topologies for a decentralized applicat
 
 The following diagram depicts the Midnight analogue of the standard Ethereum dapp architecture.
 
-![](./images/context-dapp-submits-tx.png)
+![](./context-dapp-submits-tx.png)
 *Fig. 1. System context diagram in which dapp is responsible for submitting transactions*
 
 The external system *Midnight Provider* supports the Midnight node RPC API, analogous to an Ethereum [provider](https://web3js.readthedocs.io/en/v1.2.11/web3-eth.html#eth) in [web3.js](https://web3js.readthedocs.io/en/v1.2.11/index.html#). The provider abstraction would allow the dapp to use third-party services, analogous to [Infura](https://www.infura.io/) and [Alchemy](https://www.alchemy.com/), that operate Midnight node clusters and provide network connectivity and availability guarantees. In practice, Lace may implement the Midnight Provider API, as MetaMask implements the Ethereum Provider API.
@@ -40,7 +40,7 @@ The external system *Midnight Provider* supports the Midnight node RPC API, anal
 
 In the following diagram, the wallet is responsible for submitting transactions to the network.
 
-![](./images/context-wallet-submits-tx.png)
+![](./context-wallet-submits-tx.png)
 *Fig. 2. System context diagram in which wallet is responsible for submitting transactions*
 
 In contrast to Figure 1, Figure 2 does not include *Midnight Provider* because the dapp never directly interacts with it. This configuration is less flexible than that depicted in Figure 1 because it does not have a provider abstraction.
