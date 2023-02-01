@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="469px" preserveAspectRatio="none" style="width:914px;height:469px;background:#FFFFFF;" version="1.1" viewBox="0 0 914 469" width="914px" zoomAndPan="magnify"><defs/><g><rect height="26.2969" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="325.0625" x="287.7188" y="5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="315.0625" x="292.7188" y="22.9951">[System Context] Decentralized Application</text><!--MD5=[8fc3522a43f8c7199df5e09e5bb0188e]
+entity user--><g id="elem_user"><rect fill="#08427B" height="86.625" rx="2.5" ry="2.5" style="stroke:#073B6F;stroke-width:0.5;" width="68" x="226" y="52.7969"/><image height="48" width="48" x="236" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAACD0lEQVR4Xu2YoU4EMRCGT+4j8Ai8AhaH4QHgAUjQuFMECUgMIUgwJAgMhgQsAYUiJCiQIBBY+EITsjfTdme6V24v4c8vyGbb+ZjOtN0bNcvjQXmkH83WvYBWto6PLm6v7p7uH1/w2fXD+PBycX1Pv2l3IdDm/vn7x+dXQiAubRzoURa7gRZWd0iGRIiJbOnhnfYBQZNJjNbuyY2eJG8fkDE3bbG4ep6MHUAsgYxmE3nVs6VsBWJSGccsOlFPmLIViMzLOB7pCVO2AtHJMohH7Fh6zqitQK7m0rJvAVYgGcEpe//PLdDz65sM4pF9N7ICcXDKIB5Nv6j7tD0NoSdM2QrU9Gg0ewE1LqBhHR3BBdvj2vapnidjHxD/q6vd7Pvhr31AwcY8eXMTXAKECZZJFXuEq27aLgQK5uLMohCenGGuGewOxSjBvYBqeG6B+Nqiblggdjnc+ZXDy+FNFpFzw76O3UBAROuXh6FoiAcf5g9eTvUgzy0nWg6I8cXHRUpg5bOVBCo+KDpFajOf23GgPme7RSQ+lacIENUgJ6gg1k6HjgOlqnLqip4tEuhv0hNEMXUD0clyXE3p6pZA0S2nnvTlXwLJEZWlb7cTQH1+USgTN4VhAenm/wea1OCAOmqo6fE1WCb9WSKBah+rbUWPWAmE2Rvk0ApiB45eOyNAzU8xcTvj8KvkKEoOaIYeHNA3ZuygAvFMUO0AAAAASUVORK5CYII=" y="62.7969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="39" x="240.5" y="125.6484">User</text></g><!--MD5=[f52c928e526bbabb2aee705ec2c4a030]
+entity dapp--><g id="elem_dapp"><rect fill="#1168BD" height="106.1406" rx="2.5" ry="2.5" style="stroke:#3C7FC0;stroke-width:0.5;" width="165" x="468.5" y="237.2969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="111.5" x="492.75" y="262.1484">Decentralized</text><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="89.5" x="506.25" y="280.7734">Application</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="549" y="297.542"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="137" x="482.5" y="313.8389">Provides application</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="135" x="483.5" y="330.1357">functionality to user</text></g><!--MD5=[9987b44fa6fb5fdb245a66e4a40e287c]
+entity ipfsNodeOperator--><g id="elem_ipfsNodeOperator"><rect fill="#686868" height="86.625" rx="2.5" ry="2.5" style="stroke:#8A8A8A;stroke-width:0.5;" width="184" x="7" y="52.7969"/><image height="48" width="48" x="75" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAB6ElEQVR4Xu2YLY+EMBCG9+dWr0aj0Wg0Go1Go0+j8Xdv2uTCvv1gpt0ebHKPuhDaeW4605Z9mJvx4AdXUyTUdd08z+u6flmWZRnHsWkafk9DptAwDPu+f0eAYtu2PEaGWuj5fCIZrBAC2eLBAnRCsEkkxmeaJp7iDJ2QMDdHsLg8SxKFEJaAo8lAXnmuOFIhTMpxxKATebo4UiFknuNo4OniSIXQyRxEA3YsnjGCVEjVXD7yLUAqxBGUyPv/Y4W2beMgGuS7kVQIBycH0fD+oi5pezQETxdHKmQKGk1eQEYldK+jw5GxPfZ9z7Mk0Qnhf1W1m3w//EUn5BDmSZsbR44QQLBEqrBHqOrmSKaQAxdnLArCrxZcM7A7ZKs4ioRq8LFC+NpC3WCBJsvpVw5edm9iEXFuyNfxXAgSwfrFQ1c0iNda8AdejvUgnktOtJQQxmcfFzGglc5WVCj7oDgFqU18boeFSs52CUh8LE8BIVQDT1ABrB0HtgSEYlX5doJnCwv9TXocKCaKbnwhdDKPq4lf3SwU3HLq4V/+WYhHVMa/3b4IlfyikAduCkcBc7mQ3/z/Qq/cTuikhkzB12Ae/mcJC9U+Vo8Ej1gWAtgbeGgFsAMHr50BIWOLCbezvhpBFUdY6EJuJ/QDW0XoMX60zZ0AAAAASUVORK5CYII=" y="62.7969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="164" x="17" y="125.6484">IPFS Node Operator</text></g><!--MD5=[4a4839c7e10b9a03b15f86050411ab9e]
+entity chainIndexOperator--><g id="elem_chainIndexOperator"><rect fill="#686868" height="86.625" rx="2.5" ry="2.5" style="stroke:#8A8A8A;stroke-width:0.5;" width="197" x="711.5" y="52.7969"/><image height="48" width="48" x="786" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAB6ElEQVR4Xu2YLY+EMBCG9+dWr0aj0Wg0Go1Go0+j8Xdv2uTCvv1gpt0ebHKPuhDaeW4605Z9mJvx4AdXUyTUdd08z+u6flmWZRnHsWkafk9DptAwDPu+f0eAYtu2PEaGWuj5fCIZrBAC2eLBAnRCsEkkxmeaJp7iDJ2QMDdHsLg8SxKFEJaAo8lAXnmuOFIhTMpxxKATebo4UiFknuNo4OniSIXQyRxEA3YsnjGCVEjVXD7yLUAqxBGUyPv/Y4W2beMgGuS7kVQIBycH0fD+oi5pezQETxdHKmQKGk1eQEYldK+jw5GxPfZ9z7Mk0Qnhf1W1m3w//EUn5BDmSZsbR44QQLBEqrBHqOrmSKaQAxdnLArCrxZcM7A7ZKs4ioRq8LFC+NpC3WCBJsvpVw5edm9iEXFuyNfxXAgSwfrFQ1c0iNda8AdejvUgnktOtJQQxmcfFzGglc5WVCj7oDgFqU18boeFSs52CUh8LE8BIVQDT1ABrB0HtgSEYlX5doJnCwv9TXocKCaKbnwhdDKPq4lf3SwU3HLq4V/+WYhHVMa/3b4IlfyikAduCkcBc7mQ3/z/Qq/cTuikhkzB12Ae/mcJC9U+Vo8Ej1gWAtgbeGgFsAMHr50BIWOLCbezvhpBFUdY6EJuJ/QDW0XoMX60zZ0AAAAASUVORK5CYII=" y="62.7969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="177" x="721.5" y="125.6484">Chain Index Operator</text></g><!--MD5=[fd89efdf28bac91274d49a657ebde8e1]
+entity ipfsNode--><g id="elem_ipfsNode"><rect fill="#999999" height="87.5156" rx="2.5" ry="2.5" style="stroke:#8A8A8A;stroke-width:0.5;" width="200" x="125" y="246.2969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="84" x="183" y="271.1484">IPFS Node</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="223" y="287.917"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="172" x="139" y="304.2139">Delivers static content to</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="117" x="166.5" y="320.5107">SPA and browser</text></g><!--MD5=[9f0a31544a364242c70ddfd4e94f7216]
+entity chainIndex--><g id="elem_chainIndex"><rect fill="#999999" height="87.5156" rx="2.5" ry="2.5" style="stroke:#8A8A8A;stroke-width:0.5;" width="179" x="720.5" y="246.2969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="97" x="761.5" y="271.1484">Chain Index</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="808" y="287.917"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="151" x="734.5" y="304.2139">Receives and indexes</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="108" x="756" y="320.5107">blockchain data</text></g><!--MD5=[d80926c91208070f1daa3c471ba18e8e]
+entity wallet--><g id="elem_wallet"><rect fill="#999999" height="103.8125" rx="2.5" ry="2.5" style="stroke:#8A8A8A;stroke-width:0.5;" width="181" x="478.5" y="44.2969"/><text fill="#FFFFFF" font-family="sans-serif" font-size="16" font-weight="bold" lengthAdjust="spacing" textLength="38" x="550" y="69.1484">Lace</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="567" y="85.917"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="153" x="492.5" y="102.2139">Manages private keys,</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="151" x="491.5" y="118.5107">balances and submits</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="85" x="526.5" y="134.8076">transactions</text></g><!--MD5=[87d381695b38f47f03909a551395db78]
+link ipfsNodeOperator to ipfsNode--><g id="link_ipfsNodeOperator_ipfsNode"><path d="M126.3,139.9869 C139.43,160.4069 155.44,185.1769 170,207.2969 C176.8,217.6369 184.14,228.6569 191.17,239.1669 " fill="none" id="ipfsNodeOperator-to-ipfsNode" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="195.74,245.9869,193.7738,237.6722,188.7914,241.0152,195.74,245.9869" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61" x="171" y="197.4355">Operates</text></g><!--MD5=[af76edfa7d6ef8bda45927ff2429dddd]
+link ipfsNode to dapp--><g id="link_ipfsNode_dapp"><path d="M325.03,290.2969 C368.19,290.2969 418.32,290.2969 460.38,290.2969 " fill="none" id="ipfsNode-to-dapp" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="468.41,290.2969,460.41,287.2969,460.41,293.2969,468.41,290.2969" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="103.25" x="343.25" y="270.4355">Delivers to user</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="52.625" x="370.5625" y="284.4043">browser</text></g><!--MD5=[1fe179213dadedf2c5d32341e7ec9b36]
+link dapp to chainIndex--><g id="link_dapp_chainIndex"><path d="M633.66,290.2969 C658.51,290.2969 686.01,290.2969 711.77,290.2969 " fill="none" id="dapp-to-chainIndex" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="720.06,290.2969,712.06,287.2969,712.06,293.2969,720.06,290.2969" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="50.625" x="652" y="284.4355">Queries</text></g><!--MD5=[94b37560282c568b0f5bbfef2f95e617]
+link chainIndexOperator to chainIndex--><g id="link_chainIndexOperator_chainIndex"><path d="M810,139.9069 C810,168.9169 810,207.4469 810,238.1169 " fill="none" id="chainIndexOperator-to-chainIndex" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="810,246.1369,813,238.1369,807,238.1369,810,246.1369" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="61" x="811" y="197.4355">Operates</text></g><!--MD5=[ebfc4e2f647c4d72ac2840a9dd1b7780]
+link user to ipfsNode--><g id="link_user_ipfsNode"><path d="M252.23,139.9069 C246.95,168.9169 239.92,207.4469 234.33,238.1169 " fill="none" id="user-to-ipfsNode" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="232.87,246.1369,237.2632,238.8089,231.3616,237.7271,232.87,246.1369" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="63.375" x="246" y="197.4355">Visits URL</text></g><!--MD5=[ee0c8af375cec1ac918be973671a5ae4]
+link user to dapp--><g id="link_user_dapp"><path d="M294.24,119.8869 C335.96,147.4169 407.96,194.9169 465.12,232.6369 " fill="none" id="user-to-dapp" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="472.02,237.1869,466.9866,230.2829,463.6881,235.2949,472.02,237.1869" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="32.5" x="424" y="197.4355">Uses</text></g><!--MD5=[3a5dafee54472a3c967e439aa8ea6aac]
+reverse link wallet to dapp--><g id="link_wallet_dapp"><path d="M563.43,156.7069 C561.02,182.4669 558.21,212.3569 555.88,237.2369 " fill="none" id="wallet-backto-dapp" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="564.2,148.4969,560.4557,156.1767,566.4287,156.7451,564.2,148.4969" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="140.125" x="563" y="190.4355">Submits transactions</text><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="35.875" x="617.125" y="204.4043">using</text></g><!--MD5=[ff711ebf8b59a40b64350d13b706398a]
+link user to wallet--><g id="link_user_wallet"><path d="M294.25,96.2969 C336.43,96.2969 409.91,96.2969 470.27,96.2969 " fill="none" id="user-to-wallet" style="stroke:#666666;stroke-width:1.0;"/><polygon fill="#666666" points="478.32,96.2969,470.32,93.2969,470.32,99.2969,478.32,96.2969" style="stroke:#666666;stroke-width:1.0;"/><text fill="#666666" font-family="sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacing" textLength="148.75" x="312.25" y="90.4355">Manages tokens using</text></g><rect height="97.4844" rx="7.5" ry="7.5" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="152" x="740.5" y="356.4375"/><rect height="16.2969" style="stroke:none;stroke-width:1.0;fill:none;" width="140" x="746.5" y="364.4375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="54.625" x="746.5" y="377.4326">Legend</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="801.125" y="377.4326"> </text><rect fill="#08427B" height="16.2969" style="stroke:none;stroke-width:1.0;" width="140" x="746.5" y="380.7344"/><text fill="#073B6F" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="8" x="750.5" y="393.7295">▯</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="758.5" y="393.7295"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="49" x="766.5" y="393.7295">person</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="819.5" y="393.7295"> </text><rect fill="#1168BD" height="16.2969" style="stroke:none;stroke-width:1.0;" width="140" x="746.5" y="397.0313"/><text fill="#3C7FC0" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="8" x="750.5" y="410.0264">▯</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="758.5" y="410.0264"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="50" x="766.5" y="410.0264">system</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="820.5" y="410.0264"> </text><rect fill="#686868" height="16.2969" style="stroke:none;stroke-width:1.0;" width="140" x="746.5" y="413.3281"/><text fill="#8A8A8A" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="8" x="750.5" y="426.3232">▯</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="758.5" y="426.3232"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="111" x="766.5" y="426.3232">external_person</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="881.5" y="426.3232"> </text><rect fill="#999999" height="16.2969" style="stroke:none;stroke-width:1.0;" width="140" x="746.5" y="429.625"/><text fill="#8A8A8A" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="8" x="750.5" y="442.6201">▯</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="758.5" y="442.6201"> </text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="112" x="766.5" y="442.6201">external_system</text><text fill="#FFFFFF" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="4" x="882.5" y="442.6201"> </text><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="886.5" y1="364.4375" y2="364.4375"/><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="886.5" y1="380.7344" y2="380.7344"/><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="886.5" y1="397.0313" y2="397.0313"/><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="886.5" y1="413.3281" y2="413.3281"/><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="886.5" y1="429.625" y2="429.625"/><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="886.5" y1="445.9219" y2="445.9219"/><line style="stroke:#00000000;stroke-width:1.0;" x1="746.5" x2="746.5" y1="364.4375" y2="445.9219"/><line style="stroke:#00000000;stroke-width:1.0;" x1="886.5" x2="886.5" y1="364.4375" y2="445.9219"/><!--MD5=[dbd1fdc7bf6ce047b4dd459e6994462c]
+@startuml [System Diagram] Decentralized Application
+!include <C4/C4_Context>
+title [System Context] Decentralized Application
+Person(user, "User")
+System(dapp, "Decentralized Application", "Provides application functionality to user")
+Person_Ext(ipfsNodeOperator, "IPFS Node Operator")
+Person_Ext(chainIndexOperator, "Chain Index Operator")
+System_Ext(ipfsNode, "IPFS Node", "Delivers static content to SPA and browser")
+System_Ext(chainIndex, "Chain Index", "Receives and indexes blockchain data")
+System_Ext(wallet, "Lace", "Manages private keys, balances and submits transactions")
+Rel_D(ipfsNodeOperator, ipfsNode, "Operates")
+Rel_R(ipfsNode, dapp, "Delivers to user browser")
+Rel_R(dapp, chainIndex, "Queries")
+Rel_D(chainIndexOperator, chainIndex, "Operates")
+Rel_D(user, ipfsNode, "Visits URL")
+Rel_D(user, dapp, "Uses")
+Rel_U(dapp, wallet, "Submits transactions using")
+Rel_R(user, wallet, "Manages tokens using")
+SHOW_LEGEND()
+@enduml
+
+@startuml [System Diagram] Decentralized Application
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam defaultTextAlignment center
+
+skinparam wrapWidth 200
+skinparam maxMessageSize 150
+
+skinparam LegendBorderColor transparent
+skinparam LegendBackgroundColor transparent
+skinparam LegendFontColor #FFFFFF
+
+skinparam shadowing<<legendArea>> false
+skinparam rectangle<<legendArea>> {
+    backgroundcolor #00000000
+    bordercolor #00000000
+}
+
+skinparam rectangle {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam database {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam queue {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam arrow {
+    Color #666666
+    FontColor #666666
+    FontSize 12
+}
+
+skinparam actor {
+    StereotypeFontSize 12
+    shadowing false
+    style awesome
+}
+
+skinparam person {
+    StereotypeFontSize 12
+    shadowing false
+}
+
+skinparam package {
+    StereotypeFontSize 6
+    StereotypeFontColor transparent
+    FontStyle plain
+    BackgroundColor transparent
+}
+
+skinparam rectangle<<boundary>> {
+    Shadowing false
+    StereotypeFontSize 6
+    StereotypeFontColor transparent
+    FontColor #444444
+    BorderColor #444444
+    BackgroundColor transparent
+    BorderStyle dashed
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+skinparam rectangle<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+skinparam database<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+skinparam queue<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+skinparam actor<<person>> {
+    StereotypeFontColor #08427B
+    FontColor #08427B
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+skinparam person<<person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #08427B
+    BorderColor #073B6F
+}
+
+
+skinparam rectangle<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+skinparam database<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+skinparam queue<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+skinparam actor<<external_person>> {
+    StereotypeFontColor #686868
+    FontColor #686868
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+skinparam person<<external_person>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #686868
+    BorderColor #8A8A8A
+}
+
+
+skinparam rectangle<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+skinparam database<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+skinparam queue<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+skinparam actor<<system>> {
+    StereotypeFontColor #1168BD
+    FontColor #1168BD
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+skinparam person<<system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #1168BD
+    BorderColor #3C7FC0
+}
+
+
+skinparam rectangle<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+skinparam database<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+skinparam queue<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+skinparam actor<<external_system>> {
+    StereotypeFontColor #999999
+    FontColor #999999
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+skinparam person<<external_system>> {
+    StereotypeFontColor #FFFFFF
+    FontColor #FFFFFF
+    BackgroundColor #999999
+    BorderColor #8A8A8A
+}
+
+
+
+
+
+sprite $person [48x48/16] {
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+0000000000000000000049BCCA7200000000000000000000
+0000000000000000006EFFFFFFFFB3000000000000000000
+00000000000000001CFFFFFFFFFFFF700000000000000000
+0000000000000001EFFFFFFFFFFFFFF80000000000000000
+000000000000000CFFFFFFFFFFFFFFFF6000000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+00000000000001FFFFFFFFFFFFFFFFFFF900000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFF00000000000000
+0000000000000BFFFFFFFFFFFFFFFFFFFF40000000000000
+0000000000000EFFFFFFFFFFFFFFFFFFFF70000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000DFFFFFFFFFFFFFFFFFFFF60000000000000
+0000000000000AFFFFFFFFFFFFFFFFFFFF40000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFE00000000000000
+00000000000000EFFFFFFFFFFFFFFFFFF800000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+000000000000000BFFFFFFFFFFFFFFFF5000000000000000
+0000000000000001DFFFFFFFFFFFFFF70000000000000000
+00000000000000000BFFFFFFFFFFFF500000000000000000
+0000000000000000005DFFFFFFFFA1000000000000000000
+0000000000000000000037ABB96100000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000025788300000000005886410000000000000
+000000000007DFFFFFFD9643347BFFFFFFFB400000000000
+0000000004EFFFFFFFFFFFFFFFFFFFFFFFFFFB1000000000
+000000007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFD200000000
+00000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE10000000
+0000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB0000000
+000000BFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5000000
+000003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD000000
+000009FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF200000
+00000DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF600000
+00000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF800000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+00001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA00000
+00000EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF700000
+000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE100000
+0000008FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD3000000
+000000014555555555555555555555555555555300000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+}
+
+sprite $person2 [48x48/16] {
+0000000000000000000049BCCA7200000000000000000000
+0000000000000000006EFFFFFFFFB3000000000000000000
+00000000000000001CFFFFFFFFFFFF700000000000000000
+0000000000000001EFFFFFFFFFFFFFF80000000000000000
+000000000000000CFFFFFFFFFFFFFFFF6000000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+00000000000001FFFFFFFFFFFFFFFFFFF900000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFF00000000000000
+0000000000000BFFFFFFFFFFFFFFFFFFFF40000000000000
+0000000000000EFFFFFFFFFFFFFFFFFFFF70000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000FFFFFFFFFFFFFFFFFFFFF80000000000000
+0000000000000DFFFFFFFFFFFFFFFFFFFF60000000000000
+0000000000000AFFFFFFFFFFFFFFFFFFFF40000000000000
+00000000000006FFFFFFFFFFFFFFFFFFFE00000000000000
+00000000000000EFFFFFFFFFFFFFFFFFF800000000000000
+000000000000007FFFFFFFFFFFFFFFFFF100000000000000
+000000000000000BFFFFFFFFFFFFFFFF5000000000000000
+0000000000000001DFFFFFFFFFFFFFF70000000000000000
+00000000000000000BFFFFFFFFFFFF500000000000000000
+0000000000000000005DFFFFFFFFA1000000000000000000
+0000000000000000000037ABB96100000000000000000000
+000000000002578888300000000005888864100000000000
+0000000007DFFFFFFFFD9643347BFFFFFFFFFB4000000000
+00000004EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB10000000
+0000007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD2000000
+000006FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE100000
+00003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB00000
+0000BFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF50000
+0003FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD0000
+0009FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF2000
+000DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6000
+000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8000
+001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB000
+001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB000
+001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFB000
+001FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA000
+000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF8000
+000DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF6000
+0009FFFFFFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFFFFFF2000
+0003FFFFFFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFFFFFD0000
+0000BFFFFFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFFFFF50000
+00003FFFFFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFFFFB00000
+000006FFFFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFFFE100000
+0000007FFFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFFD2000000
+00000004EFFF8FFFFFFFFFFFFFFFFFFFFFF8FFFB10000000
+0000000007DF8FFFFFFFFFFFFFFFFFFFFFF8FB4000000000
+000000000002578888888888888888888864100000000000
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+title [System Context] Decentralized Application
+rectangle "<$person>\n==User" <<person>> as user 
+rectangle "==Decentralized Application\n\n Provides application functionality to user" <<system>> as dapp 
+rectangle "<$person>\n==IPFS Node Operator" <<external_person>> as ipfsNodeOperator 
+rectangle "<$person>\n==Chain Index Operator" <<external_person>> as chainIndexOperator 
+rectangle "==IPFS Node\n\n Delivers static content to SPA and browser" <<external_system>> as ipfsNode 
+rectangle "==Chain Index\n\n Receives and indexes blockchain data" <<external_system>> as chainIndex 
+rectangle "==Lace\n\n Manages private keys, balances and submits transactions" <<external_system>> as wallet 
+ipfsNodeOperator -DOWN->> ipfsNode : **Operates**
+ipfsNode -RIGHT->> dapp : **Delivers to user browser**
+dapp -RIGHT->> chainIndex : **Queries**
+chainIndexOperator -DOWN->> chainIndex : **Operates**
+user -DOWN->> ipfsNode : **Visits URL**
+user -DOWN->> dapp : **Uses**
+dapp -UP->> wallet : **Submits transactions using**
+user -RIGHT->> wallet : **Manages tokens using**
+hide stereotype
+legend right
+<#00000000,#00000000>|<color:#000000>**Legend**</color> |
+|<#08427B><color:#073B6F> <U+25AF></color> <color:#FFFFFF> person </color> |
+|<#1168BD><color:#3C7FC0> <U+25AF></color> <color:#FFFFFF> system </color> |
+|<#686868><color:#8A8A8A> <U+25AF></color> <color:#FFFFFF> external_person </color> |
+|<#999999><color:#8A8A8A> <U+25AF></color> <color:#FFFFFF> external_system </color> |
+endlegend
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 16:10:57 UTC 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: ANSI_X3.4-1968
+Language: en
+Country: US
+--></g></svg>
