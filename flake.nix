@@ -11,7 +11,7 @@
       url = "github:numtide/flake-utils";
     };
     tullia = {
-      url = "github:input-output-hk/tullia?rev=f75ad427298eb8adf1a14cf08a5c48d3d3aa8ca1";
+      url = "github:input-output-hk/tullia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
