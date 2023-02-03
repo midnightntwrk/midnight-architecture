@@ -59,7 +59,7 @@
 
       if git commit --all --message render; then
         git show # just for the log
-        git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub event")}
+        git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub Push or PR")}
       else
         echo "No diagrams updates required"
       fi
