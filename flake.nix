@@ -2,7 +2,7 @@
   description = "Flake for the midnight-architecture";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-22.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -11,7 +11,7 @@
       url = "github:numtide/flake-utils";
     };
     tullia = {
-      url = "github:input-output-hk/tullia?rev=f75ad427298eb8adf1a14cf08a5c48d3d3aa8ca1";
+      url = "github:input-output-hk/tullia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

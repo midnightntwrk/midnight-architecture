@@ -17,18 +17,11 @@
     preset = {
       nix.enable = true;
 
-      github = let
+      github.ci = {
         enable = config.actionRun.facts != {};
         repository = "input-output-hk/midnight-architecture";
-        revision = ghLib.readRevision "GitHub event" "";
-      in {
-        ci = {
-          inherit enable repository revision;
-        };
-        status = {
-          inherit enable repository revision;
-          enableActionName = false;
-        };
+        remote = config.preset.github.lib.readRepository "GitHub Push or PR" "";
+        revision = config.preset.github.lib.readRevision "GitHub Push or PR" "";
       };
     };
 
@@ -66,15 +59,19 @@
 
       if git commit --all --message render; then
         git show # just for the log
-        git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub event")}
+        git push origin HEAD:${lib.escapeShellArg (getBranch "GitHub Push or PR")}
       else
         echo "No diagrams updates required"
       fi
     '';
 
     memory = 1024 * 8;
+
     nomad = {
       resources.cpu = 5000;
+
+      driver = lib.mkDefault "exec";
+
       templates = [
         {
           destination = "${config.env.HOME}/.netrc";
@@ -90,7 +87,9 @@
         }
       ];
 
-      env.NIX_CONFIG = "netrc-file = ${config.env.HOME}/.netrc";
+      env.NIX_CONFIG = ''
+        netrc-file = ${config.env.HOME}/.netrc
+      '';
     };
   };
 }
