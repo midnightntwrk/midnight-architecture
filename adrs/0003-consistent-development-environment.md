@@ -118,3 +118,5 @@ though in reality it would mean, that:
 This decision is a direct result of discussion that was held on [ticket](
 https://input-output.atlassian.net/browse/PM-3860), partially on [Slack](
 https://input-output-rnd.slack.com/archives/GEH5A0YLR/p1656425716597359)
+
+[Guide](https://input-output.atlassian.net/wiki/spaces/MN/pages/3763798043/Troubleshooting+nix+build) with use cases about troubleshooting nix builds.
