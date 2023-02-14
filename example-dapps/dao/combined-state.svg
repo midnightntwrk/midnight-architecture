@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="2337px" preserveAspectRatio="none" style="width:1002px;height:2337px;background:#FFFFFF;" version="1.1" viewBox="0 0 1002 2337" width="1002px" zoomAndPan="magnify"><defs/><g><rect height="58.8867" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="118" x="870" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="105" x="883" y="9.668">combined-state.puml</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="118" x="870" y="21.4453">2022.10.31 at 23:28 CET</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="985" y="33.2227"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="985" y="45"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="985" y="56.7773"> </text><rect fill="#F1F1F1" height="2210.4609" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="988" x="7" y="66.8867"/><rect fill="#FFFFFF" height="2120.4414" rx="12.5" ry="12.5" style="stroke:#FFFFFF;stroke-width:1.0;" width="986" x="8" y="155.9063"/><line style="stroke:#181818;stroke-width:0.5;" x1="7" x2="995" y1="154.9063" y2="154.9063"/><line style="stroke:#181818;stroke-width:0.5;" x1="7" x2="995" y1="93.375" y2="93.375"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="70" x="466" y="85.4219">DappState</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="280" x="12" y="104.9766">it's built of 3 primary, independent components:</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="283" x="12" y="119.1094">- organizer, who drives the lifecycle of proposals</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="376" x="12" y="133.2422">- beneficiary, who receives coins in case of voting ending in favor</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacing" textLength="213" x="12" y="147.375">- votes, who can vote after bought in</text><rect fill="#F1F1F1" height="677.4648" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="962" x="19" y="166.9063"/><rect fill="#FFFFFF" height="648.9766" rx="12.5" ry="12.5" style="stroke:#FFFFFF;stroke-width:1.0;" width="960" x="20" y="194.3945"/><line style="stroke:#181818;stroke-width:0.5;" x1="19" x2="981" y1="193.3945" y2="193.3945"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="69" x="465.5" y="185.4414">Organizer</text><g id="elem_COrganizerCheck"><polygon fill="#F1F1F1" points="441,277.3945,453,289.3945,441,301.3945,429,289.3945,441,277.3945" style="stroke:#181818;stroke-width:0.5;"/></g><g id="DappState.Organizer.OrganizerUnitialized"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="162" x="31" y="355.8945"/><line style="stroke:#181818;stroke-width:0.5;" x1="31" x2="193" y1="382.3828" y2="382.3828"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="142" x="41" y="374.4297">OrganizerUnitialized</text></g><g id="DappState.Organizer.OrganizerInitial"><rect fill="#F1F1F1" height="52.9766" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="149" x="529.5" y="354.3945"/><line style="stroke:#181818;stroke-width:0.5;" x1="529.5" x2="678.5" y1="380.8828" y2="380.8828"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="107" x="550.5" y="372.9297">OrganizerInitial</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="129" x="534.5" y="399.418">Proposal not ready</text></g><g id="DappState.Organizer.OrganizerCommit"><rect fill="#F1F1F1" height="69.4648" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="323" x="442.5" y="460.3945"/><line style="stroke:#181818;stroke-width:0.5;" x1="442.5" x2="765.5" y1="486.8828" y2="486.8828"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="123" x="542.5" y="478.9297">OrganizerCommit</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="303" x="447.5" y="505.418">Proposal ready: topic and beneficiary are set</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="127" x="447.5" y="521.9063">Voters can commit</text></g><g id="DappState.Organizer.OrganizerReveal"><rect fill="#F1F1F1" height="69.4648" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="258" x="485" y="582.3945"/><line style="stroke:#181818;stroke-width:0.5;" x1="485" x2="743" y1="608.8828" y2="608.8828"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="113" x="557.5" y="600.9297">OrganizerReveal</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="193" x="490" y="627.418">Voters can reveal their votes</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="238" x="490" y="643.9063">Votes are counted with each reveal</text></g><g id="elem_crevealtofinal"><polygon fill="#F1F1F1" points="614,704.3945,626,716.3945,614,728.3945,602,716.3945,614,704.3945" style="stroke:#181818;stroke-width:0.5;"/></g><g id="DappState.Organizer.OrganizerFinalNo"><rect fill="#F1F1F1" height="52.9766" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="365" x="250.5" y="781.3945"/><line style="stroke:#181818;stroke-width:0.5;" x1="250.5" x2="615.5" y1="807.8828" y2="807.8828"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="121" x="372.5" y="799.9297">OrganizerFinalNo</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="345" x="255.5" y="826.418">There is more votes against proposal than in favor</text></g><g id="DappState.Organizer.OrganizerFinalYes"><rect fill="#F1F1F1" height="52.9766" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="276" x="645" y="781.3945"/><line style="stroke:#181818;stroke-width:0.5;" x1="645" x2="921" y1="807.8828" y2="807.8828"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="126" x="720" y="799.9297">OrganizerFinalYes</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="256" x="650" y="826.418">There is more votes in favor proposal</text></g><ellipse cx="605" cy="214.3945" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><!--MD5=[3867ace77beef9c2dd514635de074071]
+link *start*Organizer to OrganizerInitial--><g id="link_*start*Organizer_OrganizerInitial"><path d="M614.54,218.1045 C653.75,229.6945 798.43,277.2445 754,336.3945 C744.8,348.6345 714.52,358.5445 683.55,365.7945 " fill="none" id="*start*Organizer-to-OrganizerInitial" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="678.57,366.9345,688.2406,368.8001,683.441,365.8061,686.435,361.0065,678.57,366.9345" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="211" x="760" y="294.4629">Do deploy setting own public key</text></g><!--MD5=[e7b01a899659ee217f835dd144acba4d]
+link *start*Organizer to COrganizerCheck--><g id="link_*start*Organizer_COrganizerCheck"><path d="M596.18,219.3145 C568.77,231.5145 485.01,268.8045 453.32,282.9145 " fill="none" id="*start*Organizer-to-COrganizerCheck" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="448.7,284.9645,458.5488,284.9446,453.2649,282.9246,455.2849,277.6407,448.7,284.9645" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="97" x="543" y="255.9629">Observe deploy</text></g><!--MD5=[9232faa12d5e0fa6086e17ce9c8aa0a1]
+link COrganizerCheck to OrganizerInitial--><g id="link_COrganizerCheck_OrganizerInitial"><path d="M438.43,298.8645 C435.93,308.9345 433.62,325.7045 442,336.3945 C452.75,350.0945 488.82,360.4945 524.21,367.6845 " fill="none" id="COrganizerCheck-to-OrganizerInitial" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="529.42,368.7145,521.3856,363.0182,524.5182,367.7285,519.8079,370.861,529.42,368.7145" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="310" x="443" y="332.9629">public_key(local_secret_key) == ledger.organizer</text></g><!--MD5=[94a14be5752cca13e056cfca1fe63ac0]
+link COrganizerCheck to OrganizerUnitialized--><g id="link_COrganizerCheck_OrganizerUnitialized"><path d="M430.04,290.6645 C377.22,292.0645 150.46,299.2345 127,319.3945 C118.03,327.1045 113.99,339.2545 112.3,350.6445 " fill="none" id="COrganizerCheck-to-OrganizerUnitialized" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="111.68,355.8145,116.7296,347.3587,112.2791,350.8506,108.7872,346.4001,111.68,355.8145" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="304" x="128" y="332.9629">public_key(local_secret_key) != ledger.organizer</text></g><!--MD5=[f1885c8ca93a10954312ac5ce5b44aef]
+link OrganizerInitial to OrganizerCommit--><g id="link_OrganizerInitial_OrganizerCommit"><path d="M604,407.5945 C604,421.6345 604,439.3145 604,455.0045 " fill="none" id="OrganizerInitial-to-OrganizerCommit" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="604,460.2445,608,451.2445,604,455.2445,600,451.2445,604,460.2445" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80" x="605" y="438.9629">init proposal</text></g><!--MD5=[18087435ad8d88544ddf103b7ff8e006]
+link OrganizerCommit to OrganizerReveal--><g id="link_OrganizerCommit_OrganizerReveal"><path d="M606.81,529.6445 C608.04,544.3345 609.48,561.6545 610.75,576.9045 " fill="none" id="OrganizerCommit-to-OrganizerReveal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="611.17,581.9845,614.4088,572.6834,610.7548,577.0018,606.4364,573.3478,611.17,581.9845" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="51" x="610" y="560.9629">advance</text></g><!--MD5=[225b9ac0f4a2242a8c1c9fcbd8756654]
+link OrganizerReveal to crevealtofinal--><g id="link_OrganizerReveal_crevealtofinal"><path d="M614,651.4445 C614,667.4545 614,685.8845 614,698.8345 " fill="none" id="OrganizerReveal-to-crevealtofinal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="614,704.0245,618,695.0245,614,699.0245,610,695.0245,614,704.0245" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="51" x="615" y="682.9629">advance</text></g><!--MD5=[8a68bbb6f7ea83ccf97b0abc437cecbc]
+link crevealtofinal to OrganizerFinalNo--><g id="link_crevealtofinal_OrganizerFinalNo"><path d="M602.69,717.1545 C577.86,717.1445 517.59,720.0745 477,746.3945 C465.36,753.9445 455.77,765.7245 448.55,776.8945 " fill="none" id="crevealtofinal-to-OrganizerFinalNo" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="445.8,781.2945,453.9536,775.7702,448.4436,777.0505,447.1632,771.5405,445.8,781.2945" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="137" x="478" y="759.9629">votes_no &gt; votes_yes</text></g><!--MD5=[bf0a72aae03ca7922ccb0a8db7441794]
+link crevealtofinal to OrganizerFinalYes--><g id="link_crevealtofinal_OrganizerFinalYes"><path d="M615.1,727.6545 C616.77,738.0845 620.89,754.0145 631,763.3945 C637.25,769.1945 644.22,774.2245 651.64,778.5845 " fill="none" id="crevealtofinal-to-OrganizerFinalYes" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="656.32,781.2145,650.4258,773.3241,651.9587,778.7693,646.5135,780.3022,656.32,781.2145" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="147" x="632" y="759.9629">votes_yes &gt;= votes_no</text></g><!--MD5=[46bd5f6ac189ef76aa8b359665c79de4]
+link OrganizerFinalNo to OrganizerInitial--><g id="link_OrganizerFinalNo_OrganizerInitial"><path d="M424.61,781.3545 C419.52,763.6145 414,739.3145 414,717.3945 C414,493.8945 414,493.8945 414,493.8945 C414,439.5545 472.39,411.0445 524.44,396.4245 " fill="none" id="OrganizerFinalNo-to-OrganizerInitial" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="529.45,395.0445,519.7143,393.556,524.6265,396.3613,521.8212,401.2736,529.45,395.0445" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="51" x="415" y="621.9629">advance</text></g><!--MD5=[b2d66c78a187b55e7ebfdf79907f0638]
+link OrganizerFinalYes to OrganizerInitial--><g id="link_OrganizerFinalYes_OrganizerInitial"><path d="M787.86,781.1445 C790.8,763.3145 794,738.9945 794,717.3945 C794,493.8945 794,493.8945 794,493.8945 C794,439.5545 735.61,411.0445 683.56,396.4245 " fill="none" id="OrganizerFinalYes-to-OrganizerInitial" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="678.55,395.0445,686.1788,401.2736,683.3735,396.3613,688.2857,393.556,678.55,395.0445" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="107" x="795" y="621.9629">observe cash out</text></g><line style="stroke:#181818;stroke-width:1.5;stroke-dasharray:8.0,10.0;" x1="12" x2="983" y1="849.3711" y2="849.3711"/><rect fill="#F1F1F1" height="530.4883" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="600" x="19" y="856.3711"/><rect fill="#FFFFFF" height="502" rx="12.5" ry="12.5" style="stroke:#FFFFFF;stroke-width:1.0;" width="598" x="20" y="883.8594"/><line style="stroke:#181818;stroke-width:0.5;" x1="19" x2="619" y1="882.8594" y2="882.8594"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="282" y="874.9063">Beneficiary</text><g id="elem_CBeneficiaryCheck"><polygon fill="#F1F1F1" points="217,1069.8594,229,1081.8594,217,1093.8594,205,1081.8594,217,1069.8594" style="stroke:#181818;stroke-width:0.5;"/></g><g id="DappState.CONC26.Beneficiary.BeneficiaryUninitialized"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="180" x="53" y="966.8594"/><line style="stroke:#181818;stroke-width:0.5;" x1="53" x2="233" y1="993.3477" y2="993.3477"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="160" x="63" y="985.3945">BeneficiaryUninitialized</text></g><g id="DappState.CONC26.Beneficiary.BeneficiaryInitial"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="132" x="154" y="1146.8594"/><line style="stroke:#181818;stroke-width:0.5;" x1="154" x2="286" y1="1173.3477" y2="1173.3477"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="112" x="164" y="1165.3945">BeneficiaryInitial</text></g><g id="elem_CCashOutCheck"><polygon fill="#F1F1F1" points="220,1249.8594,232,1261.8594,220,1273.8594,208,1261.8594,220,1249.8594" style="stroke:#181818;stroke-width:0.5;"/></g><g id="DappState.CONC26.Beneficiary.BeneficiaryCantCashOut"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="185" x="70.5" y="1326.8594"/><line style="stroke:#181818;stroke-width:0.5;" x1="70.5" x2="255.5" y1="1353.3477" y2="1353.3477"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="165" x="80.5" y="1345.3945">BeneficiaryCantCashOut</text></g><g id="DappState.CONC26.Beneficiary.BeneficiaryCanCashOut"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="180" x="353" y="1326.8594"/><line style="stroke:#181818;stroke-width:0.5;" x1="353" x2="533" y1="1353.3477" y2="1353.3477"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="160" x="363" y="1345.3945">BeneficiaryCanCashOut</text></g><ellipse cx="143" cy="903.8594" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><!--MD5=[2cb90325debc7df2cbeab18f0e0e32a6]
+link *start*Beneficiary to BeneficiaryUninitialized--><g id="link_*start*Beneficiary_BeneficiaryUninitialized"><path d="M143,914.0594 C143,925.3694 143,945.1094 143,961.7394 " fill="none" id="*start*Beneficiary-to-BeneficiaryUninitialized" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="143,966.7894,147,957.7894,143,961.7894,139,957.7894,143,966.7894" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="97" x="144" y="945.4277">Observe deploy</text></g><!--MD5=[f4b043148b2b075ac7f38ab5abc2e8cd]
+link BeneficiaryUninitialized to CBeneficiaryCheck--><g id="link_BeneficiaryUninitialized_CBeneficiaryCheck"><path d="M79.06,1016.9094 C62.94,1026.5494 52.97,1038.5394 64,1051.8594 C81.27,1072.7094 165.17,1078.6894 200.87,1080.2994 " fill="none" id="BeneficiaryUninitialized-to-CBeneficiaryCheck" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="206.17,1080.5194,197.3371,1076.1629,201.174,1080.3195,197.0173,1084.1565,206.17,1080.5194" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="135" x="65" y="1048.4277">Observe proposal init</text></g><!--MD5=[113997018ace9ceb1ba6311cb4b2eb6c]
+link CBeneficiaryCheck to BeneficiaryUninitialized--><g id="link_CBeneficiaryCheck_BeneficiaryUninitialized"><path d="M215.42,1071.2494 C213.41,1061.3494 209.17,1045.8494 201,1034.8594 C197.1,1029.6094 192.35,1024.7494 187.27,1020.3294 " fill="none" id="CBeneficiaryCheck-to-BeneficiaryUninitialized" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="183.33,1017.0394,187.6865,1025.8723,187.1723,1020.2389,192.8057,1019.7247,183.33,1017.0394" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="314" x="210" y="1048.4277">public_key(local_secret_key) != ledger.beneficiary</text></g><!--MD5=[de3e8e053a8893024bf1cfa5d80b336a]
+link CBeneficiaryCheck to BeneficiaryInitial--><g id="link_CBeneficiaryCheck_BeneficiaryInitial"><path d="M217.16,1093.8294 C217.31,1103.1494 217.58,1116.8894 218,1128.8594 C218.14,1132.8594 218.31,1137.0794 218.49,1141.2294 " fill="none" id="CBeneficiaryCheck-to-BeneficiaryInitial" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="218.73,1146.4294,222.3148,1137.2561,218.5017,1141.4346,214.3232,1137.6214,218.73,1146.4294" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="320" x="219" y="1125.4277">public_key(local_secret_key) == ledger.beneficiary</text></g><!--MD5=[096ac0bf0da039128272794838759992]
+link BeneficiaryInitial to CCashOutCheck--><g id="link_BeneficiaryInitial_CCashOutCheck"><path d="M220,1196.9094 C220,1211.9994 220,1231.0694 220,1244.4394 " fill="none" id="BeneficiaryInitial-to-CCashOutCheck" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="220,1249.4494,224,1240.4494,220,1244.4494,216,1240.4494,220,1249.4494" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="153" x="221" y="1228.4277">observe advance to final</text></g><!--MD5=[438a015225855601a97092a1186f3495]
+link CCashOutCheck to BeneficiaryCantCashOut--><g id="link_CCashOutCheck_BeneficiaryCantCashOut"><path d="M215.53,1269.7694 C208.32,1280.8994 193.72,1303.4294 181.74,1321.9194 " fill="none" id="CCashOutCheck-to-BeneficiaryCantCashOut" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="178.76,1326.5294,187.0045,1321.1416,181.4739,1322.33,180.2855,1316.7994,178.76,1326.5294" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="137" x="200" y="1305.4277">votes_yes &lt; votes_no</text></g><!--MD5=[32c7dd69af1648924227e65151f7b989]
+link CCashOutCheck to BeneficiaryCanCashOut--><g id="link_CCashOutCheck_BeneficiaryCanCashOut"><path d="M229.79,1264.1794 C250.89,1267.2494 301.99,1275.8294 342,1291.8594 C363.03,1300.2794 384.91,1312.5694 402.9,1323.7494 " fill="none" id="CCashOutCheck-to-BeneficiaryCanCashOut" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="407.39,1326.5694,401.8978,1318.394,403.1564,1323.9091,397.6414,1325.1677,407.39,1326.5694" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="147" x="377" y="1305.4277">votes_yes &gt;= votes_no</text></g><!--MD5=[e254b18b0be70f614fbcb906cc490067]
+reverse link BeneficiaryUninitialized to BeneficiaryCantCashOut--><g id="link_BeneficiaryUninitialized_BeneficiaryCantCashOut"><path d="M74.45,1019.5194 C50.74,1033.5294 30,1053.5894 30,1080.8594 C30,1080.8594 30,1080.8594 30,1262.8594 C30,1292.8994 53.89,1313.2794 81.42,1326.7994 " fill="none" id="BeneficiaryUninitialized-backto-BeneficiaryCantCashOut" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="78.91,1016.9694,69.1095,1017.9443,74.5644,1019.4424,73.0663,1024.8972,78.91,1016.9694" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="31" y="1176.9277">observe advance</text></g><!--MD5=[d765d2e87fc92edd747575301817984e]
+reverse link BeneficiaryUninitialized to BeneficiaryCanCashOut--><g id="link_BeneficiaryUninitialized_BeneficiaryCanCashOut"><path d="M238.38,993.2894 C337.04,995.4594 483,1004.0194 529,1034.8594 C548.33,1047.8194 554,1057.5894 554,1080.8594 C554,1080.8594 554,1080.8594 554,1262.8594 C554,1291.7594 530.62,1312.6594 505.31,1326.8294 " fill="none" id="BeneficiaryUninitialized-backto-BeneficiaryCanCashOut" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="233.13,993.1794,242.0482,997.3585,238.129,993.2794,242.2082,989.3601,233.13,993.1794" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="54" x="555" y="1176.9277">cash out</text></g><line style="stroke:#181818;stroke-width:1.5;stroke-dasharray:8.0,10.0;" x1="12" x2="983" y1="1391.8594" y2="1391.8594"/><rect fill="#F1F1F1" height="868.4883" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="835" x="19" y="1398.8594"/><rect fill="#FFFFFF" height="840" rx="12.5" ry="12.5" style="stroke:#FFFFFF;stroke-width:1.0;" width="833" x="20" y="1426.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="19" x2="854" y1="1425.3477" y2="1425.3477"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="37" x="418" y="1417.3945">Voter</text><g id="DappState.CONC47.Voter.VoterUninitialized"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="143" x="374.5" y="1509.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="374.5" x2="517.5" y1="1535.8359" y2="1535.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="123" x="384.5" y="1527.8828">VoterUninitialized</text></g><g id="DappState.CONC47.Voter.VoterBoughtIn"><rect fill="#F1F1F1" height="52.9766" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="430" x="58" y="1689.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="58" x2="488" y1="1715.8359" y2="1715.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="99" x="223.5" y="1707.8828">VoterBoughtIn</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="410" x="63" y="1734.3711">ledger.eligible_voters.includes(public_key(local_secret_key))</text></g><g id="elem_CCanCommitAfterBuyIn"><polygon fill="#F1F1F1" points="446,1612.3477,458,1624.3477,446,1636.3477,434,1624.3477,446,1612.3477" style="stroke:#181818;stroke-width:0.5;"/></g><g id="DappState.CONC47.Voter.VoterCanCommit"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="138" x="425" y="1795.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="425" x2="563" y1="1821.8359" y2="1821.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="118" x="435" y="1813.8828">VoterCanCommit</text></g><g id="DappState.CONC47.Voter.VoterCommited"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="128" x="400" y="1898.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="400" x2="528" y1="1924.8359" y2="1924.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="108" x="410" y="1916.8828">VoterCommited</text></g><g id="DappState.CONC47.Voter.VoterCanReveal"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="128" x="372" y="2001.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="372" x2="500" y1="2027.8359" y2="2027.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="108" x="382" y="2019.8828">VoterCanReveal</text></g><g id="DappState.CONC47.Voter.VoterRevealed"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="118" x="278" y="2104.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="278" x2="396" y1="2130.8359" y2="2130.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98" x="288" y="2122.8828">VoterRevealed</text></g><g id="DappState.CONC47.Voter.VoterFinal"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="90" x="206" y="2207.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="206" x2="296" y1="2233.8359" y2="2233.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="70" x="216" y="2225.8828">VoterFinal</text></g><g id="DappState.CONC47.Voter.VoterDisenfranchised"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="167" x="480.5" y="2207.3477"/><line style="stroke:#181818;stroke-width:0.5;" x1="480.5" x2="647.5" y1="2233.8359" y2="2233.8359"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="147" x="490.5" y="2225.8828">VoterDisenfranchised</text></g><ellipse cx="446" cy="1446.3477" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><!--MD5=[33f28a7a550ecc7422c460c0532bfb1f]
+link *start*Voter to VoterUninitialized--><g id="link_*start*Voter_VoterUninitialized"><path d="M446,1456.5477 C446,1467.8577 446,1487.5977 446,1504.2277 " fill="none" id="*start*Voter-to-VoterUninitialized" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="446,1509.2777,450,1500.2777,446,1504.2777,442,1500.2777,446,1509.2777" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="97" x="447" y="1487.916">Observe deploy</text></g><!--MD5=[a61cc949a822b16e399e8496cabb5a4b]
+link VoterUninitialized to CCanCommitAfterBuyIn--><g id="link_VoterUninitialized_CCanCommitAfterBuyIn"><path d="M446,1559.3977 C446,1574.4877 446,1593.5577 446,1606.9277 " fill="none" id="VoterUninitialized-to-CCanCommitAfterBuyIn" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="446,1611.9377,450,1602.9377,446,1606.9377,442,1602.9377,446,1611.9377" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="39" x="447" y="1590.916">buy in</text></g><!--MD5=[073af6bd0f1174ac61e40a964ebde046]
+link CCanCommitAfterBuyIn to VoterCanCommit--><g id="link_CCanCommitAfterBuyIn_VoterCanCommit"><path d="M455.94,1626.5377 C470.7,1628.9077 497.97,1635.6877 510,1654.3477 C536.61,1695.6177 520.64,1755.1577 507.03,1790.2977 " fill="none" id="CCanCommitAfterBuyIn-to-VoterCanCommit" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="505.05,1795.2977,512.0882,1788.4082,506.8946,1790.6504,504.6525,1785.4568,505.05,1795.2977" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="150" x="526" y="1720.916">ledger.state == commit</text></g><!--MD5=[6b818d56a01f13ede17a44478f56fa45]
+link CCanCommitAfterBuyIn to VoterBoughtIn--><g id="link_CCanCommitAfterBuyIn_VoterBoughtIn"><path d="M437.34,1628.0477 C422.98,1632.6477 393.52,1642.6577 370,1654.3477 C351.16,1663.7077 331.28,1675.6977 314.47,1686.5177 " fill="none" id="CCanCommitAfterBuyIn-to-VoterBoughtIn" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="310.26,1689.2477,319.99,1687.7222,314.4594,1686.5338,315.6478,1681.0032,310.26,1689.2477" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="138" x="371" y="1667.916">ledger.state == initial</text></g><!--MD5=[e7dae5c071d2046371f963d41d179740]
+link CCanCommitAfterBuyIn to VoterDisenfranchised--><g id="link_CCanCommitAfterBuyIn_VoterDisenfranchised"><path d="M456.11,1626.5777 C503.81,1632.6677 704,1661.3877 704,1714.8477 C704,1714.8477 704,1714.8477 704,2130.3477 C704,2165.0577 675.35,2189.0277 643.97,2204.8777 " fill="none" id="CCanCommitAfterBuyIn-to-VoterDisenfranchised" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="639.33,2207.1577,649.1718,2206.7859,643.8192,2204.956,645.6491,2199.6033,639.33,2207.1577" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="139" x="705" y="1928.416">ledger.state == reveal</text></g><!--MD5=[0ba84292573a9696de852e7f5ab7e532]
+link CCanCommitAfterBuyIn to VoterFinal--><g id="link_CCanCommitAfterBuyIn_VoterFinal"><path d="M434.87,1625.2977 C368.72,1625.3077 30,1629.5177 30,1714.8477 C30,1714.8477 30,1714.8477 30,2130.3477 C30,2204.9677 135.52,2224.6877 200.73,2229.7477 " fill="none" id="CCanCommitAfterBuyIn-to-VoterFinal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="205.74,2230.1177,197.062,2225.4601,200.7538,2229.7462,196.4677,2233.438,205.74,2230.1177" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="130" x="31" y="1928.416">ledger.state == final</text></g><!--MD5=[908bb0d8484b1f36cd6075ab109367ee]
+link VoterBoughtIn to VoterCanCommit--><g id="link_VoterBoughtIn_VoterCanCommit"><path d="M328.2,1742.4477 C361.46,1757.8777 403.74,1777.4877 437.28,1793.0377 " fill="none" id="VoterBoughtIn-to-VoterCanCommit" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="442.16,1795.3077,435.6779,1787.8926,437.624,1793.2042,432.3124,1795.1503,442.16,1795.3077" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="405" y="1773.916">observe advance</text></g><!--MD5=[aaac03f3506e3aa758fb2824719075b7]
+link VoterCanCommit to VoterCommited--><g id="link_VoterCanCommit_VoterCommited"><path d="M486.81,1845.5377 C482.58,1859.7977 477.19,1877.9477 472.71,1893.0177 " fill="none" id="VoterCanCommit-to-VoterCommited" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="471.23,1898.0077,477.6372,1890.5278,472.6602,1893.2166,469.9714,1888.2395,471.23,1898.0077" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="48" x="482" y="1876.916">commit</text></g><!--MD5=[9c237b01bb2379e2eab0a6c14844fad8]
+link VoterCanCommit to VoterDisenfranchised--><g id="link_VoterCanCommit_VoterDisenfranchised"><path d="M526.23,1845.4477 C546.94,1863.9077 570,1891.4077 570,1922.3477 C570,1922.3477 570,1922.3477 570,2130.3477 C570,2154.5377 568.26,2181.9177 566.66,2202.0677 " fill="none" id="VoterCanCommit-to-VoterDisenfranchised" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="566.23,2207.2877,570.9389,2198.6374,566.631,2202.3038,562.9647,2197.9958,566.23,2207.2877" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="571" y="2031.416">observe advance</text></g><!--MD5=[156a9075ccadb16f3d11f4201dceeed2]
+link VoterCommited to VoterCanReveal--><g id="link_VoterCommited_VoterCanReveal"><path d="M455.49,1948.6677 C453.58,1954.4277 451.64,1960.5777 450,1966.3477 C447.25,1976.0077 444.61,1986.6577 442.37,1996.2177 " fill="none" id="VoterCommited-to-VoterCanReveal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="441.24,2001.1077,447.1461,1993.2262,442.3549,1996.2335,439.3475,1991.4423,441.24,2001.1077" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="451" y="1979.916">observe advance</text></g><!--MD5=[fcace9ee1806bca8e4771267c0c40f2b]
+link VoterCanReveal to VoterRevealed--><g id="link_VoterCanReveal_VoterRevealed"><path d="M403,2051.4977 C396.13,2057.0677 389.12,2063.1777 383,2069.3477 C373.71,2078.7077 364.56,2089.9177 356.89,2100.0477 " fill="none" id="VoterCanReveal-to-VoterRevealed" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="353.7,2104.3077,362.3,2099.5077,356.7,2100.3077,355.9,2094.7077,353.7,2104.3077" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="37" x="384" y="2082.916">reveal</text></g><!--MD5=[58eafd150f2856992856c23e4263c183]
+link VoterCanReveal to VoterDisenfranchised--><g id="link_VoterCanReveal_VoterDisenfranchised"><path d="M432.92,2051.7177 C430.73,2078.7877 430.97,2122.8277 450,2154.3477 C462.85,2175.6277 484.1,2192.3377 504.79,2204.6677 " fill="none" id="VoterCanReveal-to-VoterDisenfranchised" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="509.2,2207.2377,503.4382,2199.2501,504.8801,2204.7201,499.4101,2206.162,509.2,2207.2377" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="451" y="2134.416">observe advance</text></g><!--MD5=[c47bd237c55e54cb26ade20ca99f4f9f]
+link VoterRevealed to VoterFinal--><g id="link_VoterRevealed_VoterFinal"><path d="M316.4,2154.5377 C303.94,2169.1777 288,2187.8977 274.97,2203.1877 " fill="none" id="VoterRevealed-to-VoterFinal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="271.73,2207.0077,280.6149,2202.7582,274.9757,2203.2043,274.5296,2197.5651,271.73,2207.0077" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="104" x="301" y="2185.916">observe advance</text></g><!--MD5=[64ade1b6fb283c2ee2fe67adb89c9a7e]
+reverse link VoterFinal to VoterDisenfranchised--><g id="link_VoterFinal_VoterDisenfranchised"><path d="M301.35,2232.3477 C349.56,2232.3477 423.21,2232.3477 480.26,2232.3477 " fill="none" id="VoterFinal-backto-VoterDisenfranchised" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="296.18,2232.3477,305.18,2236.3477,301.18,2232.3477,305.18,2228.3477,296.18,2232.3477" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="153" x="311.75" y="2225.916">observe advance to final</text></g><!--MD5=[1a7ad367051ea02b8a0466c919e6daed]
+reverse link VoterBoughtIn to VoterFinal--><g id="link_VoterBoughtIn_VoterFinal"><path d="M260.17,1747.1377 C252.81,1767.2377 245,1794.4177 245,1819.3477 C245,1819.3477 245,1819.3477 245,2130.3477 C245,2156.6977 247.06,2186.8477 248.77,2207.2877 " fill="none" id="VoterBoughtIn-backto-VoterFinal" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="261.93,1742.4377,255.0246,1749.4601,260.1744,1747.1193,262.5152,1752.2691,261.93,1742.4377" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="179" x="246" y="1979.916">observe advance or cash out</text></g><rect height="47.1094" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="200" x="394" y="2282.3477"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="492.5" y="2292.0156"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="492.5" y="2303.793"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="492.5" y="2315.5703"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="200" x="394" y="2327.3477">Copyright 2022, Input Output Global, Ltd.</text><!--MD5=[f7ee653da2c447d11bd5f57e9ad1f07a]
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+state DappState {
+    state Organizer {
+        state COrganizerCheck <<choice>>
+        state OrganizerUnitialized
+        state OrganizerInitial
+        OrganizerInitial : Proposal not ready
+
+        state OrganizerCommit
+        OrganizerCommit : Proposal ready: topic and beneficiary are set
+        OrganizerCommit : Voters can commit
+
+        state OrganizerReveal
+        OrganizerReveal : Voters can reveal their votes
+        OrganizerReveal : Votes are counted with each reveal
+
+        state crevealtofinal <<choice>>
+
+        state OrganizerFinalNo
+        OrganizerFinalNo : There is more votes against proposal than in favor
+
+        state OrganizerFinalYes
+        OrganizerFinalYes : There is more votes in favor proposal
+
+        [*] - -> OrganizerInitial : Do deploy setting own public key
+        [*] - -> COrganizerCheck : Observe deploy
+        COrganizerCheck - -> OrganizerInitial : public_key(local_secret_key) == ledger.organizer
+        COrganizerCheck - -> OrganizerUnitialized : public_key(local_secret_key) != ledger.organizer
+        OrganizerInitial - -> OrganizerCommit : init proposal
+        OrganizerCommit - -> OrganizerReveal : advance
+        OrganizerReveal - -> crevealtofinal : advance
+        crevealtofinal - -> OrganizerFinalNo : votes_no > votes_yes
+        crevealtofinal - -> OrganizerFinalYes : votes_yes >= votes_no
+        OrganizerFinalNo - -> OrganizerInitial : advance
+        OrganizerFinalYes - -> OrganizerInitial : observe cash out
+    }
+    - -
+    state Beneficiary {
+        state CBeneficiaryCheck <<choice>>
+        state BeneficiaryUninitialized
+        state BeneficiaryInitial
+        state CCashOutCheck <<choice>>
+        state BeneficiaryCantCashOut
+        state BeneficiaryCanCashOut
+        [*] -d-> BeneficiaryUninitialized : Observe deploy
+        BeneficiaryUninitialized -d-> CBeneficiaryCheck : Observe proposal init
+        CBeneficiaryCheck - -> BeneficiaryUninitialized : public_key(local_secret_key) != ledger.beneficiary
+        CBeneficiaryCheck -d-> BeneficiaryInitial : public_key(local_secret_key) == ledger.beneficiary
+        BeneficiaryInitial -d-> CCashOutCheck : observe advance to final
+        CCashOutCheck -d-> BeneficiaryCantCashOut :  votes_yes < votes_no
+        CCashOutCheck -d-> BeneficiaryCanCashOut :   votes_yes >= votes_no
+        BeneficiaryCantCashOut -u-> BeneficiaryUninitialized : observe advance
+        BeneficiaryCanCashOut -u-> BeneficiaryUninitialized : cash out
+
+    }
+    - -
+    state Voter {
+        state VoterUninitialized
+        state VoterBoughtIn
+        VoterBoughtIn : ledger.eligible_voters.includes(public_key(local_secret_key))
+        state CCanCommitAfterBuyIn <<choice>>
+        state VoterCanCommit
+        state VoterCommited
+        state VoterCanReveal
+        state VoterRevealed
+        state VoterFinal
+        state VoterDisenfranchised
+
+        [*] -d-> VoterUninitialized : Observe deploy
+        VoterUninitialized -d-> CCanCommitAfterBuyIn : buy in
+        CCanCommitAfterBuyIn - -> VoterCanCommit : ledger.state == commit
+        CCanCommitAfterBuyIn - -> VoterBoughtIn : ledger.state == initial
+        CCanCommitAfterBuyIn -r-> VoterDisenfranchised : ledger.state == reveal
+        CCanCommitAfterBuyIn -d-> VoterFinal : ledger.state == final
+        VoterBoughtIn -d-> VoterCanCommit : observe advance
+        VoterCanCommit -d-> VoterCommited : commit
+        VoterCanCommit -r-> VoterDisenfranchised : observe advance
+        VoterCommited -d-> VoterCanReveal : observe advance
+        VoterCanReveal -d-> VoterRevealed : reveal
+        VoterCanReveal -r-> VoterDisenfranchised : observe advance
+        VoterRevealed -d-> VoterFinal : observe advance
+        VoterDisenfranchised -l-> VoterFinal : observe advance to final
+        VoterFinal -u-> VoterBoughtIn : observe advance or cash out
+    }
+}
+DappState : it's built of 3 primary, independent components:
+DappState : - organizer, who drives the lifecycle of proposals
+DappState : - beneficiary, who receives coins in case of voting ending in favor
+DappState : - votes, who can vote after bought in
+
+
+@enduml
+
+@startuml
+
+header combined-state.puml\n2022.10.31 at 23:28 CET\n\n\n
+
+footer \n\n\nCopyright 2022, Input Output Global, Ltd.
+
+state DappState {
+    state Organizer {
+        state COrganizerCheck <<choice>>
+        state OrganizerUnitialized
+        state OrganizerInitial
+        OrganizerInitial : Proposal not ready
+
+        state OrganizerCommit
+        OrganizerCommit : Proposal ready: topic and beneficiary are set
+        OrganizerCommit : Voters can commit
+
+        state OrganizerReveal
+        OrganizerReveal : Voters can reveal their votes
+        OrganizerReveal : Votes are counted with each reveal
+
+        state crevealtofinal <<choice>>
+
+        state OrganizerFinalNo
+        OrganizerFinalNo : There is more votes against proposal than in favor
+
+        state OrganizerFinalYes
+        OrganizerFinalYes : There is more votes in favor proposal
+
+        [*] - -> OrganizerInitial : Do deploy setting own public key
+        [*] - -> COrganizerCheck : Observe deploy
+        COrganizerCheck - -> OrganizerInitial : public_key(local_secret_key) == ledger.organizer
+        COrganizerCheck - -> OrganizerUnitialized : public_key(local_secret_key) != ledger.organizer
+        OrganizerInitial - -> OrganizerCommit : init proposal
+        OrganizerCommit - -> OrganizerReveal : advance
+        OrganizerReveal - -> crevealtofinal : advance
+        crevealtofinal - -> OrganizerFinalNo : votes_no > votes_yes
+        crevealtofinal - -> OrganizerFinalYes : votes_yes >= votes_no
+        OrganizerFinalNo - -> OrganizerInitial : advance
+        OrganizerFinalYes - -> OrganizerInitial : observe cash out
+    }
+    - -
+    state Beneficiary {
+        state CBeneficiaryCheck <<choice>>
+        state BeneficiaryUninitialized
+        state BeneficiaryInitial
+        state CCashOutCheck <<choice>>
+        state BeneficiaryCantCashOut
+        state BeneficiaryCanCashOut
+        [*] -d-> BeneficiaryUninitialized : Observe deploy
+        BeneficiaryUninitialized -d-> CBeneficiaryCheck : Observe proposal init
+        CBeneficiaryCheck - -> BeneficiaryUninitialized : public_key(local_secret_key) != ledger.beneficiary
+        CBeneficiaryCheck -d-> BeneficiaryInitial : public_key(local_secret_key) == ledger.beneficiary
+        BeneficiaryInitial -d-> CCashOutCheck : observe advance to final
+        CCashOutCheck -d-> BeneficiaryCantCashOut :  votes_yes < votes_no
+        CCashOutCheck -d-> BeneficiaryCanCashOut :   votes_yes >= votes_no
+        BeneficiaryCantCashOut -u-> BeneficiaryUninitialized : observe advance
+        BeneficiaryCanCashOut -u-> BeneficiaryUninitialized : cash out
+
+    }
+    - -
+    state Voter {
+        state VoterUninitialized
+        state VoterBoughtIn
+        VoterBoughtIn : ledger.eligible_voters.includes(public_key(local_secret_key))
+        state CCanCommitAfterBuyIn <<choice>>
+        state VoterCanCommit
+        state VoterCommited
+        state VoterCanReveal
+        state VoterRevealed
+        state VoterFinal
+        state VoterDisenfranchised
+
+        [*] -d-> VoterUninitialized : Observe deploy
+        VoterUninitialized -d-> CCanCommitAfterBuyIn : buy in
+        CCanCommitAfterBuyIn - -> VoterCanCommit : ledger.state == commit
+        CCanCommitAfterBuyIn - -> VoterBoughtIn : ledger.state == initial
+        CCanCommitAfterBuyIn -r-> VoterDisenfranchised : ledger.state == reveal
+        CCanCommitAfterBuyIn -d-> VoterFinal : ledger.state == final
+        VoterBoughtIn -d-> VoterCanCommit : observe advance
+        VoterCanCommit -d-> VoterCommited : commit
+        VoterCanCommit -r-> VoterDisenfranchised : observe advance
+        VoterCommited -d-> VoterCanReveal : observe advance
+        VoterCanReveal -d-> VoterRevealed : reveal
+        VoterCanReveal -r-> VoterDisenfranchised : observe advance
+        VoterRevealed -d-> VoterFinal : observe advance
+        VoterDisenfranchised -l-> VoterFinal : observe advance to final
+        VoterFinal -u-> VoterBoughtIn : observe advance or cash out
+    }
+}
+DappState : it's built of 3 primary, independent components:
+DappState : - organizer, who drives the lifecycle of proposals
+DappState : - beneficiary, who receives coins in case of voting ending in favor
+DappState : - votes, who can vote after bought in
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 18:10:57 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: PL
+--></g></svg>

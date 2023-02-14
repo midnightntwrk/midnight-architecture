@@ -1,0 +1,16 @@
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+[*] --> Setup : Deploy
+Setup --> Commit : Set topic by organizer
+Commit --> Commit : Commit vote by voter
+Commit --> Reveal : advance by organizer
+Reveal --> Reveal : Reveal vote by voter
+Reveal --> Final : advance by organizer
+Final --> Setup : Cash out by beneficiary if there's more "yes" votes
+Final --> Setup : advance by organizer if there's more "no" votes
+
+@enduml

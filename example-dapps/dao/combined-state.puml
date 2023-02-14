@@ -1,0 +1,97 @@
+@startuml
+
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+state DappState {
+    state Organizer {
+        state COrganizerCheck <<choice>>
+        state OrganizerUnitialized
+        state OrganizerInitial
+        OrganizerInitial : Proposal not ready
+
+        state OrganizerCommit
+        OrganizerCommit : Proposal ready: topic and beneficiary are set
+        OrganizerCommit : Voters can commit
+
+        state OrganizerReveal
+        OrganizerReveal : Voters can reveal their votes
+        OrganizerReveal : Votes are counted with each reveal
+
+        state crevealtofinal <<choice>>
+
+        state OrganizerFinalNo
+        OrganizerFinalNo : There is more votes against proposal than in favor
+
+        state OrganizerFinalYes
+        OrganizerFinalYes : There is more votes in favor proposal
+
+        [*] --> OrganizerInitial : Do deploy setting own public key
+        [*] --> COrganizerCheck : Observe deploy
+        COrganizerCheck --> OrganizerInitial : public_key(local_secret_key) == ledger.organizer
+        COrganizerCheck --> OrganizerUnitialized : public_key(local_secret_key) != ledger.organizer
+        OrganizerInitial --> OrganizerCommit : init proposal
+        OrganizerCommit --> OrganizerReveal : advance
+        OrganizerReveal --> crevealtofinal : advance
+        crevealtofinal --> OrganizerFinalNo : votes_no > votes_yes
+        crevealtofinal --> OrganizerFinalYes : votes_yes >= votes_no
+        OrganizerFinalNo --> OrganizerInitial : advance
+        OrganizerFinalYes --> OrganizerInitial : observe cash out
+    }
+    --
+    state Beneficiary {
+        state CBeneficiaryCheck <<choice>>
+        state BeneficiaryUninitialized
+        state BeneficiaryInitial
+        state CCashOutCheck <<choice>>
+        state BeneficiaryCantCashOut
+        state BeneficiaryCanCashOut
+        [*] -d-> BeneficiaryUninitialized : Observe deploy
+        BeneficiaryUninitialized -d-> CBeneficiaryCheck : Observe proposal init
+        CBeneficiaryCheck --> BeneficiaryUninitialized : public_key(local_secret_key) != ledger.beneficiary
+        CBeneficiaryCheck -d-> BeneficiaryInitial : public_key(local_secret_key) == ledger.beneficiary
+        BeneficiaryInitial -d-> CCashOutCheck : observe advance to final
+        CCashOutCheck -d-> BeneficiaryCantCashOut :  votes_yes < votes_no
+        CCashOutCheck -d-> BeneficiaryCanCashOut :   votes_yes >= votes_no
+        BeneficiaryCantCashOut -u-> BeneficiaryUninitialized : observe advance
+        BeneficiaryCanCashOut -u-> BeneficiaryUninitialized : cash out
+
+    }
+    --
+    state Voter {
+        state VoterUninitialized
+        state VoterBoughtIn
+        VoterBoughtIn : ledger.eligible_voters.includes(public_key(local_secret_key))
+        state CCanCommitAfterBuyIn <<choice>>
+        state VoterCanCommit
+        state VoterCommited
+        state VoterCanReveal
+        state VoterRevealed
+        state VoterFinal
+        state VoterDisenfranchised
+
+        [*] -d-> VoterUninitialized : Observe deploy
+        VoterUninitialized -d-> CCanCommitAfterBuyIn : buy in
+        CCanCommitAfterBuyIn --> VoterCanCommit : ledger.state == commit
+        CCanCommitAfterBuyIn --> VoterBoughtIn : ledger.state == initial
+        CCanCommitAfterBuyIn -r-> VoterDisenfranchised : ledger.state == reveal
+        CCanCommitAfterBuyIn -d-> VoterFinal : ledger.state == final
+        VoterBoughtIn -d-> VoterCanCommit : observe advance
+        VoterCanCommit -d-> VoterCommited : commit
+        VoterCanCommit -r-> VoterDisenfranchised : observe advance
+        VoterCommited -d-> VoterCanReveal : observe advance
+        VoterCanReveal -d-> VoterRevealed : reveal
+        VoterCanReveal -r-> VoterDisenfranchised : observe advance
+        VoterRevealed -d-> VoterFinal : observe advance
+        VoterDisenfranchised -l-> VoterFinal : observe advance to final
+        VoterFinal -u-> VoterBoughtIn : observe advance or cash out
+    }
+}
+DappState : it's built of 3 primary, independent components:
+DappState : - organizer, who drives the lifecycle of proposals
+DappState : - beneficiary, who receives coins in case of voting ending in favor
+DappState : - votes, who can vote after bought in
+
+
+@enduml

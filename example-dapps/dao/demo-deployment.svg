@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="774px" preserveAspectRatio="none" style="width:2603px;height:774px;background:#FFFFFF;" version="1.1" viewBox="0 0 2603 774" width="2603px" zoomAndPan="magnify"><defs/><g><rect height="58.8867" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="118" x="2471.48" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="117" x="2472.48" y="9.668">demo-deployment.puml</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="118" x="2471.48" y="21.4453">2022.10.31 at 23:28 CET</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="2586.48" y="33.2227"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="2586.48" y="45"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="2586.48" y="56.7773"> </text><!--MD5=[748261d4a9a2ff5e22eac51720f9c896]
+cluster NodeHost--><g id="cluster_NodeHost"><polygon points="1596.48,489.3867,1606.48,479.3867,2159.48,479.3867,2159.48,693.3867,2149.48,703.3867,1596.48,703.3867,1596.48,489.3867" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="2149.48" x2="2159.48" y1="489.3867" y2="479.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1596.48" x2="2149.48" y1="489.3867" y2="489.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="2149.48" x2="2149.48" y1="489.3867" y2="703.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="76" x="1835.98" y="505.9219">Node Host</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="1821.98" y="522.4102">&lt;&lt;machine&gt;&gt;</text></g><!--MD5=[6157416e603d1536bab30ed39b1eb272]
+cluster NodeInstance--><g id="cluster_NodeInstance"><rect height="120" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;fill:none;" width="349" x="1778.48" y="551.3867"/><rect height="10" style="stroke:#181818;stroke-width:1.0;fill:none;" width="15" x="2107.48" y="556.3867"/><rect height="2" style="stroke:#181818;stroke-width:1.0;fill:none;" width="4" x="2105.48" y="558.3867"/><rect height="2" style="stroke:#181818;stroke-width:1.0;fill:none;" width="4" x="2105.48" y="562.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="102" x="1901.98" y="577.9219">Node Instance</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="99" x="1903.48" y="594.4102">&lt;&lt;process&gt;&gt;</text></g><!--MD5=[c107d7f08ebb2ec3565bf9cda578cf71]
+cluster AliceInstance--><g id="cluster_AliceInstance"><polygon points="24.48,175.3867,34.48,165.3867,609.48,165.3867,609.48,429.3867,599.48,439.3867,24.48,439.3867,24.48,175.3867" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="599.48" x2="609.48" y1="175.3867" y2="165.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="24.48" x2="599.48" y1="175.3867" y2="175.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="599.48" x2="599.48" y1="175.3867" y2="439.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="100" x="262.98" y="191.9219">Alice Instance</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="260.98" y="208.4102">&lt;&lt;machine&gt;&gt;</text></g><!--MD5=[68d7d4f67f8b0f36ec2ba957f8257c28]
+cluster BobInstance--><g id="cluster_BobInstance"><polygon points="683.48,175.3867,693.48,165.3867,1268.48,165.3867,1268.48,429.3867,1258.48,439.3867,683.48,439.3867,683.48,175.3867" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1258.48" x2="1268.48" y1="175.3867" y2="165.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="683.48" x2="1258.48" y1="175.3867" y2="175.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1258.48" x2="1258.48" y1="175.3867" y2="439.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="92" x="925.98" y="191.9219">Bob Instance</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="919.98" y="208.4102">&lt;&lt;machine&gt;&gt;</text></g><!--MD5=[96b82a1c4f75a9d2c2a3baf471f9c4a6]
+cluster CharlieInstance--><g id="cluster_CharlieInstance"><polygon points="1342.48,175.3867,1352.48,165.3867,1927.48,165.3867,1927.48,429.3867,1917.48,439.3867,1342.48,439.3867,1342.48,175.3867" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1917.48" x2="1927.48" y1="175.3867" y2="165.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1342.48" x2="1917.48" y1="175.3867" y2="175.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="1917.48" x2="1917.48" y1="175.3867" y2="439.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="116" x="1572.98" y="191.9219">Charlie Instance</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="1578.98" y="208.4102">&lt;&lt;machine&gt;&gt;</text></g><!--MD5=[21f0020c61a54ed3cb8935244f488e71]
+cluster OrganizerInstance--><g id="cluster_OrganizerInstance"><polygon points="2001.48,175.3867,2011.48,165.3867,2586.48,165.3867,2586.48,429.3867,2576.48,439.3867,2001.48,439.3867,2001.48,175.3867" style="stroke:#181818;stroke-width:1.0;fill:none;"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="2576.48" x2="2586.48" y1="175.3867" y2="165.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="2001.48" x2="2576.48" y1="175.3867" y2="175.3867"/><line style="stroke:#181818;stroke-width:1.0;fill:none;" x1="2576.48" x2="2576.48" y1="175.3867" y2="439.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="136" x="2221.98" y="191.9219">Organizer Instance</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="2237.98" y="208.4102">&lt;&lt;machine&gt;&gt;</text></g><!--MD5=[2b92b93e67f631f68bf26f9ddd1e9110]
+entity BootstrapFile--><g id="elem_BootstrapFile"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="120" x="1639.48" y="609.3867"/><polygon fill="#F1F1F1" points="1742.48,614.3867,1742.48,628.3867,1754.48,628.3867,1754.48,620.3867,1748.48,614.3867,1742.48,614.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1748.48" x2="1748.48" y1="614.3867" y2="620.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1754.48" x2="1748.48" y1="620.3867" y2="620.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90" x="1649.48" y="635.9219">BootstrapFile</text></g><!--MD5=[decc07e713c20d2c96b19fe1802d7522]
+entity NodeImplementation--><g id="elem_NodeImplementation"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="174" x="1937.48" y="609.3867"/><polygon fill="#F1F1F1" points="2094.48,614.3867,2094.48,628.3867,2106.48,628.3867,2106.48,620.3867,2100.48,614.3867,2094.48,614.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="2100.48" x2="2100.48" y1="614.3867" y2="620.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2106.48" x2="2100.48" y1="620.3867" y2="620.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="144" x="1947.48" y="635.9219">NodeImplementation</text></g><!--MD5=[75c5b6bcfaa400662a1972abe6c42940]
+entity Ledger--><g id="elem_Ledger"><rect fill="#F1F1F1" height="52.9766" rx="35" ry="35" style="stroke:#181818;stroke-width:0.5;" width="107" x="1794.98" y="602.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="81" x="1804.98" y="625.9219">LedgerState</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="87" x="1804.98" y="642.4102">«ephemeral»</text></g><!--MD5=[f7e9c6917af1bbd23c8ba92d5fa6df4c]
+entity AliceDappKey--><g id="elem_AliceDappKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="140" x="426.48" y="241.3867"/><polygon fill="#F1F1F1" points="549.48,246.3867,549.48,260.3867,561.48,260.3867,561.48,252.3867,555.48,246.3867,549.48,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="555.48" x2="555.48" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="561.48" x2="555.48" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="436.48" y="267.9219">Dapp Secret Key</text></g><!--MD5=[72836ec31850c62b9b14aa68c04c7de4]
+entity AliceWalletKey--><g id="elem_AliceWalletKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="145" x="245.98" y="241.3867"/><polygon fill="#F1F1F1" points="373.98,246.3867,373.98,260.3867,385.98,260.3867,385.98,252.3867,379.98,246.3867,373.98,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="379.98" x2="379.98" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="385.98" x2="379.98" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="115" x="255.98" y="267.9219">Wallet Secret Key</text></g><!--MD5=[ac5d36e114831a03e60cd20d1cbf9067]
+entity AliceDapServer--><g id="elem_AliceDapServer"><polygon fill="#F1F1F1" points="48.48,239.3867,58.48,229.3867,210.48,229.3867,210.48,282.3633,200.48,292.3633,48.48,292.3633,48.48,239.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="200.48" x2="210.48" y1="239.3867" y2="229.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="48.48" x2="200.48" y1="239.3867" y2="239.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="200.48" x2="200.48" y1="239.3867" y2="292.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="83" x="63.48" y="262.9219">Dapp Server</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="63.48" y="279.4102">«Node.js process»</text></g><!--MD5=[219a21f0fd70450c1a6fdac568bb9673]
+entity AliceWallet--><g id="elem_AliceWallet"><polygon fill="#F1F1F1" points="48.48,362.3867,58.48,352.3867,210.48,352.3867,210.48,405.3633,200.48,415.3633,48.48,415.3633,48.48,362.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="200.48" x2="210.48" y1="362.3867" y2="352.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="48.48" x2="200.48" y1="362.3867" y2="362.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="200.48" x2="200.48" y1="362.3867" y2="415.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="63.48" y="385.9219">Wallet</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="63.48" y="402.4102">«Node.js process»</text></g><!--MD5=[5a161636aeef165fb1fb8ac62f4eb9bc]
+entity BobDappKey--><g id="elem_BobDappKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="140" x="1085.48" y="241.3867"/><polygon fill="#F1F1F1" points="1208.48,246.3867,1208.48,260.3867,1220.48,260.3867,1220.48,252.3867,1214.48,246.3867,1208.48,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1214.48" x2="1214.48" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1220.48" x2="1214.48" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="1095.48" y="267.9219">Dapp Secret Key</text></g><!--MD5=[bbff3e64b4ca427e286b22df6bbf4590]
+entity BobWalletKey--><g id="elem_BobWalletKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="145" x="904.98" y="241.3867"/><polygon fill="#F1F1F1" points="1032.98,246.3867,1032.98,260.3867,1044.98,260.3867,1044.98,252.3867,1038.98,246.3867,1032.98,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1038.98" x2="1038.98" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1044.98" x2="1038.98" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="115" x="914.98" y="267.9219">Wallet Secret Key</text></g><!--MD5=[04b2b48534b89547325422befc26e8ad]
+entity BobDapServer--><g id="elem_BobDapServer"><polygon fill="#F1F1F1" points="707.48,239.3867,717.48,229.3867,869.48,229.3867,869.48,282.3633,859.48,292.3633,707.48,292.3633,707.48,239.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="859.48" x2="869.48" y1="239.3867" y2="229.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="707.48" x2="859.48" y1="239.3867" y2="239.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="859.48" x2="859.48" y1="239.3867" y2="292.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="83" x="722.48" y="262.9219">Dapp Server</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="722.48" y="279.4102">«Node.js process»</text></g><!--MD5=[81e9aa8a05ac8829579765c4443200c8]
+entity BobWallet--><g id="elem_BobWallet"><polygon fill="#F1F1F1" points="707.48,362.3867,717.48,352.3867,869.48,352.3867,869.48,405.3633,859.48,415.3633,707.48,415.3633,707.48,362.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="859.48" x2="869.48" y1="362.3867" y2="352.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="707.48" x2="859.48" y1="362.3867" y2="362.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="859.48" x2="859.48" y1="362.3867" y2="415.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="722.48" y="385.9219">Wallet</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="722.48" y="402.4102">«Node.js process»</text></g><!--MD5=[f0365a835505ced5827c327f31bc3149]
+entity CharlieDappKey--><g id="elem_CharlieDappKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="140" x="1744.48" y="241.3867"/><polygon fill="#F1F1F1" points="1867.48,246.3867,1867.48,260.3867,1879.48,260.3867,1879.48,252.3867,1873.48,246.3867,1867.48,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1873.48" x2="1873.48" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1879.48" x2="1873.48" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="1754.48" y="267.9219">Dapp Secret Key</text></g><!--MD5=[678e15d1826930285559d71675f0d7c8]
+entity CharlieWalletKey--><g id="elem_CharlieWalletKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="145" x="1563.98" y="241.3867"/><polygon fill="#F1F1F1" points="1691.98,246.3867,1691.98,260.3867,1703.98,260.3867,1703.98,252.3867,1697.98,246.3867,1691.98,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1697.98" x2="1697.98" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1703.98" x2="1697.98" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="115" x="1573.98" y="267.9219">Wallet Secret Key</text></g><!--MD5=[c5409dd321c555011241072903a1121b]
+entity CharlieDapServer--><g id="elem_CharlieDapServer"><polygon fill="#F1F1F1" points="1366.48,239.3867,1376.48,229.3867,1528.48,229.3867,1528.48,282.3633,1518.48,292.3633,1366.48,292.3633,1366.48,239.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1518.48" x2="1528.48" y1="239.3867" y2="229.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1366.48" x2="1518.48" y1="239.3867" y2="239.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1518.48" x2="1518.48" y1="239.3867" y2="292.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="83" x="1381.48" y="262.9219">Dapp Server</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="1381.48" y="279.4102">«Node.js process»</text></g><!--MD5=[1c899a90371fd849ff094515fef9da05]
+entity CharlieWallet--><g id="elem_CharlieWallet"><polygon fill="#F1F1F1" points="1366.48,362.3867,1376.48,352.3867,1528.48,352.3867,1528.48,405.3633,1518.48,415.3633,1366.48,415.3633,1366.48,362.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1518.48" x2="1528.48" y1="362.3867" y2="352.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1366.48" x2="1518.48" y1="362.3867" y2="362.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="1518.48" x2="1518.48" y1="362.3867" y2="415.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="1381.48" y="385.9219">Wallet</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="1381.48" y="402.4102">«Node.js process»</text></g><!--MD5=[8f321e16f405b08b85770d9f15b9207a]
+entity OrganizerDappKey--><g id="elem_OrganizerDappKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="140" x="2403.48" y="241.3867"/><polygon fill="#F1F1F1" points="2526.48,246.3867,2526.48,260.3867,2538.48,260.3867,2538.48,252.3867,2532.48,246.3867,2526.48,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="2532.48" x2="2532.48" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2538.48" x2="2532.48" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="2413.48" y="267.9219">Dapp Secret Key</text></g><!--MD5=[030a61574e5f1dc6c11d7749b11f9283]
+entity OrganizerWalletKey--><g id="elem_OrganizerWalletKey"><rect fill="#F1F1F1" height="39.4883" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="145" x="2222.98" y="241.3867"/><polygon fill="#F1F1F1" points="2350.98,246.3867,2350.98,260.3867,2362.98,260.3867,2362.98,252.3867,2356.98,246.3867,2350.98,246.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="2356.98" x2="2356.98" y1="246.3867" y2="252.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2362.98" x2="2356.98" y1="252.3867" y2="252.3867"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="115" x="2232.98" y="267.9219">Wallet Secret Key</text></g><!--MD5=[c117b7c86461beb012823e7caf802d50]
+entity OrganizerDapServer--><g id="elem_OrganizerDapServer"><polygon fill="#F1F1F1" points="2025.48,239.3867,2035.48,229.3867,2187.48,229.3867,2187.48,282.3633,2177.48,292.3633,2025.48,292.3633,2025.48,239.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="2177.48" x2="2187.48" y1="239.3867" y2="229.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2025.48" x2="2177.48" y1="239.3867" y2="239.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2177.48" x2="2177.48" y1="239.3867" y2="292.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="83" x="2040.48" y="262.9219">Dapp Server</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="2040.48" y="279.4102">«Node.js process»</text></g><!--MD5=[1c99985d6e8556200e54a4af1e94de15]
+entity OrganizerWallet--><g id="elem_OrganizerWallet"><polygon fill="#F1F1F1" points="2025.48,362.3867,2035.48,352.3867,2187.48,352.3867,2187.48,405.3633,2177.48,415.3633,2025.48,415.3633,2025.48,362.3867" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="2177.48" x2="2187.48" y1="362.3867" y2="352.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2025.48" x2="2177.48" y1="362.3867" y2="362.3867"/><line style="stroke:#181818;stroke-width:0.5;" x1="2177.48" x2="2177.48" y1="362.3867" y2="415.3633"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="2040.48" y="385.9219">Wallet</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="122" x="2040.48" y="402.4102">«Node.js process»</text></g><!--MD5=[2c779ae8328ac3f1086abb313344728d]
+entity Alice--><g id="elem_Alice"><ellipse cx="62.48" cy="73.8867" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M62.48,81.8867 L62.48,108.8867 M49.48,89.8867 L75.48,89.8867 M62.48,108.8867 L49.48,123.8867 M62.48,108.8867 L75.48,123.8867 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="25.48" y="138.9219">Voter Alice</text></g><!--MD5=[c88e65a0f892c31524c9bc6fd9ce900f]
+entity Bob--><g id="elem_Bob"><ellipse cx="721.48" cy="73.8867" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M721.48,81.8867 L721.48,108.8867 M708.48,89.8867 L734.48,89.8867 M721.48,108.8867 L708.48,123.8867 M721.48,108.8867 L734.48,123.8867 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="67" x="687.98" y="138.9219">Voter Bob</text></g><!--MD5=[2c6b187ed7a585bbbb8e40a289894e67]
+entity Charlie--><g id="elem_Charlie"><ellipse cx="1380.48" cy="73.8867" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M1380.48,81.8867 L1380.48,108.8867 M1367.48,89.8867 L1393.48,89.8867 M1380.48,108.8867 L1367.48,123.8867 M1380.48,108.8867 L1393.48,123.8867 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90" x="1335.48" y="138.9219">Voter Charlie</text></g><!--MD5=[585b962675771cf7d6aded088b9190a1]
+entity Organizer--><g id="elem_Organizer"><ellipse cx="2039.48" cy="73.8867" fill="#F1F1F1" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M2039.48,81.8867 L2039.48,108.8867 M2026.48,89.8867 L2052.48,89.8867 M2039.48,108.8867 L2026.48,123.8867 M2039.48,108.8867 L2052.48,123.8867 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="110" x="1984.48" y="138.9219">Voter Organizer</text></g><!--MD5=[a08f3a7ee28dfe3faf84b659254bf2c6]
+link AliceInstance to NodeHost--><g id="link_AliceInstance_NodeHost"><path d="M609.5297,304.9311 C609.6588,305.47 609.7897,306.0124 609.9225,306.5581 C610.188,307.6496 610.4611,308.7546 610.7417,309.8722 C612.987,318.813 615.7213,328.5652 619.0275,338.733 C632.2525,379.4042 654.63,426.7267 691.48,455.3867 C772.335,518.2767 997.665,561.2217 1204.2237,588.533 C1307.5031,602.1886 1406.0897,611.9358 1479.5777,618.3134 C1516.3216,621.5023 1546.791,623.8487 1568.4349,625.4201 C1579.2569,626.2058 1587.8726,626.7978 1593.963,627.2044 C1594.7243,627.2553 1595.4462,627.3032 1596.128,627.3482 " fill="none" id="AliceInstance-NodeHost" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[197495951c25f60471d9ca6ed284e1a4]
+link AliceDapServer to AliceWallet--><g id="link_AliceDapServer_AliceWallet"><path d="M129.48,292.4167 C129.48,310.7667 129.48,334.0267 129.48,352.3667 " fill="none" id="AliceDapServer-AliceWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[84d7354393eec74e6731e8af7fb2af04]
+link Alice to AliceDapServer--><g id="link_Alice_AliceDapServer"><path d="M78.53,141.6367 C90.06,168.4067 105.43,204.0767 116.26,229.2167 " fill="none" id="Alice-AliceDapServer" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[ef3adbb558acec52e47371a98f195a1a]
+link Alice to AliceWallet--><g id="link_Alice_AliceWallet"><path d="M34.51,141.5867 C33.33,144.1467 32.3,146.7567 31.48,149.3867 C12.6,210.0767 6,234.1667 31.48,292.3867 C42.02,316.4667 62.48,336.9867 81.99,352.3667 " fill="none" id="Alice-AliceWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[52a6b821095412057ad7037ad5643fde]
+link BobInstance to NodeHost--><g id="link_BobInstance_NodeHost"><path d="M1268.518,290.7249 C1268.5863,290.9479 1268.6551,291.1719 1268.7243,291.3969 C1269.001,292.297 1269.2848,293.2133 1269.5757,294.1454 C1270.7392,297.8735 1272.0161,301.8523 1273.4074,306.0421 C1276.1901,314.4216 1279.4303,323.6452 1283.1363,333.3955 C1297.96,372.3967 1320.235,419.8267 1350.48,455.3867 C1393.995,506.5517 1456.205,549.1392 1508.1663,579.198 C1534.1469,594.2273 1557.5653,606.1245 1574.8036,614.3956 C1583.4227,618.5312 1590.4968,621.7602 1595.5737,624.021 C1595.7323,624.0916 1595.889,624.1613 1596.0437,624.2301 " fill="none" id="BobInstance-NodeHost" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[d4458d9aa5c671dc22a0fab86593aed3]
+link BobDapServer to BobWallet--><g id="link_BobDapServer_BobWallet"><path d="M788.48,292.4167 C788.48,310.7667 788.48,334.0267 788.48,352.3667 " fill="none" id="BobDapServer-BobWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[40352695d3e6c2b561d47580ecb75d8b]
+link Bob to BobDapServer--><g id="link_Bob_BobDapServer"><path d="M737.53,141.6367 C749.06,168.4067 764.43,204.0767 775.26,229.2167 " fill="none" id="Bob-BobDapServer" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[51b285dee2a739c9125129fc0edb10a6]
+link Bob to BobWallet--><g id="link_Bob_BobWallet"><path d="M693.51,141.5867 C692.33,144.1467 691.3,146.7567 690.48,149.3867 C671.6,210.0767 665,234.1667 690.48,292.3867 C701.02,316.4667 721.48,336.9867 740.99,352.3667 " fill="none" id="Bob-BobWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[3a5dbd3f933bacd156e3a024b43cadc3]
+link CharlieInstance to NodeHost--><g id="link_CharlieInstance_NodeHost"><path d="M1927.6171,294.0126 C1927.8146,294.9804 1928.0115,295.9647 1928.2073,296.9648 C1928.9903,300.9652 1929.7552,305.2178 1930.4666,309.6735 C1931.8895,318.5851 1933.0984,328.3095 1933.8113,338.4555 C1936.6625,379.0392 1931.575,426.3667 1900.48,455.3867 C1877.97,476.3967 1646.17,442.5767 1623.48,463.3867 C1596.785,487.8767 1591.765,528.1092 1593.55,562.6555 C1593.9963,571.292 1594.8678,579.5732 1595.9323,587.1642 C1596.0654,588.113 1596.2015,589.0511 1596.3401,589.9778 C1596.3748,590.2094 1596.4096,590.4404 1596.4446,590.6706 " fill="none" id="CharlieInstance-NodeHost" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[353391710dd34dab41cb8bbe4350660c]
+link CharlieDapServer to CharlieWallet--><g id="link_CharlieDapServer_CharlieWallet"><path d="M1447.48,292.4167 C1447.48,310.7667 1447.48,334.0267 1447.48,352.3667 " fill="none" id="CharlieDapServer-CharlieWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[b244c6e338afe1358e9ecd0585bb3461]
+link Charlie to CharlieDapServer--><g id="link_Charlie_CharlieDapServer"><path d="M1396.53,141.6367 C1408.06,168.4067 1423.43,204.0767 1434.26,229.2167 " fill="none" id="Charlie-CharlieDapServer" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[a8cbf46e7698663f51250560c8a9abda]
+link Charlie to CharlieWallet--><g id="link_Charlie_CharlieWallet"><path d="M1352.51,141.5867 C1351.33,144.1467 1350.3,146.7567 1349.48,149.3867 C1330.6,210.0767 1324,234.1667 1349.48,292.3867 C1360.02,316.4667 1380.48,336.9867 1399.99,352.3667 " fill="none" id="Charlie-CharlieWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[c3e12a5a0768e761c46de3e887b58f29]
+link OrganizerInstance to NodeHost--><g id="link_OrganizerInstance_NodeHost"><path d="M2586.5833,293.4151 C2586.6335,293.6558 2586.6836,293.8976 2586.7338,294.1404 C2586.9343,295.1115 2587.1342,296.0992 2587.333,297.1026 C2588.1281,301.1163 2588.9051,305.3823 2589.6283,309.8511 C2591.0748,318.7887 2592.3059,328.5377 2593.0362,338.703 C2595.9575,379.3642 2590.865,426.6867 2559.48,455.3867 C2540.29,472.9367 1642.82,446.0067 1623.48,463.3867 C1596.54,487.6017 1591.5175,527.8292 1593.3625,562.4417 C1593.8238,571.0948 1594.7142,579.397 1595.7988,587.0104 C1595.9343,587.962 1596.0729,588.9029 1596.2141,589.8324 C1596.2847,590.2971 1596.3559,590.759 1596.4277,591.218 " fill="none" id="OrganizerInstance-NodeHost" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[6ec251ee4cea242dfd356dc78288b456]
+link OrganizerDapServer to OrganizerWallet--><g id="link_OrganizerDapServer_OrganizerWallet"><path d="M2106.48,292.4167 C2106.48,310.7667 2106.48,334.0267 2106.48,352.3667 " fill="none" id="OrganizerDapServer-OrganizerWallet" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[504d33950a64ae6d39d2bce911aee6c3]
+link Organizer to OrganizerDapServer--><g id="link_Organizer_OrganizerDapServer"><path d="M2055.53,141.6367 C2067.06,168.4067 2082.43,204.0767 2093.26,229.2167 " fill="none" id="Organizer-OrganizerDapServer" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[4c9efa0669dd5db037ccaaf3a40c86e2]
+link Organizer to OrganizerWallet--><g id="link_Organizer_OrganizerWallet"><path d="M2011.51,141.5867 C2010.33,144.1467 2009.3,146.7567 2008.48,149.3867 C1989.6,210.0767 1983,234.1667 2008.48,292.3867 C2019.02,316.4667 2039.48,336.9867 2058.99,352.3667 " fill="none" id="Organizer-OrganizerWallet" style="stroke:#181818;stroke-width:1.0;"/></g><rect height="47.1094" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="200" x="1194.74" y="719.3867"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1293.24" y="729.0547"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1293.24" y="740.832"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="1293.24" y="752.6094"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="200" x="1194.74" y="764.3867">Copyright 2022, Input Output Global, Ltd.</text><!--MD5=[1a98e55d037312b8df8f1dae20b2b06d]
+@startuml
+' left to right direction
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+
+!function $instanceName($name) !return $name + "Instance"
+!function $dappServerName($name) !return $name + "DapServer"
+!function $uiName($name) !return $name + "DappUI"
+!function $dappBackendName($name) !return $name + "DappBackend"
+!function $dappKey($name) !return $name + "DappKey"
+!function $wallet($name) !return $name + "Wallet"
+!function $walletKey($name) !return $name + "WalletKey"
+!function $walletEngine($name) !return $name + "WalletEngine"
+!function $walletTUI($name) !return $name + "WalletTUI"
+!function $actorDisplay($name, $isVoter)
+    !if ($isVoter) 
+        !$prefix ?= "Voter "
+    !else 
+        !$prefix ?= ""
+    !endif
+    !return $prefix + $name
+!endfunction
+
+node NodeHost as "Node Host\n<<machine>>" {
+    artifact BootstrapFile
+
+    component NodeInstance as "Node Instance\n<<process>>" {
+        artifact NodeImplementation
+
+        storage Ledger [
+            LedgerState
+            <<ephemeral>>
+        ]
+    }
+}
+
+!procedure $dappDeployment($name, $isVoter=false)
+    actor :$actorDisplay($name, $isVoter): as $name
+    node $instanceName($name) as "$name Instance\n<<machine>>" {
+        artifact $dappKey($name) as "Dapp Secret Key"
+        artifact $walletKey($name) as "Wallet Secret Key" 
+        node $dappServerName($name) as "Dapp Server\n<<Node.js process>>" {
+            ' component $uiName($name) as "Dapp UI\n<<hosted to browser>>"
+            ' component $dappBackendName($name) as "Dapp Backend"
+        }
+        node $wallet($name) as "Wallet\n<<Node.js process>>" {
+            ' component $walletEngine($name) as "Wallet Engine"
+            ' component $walletTUI($name) as "Wallet TUI"
+        }
+    }
+
+    $instanceName($name) - - - NodeHost
+    ' $dappServerName($name) - - - - NodeInstance
+    ' $actorName($name) - - $uiName($name)
+    ' $actorName($name) - - $walletTUI($name)
+    ' $wallet($name) - - NodeInstance
+    $dappServerName($name) - - $wallet($name)
+    $name - - $dappServerName($name)
+    $name - - $wallet($name)
+!endprocedure
+
+
+
+
+' together {
+    $dappDeployment("Alice", $isVoter=true)
+    $dappDeployment("Bob", $isVoter=true)
+    $dappDeployment("Charlie", $isVoter=true)
+    $dappDeployment("Organizer")
+' }
+
+
+@enduml
+
+@startuml
+header demo-deployment.puml\n2022.10.31 at 23:28 CET\n\n\n
+
+footer \n\n\nCopyright 2022, Input Output Global, Ltd.
+
+
+node NodeHost as "Node Host\n<<machine>>" {
+    artifact BootstrapFile
+
+    component NodeInstance as "Node Instance\n<<process>>" {
+        artifact NodeImplementation
+
+        storage Ledger [
+            LedgerState
+            <<ephemeral>>
+        ]
+    }
+}
+
+
+
+
+
+        actor :Voter Alice: as Alice
+    node AliceInstance as "Alice Instance\n<<machine>>" {
+        artifact AliceDappKey as "Dapp Secret Key"
+        artifact AliceWalletKey as "Wallet Secret Key" 
+        node AliceDapServer as "Dapp Server\n<<Node.js process>>" {
+        }
+        node AliceWallet as "Wallet\n<<Node.js process>>" {
+        }
+    }
+
+    AliceInstance - - - NodeHost
+    AliceDapServer - - AliceWallet
+    Alice - - AliceDapServer
+    Alice - - AliceWallet
+        actor :Voter Bob: as Bob
+    node BobInstance as "Bob Instance\n<<machine>>" {
+        artifact BobDappKey as "Dapp Secret Key"
+        artifact BobWalletKey as "Wallet Secret Key" 
+        node BobDapServer as "Dapp Server\n<<Node.js process>>" {
+        }
+        node BobWallet as "Wallet\n<<Node.js process>>" {
+        }
+    }
+
+    BobInstance - - - NodeHost
+    BobDapServer - - BobWallet
+    Bob - - BobDapServer
+    Bob - - BobWallet
+        actor :Voter Charlie: as Charlie
+    node CharlieInstance as "Charlie Instance\n<<machine>>" {
+        artifact CharlieDappKey as "Dapp Secret Key"
+        artifact CharlieWalletKey as "Wallet Secret Key" 
+        node CharlieDapServer as "Dapp Server\n<<Node.js process>>" {
+        }
+        node CharlieWallet as "Wallet\n<<Node.js process>>" {
+        }
+    }
+
+    CharlieInstance - - - NodeHost
+    CharlieDapServer - - CharlieWallet
+    Charlie - - CharlieDapServer
+    Charlie - - CharlieWallet
+        actor :Voter Organizer: as Organizer
+    node OrganizerInstance as "Organizer Instance\n<<machine>>" {
+        artifact OrganizerDappKey as "Dapp Secret Key"
+        artifact OrganizerWalletKey as "Wallet Secret Key" 
+        node OrganizerDapServer as "Dapp Server\n<<Node.js process>>" {
+        }
+        node OrganizerWallet as "Wallet\n<<Node.js process>>" {
+        }
+    }
+
+    OrganizerInstance - - - NodeHost
+    OrganizerDapServer - - OrganizerWallet
+    Organizer - - OrganizerDapServer
+    Organizer - - OrganizerWallet
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 18:10:57 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: PL
+--></g></svg>
