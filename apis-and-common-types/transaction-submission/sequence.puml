@@ -1,19 +1,35 @@
 @startuml
 
-Client --> ServerNode : Transaction submission request
+Client --> Server : Transaction submission request
 
-alt transaction well-formed
-    ServerNode --> ServerNode : Add to mempool
-    ServerNode --> Network : Broadcast
-    Client <-- ServerNode : Transaction Submitted
-    alt transaction included
-        ServerNode <-- Network : Block including transaction
-        Client <-- ServerNode : TransactionIncluded
-    else transaction failed
-        ServerNode <-- Network : Transaction inclusion failure
-        Client <-- ServerNode : Submission error - transaction failure
+alt transaction not well-formed
+        Client <-- Server : Submission error - tx not well-formed
+else transaction well-formed
+    Server --> Server : Add to mempool
+    alt broadcast timeouts in client
+        Client --> Client : Submission error - timeout
+    else broadcast fails
+        Server --> Network : Broadcast
+        Server <-- Network : All Errors / Connectivity lost
+        Client <-- Server : Submission error - broadcast error
+    else broadcast timeouts
+        Server --> Network : Broadcast
+        Server --> Server : Timeout
+        Client <-- Server : Submission error - broadcast timeout error
+    else broadcast succeeds
+        Server --> Network : Broadcast
+        Client <-- Server : Transaction Submitted
+        alt transaction included
+            Network --> Network : Block with tx minted
+            Server <-- Network : Block including transaction
+            Client <-- Server : TransactionIncluded
+        else transaction failed
+            Network --> Network : Tx didn't pass pre-minting validation
+            Server <-- Network : Transaction inclusion failure
+            Client <-- Server : Submission error - transaction failure
+        else timeout
+            Client --> Client : Submission error - timeout
+        end
     end
-else transaction not well-formed
-    Client <-- ServerNode : Submission error - tx not well-formed
 end
 @enduml
