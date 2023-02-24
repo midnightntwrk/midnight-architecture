@@ -26,6 +26,8 @@ architectural elements are defined in [definitions](definitions.md).
     - Lares Runtime
         - [Private State Management](./components/lares/private-state-management/README.md)
 * [API’s and Common Types](./apis-and-common-types/README.org)
+  - [Transaction Submission](./apis-and-common-types/transaction-submission/Readme.md)
+  - [Event Log](./apis-and-common-types/event-log/Readme.md)
 * Example dApps
     - [Lares Private e-Voting Example](./example-dapps/evoting/README.org)
     - [Private DAO Example](./example-dapps/dao/)

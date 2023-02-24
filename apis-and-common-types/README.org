@@ -4,5 +4,9 @@ Components must agree on the data types they use to exchange data.  These may be
 
 All of these datatypes should be versioned and should be defined as part of the architecture.  Since they do not naturally belong to either collaborating component, they should be defined here.
 
+* APIs
+  ** [[Transaction submission][./transaction-submission]]
+  ** [[Node/ledger event log][./event-log]]
+
 
 
