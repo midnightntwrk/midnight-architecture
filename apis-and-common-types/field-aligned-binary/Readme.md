@@ -169,3 +169,36 @@ the alignment, and appending the generated parts in sequence:
   the chosen `Alignment`. The length of each `Alignment` option's field
   representation is calculated, and if the chosen one is shorter than this, it
   is padded to this length with zero elements.
+
+## High-level vs low-level JS values
+
+Field-Aligned Binary does not contain sufficient structural information to
+output high-level JS values, such as objects, but with type information the
+Abcird compiler should be able to perform automatic mappings between some
+typescript types and the low-level JS values listed above. 
+
+The high(er)-level typescript types understood are:
+
+* Plain objects, e.g. `{foo: "foo", bar: "bar"}`
+* Arrays, e.g. `["foo", "bar"]`
+* Unsigned integer `number`s
+* `true` and `false`
+* Tagged union types, e.g. `{ tag: "foo", bar: number, baz: string } | { tag: "bar" }`
+* `string` and `Uint8Array`
+* Arbitrary types with `<type>.decode(from: Value)` and `<value>.encode(): Value` methods.
+
+Encoding is straight-forward:
+
+* Plain objects are encoded by encoding their fields in sequence.
+* Arrays are encoded by encoding their elements in sequence.
+* Unsigned integers are encoded as a singleton array of a little-endian byte array.
+* `true` is encoded as `[[1]]`, and `false` as `[[]]`.
+* Tagged unions are encoded as the encoding of their tag's index in the type,
+  followed by encoding of the remaining fields in sequence.
+* `string`s are encoded in utf-8 as a singleton byte array.
+* `Uint8Array`s are encoded as a singleton of themselves.
+* Arbitrary types are encoded with `.encode`.
+
+Decoding proceeds similarly, but more often requires type information to
+reconstruct discarded information.
+
