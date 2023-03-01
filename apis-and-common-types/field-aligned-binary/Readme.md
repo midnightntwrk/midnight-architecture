@@ -4,6 +4,7 @@ This document describes the Field-Aligned Binary data format, as JS values,
 binary, and field representations.
 
 __Status__: Draft
+
 __Version__: 1.0
 
 ## Assumptions
@@ -11,7 +12,7 @@ __Version__: 1.0
 This document assumes the existence of a primary modular field of interest. This
 shall be taken to be the current modular prime field of the base elliptic curve
 used in Midnight. Should Midnight abandon the use of elliptic curves for a
-binary cryptosystem, the modular field shall be taken to be $\mod 2^128$, and
+binary cryptosystem, the modular field shall be taken to be $\mod 2^{128}$, and
 it shall be guaranteed to be at least this large.
 
 ## Data types
