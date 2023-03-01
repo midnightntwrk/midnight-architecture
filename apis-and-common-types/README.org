@@ -4,9 +4,11 @@ Components must agree on the data types they use to exchange data.  These may be
 
 All of these datatypes should be versioned and should be defined as part of the architecture.  Since they do not naturally belong to either collaborating component, they should be defined here.
 
+API and format versions shall be ~<major>.<minor>~, where a change is major for APIs iff a client cannot use the new API without modifications, and for data iff a valid data representation under the old format has different semantics (or is invalid) under the new.
+A change is minor iff it modifies the intended or actual interpretation of the API or format definition.
+
 * APIs
-  ** [[Transaction submission][./transaction-submission]]
-  ** [[Node/ledger event log][./event-log]]
-
-
-
+** [[./transaction-submission][Transaction submission]]
+** [[./event-log][Node/ledger event log]]
+* Data Types
+** [[./field-aligned-binary][Field-Aligned Binary (FAB)]]
