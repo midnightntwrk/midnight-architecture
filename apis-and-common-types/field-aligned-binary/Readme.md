@@ -40,8 +40,8 @@ sequence of bits `a`.
 
 ```
 xy0a aaaa                     ~ [a]
-xy1a aaaa 0bbb bbbb           ~ [a] + [b] << 7
-xy1a aaaa 1bbb bbbb 0ccc cccc ~ [a] + [b] << 7 + c << 14
+xy1a aaaa 0bbb bbbb           ~ [a] + [b] << 5
+xy1a aaaa 1bbb bbbb 0ccc cccc ~ [a] + [b] << 5 + c << 12
 --1- ---- 1--- ---- 1--- ---- reserved
 ```
 
