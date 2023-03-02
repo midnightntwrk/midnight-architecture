@@ -69,20 +69,20 @@ type ValueAtom = Uint8Array;
 
 A `Value` begins with an integer with flags `xy`. Depending on `xy`:
 
-* `xy = 00`, the integer encodes the number of `ValueAtom`s that follow. The
-  integer *must not* be 1.
-* `xy = 1-`, is handled as if parsing a `ValueAtom` with flags `xy`, and
+* `xy = 0-`, is handled as if parsing a `ValueAtom` with flags `xy`, and
   wrapping the result in a singleton list.
-* `xy = 01` is reserved.
+* `xy = 10`, the integer encodes the number of `ValueAtom`s that follow. The
+  integer *must not* be 1.
+* `xy = 11` is reserved.
 
 A `ValueAtom` begins with an integer with flags `xy`. Depending on `xy`:
 
-* `xy = 10`, the integer encodes the number of bytes that follow. *If* the
+* `xy = 00`, the integer encodes a single byte, which *must* be > 0 and < 64.
+  This byte is a singleton in this `ValueAtom`.
+* `xy = 01`, the integer encodes the number of bytes that follow. *If* the
   integer is 1, the following bytes *must* be >= 64. The final byte in the
   sequence *must not* be 0.
-* `xy = 11`, the integer encodes a single byte, which *must* be > 0 and < 64.
-  This byte is a singleton in this `ValueAtom`.
-* `xy = 0-` is reserved.
+* `xy = 1-` is reserved.
 
 ## `Alignment`, `AlignmentSegment`, and `AlignmentAtom` representation
 
