@@ -10,6 +10,8 @@ Overall, while it is technically possible to implement a fully functioning walle
 - handles the process of scanning blockchain in search for wallet-relevant transactions, which is computationally expensive and requires sending whole blockchain over the network
 - saves the scanning results for clients, which allows for quick synchronization and state restoration by clients
 
+[Gap analysis to indexer](./Indexer-gap-analysis.md)
+
 ## TODO
 
   - Discuss `Account ||--|| RelevatTxFilter`
