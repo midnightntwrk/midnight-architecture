@@ -41,7 +41,7 @@ sequence of bits `a`.
 ```
 xy0a aaaa                     ~ [a]
 xy1a aaaa 0bbb bbbb           ~ [a] + [b] << 5
-xy1a aaaa 1bbb bbbb 0ccc cccc ~ [a] + [b] << 5 + c << 12
+xy1a aaaa 1bbb bbbb 0ccc cccc ~ [a] + [b] << 5 + [c] << 12
 --1- ---- 1--- ---- 1--- ---- reserved
 ```
 
@@ -95,9 +95,10 @@ element, or `bytes<x>`, indicating a sequence of `x` bytes.
 ### In TypeScript
 
 ```typescript
-type Alignment = Array<AlignmentSegment>
-type AlignmentSegment = { type: "option", options: Array<Alignment> } | { type: "atom", atom: AlignmentAtom }
-type AlignmentAtom = { type: "compress"} | { type: "field" } | { type: "bytes", length: number }
+type Alignment = Array<AlignmentSegment>;
+type AlignmentSegment = { tag: "option", options: Array<Alignment> } | { tag: "atom", atom: AlignmentAtom };
+type AlignmentAtom = { tag: "compress"} | { tag: "field" } | { tag: "bytes", length: number };
+type AlignedValue = { value: Value, alignment: Alignment };
 ```
 
 ### In Binary
