@@ -45,7 +45,10 @@ ADTs may be Merklized as a node whose first child is a tag identifying the type,
 
 #### On-the-wire representation
 
-TODO
+TODO -- We probably want to represent `Cell`s just as their FAB Value
+representation, because of how common they are. Curiousity: We need their
+aligned variants for proof verification, but not for transaction application.
+How does that affect things?
 
 #### Composite ADTs
 
@@ -75,32 +78,37 @@ d}`: consuming items `a` and `b` being at the top of the stack (with `a` above
 values here is just an example. We write `[a]` to refer to the value stored in
 `a`, and `[[a]]` to refer to the FAB value stored in the `Cell` at `[a]`.
 
-| Name     | Opcode | Stack             | Arguments      | Results        | Description |
-| :---     | -----: | :-----            | -------------: | -------------: | ----------- |
-| `noop`   |   `00` | `-{}     +{}`     |              - |              - | nothing |
-| `dup`    |   `01` | `-{a}    +{a, a}` |              - |              - | duplicates `a` |
-| `copy`   |   `02` | `-{a}    +{b}`    |              - |              - | sets `[b] := [a]` |
-| `move`   |   `03` | `-{a, b} +{}`     |              - |              - | sets `[a] := [b]` |
-| `pop`    |   `04` | `-{a}    +{}`     |              - |              - | removes `a` |
-| `swap`   |   `05` | `-{a, b} +{b, a}` |              - |              - | swaps the top two items on the stack |
-| `branch` |   `06` | `-{a}    +{}`     |      `n: uint` |              - | if `[a]` is non-empty, skip `n` operations. The skipped operations *must* have a net-zero effect on the stack. |
-| `read`   |   `07` | `-{a}    +{}`     |              - |     `[a]: Adt` | returns `[a]` |
-| `write`  |   `08` | `-{}     +{a}`    |     `[a]: Adt` |              - | sets `[a]` |
-| `add`    |   `09` | `-{a}    +{b}`    |       `c: Adt` |              - | sets `[b] := [a] + c`, where addition is defined below |
-| `sub`    |   `0a` | `-{a}    +{b}`    |       `c: Adt` |              - | sets `[b] := [a] - c`, where subtraction is defined below |
-| `lt`     |   `0b` | `-{a, b} +{c}`    |              - |              - | sets `[c] := [a] < [b]` |
-| `eq`     |   `0c` | `-{a, b} +{c}`    |              - |              - | sets `[c] := [a] == [b]` |
-| `type`   |   `0d` | `-{a}    +{b}`    |              - |              - | sets `[b] := typeof([a])` |
-| `size`   |   `0e` | `-{a}    +{b}`    |              - |              - | sets `[b] := size([a])` |
-| `member` |   `0f` | `-{a, b} +{c}`    |              - |              - | sets `[c] := has_key([a], [b])` |
-| `idx`    |   `10` | `-{a}    +{b}`    |     `c: [Adt]` |              - | sets `[b] := fold_left(c, [a], lambda adt val: adt.get(val))` |
-| `dyidx`  |   `11` | `-{a, b} +{c}`    |              - |              - | sets `[c] := [a].get([b])` |
-| `new`    |   `12` | `-{a}    +{b}`    |              - |              - | sets `[b] := new typeof([a])` |
-| `null`   |   `13` | `-{}     +{a}`    |              - |              - | sets `[a] := null` |
-| `and`    |   `14` | `-{a, b} +{c}`    |              - |              - | sets `[c] := [a] & [b]` |
-| `or`     |   `15` | `-{a, b} +{c}`    |              - |              - | sets `[c] := [a] | [b]` |
-| `neg`    |   `16` | `-{a}    +{b}`    |              - |              - | sets `[b] := ![a]` |
-| `log`    |   `17` | `-{a}     +{}`    |              - |              - | outputs `[a]` as an event |
+| Name     | Opcode | Stack                   | Arguments      | Results        | Description |
+| :---     | -----: | :-----                  | -------------: | -------------: | ----------- |
+| `noop`   |   `00` | `-{}        +{}`        |              - |              - | nothing |
+| `dup`    |   `01` | `-{a}       +{a, a}`    |              - |              - | duplicates `a` |
+| `copy`   |   `02` | `-{a}       +{b}`       |              - |              - | sets `[b] := [a]` |
+| `move`   |   `03` | `-{a, b}    +{}`        |              - |              - | sets `[a] := [b]` |
+| `pop`    |   `04` | `-{a}       +{}`        |              - |              - | removes `a` |
+| `swap`   |   `05` | `-{a, b}    +{b, a}`    |              - |              - | swaps the top two items on the stack |
+| `swap2`  |   `06` | `-{a, b, c} +{c, b, a}` |              - |              - | swaps the top item with one two-down on the stack |
+| `branch` |   `07` | `-{a}       +{}`        |      `n: uint` |              - | if `[a]` is non-empty, skip `n` operations. The skipped operations *must* have a net-zero effect on the stack. |
+| `read`   |   `08` | `-{a}       +{}`        |              - |     `[a]: Adt` | returns `[a]` |
+| `write`  |   `09` | `-{}        +{a}`       |     `[a]: Adt` |              - | sets `[a]` |
+| `add`    |   `0a` | `-{a}       +{b}`       |       `c: Adt` |              - | sets `[b] := [a] + c`, where addition is defined below |
+| `sub`    |   `0b` | `-{a}       +{b}`       |       `c: Adt` |              - | sets `[b] := [a] - c`, where subtraction is defined below |
+| `lt`     |   `0c` | `-{a, b}    +{c}`       |              - |              - | sets `[c] := [a] < [b]` |
+| `eq`     |   `0d` | `-{a, b}    +{c}`       |              - |              - | sets `[c] := [a] == [b]` |
+| `type`   |   `0e` | `-{a}       +{b}`       |              - |              - | sets `[b] := typeof([a])` |
+| `size`   |   `0f` | `-{a}       +{b}`       |              - |              - | sets `[b] := size([a])` |
+| `member` |   `10` | `-{a, b}    +{c}`       |              - |              - | sets `[c] := has_key([a], [b])` |
+| `idx`    |   `11` | `-{a}       +{b}`       |     `c: [Adt]` |              - | sets `[b] := fold_left(c, [a], lambda adt val: adt.get(val))` |
+| `dyidx`  |   `12` | `-{a, b}    +{c}`       |              - |              - | sets `[c] := [a].get([b])` |
+| `new`    |   `13` | `-{a}       +{b}`       |              - |              - | sets `[b] := new typeof([a])` |
+| `null`   |   `14` | `-{}        +{a}`       |              - |              - | sets `[a] := null` |
+| `and`    |   `15` | `-{a, b}    +{c}`       |              - |              - | sets `[c] := [a] & [b]` |
+| `or`     |   `16` | `-{a, b}    +{c}`       |              - |              - | sets `[c] := [a] | [b]` |
+| `neg`    |   `17` | `-{a}       +{b}`       |              - |              - | sets `[b] := ![a]` |
+| `log`    |   `18` | `-{a}       +{}`        |              - |              - | outputs `[a]` as an event |
+| `root`   |   `19` | `-{a}       +{b}`       |              - |              - | sets `[b] := root([a])` |
+| `ins`    |   `1a` | `-{a, b}    +{}`        |              - |              - | sets `[a] := insert([a], [b])` |
+| `inskey` |   `1b` | `-{a, b, c} +{}`        |              - |              - | sets `[a] := insert_key([a], [b], [c])` |
+| `rem`    |   `1c` | `-{a, b}    +{}`        |              - |              - | sets `[a] := remove([a], [b])` |
 
 In the description above, the following short-hand notations were used. Where
 not specified, result values are placed in a `Cell`, and encoded as FAB values.
@@ -139,23 +147,35 @@ not specified, result values are placed in a `Cell`, and encoded as FAB values.
   * `a: Pair`, if `b == 0`, return the first item, if `b == 1`, the second.
   * `a: Map`, the value stored at the key `b`
   * `a: Array(n)`, the value at the index `b` < n
+* `root(a)` outputs the Merkle-tree root of the `BoundedMerkleTree(n)` or
+  `SortedMerkleTree` `a`.
+* `insert(a, b)`, inserts the value `b` into the `Set` or `SortedMerkleTree` `a`.
+* `insert_key(a, b, c)`, inserts the value `c` into a map `Map` `a` at key `b`,
+  or a `BoundedMerkleTree` `a` at index `b`.
+* `remove(a, b)`, depending on the type of `a`:
+  * `Set`: removes the value `b`
+  * `Map`: removes the entry with key `b`
+  * `BoundedMerkleTree(n)`: zeroes the index `b`
+  * `SortedMerkleTree`: removes the value `b`
 
-Creating new map entries, or removing existing entries is done by indexing to
-them, and setting them to or from `null`. See examples below.
+## Use in Midnight
 
 State shapes:
 
 ```
-Midnight = Vector<zswap: ZSwap, contract: Lares>
-ZSwap = Vector<commitments: MerkleTree<32>, nullifiers: Set<Nullifier>, past_roots: Set<Field>>
+Midnight = Array<zswap: ZSwap, contract: Lares, _, _>
+ZSwap = Array<commitments: MerkleTree<32>, nullifiers: Set<Nullifier>, past_roots: Set<Field>>
 Lares = Map<ContractAddress, Contract>
-Contract = Vector<contract_state: Any, operations: Map<Bytes, VerifierKey>>
+Contract = Array<contract_state: Any, operations: Map<Bytes, VerifierKey>, _>
 
-Context = Vector<block_context: BlockContext, self: ContractAddress, new_commitment_indicies: Map<CoinInfo, Field>>
-BlockContext = Vector<parent: Maybe<BlockContext>, dirty_rand: Bytes<32>, time_hint: Unsigned Integer<64>>
+Context = Array<block_context: BlockContext, self: ContractAddress, new_commitment_indicies: Map<CoinInfo, Field>>
+BlockContext = Array<parent: Maybe<BlockContext>, dirty_rand: Bytes<32>, time_hint: Unsigned Integer<64>>
 
-ContractWithContext = Vector<contract_state: Any, operations: Map<Bytes, VerifierKey>, context: Context>
+MidnightWithContext = Array<zswap: ZSwap, contract: Lares, context: BlockContext, new_commitment_indicies: Map<CoinInfo, Field>>
+ContractWithContext = Array<contract_state: Any, operations: Map<Bytes, VerifierKey>, context: Context>
 ```
+
+NOTE: This is incomplete! Missing coin claims / subcall claims
 
 When contract calls are processed, they start with a stack with a single `ContractWithContext`.
 
@@ -170,5 +190,28 @@ ledger {
 
 Examples:
 * `[dup, idx 1 <bar lit>, incr 1]` for `ledger.bar[<bar lit>].increment(1)`
-* `[dup, idx 1 <bar lit>, write <baz lit>, move]` for `ledger.bar[<bar lit>] = <baz lit>`
-* `[dup, idx 1 <bar lit>, null, move]` for `ledger.bar.remove(<bar lit>)`
+* `[dup, idx 1, write <bar lit>, write <baz lit>, ins]` for `ledger.bar[<bar lit>] = <baz lit>`
+* `[dup, idx 1, write <bar lit>, rem]` for `ledger.bar.remove(<bar lit>)`
+
+We can represent all non-verification operations in Midnight through as Ofla
+programs. The entire history of state changes can be seen as a single valid
+Ofla program.
+
+* ZSwap spends as: `[dup, idx 0 2, root, read <root>, dup, idx 0 1, dup, write <nullifier>, dup, swap2, swap, member, read 1, ins, write <ciphertext>, log]` (note: will actually need to involve contract address for claiming?)
+* ZSwap outputs as: `[dup, idx 0 1, write <commitment>, ins]` (note: will actually need to involve contract address for claiming?)
+* Contract deploys as `[dup, idx 1, write <addr>, write <deploy state>, ins]`
+* Contract calls as as something more complicated to set up the context (its possible, but not pretty)
+
+Maybe instructions to make these easier/more compact? Especially the contract call + bring over execution context?
+
+Questions:
+
+* Register-based machine instead? Some issues:
+  * Will makes many instructions >1 byte
+  * How to have all state modification be a single executing a program? Where
+    is the root state pointer kept while operating on a contract state?
+* Idea: Stack machine with *2* stacks, each op has 3 bitflags on which stack a particular input/output uses.
+  * Leaves 32 operations representable in one byte
+  * Easier to use one stack as scratch space (construct what we want to write),
+    and the other as target (construct where we want to write it) than using
+    swaps and swap2s.
