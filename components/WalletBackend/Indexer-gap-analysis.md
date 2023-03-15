@@ -27,6 +27,31 @@ It is observed that wallet backend has a similar responsibilities to an indexer,
 thus could even be called "wallet indexer". It is unknown though, what kind of 
 requirements or constraints on the indexer this approach brings.
 
+In this context, another important use-case for an indexer in Midnight - DApps state - 
+fits very well in various indexing approaches.
+
+There are other indexing solutions available in Cardano ecosystem, which could be 
+considered a starting point (following https://gist.github.com/abailly-iohk/3e934e0487daab1c2597ec2ed3223981 and https://input-output-rnd.slack.com/archives/C03D2QE1G9H/p1678121240592409):
+
+  - Oura (less of an indexer and more a building block) (Rust) https://github.com/txpipe/oura can it perform e.g. discovery? 
+  - Scrolls (Rust) https://github.com/txpipe/scrolls - uses CRDTs and idempotency for 
+    reducing writes overhead, abstracts over data store, plugging new type of reducer 
+    would be easy, though supporting a different chain would require restructuring
+  - Carp (builds on Oura, TS, Postgres) https://github.com/dcSpark/carp - even though 
+    Cardano-specific, allows to implement custom tasks/rules
+  - Marconi (Haskell) https://github.com/input-output-hk/marconi - Cardano-specific, 
+    though the way it is structured suggests that extending to other chain should be 
+    possible thanks to hiding sync protocol behind a stream interface
+  - DB-Sync (Haskell, Postgres) https://github.com/input-output-hk/cardano-db-sync - 
+    very cardano specific
+  - Kupo (Haskell, sqlite) https://cardanosolutions.github.io/kupo/#section/Overview - 
+    Cardano-specific, with a nice, though specific API for querying/matching data
+  - marlowe-chain-sync (Haskell) https://github.com/input-output-hk/marlowe-cardano/tree/main/marlowe-chain-sync A specialised indexer for use with Marlowe runtime
+probably supersedes Marlowe-ici (Haskell) https://github.com/bwbush/marlowe-ici Has not had a commit in 10 months, probably stale?
+
+They all assume that each deployment is "centralized", even if the data source may be 
+"the network" (solutions based on Oura/Pallas).
+
 ## Desired state
 
 Wallet backend is a form of a filter in the Pubsub Indexer, which:
@@ -39,6 +64,8 @@ Wallet backend is a form of a filter in the Pubsub Indexer, which:
   - returns list of transactions matching the key upon authenticated session, list of 
     matching transactions is a private data, which leads to possibility of linking 
     behavior of specific wallet of group of them
+  - lives only in memory, i.e. the client's key material gets removed from memory when 
+    the filter stops
 
 Ideally all operations are conducted in a trustless and privacy-preserving way to the 
 extent that end-users do not have to run their own infrastructure in order to maintain 
@@ -80,8 +107,8 @@ started - it needs to process all historic transactions too.
 
 ### Incentives
 
-Hermes+Athena's incentive to run nodes lies in networking privacy. For fund custodians 
-it lies in being funded from the treasury.
+Hermes+Athena's incentive to run nodes lies in networking privacy and ability to 
+verify data. For fund custodians it lies in being funded from the treasury.
 
 For Midnight Wallet one possibility is to collect processing fees (similarily to what 
 MyMonero does). 
@@ -116,10 +143,30 @@ needed to stored by client).
 
 ### Uninstalling wallet filter
 
+It could be a process very similar to the one of installing filter, maybe even simpler 
+if client knows how to connect to specific node. The last step though is a request to 
+uninstall filter. In case of honest nodes there should be no incentive to keep the 
+filter running. 
 
+__Should a form of key rotation be implemented to prevent dishonest nodes from learning 
+about newer transactions?__
 
 ### Selecting instance to connect
 
+As mentioned in sections above - client-facing API could be extended with discovery 
+capabilities to allow clients find the nodes that match their criteria.
+
 ### Switching instance
 
-### Service restarts
+Should be a semi-automatic process. 
+
+__Involving user-facing notification?__
+
+### Instance restarts
+
+Service restart seems to be a scenario very similar to uninstalling the filter when it 
+comes to privacy and trust concerns. 
+
+Assuming keys are held only in memory, service starts with full capacity and new 
+filter installations can fill it back. Publishing/syncing intermediate state should allow 
+clients to find new instance and resume synchronization from that specific point.
