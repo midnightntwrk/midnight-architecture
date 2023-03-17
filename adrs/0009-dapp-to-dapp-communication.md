@@ -35,7 +35,7 @@ needs to verify identity details again.
 
 To satisfy this use case (and similar), DApps need to be able to communicate and ask each 
 other for information or proofs that can be used on caller side without having access to the 
-private state of other DApps or leaking it at all when being called.
+private state of other DApps or leaking it at all when being called. 
 
 Another dimension for this problem is API availability - browsers by design limit 
 access to system resources/functionalities and ability for websites to interact with 
@@ -66,7 +66,13 @@ be 2 options:
 There is also a 3rd option available on technical basis, but is not expanded on: a 
 native application, which registers custom protocol in the OS (similar to what slack, 
 spotify, zoom or skype do). This limits communication in size (URL size) as well as 
-introduces a weird UX of switching between a native app and browser tabs.   
+introduces a weird UX of switching between a native app and browser tabs.
+
+4th option, of actually installing packaged DApp code in one way or another in e.g. 
+dedicated app or extension, etc. is not expanded because of security risks (limited or 
+non-existent sandboxing APIs) and implementation effort (stable&documented packaging 
+format, host app/extension implementation, unpackaging and running DApps in a 
+sandboxed context, like https://developer.chrome.com/docs/extensions/mv3/manifest/sandbox/).
 
 ## Decision Outcome
 
