@@ -23,14 +23,14 @@ In addition to [these](../proposals/0003-public-oracle-language.md#desired-prope
 
 ## Solution
 
-Building on [maximally programmable validation](../proposals/0003-public-oracle-language.md#maximally-programmable-v) alternative, introduce a public oracle language $\mathcal{L}_{\text{pub}}$ that supports function definitions and iterative computation. The precise language constructs are less relevant than the properties of the language itself. For example, rather than specifying whether $\mathcal{L}_{\text{pub}}$ provides looping or folding constructs, we require that it be decidable. In theory, $\mathcal{L}_{\text{pub}}$ could even be identical to the existing Abcird circuit language. At a minimum, $\mathcal{L}_{\text{pub}}$ should provide:
+Building on [maximally programmable validation](../proposals/0003-public-oracle-language.md#maximally-programmable-v) alternative, introduce a public oracle language $\mathcal{L}_{pub}$ that supports function definitions and iterative computation. The precise language constructs are less relevant than the properties of the language itself. For example, rather than specifying whether $\mathcal{L}_{pub}$ provides looping or folding constructs, we require that it be decidable. In theory, $\mathcal{L}_{pub}$ could even be identical to the existing Abcird circuit language. At a minimum, $\mathcal{L}_{pub}$ should provide:
 
 * variable binding
 * iteration/folding
 * function definitions
 * common data structures
 
- An example $\mathcal{L}_{\text{pub}}$ program is the following. Public variables and definitions are identified by the `statement` keyword. Variable declarations behave similarly to those in C++.
+ An example $\mathcal{L}_{pub}$ program is the following. Public variables and definitions are identified by the `statement` keyword. Variable declarations behave similarly to those in C++.
 
 ```rust
 enum State {
@@ -64,7 +64,7 @@ statement initialize () {
 }
 ```
 
-Of course, transactions using $\mathcal{L}_{\text{pub}}$ may again suffer from issues of contention and transaction indeterminism. Therefore, contract authors must be able to state precisely when a transaction is applicable. Furthermore, said applicability check should be efficient enough to not pose DoS risks for nodes. Taking inspiration from TLA+ (please read [this](https://lamport.azurewebsites.net/pubs/state-machine.pdf)) $\mathcal{L}_{\text{pub}}$ would also provide a state-predicate construct. For the previous example, a state-predicate might be.
+Of course, transactions using $\mathcal{L}_{pub}$ may again suffer from issues of contention and transaction indeterminism. Therefore, contract authors must be able to state precisely when a transaction is applicable. Furthermore, said applicability check should be efficient enough to not pose DoS risks for nodes. Taking inspiration from TLA+ (please read [this](https://lamport.azurewebsites.net/pubs/state-machine.pdf)) $\mathcal{L}_{pub}$ would also provide a state-predicate construct. For the previous example, a state-predicate might be.
 
 ```rust
 precond is_started (): Boolean {
@@ -76,6 +76,6 @@ A call transaction would include an optional `precond` field that indicates whet
 
 ## Proof of Correctness
 
-The language $\mathcal{L}_{\text{pub}}$ has constructs for reusing public computation (functions) and public iterative computation (loop/fold/map). It also has a construction that allows contract authors fine-grain control over the conditions in which a transaction is applied, thus giving them a tool to manage indeterminism. Furthermore, transcripts serve a single purpose rather than dual purposes, and the programming model resembles a procedural paradigm.
+The language $\mathcal{L}_{pub}$ has constructs for reusing public computation (functions) and public iterative computation (loop/fold/map). It also has a construction that allows contract authors fine-grain control over the conditions in which a transaction is applied, thus giving them a tool to manage indeterminism. Furthermore, transcripts serve a single purpose rather than dual purposes, and the programming model resembles a procedural paradigm.
 
-The compressability property of $\mathcal{L}_{\text{pub}}$ needs to be explored.
+The compressability property of $\mathcal{L}_{pub}$ needs to be explored.
