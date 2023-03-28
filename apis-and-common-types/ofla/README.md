@@ -160,7 +160,7 @@ not specified, result values are placed in a `Cell`, and encoded as FAB values.
 
 ## Use in Midnight
 
-State shapes:
+### State shapes
 
 ```
 Midnight = Array<zswap: ZSwap, contract: Lares, _, _>
@@ -179,7 +179,9 @@ NOTE: This is incomplete! Missing coin claims / subcall claims
 
 When contract calls are processed, they start with a stack with a single `ContractWithContext`.
 
-Ex. say we have (cells implicit)
+### Examples
+
+Say we have (cells implicit)
 
 ```
 ledger {
@@ -188,10 +190,11 @@ ledger {
 }
 ```
 
-Examples:
 * `[dup, idx 1 <bar lit>, incr 1]` for `ledger.bar[<bar lit>].increment(1)`
 * `[dup, idx 1, write <bar lit>, write <baz lit>, ins]` for `ledger.bar[<bar lit>] = <baz lit>`
 * `[dup, idx 1, write <bar lit>, rem]` for `ledger.bar.remove(<bar lit>)`
+
+### The ledger as Ofla
 
 We can represent all non-verification operations in Midnight through as Ofla
 programs. The entire history of state changes can be seen as a single valid
@@ -204,7 +207,35 @@ Ofla program.
 
 Maybe instructions to make these easier/more compact? Especially the contract call + bring over execution context?
 
-Questions:
+### Fast and slow validation
+
+Note that this proposal is premised on Ofla being executable _fast enough_ to
+not be susceptible to DoS attacks. We currently lack empirical measurements to
+justify this, and adopting this _will require_ making such measurements.
+
+In particular, the cost to mount a DoS attack must be less than the cost to
+dismiss it. In practice this means: Any computation performed, but not charged
+for, must not exceed the cost of transmitting the corresponding transaction.
+
+There are two key factors to measure here: The cost of performing computation
+which isn't charged for (that is, the worst-case cost of transcript execution
+resulting in failure), and the cost of transmitting this transcript.
+
+There are two approaches we can take here:
+- Reducing the cost of transcript execution.
+- Increasing the cost of transaction transmission.
+
+In practice this means a fast, efficient implementation of Ofla, and
+rate-limiting/throttling transactions. Ultimately, we will need to make some
+assumptions about our network behaviour, and empirical measurements of our
+transcript executor in worst-case scenarios, and test if these are sufficient.
+
+If they are not, we can take the following fallback: We can identify a subset
+of the language which _is_ sufficient, and enable this subset to be used
+_prior_ to processing fee payments, with the remainder of transcripts only
+being validated _after_ fee payments are processed.
+
+## Questions
 
 * Register-based machine instead? Some issues:
   * Will makes many instructions >1 byte
