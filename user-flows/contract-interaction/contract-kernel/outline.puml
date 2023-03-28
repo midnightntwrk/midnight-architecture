@@ -42,8 +42,8 @@ B -> kernel ++ : **call** (token, 0x01, func, args, prove)
     alt #White authorized
       kernel -> runtime ++ : **execute** (token, 0x01, func, args)
       return ok
-    else #LightRed unauthorized
-      return //unauthorized//
+    else
+      return //   error//
     end
   /'  alt #LightGreen Permissions properly downgraded
       transFuncC -> kernel ++ : **0xfeedf00d::notify-close**($0, __none__): //proposal status//
