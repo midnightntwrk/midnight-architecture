@@ -1,0 +1,74 @@
+@startuml
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+participant "Application\nA" as A
+box "Contract Kernel" #ddd
+  participant "Kernel" as kernel
+  database "Contract\nStore" as contracts
+  participant "Authorization" as authorization
+  participant "Runtime" as runtime
+end box
+box "Contract [0x01]" #eef
+  participant "Transition\nFunction" as transFuncC
+  participant "Public\nOracle" as pubOracleC
+  participant "Private\nOracle" as privOracleC
+end box
+box "Contract [0x02]" #fee
+  participant "Transition\nFunction" as transFuncD
+  participant "Public\nOracle" as pubOracleD
+  participant "Private\nOracle" as privOracleD
+end box
+participant "Application\nB" as B
+participant "Authentication" as authentication
+
+A -> kernel ++ : **install** (0x01, contract, policy)
+  activate A
+  kernel -> contracts ++ : **set** (0x01, contract)
+  return //ack//
+  kernel -> authorization ++ : **set** (0x01, policy)
+  return //ack//
+return //ack//
+deactivate A
+
+B -> authentication ++ : **authorize**(context)
+activate B
+return //token//
+B -> kernel ++ : **call** (token, 0x01, func, args, prove)
+  kernel -> authorization ++ : **authorize** (token)
+  return //authorized//
+    alt #White authorized
+      kernel -> runtime ++ : **execute** (token, 0x01, func, args)
+      return ok
+    else #LightRed unauthorized
+      return //unauthorized//
+    end
+  /'  alt #LightGreen Permissions properly downgraded
+      transFuncC -> kernel ++ : **0xfeedf00d::notify-close**($0, __none__): //proposal status//
+        kernel -> transFuncD ++ : **notify-close**($0, __none__, __unknown__): //proposal state//
+          ...
+        return ok
+      return ok
+    else #Pink Permissions forwarded
+      transFuncC -> kernel ++ : **0xfeedf00d::notify-close**($0, __full-trust__): //proposal state//
+        kernel -> transFuncD ++ : **notify-close**($0, __full-trust__, 0xd0c0ffee): //proposal state//
+          transFuncD -> kernel ++ : **request**: __sk__
+          return //sk//
+          transFuncD -> pubOracleD ++ : **leak**: //sk//
+            pubOracleD -> B : //sk//
+          return
+        return ok
+      return ok
+    end
+  return ok
+  deactivate A
+return ok '/
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml
