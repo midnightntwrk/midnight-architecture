@@ -24,7 +24,18 @@ box "\n  Contract [0x02]  " #fee
   participant "Transition\nFunction" as transFuncD
 end box
 
-== Installation ==
+== Installation [0x02] ==
+
+B -> kernel ++ : **install** (0x02, contract, access_policy)
+  activate B
+  kernel -> contracts ++ : **set** (0x02, contract)
+  return //ack//
+  kernel -> authorization ++ : **set** (0x02, access_policy)
+  return //ack//
+return //ack//
+deactivate B
+
+== Installation [0x01] ==
 
 A -> kernel ++ : **install** (0x01, contract, access_policy)
   activate A
