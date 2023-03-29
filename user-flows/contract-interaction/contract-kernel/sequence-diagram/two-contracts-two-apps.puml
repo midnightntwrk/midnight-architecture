@@ -5,7 +5,7 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 '-----------------------------------------------------------
 skinparam BoxPadding 5
 hide footbox
-title Contract Interaction - Different Applications
+title Contract Kernel - Sequence\n
 
 participant "Authentication" as authentication
 participant "Application A" as A
@@ -18,10 +18,10 @@ box "\nContract Kernel" #ddd
   participant "Proof Server" as proofServer
 end box
 box "\n  Contract [0x01]  " #eef
-  participant "Transition\nFunction" as transFuncC
+  participant "Transition Function\n**foo**" as transFuncC
 end box
 box "\n  Contract [0x02]  " #fee
-  participant "Transition\nFunction" as transFuncD
+  participant "Transition Function\n**bar**" as transFuncD
 end box
 
 == Installation [0x02] ==
@@ -55,18 +55,18 @@ deactivate B
 
 == Invocation ==
 
-B -> kernel ++ : **call** (access_token, 0x01, func, args)
+B -> kernel ++ : **call** (access_token, 0x01, foo, args)
 activate B
-kernel -> authorization ++ : **authorize** (access_token, 0x01)
+kernel -> authorization ++ : **authorize** (access_token, 0x01, foo)
 return //authorized//
-kernel -> runtime ++ : **execute** (access_token, 0x01, func, args)
+kernel -> runtime ++ : **execute** (access_token, 0x01, foo, args)
 activate kernel
 runtime -> contracts ++ : **get** (0x01)
 return //contract [0x01]//
 runtime -> transFuncC ++ : **apply** (access_token, args)
 ...
-transFuncC -> runtime ++ : **execute** (access_token, 0x02, func', args')
-runtime -> authorization ++ : **authorize** (access_token, 0x02)
+transFuncC -> runtime ++ : **execute** (access_token, 0x02, bar, args')
+runtime -> authorization ++ : **authorize** (access_token, 0x02, bar)
 return //authorized//
 runtime -> contracts ++ : **get** (0x02)
 return //contract [0x02]//

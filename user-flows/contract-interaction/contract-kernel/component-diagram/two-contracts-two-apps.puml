@@ -1,0 +1,34 @@
+@startuml
+skinparam componentStyle uml2
+skinparam linetype ortho
+title Contract Kernel - Component\n
+[Authorization] as authorization
+[Authentication] as authentication
+package "Application A" as appA {
+    [Core] as coreA
+}
+package "Application B" as appB {
+    [Core] as coreB
+}
+package "Contract Kernel" {
+  [Kernel] as kernel
+  [Runtime] as runtime
+  [Proof Server] as proofServer
+  database "Contract Store" as contractStore {
+    package "Contract [0x02]" {
+      [Transition Function] as transFunc2
+    }
+    package "Contract [0x01]" {
+      [Transition Function] as transFunc1
+    }
+  }
+  kernel ..> proofServer
+  kernel ..> runtime
+  kernel .left...> contractStore
+}
+coreA .up.> authentication
+coreB .up.> authentication
+coreA .down.> kernel
+coreB .down.> kernel
+kernel .left.> authorization
+@enduml
