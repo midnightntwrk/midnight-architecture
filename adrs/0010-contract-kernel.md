@@ -4,14 +4,12 @@
 
 Proposed
 
----
 <!-- These are optional elements. Feel free to remove any of them. -->
-| -         | -                                        |
+|          |                                         |
 |-----------|------------------------------------------|
 | date      | March 17th, 2023                         |
 | deciders  | Jon Rossie, Andrzej Kopeć, Thomas Kerber, Joseph Denman |
-| consulted | -                                        |
-| informed  | -                                        |
+
 ---
 
 ## Context and Problem Statement
@@ -41,7 +39,7 @@ The solution should have the following properties.
 * Performance
 * Auditability
 * Debuggability
-* Upgadeability
+* Upgradeability
 
 
 ## Considered Options
@@ -53,9 +51,7 @@ There are two main contenders for the reuse scheme.
 
 ### Inter-application Messaging (IAM)
 
-In this scheme, contracts and private oracles are assumed to be embedded within the web page containing the application; they are treated no differently than the application code. As a result, both of the reuse scenarios require interacting with the application that hosts the contract and private oracle. To support inter-application contract calls, there would be an *application mesh* that provides application discovery, messaging, and authorization services. Applications register with the mesh upon loading to make the contracts they host available to other applications. 
-
-This option preserves privacy because the private transcript produced by execution is never leaked to the calling application. Instead, the inter-application call returns a proof and a value representing the output of the called transition function. If the inter-application call was caused by an inter-contract call, the calling application uses the output to continue execution. Upon completion, the first call will produce its own transcripts and proof. The two proofs would then be merged before being included in a transaction.
+In this scheme, contracts and private oracles are assumed to be embedded within the web page containing the application; they are treated no differently than the application code. As a result, both of the reuse scenarios require interacting with the application that hosts the contract and private oracle. To support inter-application contract calls, there would be an *application mesh* that provides application discovery, messaging, and authorization services. Applications register with the mesh upon loading to make the contracts they host available to other applications. They provide an *access policy* to the application mesh upon registration to control which other other applications can access the contracts they host.
 
 **Pros**:
 
@@ -74,19 +70,18 @@ This option preserves privacy because the private transcript produced by executi
 
 ### Contract Kernel (CK)
 
-In this scheme, contracts and private oracles are not treated as application code; instead both are assumed to have a serializable executable representation. Rather than being stored in the web page, all contracts and private oracles reside in a single datastore guarded by a process, the contract kernel, dedicated to receiving, authorizing, and processing requests to use them.
-
-This option preserves privacy because the private transcript produced by execution never leaves the contract kernel. Likewise, intercontract calls never leave the kernel. Instead, kernel calls return proofs and execution results for all intermediate calls.
+In this scheme, contracts and private oracles are not treated as application code; instead both are assumed to have a serializable executable representation. Rather than being stored in the web page, all contracts and private oracles reside in a single datastore guarded by a process, the contract kernel, dedicated to receiving, authorizing, and processing requests to use them. Applications install contracts in the kernel and specify an *access policy*. The access control policy is used to control which other applications can access an installed contract.
 
 **Pros**:
 
-1. Inter-contract calls are reliable and have a clear semantics
-2. Inter-contract calls are fast
-3. All private data resides in one location, making it easy to export and inspect, create GUI for inspecting
-4. Cleanly maps to TEE
-5. Reduced trusted computing base, all data is guaranteed to be encrypted
-6. Inter-contract calls have a coherent trace
-7. Structures the system such it can be extended to use remote private computing servers
+1. Inter-contract calls are reliable
+2. Inter-contract calls have a clear semantics
+3. Inter-contract calls are fast
+4. Inter-contract calls are traceable
+5. All private data resides in one location, making it easy to export and inspect, create GUI for inspecting
+6. Contract kernel maps cleanly to a single TEE
+7. Reduced trusted computing base, all data is guaranteed to be encrypted
+8. Structures the system such it can be extended to use remote private computing servers
 
 **Cons**:
 
@@ -100,21 +95,9 @@ This option preserves privacy because the private transcript produced by executi
 
 Chosen option: Pending
 
-<!-- This is an optional element. Feel free to remove. -->
-### Positive Consequences
-
-* TODO
-
-<!-- This is an optional element. Feel free to remove. -->
-### Negative Consequences
-
-* TODO
-
 ## Validation
 
-{describe how the implementation of/compliance with the ADR is validated. E.g., by a review or an ArchUnit test}
-{measurable and easy to automate metrics are preferred, like: less bugs, less churn, 
-specific performance metric, etc. }
+* TODO - Unsure of how to validate
 
 <!-- This is an optional element. Feel free to remove. -->
 ## Pros and Cons of the Options
@@ -158,29 +141,60 @@ Auditability for inter-contract calls requires care. Each application, in additi
 
 Debugging contracts becomes difficult for the same reasons that testing becomes difficult. A dedicated debugger for Abcird doesn't seem feasible in this scenario. Identifying the cause of a failure, as in the case of most web applications, must not be achieved by logging.
 
-**Upgadeability**
+**Upgradeability**
 
 Since contracts and private oracles are embedded in the web page, updating the behavior of either requires recompiling and redeploying the website. Contrast this to the CK approach, where upgrades can be performed dynamically.
 
-### Contract Kernel [IN PROGRESS]
+### Contract Kernel
 
 **Security**
 
-Requiring have more control over the form of the transition functions and private oracle. In the case we use WASM, we have fine-grained control over the system functions / external interactions available to both.
+Similarly to IAM, authorization is managed by a single entity that resides in the kernel, and each contract is guarded by an access policy specified by the installing application.
+
+Recall the CK approach requires a serializable executable representation of local programs. In the case this representation is WASM, the `WebAssembly` Javascript API allows us fine-grained control over the system functions / external interactions available to transition functions and private oracles. For example, consider the following WASM module,
+
+```wasm
+(module
+  (func $i (import "imports" "imported_func") (param i32))
+  (func (export "exported_func")
+    i32.const 42
+    call $i))
+```
+which imports `imported_func` and exports `exported_func`. The only external call available to the module is `imported_func`. Hence, if the module above is analogous to the executable representing a private oracle, the only external interaction the private oracle is capable of would be `imported_func`, which is specified as follows:
+
+```javascript
+const importObject = {
+  imports: { imported_func: (arg) => console.log(arg) },
+};
+```
+
+```javascript
+const privateOracle = WebAssembly.instantiateStreaming(fetch("private_oracle.wasm"), importObject).then(
+  (obj) => obj.instance.exports.exported_func()
+);
+```
+
+The result is a Javascript object exposing functions that execute WASM functions that are sandboxed. This is a much more controlled approach to third-party script execution, which is essentially what private oracles are, and one of the problems WASM is intended to solve.
 
 **Privacy**
 
+Since all private data resides in a central store, we can guarantee that all private data is appropriately encrypted. Contrast this to IAM, which requires developers to manage their own private data storage and encryption.
+
 **Reliability**
+
+Inter-contract calls are localized to the contract kernel, a single application. For any well-defined contract call to succeed, merely the contract kernel must be available. On the other hand, this means that no application can perform a contract call unless the contract kernel is available, meaning that it must be extremely fault-tolerant. It will become the target of attacks against the user.
 
 **Usability**
 
+Any contract call can be executed by a single call to the contract kernel, requiring no additional application logic besides installation of the contract. Contrast this to IAM, which requires additional application logic for responding to inter-application call requests.
+
 **Testability**
+
+Assuming a standalone contract runtime, which takes appropriate executables and arguments and produces an execution result, contracts that use inter-contract calls can be tested independently of the application using them, since all evaluation logic is localized to the runtime.
 
 **Performance**
 
-Avoids expensive inter-application messaging infrastructure and protocols.
-
-Requires effort to parallelize independent contract calls, since a naive implementation would process all call requests from all applications sequentially.
+It avoids expensive inter-application messaging infrastructure and protocols. But, it will require effort to parallelize independent contract calls, since a naive implementation would process all call requests from all applications sequentially. 
 
 **Auditability**
 
@@ -188,9 +202,9 @@ All events that occur during a call can be captured in a single event log and ac
 
 **Debuggability**
 
-Inter-contract calls are confined to the runtime, which could be a standalone program. This makes it feasible to implement a debugger.
+Assuming a standalone contract runtime, which takes appropriate executables and arguments and produces an execution result, it is feasible to implement a debugger that hooks into the runtime.
 
-**Upgadeability**
+**Upgradeability**
 
 The kernel can include facilities for updating the transition function and private oracle executables, so dynamical updates are feasible.
 
