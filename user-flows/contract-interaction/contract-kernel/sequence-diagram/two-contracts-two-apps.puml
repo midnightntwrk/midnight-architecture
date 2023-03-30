@@ -1,87 +1,75 @@
 @startuml
+!pragma teoz true
 '-----------------------------------------------------------
 ' Please include this standard header
 header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 '-----------------------------------------------------------
-skinparam BoxPadding 5
 hide footbox
 title Contract Kernel - Sequence\n
 
 participant "Authentication" as authentication
-participant "Application A" as A
-participant "Application B" as B
+participant "Application [A]" as A
+participant "Application [B]" as B
+
 box "\nContract Kernel" #ddd
   participant "Kernel" as kernel
   database "Contract\nStore" as contracts
   participant "Authorization" as authorization
   participant "Runtime" as runtime
   participant "Proof Server" as proofServer
-end box
-box "\n  Contract [0x01]  " #eef
-  participant "Transition Function\n**foo**" as transFuncC
-end box
-box "\n  Contract [0x02]  " #fee
-  participant "Transition Function\n**bar**" as transFuncD
+  box "\n  Contract [0x01]  " #eef
+    participant "Function [foo]" as foo
+  end box
+  box "\n  Contract [0x02]  " #fee
+    participant "Function [bar]" as bar
+  end box
 end box
 
 == Installation [0x02] ==
 
-B -> kernel ++ : **install** (0x02, contract, access_policy)
-  activate B
-  kernel -> contracts ++ : **set** (0x02, contract)
+B -> kernel ++ : **install** (0x02, contract [0x02], access_policy)
+  kernel -> contracts ++ : **set** (0x02, contract [0x02])
   return //ack//
   kernel -> authorization ++ : **set** (0x02, access_policy)
   return //ack//
 return //ack//
-deactivate B
 
 == Installation [0x01] ==
 
-A -> kernel ++ : **install** (0x01, contract, access_policy)
-  activate A
-  kernel -> contracts ++ : **set** (0x01, contract)
+A -> kernel ++ : **install** (0x01, contract [0x01], access_policy)
+  kernel -> contracts ++ : **set** (0x01, contract [0x01])
   return //ack//
   kernel -> authorization ++ : **set** (0x01, access_policy)
   return //ack//
 return //ack//
-deactivate A
 
-== Authentication ==
+== Authentication [B] ==
 
 B -> authentication ++ : **authenticate** (context)
-activate B
 return //access_token//
-deactivate B
 
-== Invocation ==
+== Invocation [0x01.foo] ==
 
 B -> kernel ++ : **call** (access_token, 0x01, foo, args)
-activate B
-kernel -> authorization ++ : **authorize** (access_token, 0x01, foo)
-return //authorized//
 kernel -> runtime ++ : **execute** (access_token, 0x01, foo, args)
-activate kernel
+runtime -> authorization ++ : **authorize** (access_token, 0x01, foo)
+return //authorized//
 runtime -> contracts ++ : **get** (0x01)
 return //contract [0x01]//
-runtime -> transFuncC ++ : **apply** (access_token, args)
-...
-transFuncC -> runtime ++ : **execute** (access_token, 0x02, bar, args')
+runtime -> foo ++ : **apply** (access_token, args)
+foo -> runtime ++ : **execute** (access_token, 0x02, bar, args')
 runtime -> authorization ++ : **authorize** (access_token, 0x02, bar)
 return //authorized//
 runtime -> contracts ++ : **get** (0x02)
 return //contract [0x02]//
-runtime -> transFuncD ++ : **apply** (access_token, args')
-...
-return //publicTranscript, privateTranscript, result//
+runtime -> bar ++ : **apply** (access_token, args')
 return //result//
-...
-return //publicTranscript', privateTranscript', result'//
+return //  result//
+return // result'//
 return //publicTranscripts, privateTranscripts, results//
 kernel -> proofServer ++: **prove** (publicTranscripts, privateTranscripts, results)
 return // proof//
-deactivate kernel
 return //proof, result'//
-deactivate B
 
 '-----------------------------------------------------------
 ' Please include this standard footer

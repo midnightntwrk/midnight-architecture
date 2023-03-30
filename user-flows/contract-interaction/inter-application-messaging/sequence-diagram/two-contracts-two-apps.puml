@@ -1,0 +1,112 @@
+@startuml
+!pragma teoz true
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+skinparam BoxPadding 5
+hide footbox
+title Interapplication Messaging - Sequence\n
+
+box "\nApplication [A]"
+  participant "Core" as coreA
+  participant "Runtime" as runtimeA
+  database "Contract Storage" as contractsA
+  participant "Proof Server" as proofServerA
+  box "\n  Contract [0x01]  " #eef
+    participant "Function [foo]" as foo
+  end box
+end box
+
+box "\nApplication Mesh\n" #ddd
+  database "Application\nRegistry" as registry
+  participant "Kernel" as kernel
+  participant "Authorization" as authorization
+end box
+
+participant "Authentication" as authentication
+
+box "\nApplication [B]"
+  participant "Core" as coreB
+  database "Contract Storage" as contractsB
+  participant "Runtime" as runtimeB
+  participant "Proof Server" as proofServerB
+  box "\n  Contract [0x02]  " #fee
+    participant "Function [bar]" as bar
+  end box
+end box
+
+== Installation [0x02] ==
+
+coreB -> contractsB ++ : **set** (0x02, contract [0x02])
+return //ack//
+coreB -> kernel ++ : **register** (0x02, B, access_policy)
+kernel -> registry ++ : **set** (0x02, B)
+return //ack//
+kernel -> authorization ++ : **set** (0x02, B, access_policy)
+return //ack//
+return //ack//
+
+== Installation [0x01] ==
+
+coreA -> contractsA ++ : **set** (0x01, contract [0x01])
+return //ack//
+coreA -> kernel ++ : **register** (0x01, A, access_policy)
+kernel -> registry ++ : **set** (0x01, A)
+return //ack//
+kernel -> authorization ++ : **set** (0x01, A, access_policy)
+return //ack//
+return //ack//
+
+== Authentication [B] ==
+
+coreB -> authentication ++: **authenticate** (context)
+return //access_token//
+
+== Invocation [0x01.foo] ==
+
+coreB -> kernel ++ : **call** (access_token, 0x01, foo, args)
+kernel -> registry ++ : **get** (0x01)
+return //A//
+kernel -> authorization ++ : **authorize** (access_token, A, B, 0x01, foo)
+return //authorized//
+kernel -> coreA ++: **call** (access_token, 0x01, foo, args)
+coreA -> runtimeA ++: **execute** (access_token, 0x01, foo, args)
+runtimeA -> contractsA ++: **get** (0x01)
+return //contract [0x01]//
+runtimeA -> foo ++: **apply** (access_token, args)
+...
+foo -> runtimeA ++ : **inter_execute** (access_token, 0x02, bar, args')
+runtimeA -> coreA ++ : **inter_call** (access_token, 0x02, bar, args')
+coreA -> kernel ++ : **call** (access_token, 0x02, bar, args')
+kernel -> registry ++ : **get** (0x02)
+return //B//
+kernel -> authorization ++ : **authorize** (access_token, B, A, 0x02, bar)
+return //authorized//
+kernel -> coreB ++ : **call** (access_token, 0x02, bar, args')
+coreB -> runtimeB ++ : **execute** (access_token, 0x02, bar, args')
+runtimeB -> contractsB ++ : **get** (0x02)
+return //contract [0x02]//
+runtimeB -> bar ++ : **apply** (access_token, args')
+...
+return //result//
+return //publicTranscript, privateTranscript, result//
+coreB -> proofServerB ++ : **prove** (publicTranscript, privateTranscript, result)
+return //proof//
+return //result, proof//
+return //result, proof//
+return //result//
+return //result//
+...
+return //result'//
+return //publicTranscript', privateTranscript', result'//
+coreA -> proofServerA ++ : **prove** (publicTranscript', privateTranscript', result')
+return //proof'//
+return //result', proof, proof'//
+return //result', proof, proof'//
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml

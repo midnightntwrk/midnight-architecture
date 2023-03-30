@@ -11,7 +11,7 @@ package "Application A" as appA {
   [Runtime] as runtimeA
   database "Contract Store" as contractStoreA {
     package "Contract [0x01]" as contractA {
-      [Transition Function] as transFunc1
+      component "Function [foo]" as transFunc1
     }
   }
   coreA ..> proofServerA
@@ -25,7 +25,7 @@ package "Application B" as appB {
   [Runtime] as runtimeB
   database "Contract Store" as contractStoreB {
     package "Contract [0x02]" as contractB {
-      [Transition Function] as transFunc2
+      component "Function [bar]" as transFunc2
     }
   }
   coreB ..> proofServerB
@@ -37,15 +37,14 @@ coreA .up.> authentication
 coreB .up.> authentication
 
 package "Application Mesh" as appMesh {
+  [Authorization] as authorization
   [Kernel] as kernel
-  database "Application Registry" as appReg
+  database "Application\n   Registry" as appReg
   kernel ..> appReg
+  kernel .up.> authorization
 }
-
-[Authorization] as authorization
 
 coreA ..> kernel
 coreB ..> kernel
-kernel .up.> authorization
 
 @enduml
