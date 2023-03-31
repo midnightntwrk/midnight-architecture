@@ -88,8 +88,8 @@ values here is just an example. We write `[a]` to refer to the value stored in
 | `swap`   |   `05` | `-{a, b}    +{b, a}`    |                       - |              - |       `1` | swaps the top two items on the stack |
 | `swap2`  |   `06` | `-{a, b, c} +{c, b, a}` |                       - |              - |       `1` | swaps the top item with one two-down on the stack |
 | `branch` |   `07` | `-{a}       +{}`        |               `n: uint` |              - |       `1` | if `[a]` is non-empty, skip `n` operations. The skipped operations *must* have a net-zero effect on the stack. |
-| `read`   |   `08` | `-{a}       +{}`        |                       - |     `[a]: Adt` |   `|[a]|` | returns `[a]` |
-| `write`  |   `09` | `-{}        +{a}`       |              `[a]: Adt` |              - |   `|[a]|` | sets `[a]` |
+| `read`   |   `08` | `-{a}       +{}`        |                       - |     `[a]: Adt` |   `\|[a]\|` | returns `[a]` |
+| `write`  |   `09` | `-{}        +{a}`       |              `[a]: Adt` |              - |   `\|[a]\|` | sets `[a]` |
 | `add`    |   `0a` | `-{a}       +{b}`       |                `c: Adt` |              - |       `1` | sets `[b] := [a] + c`, where addition is defined below |
 | `sub`    |   `0b` | `-{a}       +{b}`       |                `c: Adt` |              - |       `1` | sets `[b] := [a] - c`, where subtraction is defined below |
 | `lt`     |   `0c` | `-{a, b}    +{c}`       |                       - |              - |       `1` | sets `[c] := [a] < [b]` |
@@ -97,11 +97,11 @@ values here is just an example. We write `[a]` to refer to the value stored in
 | `type`   |   `0e` | `-{a}       +{b}`       |                       - |              - |       `1` | sets `[b] := typeof([a])` |
 | `size`   |   `0f` | `-{a}       +{b}`       |                       - |              - |       `1` | sets `[b] := size([a])` |
 | `member` |   `10` | `-{a, b}    +{c}`       |             `d: uint>0` |              - |       `d` | sets `[c] := has_key([a], [b], d)` |
-| `idx`    |   `11` | `-{a}       +{b}`       | `c: [Adt], d: [uint>0]` |              - | `|c| + d` |sets `[b] := fold_left(zip(c, d), [a], lambda adt d val: adt.get(val, d))` |
+| `idx`    |   `11` | `-{a}       +{b}`       | `c: [Adt], d: [uint>0]` |              - | `\|c\| + d` |sets `[b] := fold_left(zip(c, d), [a], lambda adt d val: adt.get(val, d))` |
 | `dyidx`  |   `12` | `-{a, b}    +{c}`       |             `d: uint>0` |              - |       `d` | sets `[c] := [a].get([b], d)` |
 | `new`    |   `13` | `-{a}       +{b}`       |                       - |              - |       `1` | sets `[b] := new typeof([a])` |
 | `and`    |   `15` | `-{a, b}    +{c}`       |                       - |              - |       `1` | sets `[c] := [a] & [b]` |
-| `or`     |   `16` | `-{a, b}    +{c}`       |                       - |              - |       `1` | sets `[c] := [a] | [b]` |
+| `or`     |   `16` | `-{a, b}    +{c}`       |                       - |              - |       `1` | sets `[c] := [a] \| [b]` |
 | `neg`    |   `17` | `-{a}       +{b}`       |                       - |              - |       `1` | sets `[b] := ![a]` |
 | `log`    |   `18` | `-{a}       +{}`        |                       - |              - |       `1` | outputs `[a]` as an event |
 | `root`   |   `19` | `-{a}       +{b}`       |                       - |              - |       `1` | sets `[b] := root([a])` |
