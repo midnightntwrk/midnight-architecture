@@ -47,6 +47,7 @@ Mid- to long-term is a complete specification, argument and implementation, whic
 
 1. What are specific algorithms that could be used here? How common or related to other algorithms used in ZSwap they are?
 2. If and how does it affect coin structure or spending circuits? How does it affect security argument of ZSwap?
-3. What are alternative cryptographic techniques to achieve similar result? How common they are (minding feasibility/easiness of implementation)?
-4. Does this reduce trust enough so that decentralized PubSub Indexer, with less control on choose of service operator, becomes a thing that may be reachable if there exists a way to prove data integrity, completeness and consistency with chain?
-5. How big of a risk is potential malicious actor collecting all _emk_ he can? Would user need to migrate to use different address when in doubt? What could be ways to prevent that? Some form of key rotation that invalidates key every "epoch"? How would that affect complexity of whole scheme (and user experience)?
+3. Can the markers be defined on transaction level to save space or should they be defined on outputs because of privacy? Is the space gain worth event thinking about placing them independently from outputs?
+4. What are alternative cryptographic techniques to achieve similar result? How common they are (minding feasibility/easiness of implementation)?
+5. Does this reduce trust enough so that decentralized PubSub Indexer, with less control on choose of service operator, becomes a thing that may be reachable if there exists a way to prove data integrity, completeness and consistency with chain?
+6. How big of a risk is potential malicious actor collecting all _emk_ he can? Would user need to migrate to use different address when in doubt? What could be ways to prevent that? Some form of key rotation that invalidates key every "epoch"? How would that affect complexity of whole scheme (and user experience)?
