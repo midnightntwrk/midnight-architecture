@@ -57,14 +57,17 @@ return //authorized//
 runtime -> contracts ++ : **get** (0x01)
 return //contract [0x01]//
 runtime -> foo ++ : **apply** (access_token, args)
+...
 foo -> runtime ++ : **execute** (access_token, 0x02, bar, args')
 runtime -> authorization ++ : **authorize** (access_token, 0x02, bar)
 return //authorized//
 runtime -> contracts ++ : **get** (0x02)
 return //contract [0x02]//
 runtime -> bar ++ : **apply** (access_token, args')
+...
 return //result//
 return //  result//
+...
 return // result'//
 return //publicTranscripts, privateTranscripts, results//
 kernel -> proofServer ++: **prove** (publicTranscripts, privateTranscripts, results)

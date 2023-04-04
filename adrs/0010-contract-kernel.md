@@ -98,34 +98,33 @@ Chosen option: Pending
 
 ## Validation
 
-* TODO - Unsure of how to validate
+* Trust assumptions and security requirements should be documented and agreed upon by all relevant parties.
+* Comprehensive threat modeling should be performed by languages team and the chosen scheme should be resilient to identified threats.
 
 <!-- This is an optional element. Feel free to remove. -->
-## Pros and Cons of the Options
+## Pros and Cons - Inter-application Messaging
 
-### Inter-application Messaging
-
-**Security**
+### Security
 
 The application mesh preserves security by authorizing inter-contract calls. Like the contract kernel scheme, a central entity manages authorization.
 
-**Privacy**
+### Privacy
 
 Isolated storage in each application ensures privacy, and private transcripts are not shared with the calling application.
 
-**Reliability**
+### Reliability
 
 The reliability of a contract now depends on both the reliability of the application that hosts it and the correctness of the callee contract, which increases the error surface area. In this scenario, the availability of the caller contract and its associated functionality is contingent on the availability of the callee contract, and achieving fault-tolerance is challenging as the developer must anticipate and recover from errors resulting from inter-application calls. This is in contrast to a direct contract call, where the error surface area is much smaller.
 
-**Usability**
+### Usability
 
 Embedding local programs directly in the web page requires less setup than the contract kernel scheme. However, the scheme's lack of reliability and performance will require significant developer efforts to mitigate, thereby decreasing usability.
 
-**Testability**
+### Testability
 
 In the inter-application messaging scheme, application and contract code are coupled; to some extent, testing one requires testing the other. To test contract logic, the user would need test libraries that include a application mesh. Furthermore, the user would need to simulate the behavior of other applications. Contrast this to the contract kernel scheme, wherein contracts can be tested independently of applications.
 
-**Performance**
+### Performance
 
 Proof construction occurs during the execution of the caller contract, which can result in wasted time if the contract execution fails after the inter-application call. To address this issue, a protocol could be implemented to queue the proof inputs and initiate proving only after the outer call has successfully returned. However, this would add complexity to the inter-application call protocol and introduce additional messaging overhead.
 
@@ -133,21 +132,21 @@ Frequent and desirable contract calls may result in high message volume and subs
 
 A naive approach to inter-application calls blocks the main thread of both applications, preventing them from performing other important operations, such as UI updates based on external events. While there are various ways to circumvent this, they increase implementation complexity and decrease usability. Providing utilities for this purpose may alleviate the burden, but it also increases the delivery effort.
 
-**Auditability**
+### Auditability
 
 Auditing inter-contract calls requires careful consideration. Each application, alongside the application mesh, requires intelligent monitoring and logging. As different applications may not have access to logs from other applications, assembling a coherent record of end-to-end interactions could be challenging.
 
-**Debuggability**
+### Debuggability
 
 Debugging contracts is challenging for similar reasons as testing. A dedicated debugger for Abcird seems unfeasible in this scenario. As with traditional web applications, debugging is accomplished through intelligent logging.
 
-**Upgradeability**
+### Upgradeability
 
 Updating the behavior of local programs necessitates recompiling and redeploying the webpage, as they are integrated into the webpage. Conversely, the contract kernel scheme enables dynamic upgrades.
 
-### Contract Kernel
+## Pros and Cons - Contract Kernel
 
-**Security**
+### Security
 
 Similarly to IAM, authorization is managed by a single entity that resides in the kernel, and each contract is guarded by an access policy specified by the installing application.
 
@@ -174,41 +173,59 @@ const privateOracle = WebAssembly.instantiateStreaming(fetch("private_oracle.was
 );
 ```
 
-The result is a Javascript object exposing functions that execute WASM functions that are sandboxed. This is a much more controlled approach to third-party script execution, which is essentially what private oracles are, and one of the problems WASM is intended to solve.
+A Javascript object is created to expose sandboxed WASM functions, providing a controlled approach to executing third-party scripts (private oracles), which is one of the issues WASM was designed to address.
 
-**Privacy**
+When one contract can depend on another contract, a malicious application can influence the behavior of another application. The following threat scenarios describe this situation.
 
-Appropriate encryption of all private data can be ensured in a central store. In contrast, IAM necessitates developers to handle their private data storage and encryption."
+**Threat Scenario 1.0**:
 
-**Reliability**
+  1. Application `B` installs contract `0x02` which defines a function `bar` which uses a private oracle `bar.private`.
+  2. Application `A` installs contract `0x01` which defines a function `foo` that calls `bar`.
+  3. Application `B` modifies `bar.private.state` such that executing a query on `bar.private` produces a value `v` designed to corrupt the behavior of `foo`.
+  4. Application `A` executes `foo`, incorporating `v` into a computation.
+
+**Threat Scenario 1.1**:
+
+   1. Application `B` installs contract `0x02` which defines a function `bar` which uses a private oracle `bar.private`.
+   2. Application `A` installs contract `0x01` which defines a function `foo` that calls `bar`.
+   3. Application `B` modifies `bar.private.executable` to perform a different query `q` than the one expected by `foo`.
+   4. Application `A` executes `foo`, incorporating `q` into a computation.
+
+In both scenarios, the core issue is that no proof is returned from `bar`, so the result cannot be checked. To close this attack vector, access policies could be designed to limit the abilities of the application that installed a contract, as well as other applications that use the contract. Hence, even if an application installs a contract in the kernel, it may not be able to arbitrarily modify the private state of the contract it installed.
+
+### Privacy
+
+Appropriate encryption of all private data can be ensured in a central store. In contrast, IAM necessitates developers to handle their private data storage and encryption.
+
+### Reliability
 
 Inter-contract calls are confined to the contract kernel, a single application. To successfully execute a well-defined contract call, only the contract kernel must be available. Contrast this to the inter-application messaging scheme, where each additional inter-contract call introduces a dependency on a separate application. This also means that no application can execute a contract call without the contract kernel, making it critical to be highly fault-tolerant. It will become the target for attacks against the user.
 
-**Usability**
+### Usability
 
 Executing a contract call only requires a single call to the contract kernel, without the need for additional application logic beyond contract installation. This is in contrast to the inter-application messaging scheme, which requires additional application logic to respond to inter-application call requests.
 
 **Andy:** In the contract kernel scheme, the application end-user must install the contract kernel before they can begin using any application. This is an additional obstacle compared to the inter-application messaging scheme.
 
-**Testability**
+### Testability
 
 Assume the existence of an independent contract runtime, which receives the necessary executables and arguments and produces an execution result. Hence, if all executables and state are available, contract logic can be tested in isolation via the runtime. 
 
-Additional machinery is required to test application logic. Developers would need a test kernel to simulate the behavior of the production kernel. Unlike the inter-application messaging approach, developers wouldn't need to simulate the behavior of an entire application, just the behavior of the application from the perspective of the kernel. For example, the user would perform some number of contract installations and removals at various points in a test case and verify that inter-contract calls are still successful.
+Additional machinery is required to test application logic. Developers would need a test kernel to simulate the behavior of the production kernel. Unlike the inter-application messaging approach, developers wouldn't need to simulate the behavior of an entire application, just the behavior of the application from the perspective of the kernel. For example, the user would perform some number of contract installations and removals on the test kernel at various points in a test case and verify that inter-contract calls are still successful.
 
-**Performance**
+### Performance
 
 The contract kernel scheme eliminates costly inter-application messaging infrastructure and protocols. However, parallelizing independent contract calls will require effort, as a simplistic implementation would sequentially process all call requests from all applications.
 
-**Auditability**
+### Auditability
 
 All events happening during a call can be logged in a single event log and accessed according to the kernel's security policies.
 
-**Debuggability**
+### Debuggability
 
 Given a standalone contract runtime that receives proper executables and arguments and generates an execution result, it is possible to incorporate a debugger that integrates with the runtime.
 
-**Upgradeability**
+### Upgradeability
 
 Theoretically, end-points for updating the local program executables can be exposed by the kernel to enable dynamic updates.
 
@@ -234,7 +251,7 @@ The following diagram is a sketch of the component structure of the inter-applic
 
 The following scenario is the most general reuse scenario the platform should be able to support. It incorporates both reuse cases described in the [problem statement](./0010-contract-kernel#problem-statement.md) section.
 
-**Scenario 1.0**:
+**Use Scenario 1.0**:
 1. Application `B` installs contract `0x02` which defines a transition function `bar`.
 2. Application `A` installs contract `0x01` which defines a transition function `foo` that calls `bar`.
 3. Application `B` calls `foo`.
