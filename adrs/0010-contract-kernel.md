@@ -175,7 +175,7 @@ const privateOracle = WebAssembly.instantiateStreaming(fetch("private_oracle.was
 
 A Javascript object is created to expose sandboxed WASM functions, providing a controlled approach to executing third-party scripts (private oracles), which is one of the issues WASM was designed to address.
 
-When one contract can depend on another contract, a malicious application can influence the behavior of another application. The following threat scenarios describe this situation.
+When one contract can depend on another contract, a malicious application can influence the behavior of another application by targeting the [integrity](https://en.wikipedia.org/wiki/Data_integrity) of private data. The following threat scenarios describe this situation.
 
 **Threat Scenario 1.0**:
 
@@ -191,7 +191,7 @@ When one contract can depend on another contract, a malicious application can in
    3. Application `B` modifies `bar.private.executable` to perform a different query `q` than the one expected by `foo`.
    4. Application `A` executes `foo`, incorporating `q` into a computation.
 
-In both scenarios, the core issue is that no proof is returned from `bar`, so the result cannot be checked. To close this attack vector, access policies could be designed to limit the abilities of the application that installed a contract, as well as other applications that use the contract. Hence, even if an application installs a contract in the kernel, it may not be able to arbitrarily modify the private state of the contract it installed.
+In both scenarios, the core issue is `B`'s permissions are too broad for it to be trusted by an arbitrary application `A`. To close this attack vector, access policies could be designed to limit the abilities of the application that installed a contract, as well as other applications that use the contract. Hence, even if an application installs a contract in the kernel, it may not be able to arbitrarily modify the private state of the contract it installed.
 
 ### Privacy
 
