@@ -70,6 +70,14 @@ In this scheme, local programs are embedded within the web page containing the a
 
 In this scheme, local programs are stored in a single datastore protected by a contract kernel. The contract kernel is responsible for receiving, authorizing, and processing requests to use them. Inter-contract calls do not leave the kernel. Applications install contracts in the kernel and specify an *access policy*, which controls the access of other applications to the installed contract. This scheme assumes local programs have a serializable executable representation and are not treated as application code.
 
+Callbacks: In-progress
+
+Public State Synchronization: In-progress
+
+Ownership: In-progress
+
+Addressing: In-progress
+
 **Pros**:
 
 1. Inter-contract calls are reliable
