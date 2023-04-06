@@ -186,10 +186,10 @@ When one contract can depend on another contract, a malicious application can in
 
 **Threat Scenario 1.1**:
 
-   1. Application `B` installs contract `0x02` which defines a function `bar` which uses a private oracle `bar.private`.
-   2. Application `A` installs contract `0x01` which defines a function `foo` that calls `bar`.
-   3. Application `B` modifies `bar.private.executable` to perform a different query `q` than the one expected by `foo`.
-   4. Application `A` executes `foo`, incorporating `q` into a computation.
+  1. Application `B` installs contract `0x02` which defines a function `bar` which uses a private oracle `bar.private`.
+  2. Application `A` installs contract `0x01` which defines a function `foo` that calls `bar`.
+  3. Application `B` modifies `bar.private.executable` to perform a different query `q` than the one expected by `foo`.
+  4. Application `A` executes `foo`, incorporating `q` into a computation.
 
 In both scenarios, the core issue is `B`'s permissions are too broad for it to be trusted by an arbitrary application `A`. To close this attack vector, access policies could be designed to limit the abilities of the application that installed a contract, as well as other applications that use the contract. Hence, even if an application installs a contract in the kernel, it may not be able to arbitrarily modify the private state of the contract it installed.
 
@@ -199,7 +199,14 @@ Appropriate encryption of all private data can be ensured in a central store. In
 
 ### Reliability
 
-Inter-contract calls are confined to the contract kernel, a single application. To successfully execute a well-defined contract call, only the contract kernel must be available. Contrast this to the inter-application messaging scheme, where each additional inter-contract call introduces a dependency on a separate application. This also means that no application can execute a contract call without the contract kernel, making it critical to be highly fault-tolerant. It will become the target for attacks against the user.
+Inter-contract calls are confined to the contract kernel, a single application. To successfully execute a well-defined contract call, only the contract kernel must be available. Contrast this to the inter-application messaging scheme, where each additional inter-contract call introduces a dependency on a separate application. This also means that no application can execute a contract call without the contract kernel, making it critical to be highly fault-tolerant. It will become the target for attacks against the user. Hence, the following threat scenario which targets availability:
+
+**Threat Scenario 2.0**:
+
+  1. Malicious application `B` attempts DoS attack by spamming contract kernel
+  2. Contract kernel cannot process requests by trusted application `A`
+
+The above threat scenario also applies to the inter-application messaging scheme, where one application intentionally consumes resources of other applications by submitting frequent inter-application call requests. Therefore, a fairness mechanism must be implemented in both solutions.
 
 ### Usability
 
