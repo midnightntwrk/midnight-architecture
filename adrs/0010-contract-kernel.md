@@ -261,17 +261,17 @@ Likewise, the next diagram is a sketch of the behavior of the contract kernel sc
 
 In-progress
 
-### Public State Synchronization [in progress]
+### Public State Synchronization
 
-* If the call graph of a transition function is not known statically, then executing a contract
+If the call graph of a transition function is not known statically, then the public state for each public oracle visited during the call needs to be retrieved and verified on-demand.
 
-### Addressing [needs formalization]
+### Addressing
 
 Public oracle addresses are hexadecimal strings, e.g. `0xf3c0ee2543`. Private oracle addresses are human-readable identifiers in [reverse domain name notation](https://en.wikipedia.org/wiki/Reverse_domain_name_notation), e.g. `org.ibm.identity`. This scheme promotes cross-application oracle reuse, as various applications can easily reference private oracles implemented by others. When installing a private oracle, the specified private oracle address `org.ibm.identity` is included in metadata submitted to the kernel. This approach accommodates multiple instances of a single private oracle within a domain.
 
 On client devices, Abcird [`Contract`](https://github.com/input-output-hk/midnight-architecture/blob/main/proposals/0007-abcird-contract-interfaces.md) types are denoted by a pair of addresses (`0xf3c0ee2543`, `org.ibm.identity`), indicating the public and private oracles utilized for transaction construction. Both addresses are required for executing inter-contract calls locally. Meanwhile, on node devices, Abcird [`Contract`](https://github.com/input-output-hk/midnight-architecture/blob/main/proposals/0007-abcird-contract-interfaces.md) types are represented by the single address `0xf3c0ee2543` of the public oracle, which suffices for performing public transcript applications on the node. Essentially, the scheme is such that the private oracle address is not revealed during public transcript application.
 
-### Ownership [needs formalization]
+### Ownership
 
 Prior to installing, e.g. `org.ibm.identity`, the installer is authenticated and authorized to ensure they have the authority to install private oracles in the respective domain. During installation, metadata passed to the kernel (specified by the developer) includes a set of access permissions that indicate how `org.ibm.identity` can be used. Any time `org.ibm.identity` is used in a contract call, the caller must be authenticated and authorized again.
 
