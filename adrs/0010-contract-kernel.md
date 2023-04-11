@@ -68,15 +68,7 @@ In this scheme, local programs are embedded within the web page containing the a
 
 ### Contract Kernel (CK)
 
-In this scheme, local programs are stored in a single datastore protected by a contract kernel. The contract kernel is responsible for receiving, authorizing, and processing requests to use them. Inter-contract calls do not leave the kernel. Applications install contracts in the kernel and specify an *access policy*, which controls the access of other applications to the installed contract. This scheme assumes local programs have a serializable executable representation and are not treated as application code.
-
-Callbacks: In-progress
-
-Public State Synchronization: In-progress
-
-Ownership: In-progress
-
-Addressing: In-progress
+In this scheme, local programs are stored in a single datastore protected by a contract kernel. The contract kernel is responsible for receiving, authorizing, and processing requests to use them. Inter-contract calls do not leave the kernel. Applications install contracts in the kernel and specify an *access policy*, which controls the access of other applications to the installed contract. This scheme assumes local programs have a portable executable representation and are not treated as application code.
 
 **Pros**:
 
@@ -97,7 +89,7 @@ Addressing: In-progress
 
 **Neutral**:
 1. The trusted computing base is identified and minimized, but it is a single point of failure.
-2. Requires a serializable executable representation for local programs, but users are allowed more flexibility in their implementation languages
+2. Requires a portable executable representation for local programs, but users are allowed more flexibility in their implementation languages
 3. A standalone runtime requires research and could be complex to implement, but this was something we were already considering building to facilitate independent testing
 
 ## Decision Outcome
@@ -157,31 +149,6 @@ Updating the behavior of local programs necessitates recompiling and redeploying
 ### Security
 
 Similarly to IAM, authorization is managed by a single entity that resides in the kernel, and each contract is guarded by an access policy specified by the installing application.
-
-Recall the contract kernel scheme requires a serializable executable representation of local programs. In the case this representation is WASM, the `WebAssembly` Javascript API allows us fine-grained control over the system functions / external interactions available to local programs. For example, consider the following WASM module,
-
-```wasm
-(module
-  (func $i (import "imports" "imported_func") (param i32))
-  (func (export "exported_func")
-    i32.const 42
-    call $i))
-```
-which imports `imported_func` and exports `exported_func`. The only external call available to the module is `imported_func`. Hence, if the module above is analogous to the executable representing a private oracle, the only external interaction the private oracle is capable of would be `imported_func`, which is specified as follows:
-
-```javascript
-const importObject = {
-  imports: { imported_func: (arg) => console.log(arg) },
-};
-```
-
-```javascript
-const privateOracle = WebAssembly.instantiateStreaming(fetch("private_oracle.wasm"), importObject).then(
-  (obj) => obj.instance.exports.exported_func()
-);
-```
-
-A Javascript object is created to expose sandboxed WASM functions, providing a controlled approach to executing third-party scripts (private oracles), which is one of the issues WASM was designed to address.
 
 When one contract can depend on another contract, a malicious application can influence the behavior of another application by targeting the [integrity](https://en.wikipedia.org/wiki/Data_integrity) of private data. The following threat scenarios describe this situation.
 
@@ -255,10 +222,9 @@ Furthermore, for inter-contract calls to work, the target language versions of t
 
 One way to look at the contract kernel is as a private local node that runs concurrently with the Midnight consensus nodes. One could examine the versioning schemes used on consensus nodes in other blockchain systems and adapt it to the contract kernel.
 
-## More Information
+## More Information (Inter-application Messaging)
 
-
-### Inter-application Messaging
+### Component Diagrams
 
 The following diagram is a sketch of the component structure of the inter-application messaging scheme.
 
@@ -271,16 +237,72 @@ The following scenario is the most general reuse scenario the platform should be
 2. Application `A` installs contract `0x01` which defines a transition function `foo` that calls `bar`.
 3. Application `B` calls `foo`.
 
+### Sequence Diagrams
+
 The next diagram is a sketch of the behavior of the inter-application messaging scheme for scenario (1.0).
 
 ![](../user-flows/contract-interaction/inter-application-messaging/sequence-diagram/two-contracts-two-apps.svg)
 
-### Contract Kernel
+## More Information (Contract Kernel)
+
+### Component Diagrams
 
 The following diagram is a sketch of the component structure of the contract kernel scheme.
 
 ![](../user-flows/contract-interaction/contract-kernel/component-diagram/two-contracts-two-apps.svg)
 
+### Sequence Diagrams
+
 Likewise, the next diagram is a sketch of the behavior of the contract kernel scheme in scenario (1.0).
 
 ![](../user-flows/contract-interaction/contract-kernel/sequence-diagram/two-contracts-two-apps.svg)
+
+### Callbacks [in progress]
+
+In-progress
+
+### Public State Synchronization [in progress]
+
+* If the call graph of a transition function is not known statically, then executing a contract
+
+### Addressing [needs formalization]
+
+Public oracle addresses are hexadecimal strings, e.g. `0xf3c0ee2543`. Private oracle addresses are human-readable identifiers in reverse domain name notation, e.g. `org.ibm.identity`. This scheme promotes cross-application oracle reuse, as various applications can easily reference private oracles implemented by others. When installing a private oracle, the specified private oracle address `org.ibm.identity` is included in metadata submitted to the kernel. This approach accommodates multiple instances of a single private oracle within a domain.
+
+On client devices, Abcird [`Contract`](https://github.com/input-output-hk/midnight-architecture/blob/main/proposals/0007-abcird-contract-interfaces.md) types are denoted by a pair of addresses (`0xf3c0ee2543`, `org.ibm.identity`), indicating the public and private oracles utilized for transaction construction. Both addresses are required for executing inter-contract calls locally. Meanwhile, on node devices, Abcird [`Contract`](https://github.com/input-output-hk/midnight-architecture/blob/main/proposals/0007-abcird-contract-interfaces.md) types are represented by the single address `0xf3c0ee2543` of the public oracle, which suffices for performing public transcript applications on the node. Essentially, the scheme is such that the private oracle address is not revealed during public transcript application.
+
+### Ownership [needs formalization]
+
+Prior to installing, e.g. `org.ibm.identity`, the installer is authenticated and authorized to ensure they have the authority to install private oracles in the respective domain. During installation, metadata passed to the kernel (specified by the developer) includes a set of access permissions that indicate how `org.ibm.identity` can be used. Any time `org.ibm.identity` is used in a contract call, the caller must be authenticated and authorized again.
+
+### Portable Executable Representation (WASM)
+
+Recall the contract kernel scheme requires a portable executable representation of local programs. In the case this representation is WASM, the `WebAssembly` Javascript API allows us fine-grained control over the system functions / external interactions available to local programs. For example, consider the following WASM module,
+
+```wasm
+(module
+  (func $i (import "imports" "imported_func") (param i32))
+  (func (export "exported_func")
+    i32.const 42
+    call $i))
+```
+which imports `imported_func` and exports `exported_func`. The only external call available to the module is `imported_func`. Hence, if the module above is analogous to the executable representing a private oracle, the only external interaction the private oracle is capable of would be `imported_func`, which is specified as follows:
+
+```javascript
+const importObject = {
+  imports: { imported_func: (arg) => console.log(arg) },
+};
+```
+
+```javascript
+const privateOracle = WebAssembly.instantiateStreaming(fetch("private_oracle.wasm"), importObject).then(
+  (obj) => obj.instance.exports.exported_func()
+);
+```
+
+A Javascript object `privateOracle` is created to expose sandboxed WASM functions, providing a controlled approach to executing third-party scripts (private oracles), which is one of the issues WASM was designed to address.
+
+
+### Portable Executable Representation (Hardened JS) [needs elaboration]
+
+Another alternative for a portable executable representation is [hardened Javascript](https://github.com/endojs/endo/tree/master/packages/ses), which includes a sandboxed evaluation mechanism for hardened Javascript programs expressed in strings.
