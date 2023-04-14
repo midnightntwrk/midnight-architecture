@@ -1,0 +1,9 @@
+@startuml Dapp Communication
+
+GameDApp -> GameScoringDApp : "Check scoring"
+GameScoringDApp -> IdentityDApp : "Is user over 13 years"
+IdentityDApp -> IdentityDApp : "Check private state, prepare proof and answer"
+IdentityDApp -> GameScoringDApp : "Response"
+GameScoringDApp -> GameDApp : "Response"
+
+@enduml
