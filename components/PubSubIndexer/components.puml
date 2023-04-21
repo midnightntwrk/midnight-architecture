@@ -1,0 +1,32 @@
+@startuml
+
+node "Node"
+
+node "PubSub-Indexer" {
+  portin WebSocketIn
+  portout WebSocketOut
+  portout HTTP
+  database Index
+
+  WebSocketIn -> [NodeClient]
+  [NodeClient] --> [Indexer]
+  [Indexer] --> Index
+  [Indexer] ---> [Subscription API]
+  [Subscription API] --> WebSocketOut
+  Index -> [Subscription API]
+  Index --> [Query API]
+  [Query API] --> HTTP
+}
+
+Node --> WebSocketIn
+
+node Wallet
+WebSocketOut --> Wallet
+
+node dApp
+WebSocketOut --> dApp
+
+node "Block Explorer" as explorer
+HTTP --> explorer
+
+@enduml

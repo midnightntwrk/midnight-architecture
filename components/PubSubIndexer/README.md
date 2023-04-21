@@ -25,6 +25,8 @@ There are at least, but not limited to, 3 types of clients of the PubSub-Indexer
 And there is one source from where the PubSub-Indexer pulls the blocks, which is at least
 one [node](missing_documentation).
 
+![](./components.svg)
+
 ### Wallets
 
 Wallets allow users to build transactions that transfer tokens and/or call or deploy contracts. All
