@@ -2,24 +2,21 @@
 
 ## Blockchain queries
 
-This is a set of stateless request-response APIs that can be exposed on top of HTTP, possibly in a 
-REST or Json-RPC style.
-
+This is a set of stateless request-response APIs that can be exposed on top of HTTP.
 It is implicitly meant to be used by a public blockchain explorer.
 
 ```graphql
 type Query {
     block(offset: BlockOffset!): Block
     transaction(hash: TransactionHash!): Transaction
-    contractState(address: ContractAddress!): ContractState
+    contractState(address: ContractAddress!, offset: BlockOffset): ContractState
 }
 ```
 
 ## Contract state subscriber
 
-This is a subscription API, where the client sends a request first, a subscription state is 
-saved on the server, and from that moment the server starts pushing an indefinite number of 
-responses back to the client.
+This is a subscription API, where the client sends a request first, and from that moment the server 
+starts pushing an indefinite number of responses back to the client.
 
 The most prominent use case for this API are dApps, which need to be constantly updated whenever 
 there is an event that affects the contract state.
@@ -32,15 +29,22 @@ type Subscription {
 
 ## Viewing key subscriber
 
-Also a subscription API, it provides clients with all the events (i.e. nullifiers or commitments) 
-related to a particular viewing key.
+Also a subscription API, it provides clients with all the events (i.e. transactions) 
+related to a particular viewing key if one is passed, all transactions are streamed if no viewing
+key is given.
+
+The clients must first connect to get a session identifier and then use the identifier to subscribe 
+and start receiving all the relevant transactions.
 
 This API design is meant for wallets. Only wallets should have access to user's keys and with the 
-nullifiers and commitments information can build a view of the current balance and available coins.
+inputs and outputs information can build a view of the available coins.
 
 ```graphql
+type Query {
+    connect(key: ViewingKey): SessionId
+}
 type Subscription {
-    viewingKey(key: ViewingKey!, offset: BlockOffset!): Transaction
+    transactions(id: SessionId!, offset: BlockOffset!): Transaction
 }
 ```
 
@@ -51,7 +55,7 @@ to be defined in more detail.
 
 ```graphql
 
-# Not possible to use unions as input types, so using 2 optional fields
+# It's not possible to use a union as input type, so using 2 optional fields
 input BlockOffset {
     hash: BlockHash
     height: BlockHeight
@@ -68,25 +72,25 @@ type Block {
 type Transaction {
     hash: TransactionHash!
     blockHash: BlockHash!
-    nullifiers: [Nullifier!]!
-    commitments: [Commitment!]!
+    inputs: [TransactionInput!]!
+    outputs: [TransactionOutput!]!
+}
+
+type TransactionInput {
+    nullifier: Nullifier!
+    valueCommitment: ValueCommitment!
+    merkleTreeRoot: MerkleTreeHash!
+}
+
+type TransactionOutput {
+    coinCommitment: CoinCommitment!
+    valueCommitment: ValueCommitment!
 }
 
 type ContractCalled {
     address: ContractAddress!
     transaction: Transaction!
     newState: ContractState!
-}
-
-type NewNullifiers {
-    transaction: TransactionHash!
-    nullifiers: [Nullifier!]!
-}
-
-type NewCommitments {
-    transaction: TransactionHash!
-    commitments: [Commitment!]!
-    rootHash: MerkleTreeHash!
 }
 
 scalar BlockHash
@@ -97,7 +101,9 @@ scalar TransactionHash
 
 scalar Nullifier
 
-scalar Commitment
+scalar CoinCommitment
+
+scalar ValueCommitment
 
 scalar ContractAddress
 
@@ -105,7 +111,7 @@ scalar ContractState
 
 scalar ViewingKey
 
-scalar MerkleTreeHash
+scalar SessionId
 
 scalar DateTime
 ```
