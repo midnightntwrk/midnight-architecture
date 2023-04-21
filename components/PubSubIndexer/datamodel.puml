@@ -1,0 +1,49 @@
+@startuml
+
+entity Block {
++ hash
++ height
++ timestamp
+}
+
+entity Transaction {
++ hash
+}
+
+entity TransactionInput {
++ nullifier
++ valueCommitment
++ merkleTreeRoot
+}
+
+entity TransactionOutput {
++ coinCommitment
++ valueCommitment
+}
+
+entity Contract {
++ definition
++ address
+}
+
+entity ContractCall {
++ operation
+}
+
+entity ContractState {
++ state
+}
+
+Block ||-|{ Transaction
+
+Transaction ||--o{ TransactionInput
+Transaction ||--o{ TransactionOutput
+Transaction ||--o| Contract : Deploys
+Transaction ||--o{ ContractCall
+
+ContractCall ||--|| Contract
+ContractCall ||--|| ContractState : New state
+
+Contract ||--|| ContractState : Initial state
+
+@enduml
