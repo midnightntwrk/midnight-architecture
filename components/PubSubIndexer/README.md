@@ -1,4 +1,4 @@
-# Component Name
+# PubSub-Indexer
 
 https://github.com/input-output-hk/midnight-pubsub-indexer
 
