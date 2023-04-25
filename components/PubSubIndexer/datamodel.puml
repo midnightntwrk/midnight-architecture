@@ -35,7 +35,7 @@ entity ContractCall {
 
 Block ||-|{ Transaction
 
-Transaction ||--o{ TransactionInput
+Transaction ||--|{ TransactionInput
 Transaction ||--o{ TransactionOutput
 Transaction ||--o{ ContractDeploy
 Transaction ||--o{ ContractCall

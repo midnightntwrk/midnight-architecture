@@ -65,16 +65,22 @@ Possibly any _desktop_ operating system may be used, the most popular ones are:
 
 ### Entities
 
-Document the entities.
+#### Block
 
-#### Entity 1
+#### Transaction
 
-#### Entity 2
+#### Transaction Input
+
+#### Transaction Output
+
+#### Contract Call
+
+#### Contract Deploy
 
 ### Invariants
 
-This MUST include state invariants expressed in terms of the ER model that describe the valid states
-of the system.
+_This MUST include state invariants expressed in terms of the ER model that describe the valid states
+of the system._
 
 ## Responsibilities
 
@@ -222,50 +228,50 @@ type Subscription {
 
 ## Architecture Characteristics
 
-NOTE:  There is also a
+_NOTE:  There is also a
 quick [reference list of architecture characteristics](../definitions.md#architecture-characteristics)
-available.
+available._
 
-NOTE:  Choose wisely, the more architecture characteristics are identified for a component, the more
+_NOTE:  Choose wisely, the more architecture characteristics are identified for a component, the more
 complicated it will be. Also, bear in mind that some architecture characteristics can be delegated
-to software design or UX.
+to software design or UX._
 
-Here is a list of sample architecture characteristics, please remember to update them to match the
-needs of the particular component.
+_Here is a list of sample architecture characteristics, please remember to update them to match the
+needs of the particular component._
 
 ### Configurability
 
-Configurability is a cross-cutting responsibility that affects many API's. The antidote to a
+_Configurability is a cross-cutting responsibility that affects many API's. The antidote to a
 regrettable constant in your code is proper configurability. What are the configuration parameters (
-policy) supported by the component?
+policy) supported by the component?_
 
 ### Performance
 
-- What is the expected complexity bound of each API function?
-- For each API function, what is its net effect on memory growth and what mechanisms are included to
-  prevent memory leaks?
+- _What is the expected complexity bound of each API function?_
+- _For each API function, what is its net effect on memory growth and what mechanisms are included to
+  prevent memory leaks?_
 
 ### Availability
 
-Is it ok for the component to "just let it fail" when things go wrong, or must this component fight
-to survive all errors?
+_Is it ok for the component to "just let it fail" when things go wrong, or must this component fight
+to survive all errors?_
 
 ### Security, Authentication, Authorization
 
-How are the API's protected against unauthorized use? What is the DDoS defense, for example? Are
-there operations that require specific authorization using signatures or authenticated identities?
+_How are the API's protected against unauthorized use? What is the DDoS defense, for example? Are
+there operations that require specific authorization using signatures or authenticated identities?_
 
 ### Debugability, Serviceability
 
-- What logging levels are supported and can they be dynamically configured?
-- How does the component provide debug context on a crash?
+- _What logging levels are supported and can they be dynamically configured?_
+- _How does the component provide debug context on a crash?_
 
 ## Life Cycle (State Machine)
 
-The component MUST declare whether it has a lifecycle that can be described as a state machine. This
+_The component MUST declare whether it has a lifecycle that can be described as a state machine. This
 should include any state changes that affect things like the availability of the component or its
 resources. A component that performs periodic expensive memory-refactoring, for example, should
-document this period of unavailability and high resource usage as a distinct state.
+document this period of unavailability and high resource usage as a distinct state._
 
-How will the component handle unavailability of required services, both at launch and in steady
-state?
+_How will the component handle unavailability of required services, both at launch and in steady
+state?_
