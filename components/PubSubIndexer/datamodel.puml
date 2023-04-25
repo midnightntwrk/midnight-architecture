@@ -8,6 +8,7 @@ entity Block {
 
 entity Transaction {
 + hash
++ identifiers
 }
 
 entity TransactionInput {
@@ -21,29 +22,23 @@ entity TransactionOutput {
 + valueCommitment
 }
 
-entity Contract {
+entity ContractDeploy {
 + definition
 + address
++ initialState
 }
 
 entity ContractCall {
 + operation
-}
-
-entity ContractState {
-+ state
++ newState
 }
 
 Block ||-|{ Transaction
 
 Transaction ||--o{ TransactionInput
 Transaction ||--o{ TransactionOutput
-Transaction ||--o| Contract : Deploys
+Transaction ||--o{ ContractDeploy
 Transaction ||--o{ ContractCall
-
-ContractCall ||--|| Contract
-ContractCall ||--|| ContractState : New state
-
-Contract ||--|| ContractState : Initial state
+ContractCall }--|| ContractDeploy
 
 @enduml

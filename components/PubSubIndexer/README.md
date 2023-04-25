@@ -87,40 +87,57 @@ to be defined in more detail.
 
 # It's not possible to use a union as input type, so using 2 optional fields
 input BlockOffset {
-    hash: BlockHash
-    height: BlockHeight
+  hash: BlockHash
+  height: BlockHeight
 }
 
 type Block {
-    hash: BlockHash!
-    parentHash: BlockHash!
-    height: BlockHeight!
-    timestamp: DateTime!
-    transactions: [Transaction!]!
+  parent: Block!
+  hash: BlockHash!
+  height: BlockHeight!
+  timestamp: DateTime!
+  transactions: [Transaction!]!
 }
 
 type Transaction {
-    hash: TransactionHash!
-    blockHash: BlockHash!
-    inputs: [TransactionInput!]!
-    outputs: [TransactionOutput!]!
+  block: Block!
+  hash: TransactionHash!
+  identifiers: [TransactionIdentifier!]!
+  inputs: [TransactionInput!]!
+  outputs: [TransactionOutput!]!
+  contractCalls: [ContractCallOrDeploy!]!
 }
 
 type TransactionInput {
-    nullifier: Nullifier!
-    valueCommitment: ValueCommitment!
-    merkleTreeRoot: MerkleTreeHash!
+  transaction: Transaction!
+  nullifier: Nullifier!
+  valueCommitment: ValueCommitment!
+  merkleTreeRoot: MerkleTreeHash!
 }
 
 type TransactionOutput {
-    coinCommitment: CoinCommitment!
-    valueCommitment: ValueCommitment!
+  transaction: Transaction!
+  coinCommitment: CoinCommitment!
+  valueCommitment: ValueCommitment!
 }
 
-type ContractCalled {
-    address: ContractAddress!
-    transaction: Transaction!
-    newState: ContractState!
+interface ContractCallOrDeploy {
+  transaction: Transaction!
+  state: ContractState!
+}
+
+type ContractCall implements ContractCallOrDeploy {
+  transaction: Transaction!
+  deploy: ContractDeploy!
+  state: ContractState! # Means new state after this contract call
+  operation: ContractOperation!
+}
+
+type ContractDeploy implements ContractCallOrDeploy {
+  transaction: Transaction!
+  address: ContractAddress!
+  state: ContractState! # Means initial contract state
+  definition: ContractDefinition!
 }
 
 scalar BlockHash
@@ -128,6 +145,8 @@ scalar BlockHash
 scalar BlockHeight
 
 scalar TransactionHash
+
+scalar TransactionIdentifier
 
 scalar Nullifier
 
@@ -138,6 +157,10 @@ scalar ValueCommitment
 scalar ContractAddress
 
 scalar ContractState
+
+scalar ContractDefinition
+
+scalar ContractOperation
 
 scalar ViewingKey
 
@@ -154,10 +177,11 @@ This is a set of stateless request-response APIs that can be exposed on top of H
 It is implicitly meant to be used by a public blockchain explorer.
 
 ```graphql
+# No offset argument means that client wants to get the latest
 type Query {
-    block(offset: BlockOffset!): Block
-    transaction(hash: TransactionHash!): Transaction
-    contractState(address: ContractAddress!, offset: BlockOffset): ContractState
+    block(offset: BlockOffset): Block
+    transaction(hash: TransactionHash, identifier: TransactionIdentifier): Transaction
+    contract(address: ContractAddress!, offset: BlockOffset): ContractCallOrDeploy
 }
 ```
 
@@ -171,7 +195,7 @@ there is an event that affects the contract state.
 
 ```graphql
 type Subscription {
-    contractState(address: ContractAddress!, offset: BlockOffset!): ContractCalled
+    contract(address: ContractAddress!, offset: BlockOffset): ContractCallOrDeploy
 }
 ```
 

@@ -11,11 +11,12 @@ node "PubSub-Indexer" {
   WebSocketIn -> [NodeClient]
   [NodeClient] --> [Indexer]
   [Indexer] --> Index
-  [Indexer] ---> [Subscription API]
-  [Subscription API] --> WebSocketOut
-  Index -> [Subscription API]
+  [Indexer] --> [PubSub mechanism]
+  [Subscription API] ----> WebSocketOut
+  Index --> [PubSub mechanism]
+  [PubSub mechanism] --> [Subscription API]
   Index --> [Query API]
-  [Query API] --> HTTP
+  [Query API] ---> HTTP
 }
 
 Node --> WebSocketIn
