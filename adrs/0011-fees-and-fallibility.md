@@ -45,6 +45,7 @@ after a successful transaction. This is what is used by Ethereum.
 Advantages:
 * Simple, familiar model
 * You only pay for what you use (in successful transactions)
+
 Disadvantages:
 * Incentivizes overpaying to not risk transaction failure
 * Total loss of fees if a transaction fails for any reason (see Transaction Structure section)
@@ -60,6 +61,7 @@ Advantages:
 * No transaction failures due to fees
 * Highly predictable transaction cost
 * No need for runtime book-keeping
+
 Disadvantages:
 * You pay for computation you may not use
   * The *network* has to budget for computation it may not use
@@ -77,6 +79,7 @@ Advantages:
 * Highly predictable transaction cost
 * Fee payment closer to what is actually used than 2.
 * No need for runtime book-keeping
+
 Disadvantages:
 * Still some level of inbuilt overpayment
 * Total loss of fees if a transaction fails due to state invalidity (see Transaction Structure section)
@@ -91,6 +94,7 @@ A transaction either succeeds, or it does nothing.
 Advantages:
 * Users do not pay for failing transactions.
 * Transaction behaviour is very predictable.
+
 Disadvantages:
 * Transaction execution needs to be severely limited to prevent DoS attacks.
 
@@ -102,6 +106,7 @@ Ethereum.
 
 Advantages:
 * No (theoretical) limit on contract execution budgets
+
 Disadvantages:
 * Fee payment will always be forfeit if a transaction fails for any reason
 * Transaction behaviour is much less predictable, as any condition that could
@@ -124,6 +129,7 @@ Advantages:
 * Allows contract authors to front-load limited state assertions into the
   guaranteed section, to ensure that the fallible sections cannot fail in
   practice. 
+
 Disadvantages:
 * Fee payments will still be forfeit if a fallible part fails.
 * Predictability of transaction behaviour depends on contract design.
@@ -138,6 +144,7 @@ budget).
 
 Advantages:
 * Generalizes Option 3.
+
 Disadvantages:
 * No clear practical benefit over Option 3.
 * Further complicates programming model.
