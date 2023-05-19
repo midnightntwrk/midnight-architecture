@@ -31,24 +31,33 @@ have achieved it. -->
 
 ```mermaid
 gitGraph
-    commit id: "Dust Staking"
-    commit id: "Mithril Signer Integration"
-    commit id: "Mithril D-Parament is ZERO"
-
+    commit id: "Dust Staking" type: HIGHLIGHT
+    commit id: "Mithril Signer Integration" tag: "D-Parament ZERO"
 
     branch Staged_Vote_Participation
     checkout Staged_Vote_Participation
-    commit id: "Federate Signature Participation"
-    commit id: "Incentivized Signature Participation"
+    commit id: "Federated Signing"
 
     branch Operational_Reputation
-    checkout Operational_Reputation
     commit id: "Collect Decentralized Signatures"
-    commit id: "Accumulated Operational Reputation"
-    commit id: "Method to Transition Operators to Signers"
+    commit id:  "Develop Reputation Calculation"
+    commit id: "Accumulate Reputation" tag:"Reputation Pool"
+    commit id: "Signer Promotion"
+
     checkout Staged_Vote_Participation
-    merge Operational_Reputation tag:"Reputation Pool"
-    commit id: "D-Parameter Transition to ONE"
+    branch Bridge_Incentive_Design
+    commit id: "IS THERE A REWARD?"
+
+
+    checkout Staged_Vote_Participation
+    merge Bridge_Incentive_Design tag: "Incentive to Sign"
+    commit id: "space"
+    merge Operational_Reputation tag: "Reputable Signers"
+
+
+    commit id: "D-Parameter Transition 0.1%"
+    commit id: "D-Parameter Transition 1%"
+    commit id: "cont."
     checkout main
     merge Staged_Vote_Participation tag: "Decentralized Signatures"
 ```
