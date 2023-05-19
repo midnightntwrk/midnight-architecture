@@ -27,3 +27,4 @@ The request blob consists of a concatenation of:
 * A Borsh serialized `UnprovenTransaction`
 * A Borsh serialized map mapping key identifiers used in the unproven
   transaction to a tuple of proving key, verifying key, and zk IR source.
+  * Key identifiers are UTF-8 strings used in assembling contract calls, and are assumed to uniquely identify a particular key set. They are not needed for Zswap proofs.
