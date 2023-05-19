@@ -121,38 +121,39 @@ are checked for correctness instead of being output.
 `TeciOp` has a fixed effect on the stack, which will be written as `-{a, b} +{c,
 d}`: consuming items `a` and `b` being at the top of the stack (with `a` above
 `b`), and replacing them with `c` and `d` (with `d` above `c`). The number of
-values here is just an example. We write `[a]` to refer to the value stored in
-`a`, and `[[a]]` to refer to the FAB value stored in the `Cell` at `[a]`.
+values here is just an example. Teci ADTs are _immutable_ from the perspective
+of Teci programs: A value on the stack cannot be changed, but it can be
+replaced with a modified version of the same value. We write `[a]` to refer to
+the FAB value stored in the `Cell` `a`. Due to the ubiquity of it, we write
+"sets `[a] := ...`" for "create `a` as a new `Cell` containing `...`".
 
 | Name     | Opcode | Stack                      | Arguments                       | Results        | $\Theta$    | Description |
 | :---     | -----: | :-----                     | ------------------------------: | -------------: | ----------: | ----------- |
 | `noop`   |   `00` | `-{}          +{}`         |                               - |              - |         `1` | nothing |
 | `dup`    |   `01` | `-{x*, a}     +{a, x*, a}` |                       `n: uint` |              - |         `1` | duplicates `a`, where `x*` are `n` stack items |
-| `copy`   |   `02` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := [a]` |
-| `move`   |   `03` | `-{a, b}      +{}`         |                               - |              - |         `1` | sets `[a] := [b]` |
 | `pop`    |   `04` | `-{a}         +{}`         |                               - |              - |         `1` | removes `a` |
 | `swap`   |   `05` | `-{a, x*, b}  +{b, x*, a}` |                       `n: uint` |              - |         `1` | swaps two stack items, which `n` items `x*` between them |
-| `branch` |   `06` | `-{a}         +{}`         |                       `n: uint` |              - |         `1` | if `[a]` is non-empty, skip `n` operations. The skipped operations *must* have a net-zero effect on the stack. |
-| `read`   |   `07` | `-{a}         +{}`         |                               - |     `[a]: Adt` |   `\|[a]\|` | returns `[a]` |
-| `write`  |   `08` | `-{}          +{a}`        |                      `[a]: Adt` |              - |   `\|[a]\|` | sets `[a]` |
-| `add`    |   `09` | `-{a}         +{b}`        |                        `c: Adt` |              - |         `1` | sets `[b] := [a] + c`, where addition is defined below |
-| `sub`    |   `0a` | `-{a}         +{b}`        |                        `c: Adt` |              - |         `1` | sets `[b] := [a] - c`, where subtraction is defined below |
+| `branch` |   `06` | `-{a}         +{}`         |                       `n: uint` |              - |         `1` | if `[a]` is not the empty value, skip `n` operations. The skipped operations *must* have a net-zero effect on the stack. |
+| `read`   |   `07` | `-{a}         +{}`         |                               - |     `[a]: Fab` |   `\|[a]\|` | returns `[a]` |
+| `write`  |   `08` | `-{}          +{a}`        |                      `[a]: Fab` |              - |   `\|[a]\|` | sets `[a] := [a])` |
+| `add`    |   `09` | `-{a}         +{b}`        |                        `c: Fab` |              - |         `1` | sets `[b] := [a] + c`, where addition is defined below |
+| `sub`    |   `0a` | `-{a}         +{b}`        |                        `c: Fab` |              - |         `1` | sets `[b] := [a] - c`, where subtraction is defined below |
 | `lt`     |   `0b` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] < [b]` |
 | `eq`     |   `0c` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] == [b]` |
-| `type`   |   `0d` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := typeof([a])` |
-| `size`   |   `0e` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := size([a])` |
-| `member` |   `0f` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `[c] := has_key([a], [b], d)` |
-| `idx`    |   `10` | `-{a}         +{b}`        | `c: [Adt], d: [(bool, uint>0)]` |              - | `\|c\| + d` | sets `[b] := fold_left(zip(c, d), [a], lambda adt (cached, d) val: adt.get(val, cached, d))` |
-| `dyidx`  |   `11` | `-{a, b}      +{c}`        |       `cached: bool, d: uint>0` |              - |         `d` | sets `[c] := [a].get([b], cached, d)` |
-| `new`    |   `12` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := new typeof([a])` |
+| `type`   |   `0d` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := typeof(a)` |
+| `size`   |   `0e` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := size(a)` |
+| `member` |   `0f` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `[c] := has_key(a, b, d)` |
+| `idx`    |   `10` | `-{a}         +{b}`        | `c: [Fab], d: [(bool, uint>0)]` |              - | `\|c\| + d` | sets `b := fold_left(zip(c, d), a, lambda adt (cached, d) val: adt.get(val, cached, d))` |
+| `dyidx`  |   `11` | `-{a, b}      +{c}`        |       `cached: bool, d: uint>0` |              - |         `d` | sets `c := a.get([b], cached, d)` |
+| `new`    |   `12` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `b := new [a]` |
 | `and`    |   `13` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] & [b]` |
 | `or`     |   `14` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] \| [b]` |
 | `neg`    |   `15` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := ![a]` |
-| `log`    |   `16` | `-{a}         +{}`         |                               - |              - |         `1` | outputs `[a]` as an event |
-| `root`   |   `17` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := root([a])` |
-| `ins`    |   `18` | `-{a, b}      +{}`         |                     `d: uint>0` |              - |         `d` | sets `[a] := insert([a], [b], d)` |
-| `inskey` |   `19` | `-{a, b, c}   +{}`         |                     `d: uint>0` |              - |         `d` | sets `[a] := insert_key([a], [b], [c], d)` |
-| `rem`    |   `1a` | `-{a, b}      +{}`         |                     `d: uint>0` |              - |         `d` | sets `[a] := remove([a], [b], d)` |
+| `log`    |   `16` | `-{a}         +{}`         |                               - |              - |         `1` | outputs `a` as an event |
+| `root`   |   `17` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := root(a)` |
+| `ins`    |   `18` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `c := insert(a, [b], d)` |
+| `inskey` |   `19` | `-{a, b, c}   +{d}`        |                     `d: uint>0` |              - |         `d` | sets `d := insert_key(a, [b], c, d)` |
+| `rem`    |   `1a` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `a := remove(a, [b], d)` |
 
 In the description above, the following short-hand notations were used. Where
 not specified, result values are placed in a `Cell`, and encoded as FAB values.
