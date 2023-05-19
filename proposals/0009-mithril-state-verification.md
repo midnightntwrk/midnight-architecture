@@ -34,8 +34,8 @@ gitGraph
     commit id: "Dust Staking" type: HIGHLIGHT
     commit id: "Mithril Signer Integration" tag: "D-Parament ZERO"
 
-    branch Staged_Vote_Participation
-    checkout Staged_Vote_Participation
+    branch Staged_Signing_Participation
+    checkout Staged_Signing_Participation
     commit id: "Federated Signing"
 
     branch Operational_Reputation
@@ -44,12 +44,12 @@ gitGraph
     commit id: "Accumulate Reputation" tag:"Reputation Pool"
     commit id: "Signer Promotion"
 
-    checkout Staged_Vote_Participation
+    checkout Staged_Signing_Participation
     branch Bridge_Incentive_Design
     commit id: "IS THERE A REWARD?"
 
 
-    checkout Staged_Vote_Participation
+    checkout Staged_Signing_Participation
     merge Bridge_Incentive_Design tag: "Incentive to Sign"
     commit id: "space"
     merge Operational_Reputation tag: "Reputable Signers"
@@ -59,7 +59,7 @@ gitGraph
     commit id: "D-Parameter Transition 1%"
     commit id: "cont."
     checkout main
-    merge Staged_Vote_Participation tag: "Decentralized Signatures"
+    merge Staged_Signing_Participation tag: "Decentralized Signatures"
 ```
 
 ## Dependencies:
@@ -68,4 +68,4 @@ gitGraph
 
 - needs distribution to calculate voting power
 
-⚠️ Dust Staking or Deligation
+⚠️ Dust Staking or Delegation
