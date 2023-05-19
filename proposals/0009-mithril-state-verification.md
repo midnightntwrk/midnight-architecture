@@ -1,5 +1,7 @@
 # Proposal 0009: Application of Mithril for Midnight state verification on a mainchain
 
+⚠️ _Prerequisite_: Dust Staking or Delegation
+
 # Problem Statement
 
 <!-- Please start by clearly stating the problem your proposal is trying to solve. Describe the context and why this proposal is important.
@@ -26,6 +28,8 @@ have achieved it. -->
 
 - Enable the detection of a forged certificate.
 - Require a higher level of participation in the activity that is separate from the consensus process.
+- Minimize risk at launch through federated signing.
+- Use a known adaptation pathway to transition from federated to decentralized signing.
 
 ## Proposed Plan
 
