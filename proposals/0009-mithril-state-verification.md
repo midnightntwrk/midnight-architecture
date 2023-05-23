@@ -36,6 +36,7 @@ have achieved it. -->
 ```mermaid
 gitGraph
     commit id: "Dust Staking" type: HIGHLIGHT
+    commit id: "Succinct Chain State" type: HIGHLIGHT
     commit id: "Mithril Signer Integration" tag: "D-Parament ZERO"
 
     branch Staged_Signing_Participation
