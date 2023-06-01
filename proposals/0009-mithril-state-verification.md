@@ -29,16 +29,16 @@ Additionally, the steps shown in the image are described below.
 
 1. The user initiates the flow by invoking on-sidechain mechanisms to lock some C tokens.
 2. At the end of the sidechain epoch, the Sidechain Certificate Creator starts the process of
-   creating the proof of sidechain to main chain transactions (user issued lock transactions).
+   creating the proof of sidechain to main chain transactions (user issued lock transactions). This can be a single proof of all withdrawal requests in the time period between the current Sidechain Certificate creation and the previous Sidechain Certificate creation; this proof can perhaps be created in a reasonable amount of time even without recursion, since the number of withdrawal transactions in a period may be reasonable for a reasonable prover time. 
    As a result, each committee member persists its own signature to the ledger over the
    discovered user-initiated lock actions.
 3. After some time, there are enough signatures posted on the sidechain for the ‘n out of m’
    condition (related to ATMS) to be met and the relay actor can craft a certificate out of these
    signatures. This step can require sidechain data finalization as a prerequisite for the relay
    actor to take action.
-4. The relay actor invokes the Sidechain Certificate Validator’s on-chain script with the
+4. TThe relay actor invokes the Sidechain Certificate Validator’s on-chain script with the
    certificate of the user-initiated lock actions. The Validator checks the posted certificate,
-   and, if successful, persists it on the main chain.
+   and, if successful, persists it on the main chain. The proof needs to be designed so that its verification takes less time that the total time for verifying all withdrawal transactions.
 5. At this point, a user calls a claim script against the persisted certificate providing proof of
    ownership of a particular sidechain transaction.
 6. If successful, the user will be issued a native token tC representing the C tokens locked on
