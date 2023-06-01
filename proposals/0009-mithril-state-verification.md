@@ -15,10 +15,10 @@ A forged certificate could be used to liquidate value from a sidechain if undete
 
 <!-- Describe your proposal in detail. -->
 
-Remove the committee from the direct process of generating a certificate of bridge transactions.
+Remove the committee, used for consensus, from the direct process of generating a certificate of bridge transactions.
 
-Apply Mithril technology to the periodic agreement of state on Midnight's chain.
-Use this agreement as evidence of faithful execution of updates to the Midnight chain and a commitment to that agreement on mainchain.
+As an alternative, apply Mithril technology to the periodic agreement of state on Midnight's chain.
+Use this agreement as evidence of faithful execution of updates to the Midnight chain and commit "proof" of this evidence on mainchain.
 Specifically witnessing the set of bridge transactions over a time window, and posting an aggregate signature certificate.
 
 # Desired Result
@@ -74,3 +74,9 @@ gitGraph
 - needs distribution to calculate voting power
 
 ⚠️ Dust Staking or Delegation
+
+## References:
+
+- [Mithril Documentation](https://mithril.network/doc/)
+- [Mithril Blog Post](https://iohk.io/en/blog/posts/2021/10/29/mithril-a-stronger-and-lighter-blockchain-for-better-efficiency/)
+- [Mithril Research Paper](https://iohk.io/en/research/library/papers/mithril-stake-based-threshold-multisignatures/)

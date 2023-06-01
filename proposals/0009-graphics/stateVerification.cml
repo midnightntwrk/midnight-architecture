@@ -1,0 +1,94 @@
+ContextMap AgreementOnStateOfMidnight {
+    type = SYSTEM_LANDSCAPE
+    contains MithrilContext
+    contains MidnightContext
+    contains CardanoContext
+
+    MidnightContext [U, S]->[D, C, CF, ACL] MithrilContext {
+        implementationTechnology = "Midnight Node Lookup"
+        exposedAggregates = BridgeTXs, EpocData
+    }
+
+    MithrilContext [U, S]->[D, C, ACL] CardanoContext
+}
+
+BoundedContext MithrilContext implements Mithril {
+    type APPLICATION
+    implementationTechnology = "Rust and ATMS"
+    responsibilities = "Signing Data (State & TXs?)", "Aggregating Certificates"
+    knowledgeLevel = CONCRETE
+}
+
+BoundedContext MidnightContext implements Midnight {
+    type APPLICATION
+    implementationTechnology = "Rust and Zero-Knowledge"
+    responsibilities = "ChainStateProof", "BridgeTXPool"
+    knowledgeLevel = CONCRETE
+    Aggregate BridgeTXs {
+        Entity BridgeTXPool {
+            List<Transaction> dustBurnTXs
+        }
+    }
+}
+
+BoundedContext CardanoContext
+
+Domain Mithril {
+    domainVisionStatement = "Decentralized Agreement"
+
+
+
+    Subdomain DataSigning {
+    Aggregate {
+            Entity Signer {
+
+}
+
+}
+    }
+
+    Subdomain CertificateGeneration {
+        Entity Aggrogator {
+        }
+        Entity CertSubmitter {
+        }
+    }
+
+}
+
+Domain Midnight {
+    domainVisionStatement = "Privacy Blockchain"
+
+    Subdomain DustDeligation {
+        Entity DustHolders {
+        }
+    }
+
+    Subdomain ChainMaintaince {
+        Entity Transaction {
+            aggregateRoot
+            - TransactionID TXID
+        }
+        Entity EpocData {
+            aggregateRoot
+            - ChainStateProof chainStateProof
+        }
+        Entity ChainStateProof {
+            String proofOfChainState
+        }
+        Entity RollupEngine {
+        }
+    }
+
+}
+
+Domain Cardano {
+    domainVisionStatement = "Proof-of-Stake Blockchain"
+
+    Subdomain ProofAcceptance {
+        Entity AcceptorSmartContract {
+        }
+    }
+
+}
+
