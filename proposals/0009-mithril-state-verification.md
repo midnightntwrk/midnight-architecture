@@ -15,7 +15,7 @@ A forged certificate could be used to liquidate value from a sidechain if undete
 
 <!-- Describe your proposal in detail. -->
 
-Remove the committee, used for consensus, from the direct process of generating a certificate of bridge transactions.
+Remove the sidechain committee, used for consensus, from the process of generating a certificate of bridge transactions.
 
 As an alternative, apply Mithril technology to the periodic agreement of state on Midnight's chain.
 Use this agreement as evidence of faithful execution of updates to the Midnight chain and commit "proof" of this evidence on mainchain.
@@ -66,7 +66,10 @@ gitGraph
 
     branch Staged_Signing_Participation
     checkout Staged_Signing_Participation
+    commit id: "Mithril Aggregator Integration"
     commit id: "Federated Signing"
+    commit id: "Mainchain Certificate Validation"
+
 
     branch Operational_Reputation
     commit id: "Collect Decentralized Signatures"
@@ -94,9 +97,7 @@ gitGraph
 
 ## Dependencies:
 
-[Mithril](https://mithril.network/doc/)
-
-- needs distribution to calculate voting power
+[Mithril](https://mithril.network/doc/) needs distribution to calculate voting power.
 
 ⚠️ Dust Staking or Delegation
 
