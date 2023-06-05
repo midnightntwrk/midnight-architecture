@@ -25,7 +25,7 @@ The `TeciAdt` data type is defined as a disjoint union of the following types:
 * `Cell`: memory cell containing a single FAB `Value`
 * `Map`: key-value map from FAB values to Teci ADTs.
 * `Array(n)` for `n <= 15`: fixed-length array of Teci ADTs
-* `BoundedMerkleTree(n)` for `0 < n <= 32`: depth-`n` Merkle tree of FAB values.
+* `BoundedMerkleTree(n)` for `0 < n <= 32`: depth-`n` Merkle tree of leaf hash values.
 
 Note: we will want to add in a future version:
 * `SortedMerkleTree`: an ordered Merkle tree of arbitrary depth of FAB values.
@@ -39,7 +39,7 @@ ADTs may be Merklized (as a separate, base-16 Merkle-Patricia trie, *not* as a b
 * `Cell`: A single leaf.
 * `Map`: Trees of key-value pairs `(k, v)`, where the path is `0x[H*(k)]`, and the value is stored in its Merklized form at the node, for `H*` being `persistent_hash`, but with the following modification: If the first nibble of the result is zero, it will be replaced with the first non-zero nibble occurring in the result (e.g. `0x00050a...` becomes `0x50050a...`).
 * `Array(n)`: As the entries of the array.
-* `BoundedMerkleTree(n)` TODO
+* `BoundedMerkleTree(n)` as itself
 
 #### On-the-wire representation
 
@@ -127,33 +127,38 @@ replaced with a modified version of the same value. We write `[a]` to refer to
 the FAB value stored in the `Cell` `a`. Due to the ubiquity of it, we write
 "sets `[a] := ...`" for "create `a` as a new `Cell` containing `...`".
 
+A `path(n)` is an array with `n` entries, each with three values:
+1. `key`, the key to index with, either a FAB value, or the symbol `stack`,
+   indicating the key is taken from the stack.
+2. `cached`, a boolean indicating if this path is expected to be in the
+   transaction's cache.
+3. `d`, an unsigned integer indicating the maximum tree depth this path may
+   access.
+
 | Name     | Opcode | Stack                      | Arguments                       | Results        | $\Theta$    | Description |
 | :---     | -----: | :-----                     | ------------------------------: | -------------: | ----------: | ----------- |
 | `noop`   |   `00` | `-{}          +{}`         |                               - |              - |         `1` | nothing |
-| `dup`    |   `01` | `-{x*, a}     +{a, x*, a}` |                       `n: uint` |              - |         `1` | duplicates `a`, where `x*` are `n` stack items |
-| `pop`    |   `04` | `-{a}         +{}`         |                               - |              - |         `1` | removes `a` |
-| `swap`   |   `05` | `-{a, x*, b}  +{b, x*, a}` |                       `n: uint` |              - |         `1` | swaps two stack items, which `n` items `x*` between them |
-| `branch` |   `06` | `-{a}         +{}`         |                       `n: uint` |              - |         `1` | if `[a]` is not the empty value, skip `n` operations. The skipped operations *must* have a net-zero effect on the stack. |
-| `read`   |   `07` | `-{a}         +{}`         |                               - |     `[a]: Fab` |   `\|[a]\|` | returns `[a]` |
-| `write`  |   `08` | `-{}          +{a}`        |                      `[a]: Fab` |              - |   `\|[a]\|` | sets `[a] := [a])` |
-| `add`    |   `09` | `-{a}         +{b}`        |                        `c: Fab` |              - |         `1` | sets `[b] := [a] + c`, where addition is defined below |
-| `sub`    |   `0a` | `-{a}         +{b}`        |                        `c: Fab` |              - |         `1` | sets `[b] := [a] - c`, where subtraction is defined below |
-| `lt`     |   `0b` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] < [b]` |
-| `eq`     |   `0c` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] == [b]` |
-| `type`   |   `0d` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := typeof(a)` |
-| `size`   |   `0e` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := size(a)` |
-| `member` |   `0f` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `[c] := has_key(a, b, d)` |
-| `idx`    |   `10` | `-{a}         +{b}`        | `c: [Fab], d: [(bool, uint>0)]` |              - | `\|c\| + d` | sets `b := fold_left(zip(c, d), a, lambda adt (cached, d) val: adt.get(val, cached, d))` |
-| `dyidx`  |   `11` | `-{a, b}      +{c}`        |       `cached: bool, d: uint>0` |              - |         `d` | sets `c := a.get([b], cached, d)` |
-| `new`    |   `12` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `b := new [a]` |
-| `and`    |   `13` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] & [b]` |
-| `or`     |   `14` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] \| [b]` |
-| `neg`    |   `15` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := ![a]` |
-| `log`    |   `16` | `-{a}         +{}`         |                               - |              - |         `1` | outputs `a` as an event |
-| `root`   |   `17` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := root(a)` |
-| `ins`    |   `18` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `c := insert(a, [b], d)` |
-| `inskey` |   `19` | `-{a, b, c}   +{d}`        |                     `d: uint>0` |              - |         `d` | sets `d := insert_key(a, [b], c, d)` |
-| `rem`    |   `1a` | `-{a, b}      +{c}`        |                     `d: uint>0` |              - |         `d` | sets `a := remove(a, [b], d)` |
+| `lt`     |   `01` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] < [b]` |
+| `eq`     |   `02` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] == [b]` |
+| `type`   |   `03` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := typeof([a])` |
+| `size`   |   `04` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := size([a])` |
+| `new`    |   `05` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := new typeof([a])` |
+| `and`    |   `06` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] & [b]` |
+| `or`     |   `07` | `-{a, b}      +{c}`        |                               - |              - |         `1` | sets `[c] := [a] \| [b]` |
+| `neg`    |   `08` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := ![a]` |
+| `log`    |   `09` | `-{a}         +{}`         |                               - |              - |         `1` | outputs `a` as an event |
+| `root`   |   `0a` | `-{a}         +{b}`        |                               - |              - |         `1` | sets `[b] := root(a)` |
+| `pop`    |   `0b` | `-{a}         +{}`         |                               - |              - |         `1` | removes `a` |
+| `read`   |   `0c` | `-{a}         +{}`         |                               - |     `[a]: Adt` |   `\|[a]\|` | returns `a` |
+| `add`    |   `0d` | `-{a}         +{b}`        |                        `c: Adt` |              - |         `1` | sets `[b] := [a] + c`, where addition is defined below |
+| `sub`    |   `0e` | `-{a}         +{b}`        |                        `c: Adt` |              - |         `1` | sets `[b] := [a] - c`, where subtraction is defined below |
+| `write`  |   `0f` | `-{}          +{a}`        |                      `[a]: Adt` |              - |   `\|[a]\|` | sets `a` |
+| `member` |   `10` | `-{a, b}      +{c}`        |                       `d: uint` |              - |         `d` | sets `[c] := has_key(b, a, d)` |
+| `branch` |   `11` | `-{a}         +{}`         |                       `n: uint` |              - |         `1` | if `a` is non-empty, skip `n` operations. |
+| `dup`    |   `2n` | `-{x*, a}     +{a, x*, a}` |                                 |              - |         `1` | duplicates `a`, where `x*` are `n` stack items |
+| `swap`   |   `3n` | `-{a, x*, b}  +{b, x*, a}` |                                 |              - |         `1` | swaps two stack items, with `n` items `x*` between them |
+| `idx`    |   `4n` | `-{key*, a}   +{b}`        |                    `c: path(n)` |              - | `\|c\| + sum c_d + k` | where `key*` are `k` stack items, `key_1` - `key_k`, matching the `stack` symbols in `c`. Sets `[b] := fold_left(c, [a], lambda adt (key, cached, d) val: adt.get(if key == 'stack' then key_(i++) else key, cached, d))` for `i` initialized to 1 |
+| `refine` |   `5n` | `-{ks*, key*, a} +{b}`     | `c: path(n), subprogram_ins: uint, keep_stack: uint` |              - | `\|c\| + sum c_d + k` | where `key*` are `k` stack items, `key_1` - `key_k`, matching the `stack` symbols in `c`, and `ks*` are `keep_stack` stack items. Retrieves `init := fold_left(c, [a], lambda adt (key, cached, d) val: adt.get(if key == 'stack' then key_(i++) else key, cached, d))` for `i` initialized to 1, and runs the next `subprogram_ins` instructions on the stack `{ks*, ini]}`. The result is inserted (if one item is left on stack) into the same location, or the key removed from the innermost ADT, if the stack is empty. |
 
 In the description above, the following short-hand notations were used. Where
 not specified, result values are placed in a `Cell`, and encoded as FAB values.
@@ -185,20 +190,10 @@ not specified, result values are placed in a `Cell`, and encoded as FAB values.
 * `a.get(b, cached, d)` retrieves the sub-item indexed with `b`. If the
   sub-item is *not* loaded in memory, *and* `cached` is `true`, this command
   fails. For different `a`:
-  * `a: Pair`, if `b == 0`, return the first item, if `b == 1`, the second.
   * `a: Map`, the value stored at the key `b`; fails if $\mathrm{size}(a) > 2^d$.
   * `a: Array(n)`, the value at the index `b` < n
 * `root(a)` outputs the Merkle-tree root of the `BoundedMerkleTree(n)` or
   `SortedMerkleTree` `a`.
-* `insert(a, b, d)`, inserts the value `b` into the `Map` (with an empty `Cell` element), `SortedMerkleTree`, or `MerkleTree[n]` `a`.
-  * If `a` is a `Map` or `SortedMerkleTree`, and $\mathrm{size}(a) > 2^d$, this operation fails.
-  * If `a` is a `MekrleTree[n]`, and $n > d$, this operation fails.
-* `insert_key(a, b, c, d)`, inserts the value `c` into a map `Map` `a` at key `b`,
-  or a `BoundedMerkleTree` `a` at index `b`. Fails if $\mathrm{size}(a) > 2^d$.
-* `remove(a, b, d)`, depending on the type of `a`:
-  * `Map`: removes the entry with key `b`, fails if $\mathrm{size}(a) > 2^d$.
-  * `BoundedMerkleTree(n)`: zeroes the index `b`, fails if $n > d$
-  * `SortedMerkleTree`: removes the value `b`, fails if $\mathrm{size}(a) > 2^d$.
 
 ## Use in Midnight
 
