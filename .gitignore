@@ -13,3 +13,5 @@ README.html
 *.fdb_latexmk
 .auctex-auto
 .direnv
+.idea/
+*.DS_Store
