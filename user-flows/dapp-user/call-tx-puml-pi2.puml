@@ -21,14 +21,14 @@ box "\nWallet" #eff
 end box
 
 box "\nIndexer" #ffe
-    participant "Pub Sub Indexer" as indexer
+    participant "Indexer" as indexer
 end box
 
 box "\nProof Server" #fee
     participant "Proof Server" as proofServer
 end box
 
-participant "Midnight Node" as midnightNode
+participant "Midnight Provider" as midnightProvider
 
 '==================================================================
 
@@ -61,14 +61,14 @@ participant "Midnight Node" as midnightNode
             wallet -> wallet : //balancedCallTx// = **createBalancedCallTx** (unbalancedCallTx, proof, inputs, outputs)
         end
         return //balancedCallTx//
-        midnightjs -> midnightNode ++: **submitTx** (balancedCallTx)
+        midnightjs -> midnightProvider ++: **submitTx** (balancedCallTx)
         return //pending//
     end
     midnightjs --> user: //pending//
 
     == time passes as TX is verified and propagated ==
-    midnightNode -> wallet : verified tx, new public state
-    midnightNode -> indexer : verified tx, new public state
+    midnightProvider -> wallet : verified tx, new public state
+    midnightProvider -> indexer : verified tx, new public state
     midnightjs -> indexer ++: **isFinalized** (balancedCallTx.id)
     return //tx finalized//
     midnightjs --> user : //outcome information//
