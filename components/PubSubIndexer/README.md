@@ -57,7 +57,13 @@ Possibly any _desktop_ operating system may be used, the most popular ones are:
 
 - Scala standard library
 - Typelevel stack
-- More TBD
+  - cats-core
+  - cats-effect
+  - doobie
+  - fs2
+- Caliban
+- Sttp
+- Circe
 
 ## Logical Data Model
 
@@ -127,6 +133,13 @@ type TransactionOutput {
   valueCommitment: ValueCommitment!
 }
 
+type Contract {
+  address: ContractAddress!
+  state: ContractState!
+  deploy: ContractDeploy
+  calls: [ContractCall!]!
+}
+
 interface ContractCallOrDeploy {
   transaction: Transaction!
   state: ContractState!
@@ -144,6 +157,13 @@ type ContractDeploy implements ContractCallOrDeploy {
   address: ContractAddress!
   state: ContractState! # Means initial contract state
   definition: ContractDefinition!
+}
+
+union TransactionSyncEvent = ProgressUpdate | Transaction
+
+type ProgressUpdate {
+  synced: BlockHeight
+  total: BlockHeight
 }
 
 scalar BlockHash
@@ -173,6 +193,8 @@ scalar ViewingKey
 scalar SessionId
 
 scalar DateTime
+
+scalar Void
 ```
 
 ### API's
@@ -187,7 +209,7 @@ It is implicitly meant to be used by a public blockchain explorer.
 type Query {
     block(offset: BlockOffset): Block
     transaction(hash: TransactionHash, identifier: TransactionIdentifier): Transaction
-    contract(address: ContractAddress!, offset: BlockOffset): ContractCallOrDeploy
+    contract(address: ContractAddress!): Contract
 }
 ```
 
@@ -218,11 +240,12 @@ This API design is meant for wallets. Only wallets should have access to user's 
 inputs and outputs information can build a view of the available coins.
 
 ```graphql
-type Query {
-    connect(key: ViewingKey): SessionId
+type Mutation {
+    connect(key: ViewingKey): SessionId!
+    disconnect(sessionId: SessionId!): Void!
 }
 type Subscription {
-    transactions(id: SessionId!, offset: BlockOffset!): Transaction
+    transactions(id: SessionId!, hash: TransactionHash): TransactionSyncEvent
 }
 ```
 
