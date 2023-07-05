@@ -90,7 +90,10 @@ The first field element `f` distinguishes the type of the ADT, with the remainde
   by, in stored order by encoded key-value pairs, consisting of FAB `Value` keys, and
   `TeciAdt` values.
 * `f = 3 | (n << 4)`, for integers `n < 16` encodes a `Array(n)`. It is followed by `n` `TeciAdt` encodings.
-* `f = 4 | (n << 4)`, for integers `0 < n <= 32` encodes a `BoundedMerkleTree(n)`. It is followed by `n` key-value pairs, with keys encoded directly as field elements, and values encoded as `bytes(32)`-aligned hashes.
+* `f = 4 | (n-1 << 4) | (m << 8)`, for integers `0 < n <= 32` encodes a
+  `BoundedMerkleTree(n)`. It is followed by `m` key-value pairs, with keys
+  encoded directly as field elements, and values encoded as `bytes(32)`-aligned
+  hashes.
 
 ##### Program representations
 
@@ -123,10 +126,9 @@ encoded as `0xff`, while FAB `Value`s are encoded directly.
 A program is encoded similarly to its binary form as fields. Opcodes are encoded
 as a single field element, integers as single field elements, and `Adt`s as above.
 
-A `path(n)` is encoded by encoding each key in turn as the FAB `Value`s direct
-encoding, or `0` for the `stack` symbol. This is followed by a single field
-element `is_stack`, which is `1` if and only if this key encodes the `stack`
-symbol.
+A `path(n)` is encoded by encoding first a boolean of whether the entry is the
+stack symbol or not. If it is not, this is followed by the FAB `Value`s direct
+encoding.
 
 ### Programs
 
@@ -186,7 +188,7 @@ require specifying if the data is expected to reside in-cache or not.
 | `concatc` |    `17` | `-{'a, 'b}         +{c}`          |                        `n: u21` |             `1` | as `concat`, but `a` and `b` must already be in-memory |
 | `member`  |    `18` | `-{'a, 'b}         +{c}`          |                               - |       `size(b)` | sets `[c] := has_key(b, a)` |
 | `rem`     |    `19` | `-{a, "b}          +{"c}`         |                               - |       `size(b)` | sets `c := rem(b, a, false)` |
-| `rem`     |    `1a` | `-{a, "b}          +{"c}`         |                               - |       `size(b)` | sets `c := rem(b, a, true)` |
+| `remc`    |    `1a` | `-{a, "b}          +{"c}`         |                               - |       `size(b)` | sets `c := rem(b, a, true)` |
 | `dup`     |    `3n` | `-{x*, "a}         +{"a, x*, "a}` |                               - |             `1` | duplicates `a`, where `x*` are `n` stack items |
 | `swap`    |    `4n` | `-{"a, x*, †b}     +{†b, x*, "a}` |                               - |             `1` | swaps two stack items, with `n` items `x*` between them |
 | `idx`     |    `5n` | `-{k*, "a}         +{"b}`         |                    `c: path(n)` | `\|c\| + sum size(x_i)` | where `k*` are `m` stack items, `k_1` - `k_{m+1}`, matching the `stack` symbols in `c`. Sets `"x_1 = "a`, `key_j = if c_j == 'stack' then k_{i++} else c_j`, `"x_{j+1} = "x_j.get(key_j, cached)`, `"b = "x_{n+2}`  for `i` initialized to 1, with `cached` set to `false` |
@@ -700,12 +702,13 @@ the operation.
 The `context` is an `Array(_)`, with the following entries, in order:
 
 1. A `Cell` containing the 32-byte aligned current contract's address.
-2. A `Map` from `CoinCommitment` keys to 64-byte aligned Merkle tree indicies,
+2. A `Map` from `CoinCommitment` keys to 64-bit aligned Merkle tree indicies,
    for all newly allocated coins.
-3. A `Cell` containing the block's 64-byte aligned seconds since the UNIX epoch
+3. A `Cell` containing the block's 64-bit aligned seconds since the UNIX epoch
    approximation.
-4. A `Cell` containing the block's 32-byte aligned seconds indicating the
+4. A `Cell` containing the block's 32-bit aligned seconds indicating the
    maximum amount that the former value may diverge.
+5. A `Cell` containing the blocks's 32-bytes hash.
 
 This list may be extended in the future in a minor version increment.
 
