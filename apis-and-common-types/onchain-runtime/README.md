@@ -1,8 +1,8 @@
-# $f(a) = \Theta(\sum_{i \in f} c(i))$ (Teci)
+# On-chain Runtime
 
-This document describes the Teci program format, as represented in JavaScript,
+This document describes the onchain program format, as represented in JavaScript,
 on-the-wire binary, and in prime fields for proof verification. It further
-describes the data structures stored in Teci, and how they may be represented,
+describes the data structures stored in onchain, and how they may be represented,
 and argues the primary theorem, stated in the title of the document.
 
 This document superceeds the [Micro ADT Language](../../proposals/0004-micro-adt-language.md).
@@ -15,26 +15,26 @@ __Version__: 1.0
 
 This document will make use of the [Field-Aligned
 Binary](../field-aligned-binary) format, and data types represented in it.  This
-document defines the `TeciProgram` and `TeciAdt` data formats, and defines
-execution of `TeciProgram`s on `TeciAdt`s.
+document defines the `Program` and `StateValue` data formats, and defines
+execution of `Program`s on `StateValue`s.
 
-### ADTs
+### Values
 
-The `TeciAdt` data type is defined as a disjoint union of the following types:
+The `StateValue` data type is defined as a disjoint union of the following types:
 * `Null`: An empty value.
-* `Cell`: memory cell containing a single FAB `Value`
-* `Map`: key-value map from FAB values to Teci ADTs.
-* `Array(n)` for `n <= 15`: fixed-length array of Teci ADTs
+* `Cell`: memory cell containing a single FAB `AlignedValue`
+* `Map`: key-value map from FAB `AlignedValue`s to state values.
+* `Array(n)` for `n <= 15`: fixed-length array of state values
 * `BoundedMerkleTree(n)` for `0 < n <= 32`: depth-`n` Merkle tree of leaf hash values.
 
 Note: we will want to add in a future version:
 * `SortedMerkleTree`: an ordered Merkle tree of arbitrary depth of FAB values.
 
-Note that Teci ADTs appear only in positions where they are *readable*, and where they are not used for indexing.
+Note that state values appear only in positions where they are *readable*, and where they are not used for indexing.
 
 #### Merklization
 
-ADTs may be Merklized (as a separate, base-16 Merkle-Patricia trie, *not* as a binary Merkle tree) as a node whose first child is a tag identifying the type, and whose remaining are:
+A state value may be Merklized (as a separate, base-16 Merkle-Patricia trie, *not* as a binary Merkle tree) as a node whose first child is a tag identifying the type, and whose remaining are:
 * `Null`: blank
 * `Cell`: A single leaf.
 * `Map`: Trees of key-value pairs `(k, v)`, where the path is `0x[H*(k)]`, and the value is stored in its Merklized form at the node, for `H*` being `persistent_hash`, but with the following modification: If the first nibble of the result is zero, it will be replaced with the first non-zero nibble occurring in the result (e.g. `0x00050a...` becomes `0x50050a...`).
@@ -44,13 +44,13 @@ ADTs may be Merklized (as a separate, base-16 Merkle-Patricia trie, *not* as a b
 #### On-the-wire representation
 
 The on-the-wire representations make use of [FAB](../field-aligned-binary/)
-representations. We represent both *ADTs*, and *programs*.
+representations. We represent both *state value*, and *programs*.
 
-##### ADT representation
+##### State value representation
 
 ###### In Binary
 
-The first byte `b` of the ADT distinguishes its type, and how it is further
+The first byte `b` of the state value distinguishes its type, and how it is further
 processed. In binary, MSB first, `b = xyab cddd`.
 
 * `xy != 11` encodes a `Cell`, represented as its on-the-wire FAB value.
@@ -60,13 +60,13 @@ processed. In binary, MSB first, `b = xyab cddd`.
     * An unsigned integer index `i`
     * A 32-byte hash value `h`
 * `xyab = 1110` encodes an `Array([cddd])`. It is followed by `[cddd]`
-  encodings of on-the-wire ADT representations.
+  encodings of on-the-wire state value representations.
 * `xyab cddd = 1111 0000` encodes `Null`
 * `xyab cddd = 1111 0001` encodes a `Map`. It is followed by:
   * An unsigned integer length `n`
   * `n` times, in sorted order:
-    * A FAB value `key`
-    * An ADT `value`
+    * A FAB aligned value `key`
+    * A state value `value`
 
 Unsigned integers are represented as themselves if they are <128, otherwise
 follow the following correspondence (as integers with flags in FAB, but without
@@ -81,15 +81,16 @@ the flags):
 
 ###### As field elements
 
-The first field element `f` distinguishes the type of the ADT, with the remainder being specific on the type.
+The first field element `f` distinguishes the type of the state value, with the
+remainder being specific on the type.
 
 * `f = 0` encodes a `Null`, with no additional data.
 * `f = 1` encodes a `Cell`, with the following field elements encoding a FAB
   `AlignedValue` stored within it (including the alignment encoding!).
 * `f = 2 | (n << 4)`, for `n: u64` encodes a `Map` of length `n`. It is followed
-  by, in stored order by encoded key-value pairs, consisting of FAB `Value` keys, and
-  `TeciAdt` values.
-* `f = 3 | (n << 4)`, for integers `n < 16` encodes a `Array(n)`. It is followed by `n` `TeciAdt` encodings.
+  by, in stored order by encoded key-value pairs, consisting of FAB `AlignedValue` keys, and
+  `StateValue` values.
+* `f = 3 | (n << 4)`, for integers `n < 16` encodes a `Array(n)`. It is followed by `n` `StateValue` encodings.
 * `f = 4 | (n-1 << 4) | (m << 8)`, for integers `0 < n <= 32` encodes a
   `BoundedMerkleTree(n)`. It is followed by `m` key-value pairs, with keys
   encoded directly as field elements, and values encoded as `bytes(32)`-aligned
@@ -102,7 +103,7 @@ each instruction starting with an opcode, optionally followed by some arguments
 to this instruction.
 
 To define program representations, we first define a common argument type:
-`path(n)`, an array with `n` path entries, each being either a FAB `Value`, or
+`path(n)`, an array with `n` path entries, each being either a FAB `AlignedValue`, or
 the symbol `stack`.
 
 ###### In Binary
@@ -119,33 +120,35 @@ In the below, the following data may appear as arguments or results:
 as unsigned integers above.
 
 A `path(n)` is encoded by encoding each entry in turn. The symbol `stack` is
-encoded as `0xff`, while FAB `Value`s are encoded directly.
+encoded as `0xff`, while FAB `AlignedValue`s are encoded directly.
 
 ###### As Field Elements
 
 A program is encoded similarly to its binary form as fields. Opcodes are encoded
 as a single field element, integers as single field elements, and `Adt`s as above.
 
+An exception is `noop n`, which is encoded as `n` field elements.
+
 A `path(n)` is encoded by encoding first a boolean of whether the entry is the
-stack symbol or not. If it is not, this is followed by the FAB `Value`s direct
+stack symbol or not. If it is not, this is followed by the FAB `AlignedValue`s direct
 encoding.
 
 ### Programs
 
-On `TeciProgram` is a sequence of `TeciOp`s. Each `TeciOp`
+A `Program` is a sequence of `Op`s. Each `Op`
 consists of an opcode, potentially followed by a number of arguments depending
 on the specific opcode. For read operations, the operation may return a result
-of some length. `TeciProgram`s can be run in two modes: evaluating and
+of some length. `Program`s can be run in two modes: evaluating and
 verifying. In verifying mode, operation results are expected as arguments, and
 are checked for correctness instead of being output.
 
-`TeciPrograms` run on a stack machine with a stack of
-`TeciAdt`s, guaranteed to have exactly one item on the stack to start. Each
-`TeciOp` has a fixed effect on the stack, which will be written as `-{a, b} +{c,
+`Programs` run on a stack machine with a stack of
+`StateValue`s, guaranteed to have exactly one item on the stack to start. Each
+`Op` has a fixed effect on the stack, which will be written as `-{a, b} +{c,
 d}`: consuming items `a` and `b` being at the top of the stack (with `a` above
 `b`), and replacing them with `c` and `d` (with `d` above `c`). The number of
-values here is just an example. Teci ADTs are _immutable_ from the perspective
-of Teci programs: A value on the stack cannot be changed, but it can be
+values here is just an example. State values are _immutable_ from the perspective
+of programs: A value on the stack cannot be changed, but it can be
 replaced with a modified version of the same value. We write `[a]` to refer to
 the FAB value stored in the `Cell` `a`. Due to the ubiquity of it, we write
 "sets `[a] := ...`" for "create `a` as a new `Cell` containing `...`". We
@@ -162,7 +165,7 @@ require specifying if the data is expected to reside in-cache or not.
 
 | Name      | Opcode  | Stack                             | Arguments                       | Cost (unscaled) | Description |
 | :---      | ------: | :-----                            | ------------------------------: | --------------: | ----------- |
-| `noop`    |    `00` | `-{}               +{}`           |                               - |             `1` | nothing |
+| `noop`    |    `00` | `-{}               +{}`           |                        `n: u21` |             `n` | nothing |
 | `lt`      |    `01` | `-{'a, 'b}         +{c}`          |                               - |             `1` | sets `[c] := [a] < [b]` |
 | `eq`      |    `02` | `-{'a, 'b}         +{c}`          |                               - |             `1` | sets `[c] := [a] == [b]` |
 | `type`    |    `03` | `-{'a}             +{b}`          |                               - |             `1` | sets `[b] := typeof(a)` |
@@ -205,12 +208,12 @@ not specified, result values are placed in a `Cell`, and encoded as FAB values.
 * `a + b`, `a - b`, or `a < b` (collectively `a op b`), for applying `op` on
   the contents of `Cell`s `a` and `b`, interpreted as 64-bit unsigned integers,
   with alignment `b8`.
-* `a ++ b` is the FAB Value of the concatenation of `a` and `b`.
+* `a ++ b` is the FAB `AlignedValue` of the concatenation of `a` and `b`.
 * `a == b` for checking two `Cell`s for equality, at least one of which must
   contain at most 64 bytes of data (sum of all FAB atoms).
 * `a & b`, `a | b`, `!a` are processed as boolean and, or, and not over the
   contents of `Cell`s `a` and maybe `b`. These must encode 1 or 0.
-* `typeof(a)` returns a tag representing the type of an ADT:
+* `typeof(a)` returns a tag representing the type of a state value:
   * `Cell`: 0
   * `Null`: 1
   * `Map`: 2
@@ -220,7 +223,7 @@ not specified, result values are placed in a `Cell`, and encoded as FAB values.
   an `Array(n)` or `BoundedMerkleTree(n)`.
 * `has_key(a, b)` returns `true` if `b` is a key to a non-null value in the
   `Map` `a`.
-* `new ty` creates a new instance of an ADT according to the tag `ty` (as
+* `new ty` creates a new instance of a state value according to the tag `ty` (as
   returned by `typeof`):
   * `Cell`: Containing the empty value.
   * `Null`: `null`
@@ -243,16 +246,19 @@ not specified, result values are placed in a `Cell`, and encoded as FAB values.
 
 ## Use in Midnight
 
-### Mapping Existing Micro ADT Language to Teci
+### Mapping Existing Micro ADT Language
 
 See the prior document: [Micro ADT language](../../proposals/0004-micro-adt-language.md)
 
-The following teci programs correspond to each ADT operation.
+The following programs correspond to each ADT operation.
 Notationally, `idx* f` and `idxp* f` to index to a field, this is expected to
 be `idx [i]` or `idxp [i]` on the first access to the `i+1`th field in a
 `ledger` declaration on the first call, and `idxc [i]` or `idxpc [i]` on
 subsequent calls. `(f + g)` should be read as list concatenation of `f` and
-`g`.
+`g`. We will also use `push* (f)` to indicate pushing all keys in `f`, and
+`|f|` in an `idx` / `idxc` instruction to indicate the length of `f`.
+Finally, we write `f_head` and `f_tail` for all but the last, and the last
+element of `f` respectively.
 
 We assume a function `leaf_hash` that takes values to their Merkle tree hashes.
 
@@ -261,16 +267,17 @@ Each ADT will also provide initializers, which assume the existence of the field
 #### `Counter` init at `f`
 
 ```
-refine f 2 0
-pop
+idxp* f_head
+push (f_tail)
 pushs (0u64)
+insc |f|
 ```
 
 #### `Counter.read(f)`
 
 ```
 dup 0
-idx f
+idx* f
 popeqc
 ```
 
@@ -278,7 +285,7 @@ popeqc
 
 ```
 dup 0
-idx f
+idx* f
 push (threshold)
 lt
 popeqc
@@ -287,56 +294,61 @@ popeqc
 #### `Counter.increment(f, amount)`
 
 ```
-refine f 1 0
-  addi (amount)
+idxp* f
+addi amount
+insc |f|
 ```
 
 #### `Counter.decrement(f, amount)`
 
 ```
-refine f 1 0
-  subi (amount)
+idxp* f
+subi amount
+insc |f|
 ```
 
 #### `Cell` init at `f` with value `v`
 
 ```
-refine f 2 0
-  pop
-  pushs (v)
+idxp* f_head
+push (f_tail)
+pushs (v)
+insc |f|
 ```
 
 #### `Cell.read(f)`
 
 ```
 dup 0
-idx f
+idx* f
 popeq
 ```
 
 #### `Cell.write(f, v)`
 
 ```
-refine f 2 0
-  pop
-  pushs (v)
+idxp* f_head
+push (f_tail)
+pushs (v)
+insc |f|
 ```
 
 #### `Set` init at `f`
 
 ```
-refine f 2 0
-  pop
-  pushs {}
+idxp* f_head
+push (f_tail)
+pushs {}
+insc |f|
 ```
 
 #### `Set.is_empty(f)`
 
 ```
 dup 0
-idx f
+idx* f
 size
-push (0)
+push (0u64)
 eq
 popeqc
 ```
@@ -345,7 +357,7 @@ popeqc
 
 ```
 dup 0
-idx f
+idx* f
 size
 popeqc
 ```
@@ -354,40 +366,47 @@ popeqc
 
 ```
 dup 0
-idx f
+idx* f
 push (elem)
-member s
+member
 popeqc
 ```
 
 #### `Set.insert(f, elem)`
 
 ```
-refine (f + [(elem, false, s)]) 0 0
+idxp* f
+push (elem)
+pushs null
+ins 1
+insc |f|
 ```
 
 #### `Set.remove(f, elem)`
 
 ```
-refine (f + [(elem, false, s)]) 1 0
-  pop
+idxp* f
+push (elem)
+rem
+insc |f|
 ```
 
 #### `Map` init at `f`
 
 ```
-refine f 2 0
-  pop
-  pushs {}
+idxp* f_head
+push (f_tail)
+pushs {}
+insc |f|
 ```
 
 #### `Map.is_empty(f)`
 
 ```
 dup 0
-idx f
+idx* f
 size
-push (0)
+push (0u64)
 eq
 popeqc
 ```
@@ -396,7 +415,7 @@ popeqc
 
 ```
 dup 0
-idx f
+idx* f
 size
 popeqc
 ```
@@ -405,9 +424,9 @@ popeqc
 
 ```
 dup 0
-idx f
+idx* f
 push (key)
-member s
+member
 popeqc
 ```
 
@@ -415,16 +434,18 @@ popeqc
 
 ```
 dup 0
-idx (f + [(key, false, s)])
+idx* (f + [key])
 popeq
 ```
 
 #### `Map.insert(f, key, value)`
 
 ```
-refine (f + [(key, false, s)]) 2 0
-  pop
-  pushs (value)
+idxp* f
+push (key)
+pushs (value)
+ins 1
+insc |f|
 ```
 
 #### `Map.insert_default(f, key)` with default value `value`
@@ -434,19 +455,22 @@ As `Map.insert(f, key, value)`.
 #### `Map.remove(f, key)`
 
 ```
-refine (f + [(key, false, s)]) 1 0
-  pop
+idxp* f
+push (key)
+rem
+insc |f|
 ```
 
 #### `List` init at `f`
 
 Representing as a singly-linked list, with the empty list being the triple
-`[null, null, (0)]`, and a `cons(a, as)` being `[(a), as, (1 + len(as))]`.
+`[null, null, (0u64)]`, and a `cons(a, as)` being `[(a), as, (1 + len(as))]`.
 
 ```
-refine f 2 0
-  pop
-  pushs [null, null, (0)]
+inxp* f_head
+push (f_tail)
+pushs [null, null, (0u64)]
+insc |f|
 ```
 
 #### `List<T>.head(f)`
@@ -456,51 +480,52 @@ This assumes we know the maximum (binary) size `s` of `T`, and the default of
 
 ```
 dup 0
-idx (f + [(0, false, 0)])
+idx* (f + [0])
 dup 0
 type
-push (1)
+push (1u8)
 eq
 branch 4
-push (1)
+push (1u8)
 swap 0
 concat s
 jmp 2
 pop
 push (none)
-popeq
+popeqc
 ```
 
 #### `List.pop_front(f)`
 
 ```
-refine f 1 0
-  idx [(1, false, 0)]
+idxp* f
+idx [1u8]
+insc |f|
 ```
 
 #### `List.push_front(f, value)`
 
 ```
-refine f 12 0
-  dup 0
-  pushs [(value), null, null]
-  swap 0
-  refine [(1, false, 0)] 2 1
-    swap 0
-    pop
-  swap 0
-  refine [(2, false, 0)] 4 1
-    swap 0
-    pop
-    idx [(2, false, 0)]
-    addi 1
+idxp* f
+dup 0
+idx [2u8]
+addi 1
+pushs [(value), null, null]
+swap 0
+push (2u8)
+swap 0
+insc 1
+swap 0
+push (1u8)
+swap 0
+insc (|f| + 1)
 ```
 
 #### `List.length(f)`
 
 ```
 dup 0
-idx (f + [(2, false, 0)])
+idx (f + [2u8])
 popeqc
 ```
 
@@ -509,18 +534,19 @@ popeqc
 Represented as a pair of the actual tree, and the `first_free` index counter.
 
 ```
-refine f 2 0
-  pop
-  pushs [MT(d) {}, (0)]
+idxp* f_head
+push (f_tail)
+pushs [MT(d) {}, (0u64)]
+insc |f|
 ```
 
 #### `MerkleTree<d>.check_root(f, rt)`
 
 ```
 dup 0
-idx (f + [(0, false, 0)])
+idx (f + [0u8])
 root
-pushs (rt)
+push (rt)
 eq
 popeqc
 ```
@@ -529,8 +555,8 @@ popeqc
 
 ```
 dup 0
-idx (f + [(1, false, 0)])
-push (1 << d)
+idx (f + [1u8])
+push (1u64 << d)
 lt
 neg
 popeqc
@@ -539,40 +565,37 @@ popeqc
 #### `MerkleTree<d>.insert(f, item)`
 
 ```
-refine f 13 0
-  dup 0
-  idx [(1, false, 0)]
-  dup 0
-  swap 1
-  swap 0
-  refine [(0, false, 0), (stack, false, d)] 2 0
-    pop
-    pushs (leaf_hash(item))
-  swap 0
-  addi 1
-  refine [(1, true, 0)] 2 1
-    swap 0
-    pop
+idxp* (f + [0u8])
+dup 2
+idx [1u8]
+pushs (leaf_hash(item))
+ins 1
+insc 1
+idxp [1u8]
+addi 1
+insc (|f| + 1)
 ```
 
 #### `MerkleTree<d>.insert_index(f, item, index)`
 
 ```
-refine f 14 0
-  refine [(0, false, 0), (index, false, d)] 2 0
-    pop
-    pushs (leaf_hash(item))
-  refine [(1, false, 0)] 10 0
-    push (index)
-    addi 1
-    dup 1
-    dup 1
-    lt
-    branch 2
-    pop
-    jmp 2
-    swap 0
-    pop
+idxp* (f + [0u8])
+push (index)
+pushs (leaf_hash(item))
+ins 2
+idxp [1u8]
+push (index)
+addi 1
+dup 1
+dup 1
+lt
+branch 2
+pop
+jmp 2
+swap 0
+pop
+ins 1
+insc |f|
 ```
 
 #### `MerkleTree<d>.insert_index_default(f, index)` with default value `item`
@@ -585,19 +608,22 @@ Represented as `MerkleTree<d>`, with an additional field storing a set of
 permissible roots.
 
 ```
-refine f 6 0
-  pop
-  pushs [MT(8) {}, (0), {}]
-  pushs {MT(8) {}}
-  root
-  refine [(2, true, 0), (stack, true, 0)] 0 0
+idxp* f_head
+push (f_tail)
+pushs [MT(d) {}, (0u64), {}]
+idxp [2u8]
+dup 2
+idx [0u8]
+root
+pushs null
+insc (|f| + 2)
 ```
 
 #### `HistoricMerkleTree<d>.size(f)` (for heuristic sizes only)
 
 ```
 dup 0
-idx (f + [(2, false, 0)])
+idx (f + [2])
 size
 popeqc
 ```
@@ -606,9 +632,9 @@ popeqc
 
 ```
 dup 0
-idx (f + [(2, false, 0)])
+idx (f + [2])
 push (rt)
-member s
+member
 popeqc
 ```
 
@@ -616,8 +642,8 @@ popeqc
 
 ```
 dup 0
-idx (f + [(1, false, 0)])
-push (1 << d)
+idx (f + [1])
+push (1u64 << d)
 lt
 neg
 popeqc
@@ -626,48 +652,51 @@ popeqc
 #### `HistoricMerkleTree<d>.insert(f, item)`
 
 ```
-refine f 17 0
-  dup 0
-  idx [(1, false, 0)]
-  dup 0
-  swap 1
-  swap 0
-  refine [(0, false, 0), (stack, false, d)] 2 0
-    pop
-    pushs (leaf_hash(item))
-  swap 0
-  addi 1
-  refine [(1, true, 0)] 2 1
-    swap 0
-    pop
-  dup 0
-  idx [(0, true, 0)]
-  root
-  refine [(2, false, 0), (stack, false, s)] 0 0
+idxp* (f + [0u8])
+dup 2
+idx [1u8]
+pushs (leaf_hash(item))
+ins 1
+insc 1
+idxp [1u8]
+addi 1
+insc 1
+idxp [2u8]
+dup 2
+idx [0u8]
+root
+pushs null
+ins 1
+insc (|f| + 1)
 ```
 
 #### `HistoricMerkleTree<d>.insert_index(f, item, index)`
 
 ```
-refine f 18 0
-  refine [(0, false, 0), (index, false, d)] 2 0
-    pop;
-    pushs (leaf_hash(item))
-  refine [(1, false, 0)] 10 0
-    pushs (index)
-    addi 1
-    dup 1
-    dup 1
-    lt
-    branch 2
-    pop
-    jmp 2
-    swap 0
-    pop
-  dup 0
-  idx [(0, true, 0)]
-  root
-  refine [(2, false, 0), (stack, false, s)] 0 0
+idxp* (f + [0u8])
+push (index)
+pushs (leaf_hash(item))
+ins 1
+insc 1
+idxp [1u8]
+push (index)
+addi 1
+dup 1
+dup 1
+lt
+branch 2
+pop
+jmp 2
+swap 0
+pop
+insc 1
+idxp [2u8]
+dup 2
+idx [0u8]
+root
+pushs null
+ins 1
+insc (|f| + 1)
 ```
 
 #### `HistoricMerkleTree<d>.insert_index_default(f, index)` with default value `item`
@@ -677,22 +706,20 @@ As in `HistoricMerkleTree<d>.insert_index(f, item, index)`.
 #### `HistoricMerkleTree<d>.reset_history(f)`
 
 ```
-refine f 9 0
-  dup 0
-  idx [(0, false, 0)]
-  root
-  refine [(2, false, 0)] 5 1
-    swap 0
-    pop
-    pushs {}
-    swap 0
-    refine [(stack, true, 0)] 0 0
+idxp* f
+push (2u8)
+pushs {}
+dup 2
+idx [0u8]
+root
+pushs null
+insc (|f| + 2)
 ```
 
 ### Kernel Operation, Context and Effects
 
 Kernel operations affect things, and retrieve knowledge from outside of the
-contract's state. We model this by running a Teci program not just on the
+contract's state. We model this by running a program not just on the
 contract's current state, but on an initial stack of `{state, effects,
 context}`. When the program finishes executing, it should leave a stack of
 `{state', effects', _}`. `state'` is used to replace the contract's state, and
@@ -737,7 +764,10 @@ cheap due to being guaranteed in-cache.
 
 ```
 swap 1
-refine [(0, true, 0), (nul, true, 8)] 0 0
+idxpc [0u8]
+push (nul)
+pushs null
+insc 2
 swap 1
 ```
 
@@ -745,7 +775,10 @@ swap 1
 
 ```
 swap 1
-refine [(2, true, 0), (note, true, 8)] 0 0
+idxpc [2u8]
+push (note)
+pushs null
+insc 2
 swap 1
 ```
 
@@ -753,7 +786,10 @@ swap 1
 
 ```
 swap 1
-refine [(1, true, 0), (note, true, 8)] 0 0
+idxpc [1u8]
+push (note)
+pushs null
+insc 2
 swap 1
 ```
 
@@ -761,24 +797,31 @@ swap 1
 
 ```
 swap 1
-refine [(3, true, 0), ((addr, entry_point, comm), true, 8)] 0 0
+idxpc [3u8]
+push ((addr, entry_point_hash(entry_point), comm))
+pushs null
+insc 2
 swap 1
 ```
 
-#### Kernel `mint(amount)`
+#### Kernel `mint(amount)` (changed to `mint(domain_sep, amount)`)
 
 ```
 swap 1
-refine [(4, true, 0), (0, true, 8)] 9 0
-  dup 0
-  type
-  eq 1
-  neg
-  branch 2
-  pop
-  push (0)
-  push (amount)
-  add
+idxpc [4u8]
+push (domain_sep)
+dup 1
+dup 1
+member
+push (amount)
+swap 0
+neg
+branch 4
+dup 2
+dup 2
+idx [stack]
+add
+insc 2
 swap 1
 ```
 
@@ -786,7 +829,7 @@ swap 1
 
 ```
 dup 2
-idx [(0, true, 0)]
+idx [0u8]
 popeqc
 ```
 
@@ -802,68 +845,11 @@ Since the commitment computation is done in-circuit, we assume that
 Then, the general flow to getting the qualified coin onto the stack is:
 
 ```
-pushs (coin_com(coin))
+push (coin_com(coin))
 dup 3
-idx [(1, true, 0), (coin_com(coin), true, 8)]
+dup 1
+idxc [1, stack]
 concat 80
 ```
 
-#### `Cell.write_coin(f, coin)`
-
-```
-pushs (coin_com(coin))
-dup 3
-idx [(1, true, 0), (coin_com(coin), true, 8)]
-concat 80
-refine f 2 1
-  swap 0
-  pop
-```
-
-#### `Set.insert_coin(f, coin)`
-
-```
-pushs (coin_com(coin))
-dup 3
-idx [(1, true, 0), (coin_com(coin), true, 8)]
-concat 80
-refine (f + [(stack, false, s)]) 0 0
-```
-
-#### `Map.insert_coin(f, key, coin)`
-
-```
-pushs (coin_com(coin))
-dup 3
-idx [(1, true, 0), (coin_com(coin), true, 8)]
-concat 80
-refine (f + [(key, false, s)]) 2 1
-  swap 0
-  pop
-```
-
-#### `List.push_front_coin(f, coin)`
-
-```
-pushs (coin_com(coin))
-dup 3
-idx [(1, true, 0), (coin_com(coin), true, 8)]
-concat 80
-refine f 16 1
-  pushs [null, null, null]
-  swap 0
-  refine [(0, false, 0)] 2 1
-    swap 0
-    pop
-  dup 1
-  swap 0
-  refine [(1, false, 0)] 2 1
-    swap 0
-    pop
-  swap 0
-  refine [(2, false, 0)] 4 1
-    swap 0
-    pop
-    idx [(2, false, 0)]
-    addi 1
-```
+This is used in place of `pushs` in the relevant code snippets above.
