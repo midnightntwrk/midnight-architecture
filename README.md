@@ -14,6 +14,7 @@ architectural elements are defined in [definitions](definitions.md).
 * [Decision Record](./adrs)
 * [Proposals](./proposals/)
 * [Midnight Architecture Overview](./overview)
+* [Deployments](./deployments)
 * [User Flows](./user-flows/README.md)
     - [dAPP-User Flows](./user-flows/dapp-user/README.md)
         - [Flow: dApp User Generating a Transaction](./user-flows/dapp-user/dApp%20User%20Generating%20a%20Transaction.md)
