@@ -178,11 +178,11 @@ the alignment, and appending the generated parts in sequence:
 
 A `AlignedValue` can be completely encoded into field elements as follows:
 * Encoding the size length of the `AlignedValue` as a single field element.
-* Encoding each `ValueAtom`s with respect to their `AlignmentAtom`.
 * Encoding each `AlignmentAtom` as follows:
   * `bytes<n>` encoded as `<n>`
   * `compress` encoded as `-1`
   * `field` encoded as `-2`
+* Encoding each `ValueAtom`s with respect to their `AlignmentAtom`.
 
 ## High-level vs low-level JS values
 
