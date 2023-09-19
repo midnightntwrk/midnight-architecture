@@ -129,9 +129,8 @@ as a single field element, integers as single field elements, and `Adt`s as abov
 
 An exception is `noop n`, which is encoded as `n` field elements.
 
-A `path(n)` is encoded by encoding first a boolean of whether the entry is the
-stack symbol or not. If it is not, this is followed by the FAB `AlignedValue`s direct
-encoding.
+A `path(n)` is as `-1` if it is a `stack` symbol, otherwise by encoding the `AlignedValue` directly.
+Note that as an `AlignedValue` starts with its length, these are guaranteed not to collide.
 
 ### Programs
 
