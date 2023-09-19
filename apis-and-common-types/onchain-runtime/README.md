@@ -91,7 +91,7 @@ remainder being specific on the type.
   by, in stored order by encoded key-value pairs, consisting of FAB `AlignedValue` keys, and
   `StateValue` values.
 * `f = 3 | (n << 4)`, for integers `n < 16` encodes a `Array(n)`. It is followed by `n` `StateValue` encodings.
-* `f = 4 | (n-1 << 4) | (m << 8)`, for integers `0 < n <= 32` encodes a
+* `f = 4 | (n << 4) | (m << 12)`, for integers `0 <= n < 256` encodes a
   `BoundedMerkleTree(n)`. It is followed by `m` key-value pairs, with keys
   encoded directly as field elements, and values encoded as `bytes(32)`-aligned
   hashes.
