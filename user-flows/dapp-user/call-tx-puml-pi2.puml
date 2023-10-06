@@ -1,0 +1,82 @@
+@startuml
+autonumber
+hide footbox
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+actor user
+
+box "\nApplication" #eef
+        participant "\nMidnightJS" as midnightjs
+        participant "\nContract" as contract
+        database "\nPrivate State" as privateStateStore
+end box
+
+box "\nWallet" #eff
+    'The browser extension
+    participant "Wallet" as wallet
+end box
+
+box "\nIndexer" #ffe
+    participant "Indexer" as indexer
+end box
+
+box "\nProof Server" #fee
+    participant "Proof Server" as proofServer
+end box
+
+participant "Midnight Provider" as midnightProvider
+
+'==================================================================
+
+    user -> midnightjs ++: action
+
+    group compute a state update
+        midnightjs -> indexer ++: **getPublicState** (blockNumber, address)
+        return //publicState//
+        midnightjs -> privateStateStore ++: **getPrivateState** (address)
+        return //privateState//
+        midnightjs -> contract ++: **update** (args, publicState, privateState)
+        return //returnVal, privateTranscript, publicTranscript, nextPrivateState//
+        midnightjs -> privateStateStore ++: **set** (nextPrivateState)
+        return //ack//
+    end
+
+    group over TLS, to TEE in Proof Server
+        midnightjs -> proofServer ++: **prove** (circuit, publicTranscript, privateTranscript)
+        return //proof//
+    end
+    midnightjs --> user: //ok//
+
+    group build and send transaction
+        midnightjs -> midnightjs : unbalancedCallTx = **createUnbalancedCallTx** (publicTranscript, proof, circuit)
+        midnightjs -> wallet ++: **balance** (unbalancedCallTx)
+        wallet -> wallet : //inputs, outputs// = **selectCoins** (callTx)
+        group over TLS, to TEE in Proof Server
+            wallet -> proofServer ++: **prove** (unbalancedCallTx, inputs, outputs)
+            return //proof//
+            wallet -> wallet : //balancedCallTx// = **createBalancedCallTx** (unbalancedCallTx, proof, inputs, outputs)
+        end
+        return //balancedCallTx//
+        midnightjs -> midnightProvider ++: **submitTx** (balancedCallTx)
+        return //pending//
+    end
+    midnightjs --> user: //pending//
+
+    == time passes as TX is verified and propagated ==
+    midnightProvider -> wallet : verified tx, new public state
+    midnightProvider -> indexer : verified tx, new public state
+    midnightjs -> indexer ++: **isFinalized** (balancedCallTx.id)
+    return //tx finalized//
+    midnightjs --> user : //outcome information//
+    deactivate midnightjs
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'-----------------------------------------------------------
+
+@enduml

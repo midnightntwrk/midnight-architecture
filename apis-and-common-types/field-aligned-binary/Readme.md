@@ -49,9 +49,9 @@ For instance, `0101 1011` represents 51 with flags `01`.
 
 In the second and third variants, `[b]` and `[c]` respectively *must not* be 0.
 
-Note that the limit to three bytes limits us to integers < `2^21`, or
-2,097,152. As this is primarily used for lengths for on-chain data, this seems
-ample space, but it can be extended with only a minor version increment.
+Note that the limit to three bytes limits us to integers < `2^19`, or
+524,288. As this is primarily used for lengths for on-chain data, this seems
+reasonable, but it can be extended with only a minor version increment.
 
 ## `Value`, `ValueAtom` representation
 

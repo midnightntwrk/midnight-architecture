@@ -10,5 +10,6 @@ A change is minor iff it modifies the intended or actual interpretation of the A
 * APIs
 ** [[./transaction-submission][Transaction submission]]
 ** [[./event-log][Node/ledger event log]]
+** [[./proving-server][Proving server REST API]]
 * Data Types
 ** [[./field-aligned-binary][Field-Aligned Binary (FAB)]]
