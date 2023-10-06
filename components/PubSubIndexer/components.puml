@@ -3,13 +3,16 @@
 node "Node"
 
 node "PubSub-Indexer" {
+  portin Http
   portin WebSocketIn
   portout WebSocketOut
   portout HTTP
+
   database Index
 
-  WebSocketIn -> [NodeClient]
-  [NodeClient] --> [Indexer]
+  [EventsSource] --> Http
+  WebSocketIn -> [EventsSource]
+  [EventsSource] --> [Indexer]
   [Indexer] --> Index
   [Indexer] --> [PubSub mechanism]
   [Subscription API] ----> WebSocketOut
@@ -20,6 +23,7 @@ node "PubSub-Indexer" {
 }
 
 Node --> WebSocketIn
+Http -> Node
 
 node Wallet
 WebSocketOut --> Wallet

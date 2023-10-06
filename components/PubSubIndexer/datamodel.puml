@@ -4,41 +4,48 @@ entity Block {
 + hash
 + height
 + timestamp
++ parent_hash
+}
+
+entity Wallet {
++ session_id
++ viewing_key
+}
+
+entity WalletAppliedTransaction {
++ wallet_local_state  
 }
 
 entity Transaction {
 + hash
 + identifiers
++ block_hash
++ raw
++ fallible
 }
 
-entity TransactionInput {
-+ nullifier
-+ valueCommitment
-+ merkleTreeRoot
-}
-
-entity TransactionOutput {
-+ coinCommitment
-+ valueCommitment
+entity ContractCallOrDeploy {
++ address
++ transacion_hash
++ zswapChainState
++ initial_state
 }
 
 entity ContractDeploy {
 + definition
-+ address
-+ initialState
 }
 
 entity ContractCall {
 + operation
-+ newState
 }
 
-Block ||-|{ Transaction
-
-Transaction ||--|{ TransactionInput
-Transaction ||--o{ TransactionOutput
-Transaction ||--o{ ContractDeploy
-Transaction ||--o{ ContractCall
-ContractCall }--|| ContractDeploy
+Block ||-o{ Transaction
+Wallet ||--o{ WalletAppliedTransaction
+WalletAppliedTransaction |o--|| Transaction
+Transaction ||--o{ ContractCallOrDeploy
+ContractCallOrDeploy --> ContractCall
+ContractCallOrDeploy --> ContractDeploy
+ContractDeploy ||--o{ ContractCall
+ContractDeploy -[hidden] ContractCall
 
 @enduml

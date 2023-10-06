@@ -10,7 +10,7 @@ To solve this mismatch, PubSub-Indexer retrieves the history of blocks, processe
 data with a structure that is optimized (i.e. _indexed_) for the end users' applications. It also
 offers a mechanism so that applications can subscribe to be notified whenever some data of their
 interest changes, avoiding the necessity to constantly poll to see if there is something new that
-they should be aware.
+they should be aware of.
 
 ## Special Needs
 
@@ -27,23 +27,27 @@ one [node](missing_documentation).
 
 ![](./components.svg)
 
+**Events Source:** This component is responsible for subscribing to and requesting data from a node.
+
+**Indexer:** The indexer receives events from the events source, processes them, and stores them in the index. It also takes care of notifying the pubsub mechanism about these events.
+
+**Pubsub Mechanism:** This component allows various parts of the system to publish and subscribe to specific topics, facilitating real-time data updates.
+
+**Subscription API:** The subscription API provides WebSocket-based subscriptions. Clients can use it to receive real-time updates and notifications about events and data changes.
+
+**Query API:** This component offers an HTTP API that allows clients to query and retrieve data from the index, providing a more structured and user-friendly way to access information through a GraphQL interface.
+
 ### Wallets
 
-Wallets allow users to build transactions that transfer tokens and/or call or deploy contracts. All
-transactions will spend some of the user's coins, so wallets need to know the transactions that send
-coins to the user's addresses, and they also need to know when a transaction they submitted was
-confirmed, in order to mark the input coins as spent and remove them from their available coins.
+Wallets allow users to build transactions that transfer tokens and/or call or deploy contracts. All transactions will spend some of the user's coins, so wallets need to know the transactions that send coins to the user's addresses, and they also need to know when a transaction they submitted was confirmed, in order to mark the input coins as spent and remove them from their available coins.
 
 ### dApps
 
-dApps are all about contracts, and so they need to know when a contract's state was updated. This
-means knowing when and how a contract was called, in order to update the state.
+dApps are all about contracts, and so they need to know when a contract's state was updated. This means knowing when and how a contract was called, in order to update the state.
 
 ### Block explorers
 
-A block explorer will typically allow users to find blocks by their hash or height, find
-transactions by hash, or get a contract state by address. PubSub-Indexer allows for simply doing
-these kind of queries and getting an immediate response.
+A block explorer will typically allow users to find blocks by their hash or height, find transactions by hash, or get a contract state by address. PubSub-Indexer allows for simply doing these kind of queries and getting an immediate response.
 
 ## Operating Environment
 
@@ -75,18 +79,29 @@ Possibly any _desktop_ operating system may be used, the most popular ones are:
 
 #### Transaction
 
-#### Transaction Input
-
-#### Transaction Output
-
 #### Contract Call
 
 #### Contract Deploy
 
+#### WalletAppliedTransaction
+
 ### Invariants
 
-_This MUST include state invariants expressed in terms of the ER model that describe the valid states
-of the system._
+1. Once data is persisted, it should remain available and consistent over time. 
+2. Any data retrieval or query operation for information from the genesis block or any subsequent block should consistently return the same results as initially.
+3. For each block, every transaction associated must be indexed.
+4. For each indexed transaction, its associated block must include it in its list of transactions.
+5. For each block, its parent field should refer to a valid parent block.
+6. A parent block should have a height that is one less than the height of the following block.
+7. The hash of the parent block should match the parent field in the following block.
+8. If a transaction is listed in the transactions of a block, then the block field of said transaction should refer to that block.
+9. For each contract call or deploy listed in a transaction's contractCalls, the transaction field of the contract call or deploy should refer to the same transaction that contains it in its contractCalls list.
+10. For each contract call there must be a single corresponding contract deploy with the same address.
+11. Each wallet session is uniquely identified by a session ID, which is randomly generated and associated to a viewing key.
+12. If a session ID is removed, a new session ID will be generated for the same viewing key when requested.
+13. Each transaction has an associated wallet local state that can be generated if there is a session with the viewing key that owns the transaction.
+14. The wallet local state associated with a particular transaction remains consistent for every wallet session.
+
 
 ## Responsibilities
 
@@ -97,10 +112,16 @@ to be defined in more detail.
 
 ```graphql
 
-# It's not possible to use a union as input type, so using 2 optional fields
-input BlockOffset {
+union WalletSyncEvent = ProgressUpdate | TransactionAdded
+
+input BlockOffsetInput {
   hash: BlockHash
   height: BlockHeight
+}
+
+input TransactionOffsetInput {
+  hash: String
+  identifier: String
 }
 
 type Block {
@@ -115,55 +136,43 @@ type Transaction {
   block: Block!
   hash: TransactionHash!
   identifiers: [TransactionIdentifier!]!
-  inputs: [TransactionInput!]!
-  outputs: [TransactionOutput!]!
   contractCalls: [ContractCallOrDeploy!]!
+  raw: RawTransaction!
+  fallible: Boolean!
 }
 
-type TransactionInput {
+type TransactionAdded {
   transaction: Transaction!
-  nullifier: Nullifier!
-  valueCommitment: ValueCommitment!
-  merkleTreeRoot: MerkleTreeHash!
+  state: WalletLocalState
 }
 
-type TransactionOutput {
-  transaction: Transaction!
-  coinCommitment: CoinCommitment!
-  valueCommitment: ValueCommitment!
-}
-
-type Contract {
-  address: ContractAddress!
-  state: ContractState!
-  deploy: ContractDeploy
-  calls: [ContractCall!]!
+type ProgressUpdate {
+  synced: BlockHeight
+  total: BlockHeight
 }
 
 interface ContractCallOrDeploy {
-  transaction: Transaction!
   state: ContractState!
+  transaction: Transaction!
+  address: ContractAddress!
+  zswapChainState: ZswapChainState!
 }
 
 type ContractCall implements ContractCallOrDeploy {
   transaction: Transaction!
   deploy: ContractDeploy!
-  state: ContractState! # Means new state after this contract call
+  address: ContractAddress!
+  state: ContractState! # New state after this contract call
+  zswapChainState: ZswapChainState!
   operation: ContractOperation!
 }
 
 type ContractDeploy implements ContractCallOrDeploy {
   transaction: Transaction!
   address: ContractAddress!
-  state: ContractState! # Means initial contract state
+  state: ContractState! # Initial contract state
   definition: ContractDefinition!
-}
-
-union TransactionSyncEvent = ProgressUpdate | Transaction
-
-type ProgressUpdate {
-  synced: BlockHeight
-  total: BlockHeight
+  zswapChainState: ZswapChainState!
 }
 
 scalar BlockHash
@@ -173,12 +182,6 @@ scalar BlockHeight
 scalar TransactionHash
 
 scalar TransactionIdentifier
-
-scalar Nullifier
-
-scalar CoinCommitment
-
-scalar ValueCommitment
 
 scalar ContractAddress
 
@@ -195,6 +198,12 @@ scalar SessionId
 scalar DateTime
 
 scalar Void
+
+scalar RawTransaction
+
+scalar ZswapChainState
+
+scalar WalletLocalState
 ```
 
 ### API's
@@ -205,11 +214,11 @@ This is a set of stateless request-response APIs that can be exposed on top of H
 It is implicitly meant to be used by a public blockchain explorer.
 
 ```graphql
-# No offset argument means that client wants to get the latest
+# No block offset argument means that client wants to get the latest
 type Query {
-    block(offset: BlockOffset): Block
-    transaction(hash: TransactionHash, identifier: TransactionIdentifier): Transaction
-    contract(address: ContractAddress!): Contract
+    block(offset: BlockOffsetInput): Block
+    transaction(offset: TransactionOffsetInput): Transaction
+    contract(address: String!, offset: BlockOffsetInput): ContractCallOrDeploy
 }
 ```
 
@@ -227,27 +236,39 @@ type Subscription {
 }
 ```
 
-#### Viewing key subscriber
+#### Blocks Subscriber 
 
-Also a subscription API, it provides clients with all the events (i.e. transactions)
-related to a particular viewing key if one is passed, all transactions are streamed if no viewing
-key is given.
+This subscription API provides clients with all the blocks
 
-The clients must first connect to get a session identifier and then use the identifier to subscribe
+```graphql
+type Subscription {
+    blocks(offset: BlockOffsetInput): Block
+}
+```
+
+#### Transactions subscriber
+
+This subscription API provides clients with all the transactions. If `sessionId` is provided either by argument or in the header of the request, only transaction associated to that ID will be returned with associated `WalletLocalState`.
+
+```graphql
+type Subscription {
+    transactions(offset: TransactionOffsetInput, sessionId: SessionId): WalletSyncEvent
+}
+```
+
+To obtain the ID, the clients must first connect with a viewing key to get the session identifier and then use the identifier to subscribe
 and start receiving all the relevant transactions.
 
-This API design is meant for wallets. Only wallets should have access to user's keys and with the
-inputs and outputs information can build a view of the available coins.
+This API design is meant for wallets. Only wallets should have access to user's keys and with the inputs and outputs information can build a view of the available coins.
 
 ```graphql
 type Mutation {
     connect(key: ViewingKey): SessionId!
     disconnect(sessionId: SessionId!): Void!
 }
-type Subscription {
-    transactions(id: SessionId!, hash: TransactionHash): TransactionSyncEvent
-}
 ```
+Disconnect mutation will permanently remove the session associated to the viewing key. To subscribe again to a wallet's transactions, a new session must be created.
+
 
 ## Architecture Characteristics
 
@@ -264,9 +285,25 @@ needs of the particular component._
 
 ### Configurability
 
-_Configurability is a cross-cutting responsibility that affects many API's. The antidote to a
-regrettable constant in your code is proper configurability. What are the configuration parameters (
-policy) supported by the component?_
+The component accepts the following configurations
+- Storage:
+  - `driver-name`
+  - `jdbc-url`
+  - `user`
+  - `pass`
+  - `thread-pool-size`
+- Transaction Steam
+  - `progress-update-delay`
+- Server
+  - `host`
+  - `port`
+- Events-source
+  - `node-host`
+- API
+  - `max-cost`
+  - `max-depth`
+  - `max-fields`
+  - `timeout`
 
 ### Performance
 
