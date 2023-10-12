@@ -92,13 +92,15 @@ which is either a list of `Alignment`s (encoding sum types), or an
 arbitrary data hashed into a field element, `field`, indicating a raw field
 element, or `bytes<x>`, indicating a sequence of `x` bytes.
 
+An `AlignedValue` is a list of `ValueAtom` / `AlignmentAtom` pairs.
+
 ### In TypeScript
 
 ```typescript
 type Alignment = Array<AlignmentSegment>;
 type AlignmentSegment = { tag: "option", options: Array<Alignment> } | { tag: "atom", atom: AlignmentAtom };
 type AlignmentAtom = { tag: "compress"} | { tag: "field" } | { tag: "bytes", length: number };
-type AlignedValue = { value: Value, alignment: Alignment };
+type AlignedValue = Array<[ValueAtom, AlignmentAtom]>;
 ```
 
 ### In Binary
@@ -119,6 +121,9 @@ An `AlignmentAtom` *is* an integer `i` with flags `xy`:
 * `xy = 01 and i = 0`, encodes `compress`.
 * `xy = 01 and i = 1`, encodes `field`.
 * `x = 1 or xy = 01 and i > 1` reserved.
+
+An `AlignedValue` is encoded by first encoding the `ValueAtom`s as a `Value`,
+then by encoding each of the `AlignmentAtom`s in turn.
 
 ## Validity
 
@@ -170,6 +175,14 @@ the alignment, and appending the generated parts in sequence:
   the chosen `Alignment`. The length of each `Alignment` option's field
   representation is calculated, and if the chosen one is shorter than this, it
   is padded to this length with zero elements.
+
+A `AlignedValue` can be completely encoded into field elements as follows:
+* Encoding the size length of the `AlignedValue` as a single field element.
+* Encoding each `AlignmentAtom` as follows:
+  * `bytes<n>` encoded as `<n>`
+  * `compress` encoded as `-1`
+  * `field` encoded as `-2`
+* Encoding each `ValueAtom`s with respect to their `AlignmentAtom`.
 
 ## High-level vs low-level JS values
 
