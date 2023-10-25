@@ -1,0 +1,51 @@
+@startuml
+[-> "<latex>das_1</latex>" ++ : spawn
+note over "<latex>das_1</latex>": "das is 1"
+deactivate "<latex>das_1</latex>"
+[-> "<latex>wallet-holder:a_1</latex>" ++ : spawn
+deactivate "<latex>wallet-holder:a_1</latex>"
+[-> "<latex>wallet-holder:b_1</latex>" ++ : spawn
+deactivate "<latex>wallet-holder:b_1</latex>"
+[-> "<latex>wallet-holder:c_1</latex>" ++ : spawn
+deactivate "<latex>wallet-holder:c_1</latex>"
+[-> "<latex>tge_1</latex>" ++ : spawn
+deactivate "<latex>tge_1</latex>"
+== "launch scheduler with 5 running actors" ==
+"<latex>tge_1</latex>" ->o "<latex>tge_1</latex>" : 1. token-event
+"<latex>tge_1</latex>" -> "<latex>tge_1</latex>" ++: **deliver** (1)
+note over "<latex>tge_1</latex>": "initiate token event at time 2000"
+destroy "<latex>tge_1</latex>"
+"<latex>wallet-holder:a_1</latex>" -> "<latex>wallet-holder:a_1</latex>" ++: **deliver** (2)
+note over "<latex>wallet-holder:a_1</latex>": "das = 1"
+"<latex>wallet-holder:a_1</latex>" ->o "<latex>das_1</latex>" : 3. (find-grant #{g2 e0ja4280i4l58tn5ygcmvvmyi-8})
+deactivate "<latex>wallet-holder:a_1</latex>"
+"<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (2)
+deactivate "<latex>das_1</latex>"
+"<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (3)
+"<latex>das_1</latex>" ->o "<latex>wallet-holder:a_1</latex>" : 4. (grant-found 2 100)
+deactivate "<latex>das_1</latex>"
+"<latex>wallet-holder:c_1</latex>" -> "<latex>wallet-holder:c_1</latex>" ++: **deliver** (2)
+note over "<latex>wallet-holder:c_1</latex>": "das = 1"
+"<latex>wallet-holder:c_1</latex>" ->o "<latex>das_1</latex>" : 5. (find-grant #{g0 e0ja4280i4l58tn5ygcmvvmyi-6})
+deactivate "<latex>wallet-holder:c_1</latex>"
+"<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (5)
+"<latex>das_1</latex>" ->o "<latex>wallet-holder:c_1</latex>" : 6. (grant-found 0 300)
+deactivate "<latex>das_1</latex>"
+"<latex>wallet-holder:a_1</latex>" -> "<latex>wallet-holder:a_1</latex>" ++: **deliver** (4)
+note over "<latex>wallet-holder:a_1</latex>": "grant found at path 2 with amount 100"
+destroy "<latex>wallet-holder:a_1</latex>"
+"<latex>wallet-holder:c_1</latex>" -> "<latex>wallet-holder:c_1</latex>" ++: **deliver** (6)
+note over "<latex>wallet-holder:c_1</latex>": "grant found at path 0 with amount 300"
+destroy "<latex>wallet-holder:c_1</latex>"
+"<latex>wallet-holder:b_1</latex>" -> "<latex>wallet-holder:b_1</latex>" ++: **deliver** (2)
+note over "<latex>wallet-holder:b_1</latex>": "das = 1"
+"<latex>wallet-holder:b_1</latex>" ->o "<latex>das_1</latex>" : 7. (find-grant #{g1 e0ja4280i4l58tn5ygcmvvmyi-7})
+deactivate "<latex>wallet-holder:b_1</latex>"
+"<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (7)
+"<latex>das_1</latex>" ->o "<latex>wallet-holder:b_1</latex>" : 8. (grant-found 1 200)
+deactivate "<latex>das_1</latex>"
+"<latex>wallet-holder:b_1</latex>" -> "<latex>wallet-holder:b_1</latex>" ++: **deliver** (8)
+note over "<latex>wallet-holder:b_1</latex>": "grant found at path 1 with amount 200"
+destroy "<latex>wallet-holder:b_1</latex>"
+== "no further progress with 1 running actors" ==
+@enduml
