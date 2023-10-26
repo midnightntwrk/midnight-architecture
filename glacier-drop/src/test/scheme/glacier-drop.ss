@@ -8,6 +8,7 @@
     (chezscheme)
     (scheme-actors yassam)
     (slib openssl crypto)
+    (slib merkle)
     (slib datatype))
 
   ;; ---------------------------------------------------------
@@ -66,22 +67,53 @@
       (lambda (p)
         (with-event-processor (write-plantUML p)
           (with-scheduler (event-handler (trace-lambda handler (x) x))
-
-        
+            ;; A mockup of the source chain (e.g., Cardano) and its
+            ;; active wallets.  For our simulation, we let each wallet
+            ;; actor post its balance here as it spawns.
             (define source-chain-wallets '())
 
+            ;; There must exist a deterministic function that, given a
+            ;; source chain and a reference block for that chain,
+            ;; computes the Glacier Drop grants for all the wallets
+            ;; live at that block.  There will actually be a different
+            ;; such function for each source chain, and a single
+            ;; master function that invokes them all and builds the
+            ;; aggregate grant database.
+
+            ;; Compute the Merkle leaf for a given pk
+            (define (compute-grant pk)
+              (let ([w (find (lambda (w) (eqv? (source-wallet-pk w) pk))
+                         source-chain-wallets)])
+                (and w
+                     (make-grant pk
+                       (* 10 (source-wallet-amount w))))))
+            
+            ;; Compute the full Merkle tree
             (define (compute-grants)
-              (map
-                (lambda (w)
-                  (make-grant (source-wallet-pk w)
-                    (* 10 (source-wallet-amount w))))
-                source-chain-wallets))
+              (compute-merkle-tree
+                (map
+                  (lambda (w)
+                    (compute-grant (source-wallet-pk w)))
+                  source-chain-wallets)))
 
             (define (calculate-root tree)
-              (string-hash (format "~s" tree)))
+              (merkle-hash tree))
 
+            ;; We assume the existence of a data-availability service.
+            ;; We model this as a single actor, but we assume it is
+            ;; something more robust and decentralized, like an IPFS
+            ;; service.  When we spawn the actor, it registers its pid
+            ;; here for easy lookup.
             (define data-availability-service (make-parameter #f))
-        
+
+            ;; The actor implementation of data-availability-service.
+            ;;
+            ;; While we could model this service as a pure key/value
+            ;; store, a more realistic implementation will avoid
+            ;; serving the full 1TB image to every client.  Instead,
+            ;; we imagine a service that understands the specific
+            ;; Merkle tree and can serve Merkle proofs for specific
+            ;; wallet data.
             (define (make-data-availability-service)
               (let ([grants #f])
                 (spawn "das"
@@ -100,13 +132,13 @@
                     (handle-message (m Das-request?)
                       (Das-request-case m
                         [(find-grant pk)
-                         (let loop ([i 0])
-                           (if (>= i (length grants))
-                               (reply (grant-not-found))
-                               (let ([g (list-ref grants i)])
-                                 (if (eq? (grant-pk g) pk)
-                                     (reply (grant-found i (grant-amount g)))
-                                     (loop (add1 i))))))])
+                         (let ([g (compute-grant pk)])
+                           (let ([proof
+                                   (and g
+                                        (merkle-proof grants g))])
+                             (if proof
+                                 (reply (grant-found proof (grant-amount g)))
+                                 (reply (grant-not-found)))))])
                       (handle-data-requests)))
                   (data-availability-service (self))
                   (declaim "das is ~s" (self))
