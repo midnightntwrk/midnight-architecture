@@ -2,20 +2,26 @@
 ;;;                                  Copyright 2023, Input Output Hong Kong
 ;;; ------------------------------------------------------------------------
 
+;; https://medium.com/@StricaHQ/introducing-warp-transactions-689d3e1339c7
+;; https://aiken-lang.org/
+
+
 (library (glacier-drop)
   (export run-tests)
   (import
     (chezscheme)
     (scheme-actors yassam)
     (slib openssl crypto)
-    (slib merkle)
+    (rename (slib merkle)
+      [merkle-proof compute-merkle-proof])
     (slib datatype))
 
   ;; ---------------------------------------------------------
-  ;; We wrap bytevectors to control printing
+  ;; We wrap some data types to control printing
   (define-record-type public-key (nongenerative) (fields bv))
   (define-record-type secret-key (nongenerative) (fields bv))
   ;;  (define-record-type hashval (nongenerative) (fields bv))
+  (define-record-type merkle-proof (nongenerative) (fields code))
   
   ;; ---------------------------------------------------------
   ;; Utilities
@@ -24,6 +30,16 @@
   (define (bug label val)
     (printf "BUG  ~a => ~s\n" label val)
     val)
+  (define (flatten x)
+    (cond
+      [(null? x) '()]
+      [(list? x) (append (flatten (car x)) (flatten (cdr x)))]
+      [else (list x)]))
+  (define (occurences x ls)
+    (cond
+      [(null? ls) 0]
+      [(eqv? (car ls) x) (add1 (occurences x (cdr ls)))]
+      [else (occurences x (cdr ls))]))
 
   ;; ---------------------------------------------------------
   ;; Data structures for state and messages
@@ -135,7 +151,8 @@
                          (let ([g (compute-grant pk)])
                            (let ([proof
                                    (and g
-                                        (merkle-proof grants g))])
+                                        (make-merkle-proof
+                                          (compute-merkle-proof grants g)))])
                              (if proof
                                  (reply (grant-found proof (grant-amount g)))
                                  (reply (grant-not-found)))))])
@@ -282,5 +299,17 @@
         (display (substring str (- len (+ 127 16)) (- len 127)) p)
         (display "...>" p)
       )))
+
+  (record-writer (type-descriptor merkle-proof)
+    (lambda (r p wr)
+      (display "#<proof " p)
+      (let ([proof-length
+              (occurences 'compute-hash
+                (flatten (merkle-proof-code r)))])
+        (let loop ([i 0])
+          (when (< i proof-length)
+            (display "🔗" p)
+            (loop (add1 i)))))
+      (display ">" p)))
   
   )
