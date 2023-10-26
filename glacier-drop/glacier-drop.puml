@@ -17,7 +17,7 @@ note over "<latex>tge_1</latex>": "initiate token event at time 2000"
 destroy "<latex>tge_1</latex>"
 "<latex>wallet-holder:a_1</latex>" -> "<latex>wallet-holder:a_1</latex>" ++: **deliver** (2)
 note over "<latex>wallet-holder:a_1</latex>": "das = 1"
-"<latex>wallet-holder:a_1</latex>" ->o "<latex>das_1</latex>" : 3. (find-grant #{g2 e0ja4280i4l58tn5ygcmvvmyi-8})
+"<latex>wallet-holder:a_1</latex>" ->o "<latex>das_1</latex>" : 3. (find-grant #pk<...JkizEzi2cWVvfqQW...>)
 deactivate "<latex>wallet-holder:a_1</latex>"
 "<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (2)
 deactivate "<latex>das_1</latex>"
@@ -26,7 +26,7 @@ deactivate "<latex>das_1</latex>"
 deactivate "<latex>das_1</latex>"
 "<latex>wallet-holder:c_1</latex>" -> "<latex>wallet-holder:c_1</latex>" ++: **deliver** (2)
 note over "<latex>wallet-holder:c_1</latex>": "das = 1"
-"<latex>wallet-holder:c_1</latex>" ->o "<latex>das_1</latex>" : 5. (find-grant #{g0 e0ja4280i4l58tn5ygcmvvmyi-6})
+"<latex>wallet-holder:c_1</latex>" ->o "<latex>das_1</latex>" : 5. (find-grant #pk<...4m/P3nSRT6v6sld8...>)
 deactivate "<latex>wallet-holder:c_1</latex>"
 "<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (5)
 "<latex>das_1</latex>" ->o "<latex>wallet-holder:c_1</latex>" : 6. (grant-found 0 300)
@@ -39,7 +39,7 @@ note over "<latex>wallet-holder:c_1</latex>": "grant found at path 0 with amount
 destroy "<latex>wallet-holder:c_1</latex>"
 "<latex>wallet-holder:b_1</latex>" -> "<latex>wallet-holder:b_1</latex>" ++: **deliver** (2)
 note over "<latex>wallet-holder:b_1</latex>": "das = 1"
-"<latex>wallet-holder:b_1</latex>" ->o "<latex>das_1</latex>" : 7. (find-grant #{g1 e0ja4280i4l58tn5ygcmvvmyi-7})
+"<latex>wallet-holder:b_1</latex>" ->o "<latex>das_1</latex>" : 7. (find-grant #pk<...yjqQGN4Ab5l/g0/g...>)
 deactivate "<latex>wallet-holder:b_1</latex>"
 "<latex>das_1</latex>" -> "<latex>das_1</latex>" ++: **deliver** (7)
 "<latex>das_1</latex>" ->o "<latex>wallet-holder:b_1</latex>" : 8. (grant-found 1 200)
