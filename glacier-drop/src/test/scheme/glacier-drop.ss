@@ -8,38 +8,65 @@
     (chezscheme)
     (scheme-actors yassam)
     (slib openssl crypto)
-    ;;(slib faux-ppk)
-    (slib datatype)
-    )
+    (slib datatype))
 
+  ;; ---------------------------------------------------------
+  ;; We wrap bytevectors to control printing
+  (define-record-type public-key (nongenerative) (fields bv))
+  (define-record-type secret-key (nongenerative) (fields bv))
+  ;;  (define-record-type hashval (nongenerative) (fields bv))
+  
+  ;; ---------------------------------------------------------
+  ;; Utilities
+  (define (exactly? x) (lambda (y) (equal? y x)))
+  (define (not-implemented) (errorf 'not-implemented ""))
   (define (bug label val)
     (printf "BUG  ~a => ~s\n" label val)
     val)
-    
-  (define-record-type public-key (nongenerative) (fields bv))
-  (define-record-type secret-key (nongenerative) (fields bv))
-;;  (define-record-type hashval (nongenerative) (fields bv))
-  
-  (define (exactly? x) (lambda (y) (equal? y x)))
 
-  (define (not-implemented) (errorf 'not-implemented ""))
+  ;; ---------------------------------------------------------
+  ;; Data structures for state and messages
+  (define-record-type source-wallet (nongenerative) (fields pk amount))
+  (define-record-type grant (nongenerative) (fields pk amount))
   
+  ;; ---------------------------------------------------------
+  ;; Message types
+  (define-record-type msg:token-event (nongenerative) (fields root))
+  (define-record-type msg:award-claim (nongenerative) (fields pk))
+
+  ;; Messages to/from the Data Availability Service (das)
+  (define-datatype Das-request
+    (find-grant pk))
+  (define-datatype Das-reply
+    (grant-not-found)
+    (grant-found path amount))
+  (define-record-type signed-contract-control
+    (nongenerative)
+    (fields signed-nonce msg))
+  (define-datatype contract-control
+    (contract-init merkle-root))
+  
+  ;; The contract-transition messages represent observable
+  ;; changes in the contract state.  They are represented
+  ;; as broadcasts of the event and state, but in reality
+  ;; would just be state updates on chain.
+  (define-datatype contract-transition
+    (contract-inited merkle-root)
+    )
+
+  (define-datatype settlement-msg
+    (batched-grants-root))
+        
+
+  
+  ;; ---------------------------------------------------------
+  ;; Protocol and test suite
   (define (run-tests)
     (call-with-output-file "glacier-drop.puml"
       (lambda (p)
         (with-event-processor (write-plantUML p)
           (with-scheduler (event-handler (trace-lambda handler (x) x))
 
-            (define-record-type source-wallet (nongenerative) (fields pk amount))
-            (define-record-type grant (nongenerative) (fields pk amount))
-            (define-record-type msg:token-event (nongenerative) (fields root))
-            (define-record-type msg:award-claim (nongenerative) (fields pk))
-            ;; Messages to/from the Data Availability Service (das)
-            (define-datatype das-msg
-              (find-grant pk))
-            (define-datatype das-reply
-              (grant-not-found)
-              (grant-found path amount))
         
             (define source-chain-wallets '())
 
@@ -70,8 +97,8 @@
                         (set! grants tree)
                         (handle-data-requests))))
                   (define (handle-data-requests)
-                    (handle-message (m das-msg?)
-                      (das-msg-case m
+                    (handle-message (m Das-request?)
+                      (Das-request-case m
                         [(find-grant pk)
                          (let loop ([i 0])
                            (if (>= i (length grants))
@@ -100,8 +127,8 @@
                       (send (data-availability-service) (find-grant pk))
                       (await-grant-path)))
                   (define (await-grant-path)
-                    (handle-message (m das-reply?)
-                      (das-reply-case m
+                    (handle-message (m Das-reply?)
+                      (Das-reply-case m
                         [(grant-not-found)
                          (declaim "grant not found")
                          (halt)]
@@ -140,19 +167,6 @@
 
             |#
 
-            (define-record-type msg:contract-control
-              (nongenerative)
-              (fields signed-nonce msg))
-            (define-datatype contract-control
-              (deploy merkle-root))
-
-            ;; The contract-transition messages represent observable
-            ;; changes in the contract state.  They are represented
-            ;; as broadcasts of the event and state, but in reality
-            ;; would just be state updates on chain.
-            (define-datatype contract-transition
-              (deployed merkle-root)
-              )
 
             (define (glacier-drop-contract pk quorum-size min-voter-stake)
               (spawn "contract"
@@ -176,12 +190,14 @@
                 (define (try-create-hydra-head claims)
                   (not-implemented))
                 ;; -------------------------------------
-                ;; Wait for 'deploy' message
-                (handle-message (m msg:contract-control?)
-                  (contract-control-case m
-                    [(deploy merkle-root)
+                ;; Wait for 'contract-init' message
+                (handle-message (m signed-contract-control?)
+                  ;; verify signed nonce
+                  (not-implemented)
+                  (contract-control-case (signed-contract-control-msg m)
+                    [(contract-init merkle-root)
                      ;; Broadcast the initial call for verification
-                     (broadcast (deployed merkle-root))
+                     (broadcast (contract-inited merkle-root))
                      (collect-initial-verifications '())]))))
                   
 
@@ -196,9 +212,6 @@
                     (broadcast (make-msg:token-event root))
                     (halt)))))
 
-            (define-datatype settlement-msg
-              (batched-grants-root))
-        
             ;; ;; The Cardano settlement layer
             ;; (define (cardano)
             ;;   (spawn "cardano"
