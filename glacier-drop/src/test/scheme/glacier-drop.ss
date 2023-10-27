@@ -5,7 +5,6 @@
 ;; https://medium.com/@StricaHQ/introducing-warp-transactions-689d3e1339c7
 ;; https://aiken-lang.org/
 
-
 (library (glacier-drop)
   (export run-tests)
   (import
@@ -217,6 +216,8 @@
             |#
 
 
+            ;; The contract on Cardano.  We represent this as simple
+            ;; evolving state machine.
             (define (glacier-drop-contract pk quorum-size min-voter-stake)
               (spawn "contract"
                 (define (collect-initial-verifications claims)
@@ -250,10 +251,19 @@
                      (collect-initial-verifications '())]))))
                   
 
-            ;; The token-generating entity
+            ;; The token-generating entity.  This actor initiates the
+            ;; token drop and then essentially burns its keys, ensuring
+            ;; fullly decentralized launch.
             (define (make-tge)
               (spawn "tge"
+                ;; Do nothing for a little while, making sure all
+                ;; the wallet holders get a turn to register their
+                ;; wallets in the source-chain-wallets DB.
                 (set-timer! 2000 'token-event)
+                ;; When the timer fires, compute the Merkle tree of
+                ;; the grants DB, register the root in the
+                ;; glacier-drop contract, and store the tree at the
+                ;; data-availability-service.
                 (handle-message (m (exactly? 'token-event))
                   (declaim "initiate token event at time ~s" (global-time))
                   (let* ([tree (compute-grants)]
@@ -261,12 +271,7 @@
                     (broadcast (make-msg:token-event root))
                     (halt)))))
 
-            ;; ;; The Cardano settlement layer
-            ;; (define (cardano)
-            ;;   (spawn "cardano"
-            ;;     (handle-message (m msg:token-event?)
-              
-            
+  
 
             (make-data-availability-service)
             (for-each (lambda (pr)
@@ -277,6 +282,12 @@
             )))
       'truncate))
 
+  ;; ------------------------------------------------------------------
+  ;; Pretty printing
+  ;;
+  ;; NB: record-writer updates are expressions, and must therefore
+  ;; be listed after all definitions in the library.
+  
   (define (bv->s bv)
     (let ([tx (make-transcoder (utf-8-codec) (eol-style lf)
                 (error-handling-mode replace))])
@@ -313,3 +324,4 @@
       (display ">" p)))
   
   )
+
