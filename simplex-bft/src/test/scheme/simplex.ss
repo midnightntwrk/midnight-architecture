@@ -47,65 +47,51 @@
       [(member (car ls) (cdr ls)) (cdr ls)]
       [else (cons (car ls) (remove-duplicates (cdr ls)))]))
 
-  (define (verify who label val)
-    (or val
-        (printf "xFAIL ~a: ~a\n" who label)
-        #f))
-  (define (fail who pred val)
-    (printf "FAIL ~a: (~a ~a)\n" who pred val)
+  (define verifying-stack (make-parameter '()))
+  (define (fail-proc label . ?condition)
+    (if (null? (verifying-stack))
+        (if (null? ?condition)
+              (printf "FAIL: ~a\n" label)
+              (begin
+                (printf "ERR: ~a => " label)
+                (display-condition (car ?condition))
+                (newline)))
+        (let* ([pr (car (verifying-stack))]
+               [who (car pr)]
+               [var (cadr pr)]
+               [val (cddr pr)])
+          (verifying-stack (cdr (verifying-stack)))
+          (if (null? ?condition)
+              (printf "FAIL ~a: ~a where ~a = ~s\n" who label var val)
+              (begin
+                (printf "ERR ~a: ~a where ~a = ~s => " who label var val)
+                (display-condition (car ?condition))
+                (newline)))))
     #f)
-  (define-syntax verify-all
+  (define-syntax verifying
     (lambda (x)
       (syntax-case x ()
-        [(_ who exp pred ...)
+        [(_ who var e0 e1 ...)
+         (identifier? #'var)
+         #'(parameterize ([verifying-stack (cons `(,who var . ,var) (verifying-stack))])
+             e0 e1 ...)]
+        [(_ who [var val] e0 e1 ...)
+         (identifier? #'var)
+         #'(let ([var val])
+             (parameterize ([verifying-stack (cons `(,who var . ,val) (verifying-stack))])
+               e0 e1 ...))])))
+  (define-syntax verify
+    (lambda (x)
+      (syntax-case x ()
+        [(_ test)
          #'(call/cc
              (lambda (k)
                (let ([x (with-exception-handler
                           (lambda (e)
-                            (if (error? e)
-                                (begin
-                                  (printf "ERR ~a " who)
-                                  (display-condition e)
-                                  (raise e))
-                                (raise e)))
-                          (lambda () exp))])
-                 (and
-                   (with-exception-handler
-                     (lambda (e)
-                       (if (error? e)
-                           (begin
-                             (printf "ERR ~a ~a " who 'pred)
-                             (display-condition e)
-                             (raise e))
-                           (raise e)))
-                     (lambda () (or (pred x) (fail who 'pred x))))
-                   ...))))])))
-  (define-syntax verify-any
-    (lambda (x)
-      (syntax-case x ()
-        [(_ who exp pred ...)
-         #'(call/cc
-             (lambda (k)
-               (let ([x (with-exception-handler
-                          (lambda (e)
-                            (if (error? e)
-                                (begin
-                                  (printf "ERR ~a " who)
-                                  (display-condition e)
-                                  (raise e))
-                                (raise e)))
-                          (lambda () exp))])
-                 (or
-                   (with-exception-handler
-                     (lambda (e)
-                       (if (error? e)
-                           (begin
-                             (printf "ERR ~a ~a " who 'pred)
-                             (display-condition e)
-                             (raise e))
-                           (raise e)))
-                     (lambda () (or (pred x) (fail who 'pred x))))
-                   ...))))])))
+                            (k (fail-proc 'test e)))
+                          (lambda () test))])
+                 (or test
+                     (fail-proc 'test)))))])))
 
   ;; ---------------------------------------------------------
   ;; Data structures for state and messages
@@ -133,19 +119,20 @@
             (block-parent-chain-hash b)
             (block-txs b)))
         tx)))
-  (define-who (hash-block b)
+  (define (hash-block b)
     (sha256-hash (list (block->bytevector b))))
   (define-who (well-formed-block? b)
     ;; Validation of the parent reference happens in context, using
     ;; `well-formed-blockchain?`.
-    (and (verify-all who b block?)
-         (verify-all who (block-h b) nonnegative?)
-         (verify-all who (block-parent-chain-hash b) bytevector?)
-         (let ([txs (block-txs b)])
-           (or (bot? txs)
-               (and
-                 (verify who 'list-txs? (list? txs))
-                 (verify who 'wff-txs? (andmap well-formed-transaction? txs)))))))
+    (verifying who b
+      (and (verify (block? b))
+           (verify (nonnegative? (block-h b)))
+           (verify (bytevector? (block-parent-chain-hash b)))
+           (verifying who [txs (block-txs b)]
+             (or (bot? txs)
+                 (and
+                   (verify (list? txs))
+                   (verify (andmap well-formed-transaction? txs))))))))
   (define (make-dummy-block h)
     (make-block h bot bot))
   (define (dummy-block? b)
@@ -158,40 +145,41 @@
     ;; Bit of a hack here, but let's reuse `well-formed-blockchain?`
     ;; as it already computes the cumulative hash.
     (or 
-      (well-formed-blockchain? x)
+      (well-formed-blockchain? x) ;; returns cumulative hash
       (errorf 'hash-blockchain "malformed chain ~s" x)))
-  (define (well-formed-blockchain? x)
-    (and (blockchain? x)
-         (list? (blockchain-blocks x))
-         (verify 'well-formed-blockchain? 'all-blocks? (andmap block? (blockchain-blocks x)))
-         ;;(andmap well-formed-block? (blockchain-blocks x))
-         ;; Verify the parent hashes form the given block sequence.
-         (let ([b0 (car (blockchain-blocks x))])
-           (and
-             ;; Must start with genesis block
-             (eq? b0 genesis-block)
-             ;; Every block must correctly represent its parent hash
-             ;; by looping forward from genesis, calculating the
-             ;; cumulative hash for each prefix of the given chain and
-             ;; comparing to the parent-chain-hash of the block that
-             ;; extends the prefix.
-             (let loop ([h 1]
-                        [parent b0]
-                        [prefix-hash (hash-block b0)] ;; base case
-                        [suffix (cdr (blockchain-blocks x))])
-               (or (and (null? suffix)
-                        prefix-hash) ;; return hash to aid `hash-blockchain`
-                   (let ([b (car suffix)])
-                     (and (= (block-h b) h)
-                          (or
-                            ;; A dummy block does not point to a specific parent
-                            (dummy-block? b)
-                            ;; Any other block must be checked
-                            (bytevector=? prefix-hash (block-parent-chain-hash b)))
-                          ;; Recur
-                          (loop (+ h 1) b
-                            (sha256-hash (list prefix-hash (hash-block b)))
-                            (cdr suffix))))))))))
+  (define-who (well-formed-blockchain? x)
+    (verifying who x
+      (and (verify (blockchain? x))
+           (verify (list? (blockchain-blocks x)))
+           (verify (andmap block? (blockchain-blocks x)))
+           ;;(andmap well-formed-block? (blockchain-blocks x))
+           ;; Verify the parent hashes form the given block sequence.
+           (let ([b0 (car (blockchain-blocks x))])
+             (and
+               ;; Must start with genesis block
+               (eq? b0 genesis-block)
+               ;; Every block must correctly represent its parent hash
+               ;; by looping forward from genesis, calculating the
+               ;; cumulative hash for each prefix of the given chain and
+               ;; comparing to the parent-chain-hash of the block that
+               ;; extends the prefix.
+               (let loop ([h 1]
+                          [parent b0]
+                          [prefix-hash (hash-block b0)] ;; base case
+                          [suffix (cdr (blockchain-blocks x))])
+                 (or (and (null? suffix)
+                          prefix-hash) ;; return hash to aid `hash-blockchain`
+                     (let ([b (car suffix)])
+                       (and (= (block-h b) h)
+                            (or
+                              ;; A dummy block does not point to a specific parent
+                              (dummy-block? b)
+                              ;; Any other block must be checked
+                              (bytevector=? prefix-hash (block-parent-chain-hash b)))
+                            ;; Recur
+                            (loop (+ h 1) b
+                              (sha256-hash (list prefix-hash (hash-block b)))
+                              (cdr suffix)))))))))))
 
   ;; The paper does not specify transaction content, but we will need
   ;; something for testing. This format stores the pid of a client,
@@ -257,8 +245,13 @@
       (random-transaction 300)
       (random-transaction 300)
       (random-transaction 300))
-    #;(bug 'block?
-      (well-formed-block? 'not-a-block))
+    (begin
+      (assert (verifying 'me [x -44] (verify (negative? x))))
+      (assert (not (verifying 'me [x 44] (verify (negative? x)))))
+      (assert (let ([x -55]) (verifying 'me x (verify (negative? x)))))
+      (assert (not (let ([x 55]) (verifying 'me x (verify (negative? x))))))
+      (assert (not (verify (/ 3 0))))
+      )
     (bug 'genesis-block genesis-block)
     (let ()
       (define b0 genesis-block)
@@ -271,7 +264,7 @@
       (assert (well-formed-block? b4))
       ;;33
       )
-    (call-with-output-file "simplex.puml"
+    #;(call-with-output-file "simplex.puml"
       (lambda (p)
         (with-event-processor (write-plantUML p)
           (with-scheduler (event-handler (trace-lambda handler (x) x))
