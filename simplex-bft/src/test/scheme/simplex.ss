@@ -212,15 +212,6 @@
   ;; place.
   (define genesis-block (make-block 0 (sha256-hash '()) '()))
 
-  
-
-  ;; NB: could we replace block b with its hash?
-  (define-record-type unsigned-vote
-    (nongenerative)
-    ;; h = height (0-based)
-    ;; b = block
-    (fields h b))
-
   (define-record-type notarized-blockchain
     (nongenerative)
     ;; blocks = (b_h, ..., b_0)
@@ -228,14 +219,10 @@
     ;;      `... quorum of p ...'       `... quorum of p' ...'
     (fields blocks S))
 
-  (define-record-type unsigned-finalization
-    (nongenerative)
-    (fields h))
-
   (define-record-type finalized-blockchain
     (nongenerative)
     ;; nbc = a notarized-blockchain of height h
-    ;; F = set of signed finalization messages for hight h
+    ;; F = set of signed finalization messages for height h
     (fields nbc F))
 
   ;; ---------------------------------------------------------
@@ -284,7 +271,7 @@
       (assert (well-formed-block? b4))
       ;;33
       )
-    #;(call-with-output-file "simplex.puml"
+    (call-with-output-file "simplex.puml"
       (lambda (p)
         (with-event-processor (write-plantUML p)
           (with-scheduler (event-handler (trace-lambda handler (x) x))
@@ -440,7 +427,17 @@
                         (sort tx<? (cons tx mempool))))
                     (post (- i 1))))
                 (loop)))))))
- 
+
+#|
+
+  Each process essentially maintains a database of slots, indexed by id, where
+  each slot is a state machine:
+
+  
+  
+  |#
+
+  
   ;; (define process
   ;;   (lambda ()
   ;;     (spawn "p"
