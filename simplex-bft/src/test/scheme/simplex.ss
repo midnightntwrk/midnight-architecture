@@ -41,6 +41,11 @@
       (if (or (= i n) (null? tail))
           (values (reverse head) tail)
           (loop (add1 i) (cons (car tail) head) (cdr tail)))))
+  (define (remove-duplicates ls)
+    (cond
+      [(null? ls) '()]
+      [(member (car ls) (cdr ls)) (cdr ls)]
+      [else (cons (car ls) (remove-duplicates (cdr ls)))]))
 
   (define (verify who label val)
     (or val
@@ -257,7 +262,7 @@
     (define keys (create-key-pair))
     (define sk (car keys))
     (define pk (cdr keys))
-    (define m '(hello world))
+    (define m (Vote 0 genesis-block))
     (define sm (sign-message sk m))
     (printf "signed: ~s\n" sm)
     (unless (verify-message sm pk) (errorf 'verify "failed"))
@@ -343,34 +348,46 @@
          (= (+ h 1) (length blocks))
          (well-formed-blockchain? (make-blockchain blocks))
          (andmap valid-block-notarization?
-           (reverse notarization)
-           (cdr (reverse blocks))))]
+           ;; Every block except genesis and the latest
+           ;; block needs a notarization.  Assume h blocks
+           ;; have h-2 notarizations, (b1 ... bh-1).
+           notarization
+           (reverse (cdr (reverse (cdr blocks))))))]
       [(Vote h block) (= h (block-h block))]
-      [(Finalize h) ===]
+      [(Finalize h) #t]
       ))
 
   (define (valid-block-notarization? b votes)
     (and (list? votes)
          (andmap signed-message? votes)
-         ===
          ;; - verify signatures
-         ;; - ensure uniqueness
-         ;; - ensure 2/3 quourm
+         (andmap verify-message votes)
          ;; - ensure b is vote.b and its height is vote.h
+         (andmap (lambda (sm)
+                   (Message-case (signed-message-m sm)
+                     [(Vote h block)
+                      (and
+                        (eq? block b)
+                        (= h (block-h b)))]
+                     [else #f]))
+           votes)
+         ;; - ensure uniqueness
+         (equal? votes (remove-duplicates votes))
+         ;; - ensure 2/3 quourm
+         (> (length votes) (* 2 (/ (length cohort) 3.0)))
          ))
 
-
-  (define (propose sk h blocks notarization)
+  (define (propose! sk h blocks notarization)
     (broadcast
       (sign-message sk
         (Propose h blocks notarization))))
 
-  (define (vote sk h block)
+  (define (vote! sk h block)
     (broadcast
       (sign-message sk
         (Vote h block))))
 
-  (define (finalize sk h)
+  (define (finalize! sk h)
     (broadcast
       (sign-message sk
         (Finalize h))))
@@ -391,7 +408,12 @@
   (define verify-message
     (case-lambda
       [(sm pk) (let ([bv (message->bytevector (signed-message-m sm))])
-                 (sha256-verify (list bv) (signed-message-sigma sm) pk))]
+                 (and
+                   ;; verify sig
+                   (sha256-verify (list bv) (signed-message-sigma sm) pk)
+                   ;; wff
+                   (well-formed-message?
+                     (signed-message-m sm))))]
       [(sm) (cond
               [(assoc (sender) cohort) =>
                (lambda (pr)

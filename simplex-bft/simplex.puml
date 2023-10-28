@@ -1,0 +1,67 @@
+@startuml
+[-> "<latex>produce_1</latex>" ++ : spawn
+deactivate "<latex>produce_1</latex>"
+[-> "<latex>produce_2</latex>" ++ : spawn
+deactivate "<latex>produce_2</latex>"
+[-> "<latex>produce_3</latex>" ++ : spawn
+deactivate "<latex>produce_3</latex>"
+[-> "<latex>stopper_1</latex>" ++ : spawn
+deactivate "<latex>stopper_1</latex>"
+== "launch scheduler with 4 running actors" ==
+"<latex>produce_2</latex>" ->o "<latex>produce_2</latex>" : 1. start
+"<latex>produce_2</latex>" -> "<latex>produce_2</latex>" ++: **deliver** (1)
+deactivate "<latex>produce_2</latex>"
+"<latex>produce_3</latex>" ->o "<latex>produce_3</latex>" : 2. start
+"<latex>produce_1</latex>" ->o "<latex>produce_1</latex>" : 3. start
+"<latex>produce_3</latex>" -> "<latex>produce_3</latex>" ++: **deliver** (2)
+deactivate "<latex>produce_3</latex>"
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (3)
+deactivate "<latex>produce_1</latex>"
+"<latex>produce_1</latex>" ->o "<latex>produce_1</latex>" : 4. continue
+"<latex>produce_2</latex>" ->o "<latex>produce_2</latex>" : 5. continue
+"<latex>produce_2</latex>" -> "<latex>produce_2</latex>" ++: **deliver** (5)
+deactivate "<latex>produce_2</latex>"
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (4)
+deactivate "<latex>produce_1</latex>"
+"<latex>produce_3</latex>" ->o "<latex>produce_3</latex>" : 6. continue
+"<latex>produce_2</latex>" ->o "<latex>produce_2</latex>" : 7. continue
+"<latex>produce_2</latex>" -> "<latex>produce_2</latex>" ++: **deliver** (7)
+deactivate "<latex>produce_2</latex>"
+"<latex>produce_1</latex>" ->o "<latex>produce_1</latex>" : 8. continue
+"<latex>produce_2</latex>" ->o "<latex>produce_2</latex>" : 9. continue
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (8)
+deactivate "<latex>produce_1</latex>"
+"<latex>produce_3</latex>" -> "<latex>produce_3</latex>" ++: **deliver** (6)
+deactivate "<latex>produce_3</latex>"
+"<latex>produce_2</latex>" -> "<latex>produce_2</latex>" ++: **deliver** (9)
+deactivate "<latex>produce_2</latex>"
+"<latex>produce_1</latex>" ->o "<latex>produce_1</latex>" : 10. continue
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (10)
+deactivate "<latex>produce_1</latex>"
+"<latex>produce_1</latex>" ->o "<latex>produce_1</latex>" : 11. continue
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (11)
+deactivate "<latex>produce_1</latex>"
+"<latex>produce_3</latex>" ->o "<latex>produce_3</latex>" : 12. continue
+"<latex>produce_2</latex>" ->o "<latex>produce_2</latex>" : 13. continue
+"<latex>produce_1</latex>" ->o "<latex>produce_1</latex>" : 14. continue
+"<latex>produce_3</latex>" -> "<latex>produce_3</latex>" ++: **deliver** (12)
+deactivate "<latex>produce_3</latex>"
+"<latex>produce_2</latex>" -> "<latex>produce_2</latex>" ++: **deliver** (13)
+deactivate "<latex>produce_2</latex>"
+"<latex>produce_3</latex>" ->o "<latex>produce_3</latex>" : 15. continue
+"<latex>stopper_1</latex>" ->o "<latex>stopper_1</latex>" : 16. stop
+"<latex>stopper_1</latex>" -> "<latex>stopper_1</latex>" ++: **deliver** (16)
+destroy "<latex>stopper_1</latex>"
+"<latex>produce_3</latex>" -> "<latex>produce_3</latex>" ++: **deliver** (15)
+deactivate "<latex>produce_3</latex>"
+"<latex>produce_3</latex>" -> "<latex>produce_3</latex>" ++: **deliver** (17)
+destroy "<latex>produce_3</latex>"
+"<latex>produce_2</latex>" ->o "<latex>produce_2</latex>" : 18. continue
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (14)
+deactivate "<latex>produce_1</latex>"
+"<latex>produce_1</latex>" -> "<latex>produce_1</latex>" ++: **deliver** (17)
+destroy "<latex>produce_1</latex>"
+"<latex>produce_2</latex>" -> "<latex>produce_2</latex>" ++: **deliver** (17)
+destroy "<latex>produce_2</latex>"
+== "no further progress with 0 running actors" ==
+@enduml
