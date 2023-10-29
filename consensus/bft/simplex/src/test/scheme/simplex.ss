@@ -4,94 +4,16 @@
   (export run-tests)
   (import
     (chezscheme)
+    (consensus lib common)
+    (consensus lib verify)
+    (consensus lib leader-election)
+    (consensus lib signed-messages)
     (scheme-actors yassam)
     (slib openssl crypto)
-    ;;(slib faux-ppk)
     #;(rename (slib merkle)
     [merkle-proof compute-merkle-proof])
     (slib datatype)
     (slib utils))
-
-  ;; ---------------------------------------------------------
-  ;; Utilities
-  (define (exactly? x) (lambda (y) (equal? y x)))
-  (define (not-implemented . context) (errorf 'not-implemented "~a" context))
-  (define === 'not-implemented)
-  (define (bug label val)
-    (printf "BUG  ~a => ~s\n" label val)
-    val)
-  (define (flatten x)
-    (cond
-      [(null? x) '()]
-      [(list? x) (append (flatten (car x)) (flatten (cdr x)))]
-      [else (list x)]))
-  (define (occurences x ls)
-    (cond
-      [(null? ls) 0]
-      [(eqv? (car ls) x) (add1 (occurences x (cdr ls)))]
-      [else (occurences x (cdr ls))]))
-  (define bot '⊥)
-  (define (bot? x) (eq? x bot))
-  (define make-string-hashtable
-    (lambda ()
-      (make-hashtable string-hash equal?)))
-  (define (identity x) x)
-  (define (take ls n)
-    (let loop ([i 0] [head '()] [tail ls])
-      (if (or (= i n) (null? tail))
-          (values (reverse head) tail)
-          (loop (add1 i) (cons (car tail) head) (cdr tail)))))
-  (define (remove-duplicates ls)
-    (cond
-      [(null? ls) '()]
-      [(member (car ls) (cdr ls)) (cdr ls)]
-      [else (cons (car ls) (remove-duplicates (cdr ls)))]))
-
-  (define verifying-stack (make-parameter '()))
-  (define (fail-proc label . ?condition)
-    (if (null? (verifying-stack))
-        (if (null? ?condition)
-              (printf "FAIL: ~a\n" label)
-              (begin
-                (printf "ERR: ~a => " label)
-                (display-condition (car ?condition))
-                (newline)))
-        (let* ([pr (car (verifying-stack))]
-               [who (car pr)]
-               [var (cadr pr)]
-               [val (cddr pr)])
-          (verifying-stack (cdr (verifying-stack)))
-          (if (null? ?condition)
-              (printf "FAIL ~a: ~a where ~a = ~s\n" who label var val)
-              (begin
-                (printf "ERR ~a: ~a where ~a = ~s => " who label var val)
-                (display-condition (car ?condition))
-                (newline)))))
-    #f)
-  (define-syntax verifying
-    (lambda (x)
-      (syntax-case x ()
-        [(_ who var e0 e1 ...)
-         (identifier? #'var)
-         #'(parameterize ([verifying-stack (cons `(,who var . ,var) (verifying-stack))])
-             e0 e1 ...)]
-        [(_ who [var val] e0 e1 ...)
-         (identifier? #'var)
-         #'(let ([var val])
-             (parameterize ([verifying-stack (cons `(,who var . ,val) (verifying-stack))])
-               e0 e1 ...))])))
-  (define-syntax verify
-    (lambda (x)
-      (syntax-case x ()
-        [(_ test)
-         #'(call/cc
-             (lambda (k)
-               (let ([x (with-exception-handler
-                          (lambda (e)
-                            (k (fail-proc 'test e)))
-                          (lambda () test))])
-                 (or test
-                     (fail-proc 'test)))))])))
 
   ;; ---------------------------------------------------------
   ;; Data structures for state and messages
@@ -213,25 +135,7 @@
     ;; F = set of signed finalization messages for height h
     (fields nbc F))
 
-  ;; ---------------------------------------------------------
-  ;; Message signing and verifying
-  (define-record-type signed-message
-    (nongenerative)
-    ;; m = message
-    ;; sigma = signature (a signed bytevector of the msg contents)
-    (fields m sigma)
-    (protocol
-      (lambda (new)
-        (lambda (sk m)
-          (let ([bv (message->bytevector m)])
-            (new m (sha256-sign (list bv) sk)))))))
-  (define sign-message make-signed-message)
-  (define (message->bytevector m)
-    (let ([tx (make-transcoder (latin-1-codec) (eol-style lf)
-                (error-handling-mode replace))])
-      (call-with-bytevector-output-port
-        (lambda (p) (write m p))
-        tx)))
+  
   
   (define (run-tests)
     (define keys (create-key-pair))
@@ -240,7 +144,7 @@
     (define m (Vote 0 genesis-block))
     (define sm (sign-message sk m))
     (printf "signed: ~s\n" sm)
-    (unless (verify-message sm pk) (errorf 'verify "failed"))
+    (unless (verify-signed-message sm pk) (errorf 'verify "failed"))
     (list
       (random-transaction 300)
       (random-transaction 300)
@@ -262,9 +166,8 @@
       (define d3 (make-dummy-block 3))
       (define b4 (make-block 4 (make-blockchain (list b0 b1 d2 d3)) '()))
       (assert (well-formed-block? b4))
-      ;;33
       )
-    #;(call-with-output-file "simplex.puml"
+    (call-with-output-file "simplex.puml"
       (lambda (p)
         (with-event-processor (write-plantUML p)
           (with-scheduler (event-handler (trace-lambda handler (x) x))
@@ -278,39 +181,6 @@
       'truncate)
     mempool
     )
-
-
-
-  ;; ---------------------------------------------------------
-  ;; Leader election
-
-  ;; `each iteration h has a pre-determined block proposer or leader Lh ∈
-  ;; [n] that is randomly chosen ahead of time; this is referred to as a
-  ;; random leader election oracle`
-
-  ;; This function takes a set of pids (a cohort) and a block-height
-  ;; h, and returns the designated leader for that block height from
-  ;; within that cohort.
-  (define leader-oracle
-    (let ([cohorts (make-string-hashtable)])
-      (lambda (pids h)
-        (let ([cohort-key (format "~s" pids)])
-          (let ([cohort-leaders
-                  (cond
-                    [(hashtable-ref cohorts cohort-key #f) => identity]
-                    [else (let ([ht (make-eqv-hashtable)])
-                            (hashtable-set! cohorts cohort-key ht)
-                            ht)])])
-            (cond
-              [(hashtable-ref cohort-leaders h #f) => identity]
-              [else (let ([leader 
-                            (list-ref pids
-                              (random (length pids)))])
-                      (hashtable-set! cohort-leaders h leader)
-                      leader)]))))))
-
-  (define (slot-leader? pid h)
-    (= pid (car (leader-oracle cohort))))
 
   ;; ---------------------------------------------------------
   ;; Message types
@@ -341,7 +211,7 @@
     (and (list? votes)
          (andmap signed-message? votes)
          ;; - verify signatures
-         (andmap verify-message votes)
+         (andmap verify-signed-message votes)
          ;; - ensure b is vote.b and its height is vote.h
          (andmap (lambda (sm)
                    (Message-case (signed-message-m sm)
@@ -381,24 +251,7 @@
       head))
     
   ;; ------------------------------------------------------------------
-  ;; The cohort of BFT participants
-  ;; A set of pairs (pid . pk)
-  (define cohort '())
   
-  (define verify-message
-    (case-lambda
-      [(sm pk) (let ([bv (message->bytevector (signed-message-m sm))])
-                 (and
-                   ;; verify sig
-                   (sha256-verify (list bv) (signed-message-sigma sm) pk)
-                   ;; wff
-                   (well-formed-message?
-                     (signed-message-m sm))))]
-      [(sm) (cond
-              [(assoc (sender) cohort) =>
-               (lambda (pr)
-                 (verify-message sm (cdr pr)))]
-              [else (declaim "invalid sender ~s" (sender))])]))
 
   ;; ------------------------------------------------------------------
   ;; Actors

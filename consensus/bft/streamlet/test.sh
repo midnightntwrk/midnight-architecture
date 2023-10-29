@@ -16,4 +16,4 @@ elif test ! -e "src/test/scheme/${1}.ss" ; then
     exit 1
 fi
 
-echo "(reset-handler abort) (import (${1})) (run-tests)" | scheme -q --libdirs .:src/main/scheme:src/test/scheme:"${LIBDIRS}"
+echo "(reset-handler abort) (import (${1})) (run-tests)" | scheme -q --libdirs .:src/main/scheme:src/test/scheme:../../..:"${LIBDIRS}"
