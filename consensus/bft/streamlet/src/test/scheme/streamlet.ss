@@ -1,6 +1,6 @@
 ;;; ------------------------------------------------------------------------
 ;;;                                  Copyright 2023, Input Output Hong Kong
-(library (streamlets)
+(library (streamlet)
   (export run-tests)
   (import
     (chezscheme)
