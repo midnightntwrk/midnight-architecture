@@ -10,7 +10,8 @@ The protocol describes four kinds of messages.  Three of them are explicitly def
 
 Let's consider each message type in turn, starting with the assumption that every message is signed and therefore has a minimum size of $O(λ^ε)$.
 
-➤ $⟨\mathsf{vote}, h, b_h⟩_p$ or $⟨\mathsf{vote}, h, ⊥_h⟩_p$
+➤ $⟨\mathsf{vote}, h, b_h⟩_p$ or 
+   $⟨\mathsf{vote}, h, ⊥_h⟩_p$
 The notation $b_h$ represents a block.  Not a block hash, nor a block header.  A block can have arbitrary size, since it must include all transactions seen by the proposer that are not yet included in $b_0, \ldots, b_{h-1}$.  This cannot be assumed to fall $\leq O(λ^ε · n)$.  We could address this by, say, replacing $b$ with $H(b)$, but then we are straying from the explicit protocol of the paper.
 
 ➤ $⟨\mathsf{finalize}, h⟩_p$
