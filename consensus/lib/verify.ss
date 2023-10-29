@@ -11,9 +11,9 @@
   (define (fail-proc label . ?condition)
     (if (null? (verifying-stack))
         (if (null? ?condition)
-              (printf "FAIL: ~a\n" label)
+              (printf "[FAIL ] ~a\n" label)
               (begin
-                (printf "ERR: ~a => " label)
+                (printf "[ERROR] ~a => " label)
                 (display-condition (car ?condition))
                 (newline)))
         (let* ([pr (car (verifying-stack))]
@@ -22,9 +22,9 @@
                [val (cddr pr)])
           (verifying-stack (cdr (verifying-stack)))
           (if (null? ?condition)
-              (printf "FAIL ~a: ~a where ~a = ~s\n" who label var val)
+              (printf "[FAIL ] ~a: ~a where ~a = ~s\n" who label var val)
               (begin
-                (printf "ERR ~a: ~a where ~a = ~s => " who label var val)
+                (printf "[ERROR] ~a: ~a where ~a = ~s => " who label var val)
                 (display-condition (car ?condition))
                 (newline)))))
     #f)
