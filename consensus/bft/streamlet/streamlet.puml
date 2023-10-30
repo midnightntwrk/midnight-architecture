@@ -1,0 +1,71 @@
+@startuml
+[-> "<latex>stopper_1</latex>" ++ : spawn
+deactivate "<latex>stopper_1</latex>"
+[-> "<latex>t_1</latex>" ++ : spawn
+deactivate "<latex>t_1</latex>"
+== "launch scheduler with 2 running actors" ==
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 1. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (1)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 3. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (2)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (3)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 5. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (4)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (5)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 7. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (6)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (7)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 9. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (8)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (9)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 11. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (10)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (11)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 13. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (12)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (13)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 15. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (14)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (15)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 17. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (16)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (17)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 19. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (18)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (19)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 21. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (20)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (21)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 23. tick
+"<latex>stopper_1</latex>" ->o "<latex>stopper_1</latex>" : 24. stop
+"<latex>stopper_1</latex>" -> "<latex>stopper_1</latex>" ++: **deliver** (24)
+destroy "<latex>stopper_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (22)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (23)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (25)
+destroy "<latex>t_1</latex>"
+== "no further progress with 0 running actors" ==
+@enduml
