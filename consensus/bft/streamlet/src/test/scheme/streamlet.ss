@@ -56,6 +56,11 @@
                    (verify (list? txs))
                    (verify (andmap well-formed-transaction? txs))))))))
 
+  (define (make-signature-hashset)
+    (make-hashtable
+      identity
+      bytevector=?))
+
     ;; A block-ext is like an extension table for a SQL table of blocks
   ;; -- it holds extra data for each block.  Each block-ext represents
   ;; the head of a chain of blocks.  I.e., a blockchain is still a
@@ -95,13 +100,19 @@
     (nongenerative)
     (fields
       block ;; the block for which this is the ext
-      parent-chain ;; list of blocks (the block holds the hash of this chain)
-      chain-length
-      (mutable votes) ;; signatures
-      notarized?
+      votes ;; signatures
+      (mutable notarized?)
       (mutable unnotarized-ancestors) ;; blocks
       (mutable beneficiaries) ;; block-exts
-      ))
+      )
+    (protocol
+      (lambda (new)
+        (lambda (block)
+          (new block
+            (make-signature-hashset)
+            (eq? block genesis-block) ;; auto notarized
+            '()
+            '())))))
 
   ;; This is an important operation, with side effects, that adds a
   ;; new block-ext to a chain and updates all the mutable pointers
@@ -112,9 +123,7 @@
        (block-cons (make-block epoch-number txs parent-chain)
          parent-chain)]
       [(block parent-chain)
-       (let* ([block-ext
-                (make-block-ext block parent-chain (add1 (length parent-chain))
-                  '() #f '() '())]
+       (let* ([block-ext (make-block-ext block)]
               [ls (cons block-ext parent-chain)])
          (for-each
            (lambda (b)
@@ -191,10 +200,8 @@
 
 
   ;; ------------------------------------------------------------------
-  (define genesis-block
-    (make-block 0 bot bot))
-  (define genesis-block-ext
-    (make-block-ext genesis-block '() 1 '() #t '() '()))
+  (define genesis-block (make-block 0 bot bot))
+  (define genesis-block-ext (make-block-ext genesis-block))
   
   ;; ------------------------------------------------------------------
   ;; Signed protocol messages
@@ -226,13 +233,14 @@
     (make-hashtable
       hash-blockchain
       (lambda (x y) (bytevector=? (hash-blockchain x) (hash-blockchain y)))))
-  
+
   
   (define (node)
     (define longest-notarized-length 1)
     (define longest-notarized-chains (list genesis-block-ext))
     (define block-ext-db (make-eqv-hashtable))
     (define chain-db (make-chain-hashtable))
+    (define orphaned-blocks (make-chain-hashtable))
     (define (do-propose e)
       (let ([parent
               (list-ref longest-notarized-chains
@@ -241,6 +249,31 @@
           (sign-message
             (Propose
               (make-block e '() parent))))))
+    (define (add-vote! block-ext sig)
+      (unless (block-ext-notarized? block-ext)
+        (let ([votes (block-ext-votes block-ext)])
+          (hashtable-set! votes sig #t)
+          (when (quorum? (vector-length (hashtable-keys votes)))
+            (block-ext-notarized?-set! block-ext #t)))))
+    (define (quorum? n)
+      (> n (/ (* 2 (length (cohort))) 3.0)))
+      
+    (define (intern-block block)
+      (let ([block-ext
+              (cond
+                [(hashtable-ref block-ext-db (hash-block block) #f) => identity]
+                [else
+                  (let ([be (make-block-ext block)])
+                    (hashtable-set! block-ext-db (hash-block block) be)
+                    be)])])
+        (cond
+          [(hashtable-ref chain-db (block-parent-hash block) #f) =>
+           (lambda (ls)
+             (let ([chain (cons block-ext ls)])
+               (hashtable-set! chain-db (hash-blockchain chain) chain)))]
+          [else
+            (hashtable-set! orphaned-blocks (hash-block block-ext) block-ext)])
+        block-ext))
     (spawn "p"
       (let always ()
         (handle-message (m any?)
