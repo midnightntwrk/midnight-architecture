@@ -327,28 +327,15 @@
   ;;
   ;; NB: record-writer updates are expressions, and must therefore
   ;; be listed after all definitions in the library.
-
-  
-  (define (bv->s bv)
-    (let* ([ls (map abs (bytevector->s8-list bv))]
-           [len (length ls)])
-      (call-with-string-output-port
-        (lambda (p)
-          (let loop ([i 0])
-            (when (< i len)
-              (fprintf p "~x" (list-ref ls i))
-              (loop (add1 i))))))))
   
   (record-writer (type-descriptor signed-message)
     (lambda (r p wr)
-      (let* ([str (bv->s (signed-message-sigma r))]
-             [len (string-length str)])
-        (display "#signed<" p)
-        (wr (signed-message-m r) p)
-        (display " ")
-        (display (substring str (- len (+ 66 8)) (- len 66)) p)
-        (display ">" p)
-      )))
+      (display "#signed<" p)
+      (wr (signed-message-m r) p)
+      (display " ")
+      (display-pretty-bytes (signed-message-sigma r) p)
+      (display ">" p)
+      ))
 
   (record-writer (type-descriptor transaction)
     (lambda (r p wr)

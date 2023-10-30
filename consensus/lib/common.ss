@@ -9,6 +9,8 @@
     bot bot?
     make-string-hashtable
     uint->u8-bytevector u8-bytevector->integer
+    separators
+    bytevector->str display-pretty-bytes
     )
   (import
     (chezscheme)
@@ -64,7 +66,32 @@
               0
               (+ (* (car ls) (expt 256 e))
                 (loop (cdr ls) (sub1 e))))))))
-
+  (define separators
+    (lambda (sep ls)      
+      (let loop ((ls ls))
+	(cond
+	  ((null? ls) "")
+	  ((null? (cdr ls)) (format "~a" (car ls)))
+	  (else (format "~a~a~a" (car ls) sep
+		  (loop (cdr ls))))))))
+  (define (bytevector->str bv)
+    (let* ([ls (map abs (bytevector->s8-list bv))]
+           [len (length ls)])
+      (call-with-string-output-port
+        (lambda (p)
+          (let loop ([i 0])
+            (when (< i len)
+              (fprintf p "~x" (list-ref ls i))
+              (loop (add1 i))))))))
+  ;; Show 8 bytes in the middle of a bv
+  (define (display-pretty-bytes bv p)
+    (let* ([str (bytevector->str bv)]
+           [len (string-length str)]
+           [half (div len 2)])
+      (let ([disp (if (< half 20)
+                      str
+                      (substring str (- len (+ half 8)) (- len half)))])
+        (display disp p))))
 
   ) ;; library
 ;;; ------------------------------------------------------------------------

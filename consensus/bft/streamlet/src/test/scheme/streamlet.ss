@@ -81,16 +81,17 @@
                 (list pph (hash-block (car b*)))))]))
   
   (define (well-formed-blockchain? b*)
-    (or (and (null? (cdr b*))
-             (eq? (car b*) genesis-block))
-        (let ([b (car b*)])
-          (and (bytevector=?
-                 (block-parent-hash b)
-                 (hash-blockchain (cdr b*)))
-               (> (block-epoch-number b)
-                 (block-epoch-number (cadr b*)))
-               ;; TODO: check leader validity? (we didn't record the proposer's pid)
-               (well-formed-blockchain? (cdr b*))))))
+    (verifying 'well-formed-blockchain? b*
+      (or (and (null? (cdr b*))
+               (verify (eq? (car b*) genesis-block)))
+          (verifying 'block [b (car b*)]
+            (and (verify (bytevector=?
+                           (block-parent-hash b)
+                           (hash-blockchain (cdr b*))))
+                 (verify (> (block-epoch-number b)
+                           (block-epoch-number (cadr b*))))
+                 ;; TODO: check leader validity? (we didn't record the proposer's pid)
+                 (well-formed-blockchain? (cdr b*)))))))
 
   ;; The paper does not specify transaction content, but we will need
   ;; something for testing. This format stores the pid of a client,
@@ -125,16 +126,28 @@
         (define c3 (block-cons 4 '() c2))
         (define c4 (block-cons 6 '() c3))
         (verifying 'c4 c4
-          (verify (well-formed-blockchain? null-chain))
-          (verify (well-formed-blockchain? c1))
-          (verify (well-formed-blockchain? c2))
-          (verify (well-formed-blockchain? c3))
-          (verify (well-formed-blockchain? c4))
+          (well-formed-blockchain? null-chain)
+          (well-formed-blockchain? c1)
+          (well-formed-blockchain? c2)
+          (well-formed-blockchain? c3)
+          (well-formed-blockchain? c4)
           )
         )
       #t))
         
 
+  ;; ------------------------------------------------------------------
+
+  (record-writer (type-descriptor block)
+    (lambda (r p wr)
+      (display "#block<" p)
+      (wr (block-epoch-number r) p)
+      (display " " p)
+      (wr (block-txs r) p)
+      (display " " p)
+      (display-pretty-bytes (block-parent-hash r) p)
+      (display ">" p)
+      ))
   
   
   ) ;; library

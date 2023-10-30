@@ -5,7 +5,14 @@
     verifying verify
     )
   (import
-    (chezscheme))
+    (chezscheme)
+    (only (consensus lib common) separators)
+    )
+
+  ;; Entries are (who var . val)
+  (define (format-stack-entry e)
+    (format "{~a where ~a = ~s}"
+      (car e) (cadr e) (cddr e)))
 
   (define verifying-stack (make-parameter '()))
   (define (fail-proc label . ?condition)
@@ -17,12 +24,12 @@
                 (display-condition (car ?condition))
                 (newline)))
         (let* ([pr (car (verifying-stack))]
-               [who (car pr)]
+               [who (separators "\n =>\n " (map format-stack-entry (verifying-stack)))]
                [var (cadr pr)]
                [val (cddr pr)])
           (verifying-stack (cdr (verifying-stack)))
           (if (null? ?condition)
-              (printf "[FAIL ] ~a: ~a where ~a = ~s\n" who label var val)
+              (printf "[FAIL ] ~a:\n=> ~a where ~a = ~s\n" who label var val)
               (begin
                 (printf "[ERROR] ~a: ~a where ~a = ~s => " who label var val)
                 (display-condition (car ?condition))
