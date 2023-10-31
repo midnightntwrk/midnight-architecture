@@ -10,8 +10,6 @@
     (consensus lib signed-messages)
     (scheme-actors yassam)
     (slib openssl crypto)
-    #;(rename (slib merkle)
-    [merkle-proof compute-merkle-proof])
     (slib datatype)
     (slib utils))
 
@@ -59,8 +57,7 @@
                    (verify (list? txs))
                    (verify (andmap well-formed-transaction? txs))))))))
 
-  ;; Convert a bytevector into a number suitable
-  ;; for Chez hashtable keys.
+  ;; Convert a bytevector into a number suitable for Chez hashtable keys.
   (define (hash-bytevector bv)
     (mod (u8-bytevector->integer bv) (expt 2 32))
     )
@@ -70,41 +67,33 @@
       hash-bytevector
       bytevector=?))
 
-    ;; A block-ext is like an extension table for a SQL table of blocks
-  ;; -- it holds extra data for each block.  Each block-ext represents
-  ;; the head of a chain of blocks.  I.e., a blockchain is still a
-  ;; list of blocks, not block-exts, but every block-ext knows the
-  ;; full chain of ancestor blocks for its corresponding block.  These
-  ;; chains (lists of blocks) benefit from tail sharing.  I.e., every
-  ;; block is instantiated only once in each process.  We maintain a
-  ;; chain-db for looking up a chain by its hash.
+  ;; A block-ext is like an extension table for a SQL table of blocks --
+  ;; it holds extra data for each block. Blocks go on the wire, but
+  ;; block-ext records are local to each process.  Every block-ext is
+  ;; instantiated only once in each process.  We maintain a chain-db for
+  ;; looking up a chain by its hash, and a block-db for looking up a
+  ;; block to fetch its block-ext. Since chains are a process-local
+  ;; construct (not shared on the wire), we represent a chain as a list
+  ;; of block-ext rather than block.
   ;;
-  ;; We could do this differently.  Still have the chain-db hashtable,
-  ;; but what it maps to is wrapped blocks, where the wrapper holds
-  ;; all the block-ext data.  This obviates the need to 'join' against
-  ;; a secondary block-ext table.
-
-  ;; A notarized block-ext with no unnotarized-ancestors is the head
-  ;; of a notarized chain.
+  ;; We want to manage the computational complexity of determining when
+  ;; a chain is fully notarized, to prove to ourselves that looping over
+  ;; the whole chain is not required. Our solution makes use of a set of
+  ;; forward pointers (beneficiaries) and a set of backward pointers
+  ;; (unnotarized-ancestors). A notarized chain is one whose highest
+  ;; block is notarized and whose unnotarized-ancestors is an empty set.
   ;;
-  ;; When we create a block-ext b, we walk the whole list of blocks in
-  ;; its parent chain and, for each unnotarized corresponding
-  ;; block-ext a, we (1) add the new b to the beneficiaries of a, and
-  ;; (2) we add a to the unnotarized-ancestors of a. NB: we can stop
-  ;; the loop as soon as we hit a block-ext with no
-  ;; unnotarized-ancestors.
-  ;;
-  ;; Whenever a block-ext a becomes notarized itself, we (1) update
-  ;; all the beneficiaries' unnotarized-ancestors, deleting a, and (2)
-  ;; we set its beneficiaries list to '().  If this causes a block-ext
-  ;; to become the head of the longest notarized chain, we promote it
-  ;; to the set of longest-notarized-chains and update
+  ;; Whenever a block-ext a becomes notarized itself, we (1) update all
+  ;; the beneficiaries' unnotarized-ancestors, deleting a, and (2) we
+  ;; set its beneficiaries list to '().  If this causes a block-ext to
+  ;; become the head of the longest notarized chain, we promote it to
+  ;; the set of longest-notarized-chains and update
   ;; longest-notarized-length to the length field from the block-ext.
   ;;
   ;; We should also prune defunct block-exts.  A block-ext is defunct
   ;; when there exists a longest-notarized-chain that does not include
   ;; the block-ext's corresponding block. Even notarized blocks can
-  ;; become defunct.
+  ;; become defunct. (Not yet implemented.)
   (define-record-type block-ext
     (nongenerative)
     (fields
@@ -208,18 +197,19 @@
   ;; The paper does not specify transaction content, but we will need
   ;; something for testing. This format stores the pid of a client,
   ;; the timestamp of creation, and a tip amount.
-  (define-record-type transaction
-    (nongenerative)
-    (fields pid created tip))
-  (define (well-formed-transaction? x)
-    (and (transaction? x)
-         (integer? (transaction-pid x))
-         (nonnegative? (transaction-pid x))
-         (nonnegative? (transaction-tip x))))
-  (define (tx<? a b) (< (transaction-tip a) (transaction-tip b)))
-  (define (random-transaction n)
-    (make-transaction (self) (global-time) (random n)))
+  ;; (define-record-type transaction
+  ;;   (nongenerative)
+  ;;   (fields pid created tip))
+  ;; (define (well-formed-transaction? x)
+  ;;   (and (transaction? x)
+  ;;        (integer? (transaction-pid x))
+  ;;        (nonnegative? (transaction-pid x))
+  ;;        (nonnegative? (transaction-tip x))))
+  ;; (define (tx<? a b) (< (transaction-tip a) (transaction-tip b)))
+  ;; (define (random-transaction n)
+  ;;   (make-transaction (self) (global-time) (random n)))
 
+  (define (well-formed-transaction? x) (number? x))
 
   ;; ------------------------------------------------------------------
   (define genesis-block (make-block 0 bot bot))
@@ -314,7 +304,9 @@
         (broadcast/me
           (sign-message sk
             (Propose
-              (make-block e (list (global-time))  parent))))))
+              (if (zero? (random 4))
+                  (make-block e (list 'bogus)  parent)
+                  (make-block e (list (+ (self) (global-time)))  parent)))))))
     (define (do-vote b)
       (broadcast/me
         (sign-message sk
@@ -398,37 +390,39 @@
                    ;; --------------------------------------------
                    [(Propose b)
                     (bugme 'proposal `(,(sender) ,b))
-                    ;; “Every player votes for the first proposal
-                    ;; they see from the epoch’s leader, as long as
-                    ;; the proposed block extends from (one of) the
-                    ;; longest notarized chain(s) that the voter has
-                    ;; seen. A vote is a signature on the proposed
-                    ;; block.” ([Chan and Shi, 2020, p. 2])
-                    (when (and (leader? (sender) (block-epoch-number b))
-                               (> (block-epoch-number b) (get-highest-proposal (sender))))
-                      (do-vote b))]
+                    (when (well-formed-block? b)
+                      ;; “Every player votes for the first proposal
+                      ;; they see from the epoch’s leader, as long as
+                      ;; the proposed block extends from (one of) the
+                      ;; longest notarized chain(s) that the voter has
+                      ;; seen. A vote is a signature on the proposed
+                      ;; block.” ([Chan and Shi, 2020, p. 2])
+                      (when (and (leader? (sender) (block-epoch-number b))
+                                 (> (block-epoch-number b) (get-highest-proposal (sender))))
+                        (do-vote b)))]
                    ;; --------------------------------------------
                    [(Vote b)
                     (bugme 'vote `(,(sender) ,b))
-                    ;; “When a block gains votes from at least 2n/3
-                    ;; distinct players, it becomes notarized. A chain
-                    ;; is notarized if its constituent blocks are all
-                    ;; notarized.” ([Chan and Shi, 2020, p. 2])
-                    (let* ([chain (intern-block b)]
-                           [block-ext (car chain)])
-                      (unless (block-ext-notarized? block-ext)
-                        (add-vote! block-ext (signed-message-sigma m))
-                        (when (block-ext-notarized? block-ext) ;; edge detect
-                          (bugme 'notarized block-ext)
-                          ;; Bookkeeping
-                          (for-each
-                            (lambda (b)
-                              (block-ext-unnotarized-ancestors-set! b
-                                (remv block-ext
-                                  (block-ext-unnotarized-ancestors b))))
-                            (block-ext-beneficiaries block-ext))
-                          ;; Maybe update longest chain
-                          (check-for-longest-chain! chain))))])))
+                    (when (well-formed-block? b)
+                      ;; “When a block gains votes from at least 2n/3
+                      ;; distinct players, it becomes notarized. A chain
+                      ;; is notarized if its constituent blocks are all
+                      ;; notarized.” ([Chan and Shi, 2020, p. 2])
+                      (let* ([chain (intern-block b)]
+                             [block-ext (car chain)])
+                        (unless (block-ext-notarized? block-ext)
+                          (add-vote! block-ext (signed-message-sigma m))
+                          (when (block-ext-notarized? block-ext) ;; edge detect
+                            (bugme 'notarized block-ext)
+                            ;; Bookkeeping
+                            (for-each
+                              (lambda (b)
+                                (block-ext-unnotarized-ancestors-set! b
+                                  (remv block-ext
+                                    (block-ext-unnotarized-ancestors b))))
+                              (block-ext-beneficiaries block-ext))
+                            ;; Maybe update longest chain
+                            (check-for-longest-chain! chain)))))])))
              (always)]
             [else (always)])))))
   
