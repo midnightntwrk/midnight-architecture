@@ -14,6 +14,9 @@
     [merkle-proof compute-merkle-proof])
     (slib datatype)
     (slib utils))
+
+  (define (bugme label val)
+    (bug (format "~a: ~a" (self) label) val))
   
   ;; ------------------------------------------------------------------
   ;; Datatypes
@@ -238,12 +241,14 @@
   (define (ht-add! label ht k v)
     (let ([len (vector-length (hashtable-keys ht))])
       (hashtable-set! ht k v)
-      (bug label (format "~a -> ~a on key ~s"
-                   len
-                   (vector-length (hashtable-keys ht))
-                   (if (bytevector? k)
-                       (hash-bytevector k)
-                       k)))))
+      (bugme label (format "~a -> ~a on key ~s"
+                     len
+                     (vector-length (hashtable-keys ht))
+                     (if (bytevector? k)
+                         (hash-bytevector k)
+                         k)))))
+
+  (define emitted-db (make-eqv-hashtable))
   
   (define (node)
     (define sk #f)
@@ -252,14 +257,42 @@
     (define (check-for-longest-chain! chain)
       (when (chain-notarized? chain)
         (let ([len (length chain)])
+          (emit-finalized! chain len)
           (cond
             [(= len longest-notarized-length)
+             (bugme 'new-co-longest chain)
              (set! longest-notarized-chains
                (cons chain longest-notarized-chains))]
             [(> len longest-notarized-length)
+             (bugme 'new-longest chain)
              (set! longest-notarized-length len)
              (set! longest-notarized-chains
                (list chain))]))))
+    #;(define emit-finalized!
+      (let ([cursor 0])
+        (lambda (chain len)
+          (when (> (- len 3 cursor) 0)
+            (let ([cell (hashtable-cell emitted-db (self) '())])
+              (let loop ([i (- len 3 cursor)] [ls (cddr chain)])
+                (unless (zero? i)
+                  (set-cdr! cell (cons (block-txs (block-ext-block (car ls))) (cdr cell)))
+                  (loop (- i 1) (cdr ls)))))
+            (set! cursor (- len 3))))))
+    (define emit-finalized!
+      (let ([cursor 0]
+            [txs (lambda (b)
+                   (block-txs
+                     (block-ext-block b)))])
+        (lambda (chain len)
+          (let ([cell (hashtable-cell emitted-db (self) '())])
+            (let-values ([(newly-final _) (take (cddr chain) (- len 3 cursor))])
+              (unless (null? newly-final)
+                (bugme `(at ,cursor) `(emit-finalized! ,(map txs chain) ,len))
+                (set-cdr! cell
+                  (append (bugme 'newly-final (map txs newly-final))
+                    (cdr cell)))
+                (set! cursor (bugme 'new-cursor (- len 3)))))))))
+                
     (define orphaned-blocks '())
     ;; The block-ext-db encodes orphans as single-element chains.
     (define block-ext-db (make-bytevector-hashtable))
@@ -270,7 +303,7 @@
       (assert (list? chain))
       (set! orphaned-blocks (remq block-ext orphaned-blocks))
       (let ([chain (block-cons block-ext chain)])
-        (ht-add! 'block-ext-db block-ext-db (hash-block-ext block-ext) chain)
+        (hashtable-set! block-ext-db (hash-block-ext block-ext) chain)
         (check-for-longest-chain! chain)))
     (define chain-db (make-bytevector-hashtable)) ;; chain-hash -> chain
     (define (do-propose e)
@@ -281,7 +314,7 @@
         (broadcast/me
           (sign-message sk
             (Propose
-              (make-block e '() parent))))))
+              (make-block e (list (global-time))  parent))))))
     (define (do-vote b)
       (broadcast/me
         (sign-message sk
@@ -289,7 +322,7 @@
     (define (add-vote! block-ext sig)
       (unless (block-ext-notarized? block-ext)
         (let ([votes (block-ext-votes block-ext)])
-          (ht-add! `(votes ,block-ext) votes sig #t)
+          (hashtable-set! votes sig #t)
           (declaim "~a signed vote for ~a" (mod (u8-bytevector->integer sig) 1000000) block-ext)
           (declaim "~a votes for ~a"
             (vector-length (hashtable-keys votes))
@@ -302,7 +335,7 @@
       (cond
         [(hashtable-ref highest-proposal-per-process p #f) => identity]
         [else
-          (ht-add! 'highest-proposal-per-process highest-proposal-per-process p 0)
+          (hashtable-set! highest-proposal-per-process p 0)
           0]))
     (define (quorum? n)
       (> n (/ (* 2 (length (cohort))) 3.0)))
@@ -310,7 +343,7 @@
       (assert (block? block))
       (cond
         [(hashtable-ref block-ext-db (hash-block block) #f) =>
-         (trace-lambda found-block (x) x)]
+         (lambda (x) x)]
         [else
           (let ([block-ext (make-block-ext block)])
             (cond
@@ -353,7 +386,7 @@
                [(Stop) (halt)]
                ;; ----------------------
                [(Epoch e)
-                (when (bug (format "~a" `(leader? ,(self) ,e)) (leader? (self) e))
+                (when (leader? (self) e)
                   (do-propose e))
                 (always)])]
             [(signed-message? m)
@@ -382,6 +415,7 @@
                       (unless (block-ext-notarized? block-ext)
                         (add-vote! block-ext (signed-message-sigma m))
                         (when (block-ext-notarized? block-ext) ;; edge detect
+                          (bugme 'notarized block-ext)
                           ;; Bookkeeping
                           (for-each
                             (lambda (b)
@@ -436,10 +470,33 @@
                     [else (loop epoch)]))))
             (node) (node) (node)
             (spawn "stopper"
-              (set-timer! 2000 'stop)
+              (set-timer! 20000 'stop)
               (handle-message (m (exactly? 'stop))
                 (broadcast (Stop))
                 (halt)))
+            (spawn "observer"
+              (let loop ()
+                (handle-message (m any?)
+                  (cond
+                    [(equal? m (Stop)) (set-timer! 300 'report) (loop)]
+                    [(eq? m 'report)
+                     (let-values ([(keys vals) (hashtable-entries emitted-db)])
+                       (vector-for-each
+                         (lambda (k v)
+                           (printf "<<~a>>" k)
+                           (for-each
+                             (lambda (sublist)
+                               (for-each
+                                 (lambda (tx)
+                                   (display " ")
+                                   (write tx))
+                                 sublist))
+                             (reverse v))
+                           (newline))
+                         keys vals)
+                       (newline))
+                     (halt)]
+                    [else (loop)]))))
             )))
       'truncate)
     #t)
