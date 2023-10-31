@@ -53,11 +53,14 @@
         [(_ test)
          #'(call/cc
              (lambda (k)
+               #;(let ([x test])
+                 (or x
+                     (fail-proc 'test)))
                (let ([x (with-exception-handler
                           (lambda (e)
                             (k (fail-proc 'test e)))
                           (lambda () test))])
-                 (or test
+                 (or x
                      (fail-proc 'test)))))])))
 
 ) ;; library

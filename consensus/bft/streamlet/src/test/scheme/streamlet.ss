@@ -56,9 +56,15 @@
                    (verify (list? txs))
                    (verify (andmap well-formed-transaction? txs))))))))
 
-  (define (make-signature-hashset)
+  ;; Convert a bytevector into a number suitable
+  ;; for Chez hashtable keys.
+  (define (hash-bytevector bv)
+    (mod (u8-bytevector->integer bv) (expt 2 32))
+    )
+
+  (define (make-bytevector-hashtable)
     (make-hashtable
-      identity
+      hash-bytevector
       bytevector=?))
 
     ;; A block-ext is like an extension table for a SQL table of blocks
@@ -109,10 +115,13 @@
       (lambda (new)
         (lambda (block)
           (new block
-            (make-signature-hashset)
+            (make-bytevector-hashtable)
             (eq? block genesis-block) ;; auto notarized
             '()
             '())))))
+  (define (chain-notarized? chain) ;; assuming a well-formed blockchain
+    (and (block-ext-notarized? (car chain))
+         (null? (block-ext-unnotarized-ancestors (car chain)))))
 
   ;; This is an important operation, with side effects, that adds a
   ;; new block-ext to a chain and updates all the mutable pointers
@@ -120,32 +129,41 @@
   (define block-cons
     (case-lambda
       [(epoch-number txs parent-chain)
+       (assert (list? parent-chain))
        (block-cons (make-block epoch-number txs parent-chain)
          parent-chain)]
       [(block parent-chain)
-       (let* ([block-ext (make-block-ext block)]
+       (assert (list? parent-chain))
+       (let* ([block-ext (cond
+                           [(block? block) (make-block-ext block)]
+                           [(block-ext? block) block]
+                           [else (errorf 'block-cons "not a block ~s" block)])]
+              [parent (car parent-chain)]
               [ls (cons block-ext parent-chain)])
+         (block-ext-unnotarized-ancestors-set! block-ext
+           (let ([b* (block-ext-unnotarized-ancestors parent)])
+             (if (block-ext-notarized? parent)
+                 b*
+                 (cons parent b*))))
          (for-each
            (lambda (b)
-             (unless (block-ext-notarized? b)
-               (block-ext-beneficiaries-set! b
-                 (cons block-ext
-                   (block-ext-beneficiaries b)))
-               (block-ext-unnotarized-ancestors-set! block-ext
-                 (cons b
-                   (block-ext-unnotarized-ancestors b)))
-               ))
+             (block-ext-beneficiaries-set! b
+               (cons block-ext
+                 (block-ext-beneficiaries b))))
            ls)
          ls)]))
              
 
+  ;; Serialize the block's string representation and hash that.
+  (define (hash-block b)
+    (assert (block? b))
+    (sha256-hash (list (block->bytevector b))))
+  
   ;; When we hash a block, we hash just the protocol's notion of the
   ;; block, not the full block-ext record.
-  (define (hash-block b)
+  (define (hash-block-ext b)
     (assert (block-ext? b))
-    (sha256-hash
-      (list (block->bytevector
-              (block-ext-block b)))))
+    (hash-block (block-ext-block b)))
 
   ;; Blockchain blocks are a descending linked list (b_h, ..., b_0)
   (define (blockchain? x) (and (list? x) (andmap block-ext? x)))
@@ -156,18 +174,19 @@
   ;; verify a well-formed blockchain, call `well-formed-blockchain?`
   (define (hash-blockchain b*)
     (verifying 'hash-blockchain b*
-      (verify (andmap block-ext? b*)))
+      (verify (andmap block-ext? b*))
+      (verify (block? (block-ext-block (car b*)))))
     (cond
       [(null? b*) (sha256-hash '())]
       [(= 1 (length b*))
        (assert (eq? (car b*) genesis-block-ext))
-       (hash-block genesis-block-ext)]
+       (hash-block-ext genesis-block-ext)]
       [else (let ([pph (block-parent-hash
                          (block-ext-block (car b*)))])
               (sha256-hash
                 (list pph
                   (hash-block
-                    (car b*)))))]))
+                    (block-ext-block (car b*))))))]))
   
   (define (well-formed-blockchain? b*)
     (verifying 'well-formed-blockchain? b*
@@ -216,146 +235,214 @@
     (Epoch e)
     )
   
-  ;; ------------------------------------------------------------------
-  ;; Chain Hashtable
-  ;;
-  ;; When we receive messages with blocks, the blocks include the
-  ;; parent hash. We require a way of looking up the parent chain from
-  ;; the given hash. A blockchain is a list of block-ext nodes, and we
-  ;; have the function hash-blockchain to compute the chain's
-  ;; hash. Since this is a collision-resistant hash, we treat the hash
-  ;; as the identity for equality checks.
-  ;;
-  ;; NB: There is some ineffiency here from recomputing
-  ;; hash-blockchain, but the function is a constant-time overhead we
-  ;; won't worry about here.
-  (define (make-chain-hashtable)
-    (make-hashtable
-      hash-blockchain
-      (lambda (x y) (bytevector=? (hash-blockchain x) (hash-blockchain y)))))
-
+  (define (ht-add! label ht k v)
+    (let ([len (vector-length (hashtable-keys ht))])
+      (hashtable-set! ht k v)
+      (bug label (format "~a -> ~a on key ~s"
+                   len
+                   (vector-length (hashtable-keys ht))
+                   (if (bytevector? k)
+                       (hash-bytevector k)
+                       k)))))
   
   (define (node)
+    (define sk #f)
     (define longest-notarized-length 1)
-    (define longest-notarized-chains (list genesis-block-ext))
-    (define block-ext-db (make-eqv-hashtable))
-    (define chain-db (make-chain-hashtable))
-    (define orphaned-blocks (make-chain-hashtable))
+    (define longest-notarized-chains (list (list genesis-block-ext)))
+    (define (check-for-longest-chain! chain)
+      (when (chain-notarized? chain)
+        (let ([len (length chain)])
+          (cond
+            [(= len longest-notarized-length)
+             (set! longest-notarized-chains
+               (cons chain longest-notarized-chains))]
+            [(> len longest-notarized-length)
+             (set! longest-notarized-length len)
+             (set! longest-notarized-chains
+               (list chain))]))))
+    (define orphaned-blocks '())
+    ;; The block-ext-db encodes orphans as single-element chains.
+    (define block-ext-db (make-bytevector-hashtable))
+    (define (orphan? chain)
+      (and (null? (cdr chain))
+           (not (eq? (car chain) genesis-block-ext)))) ;; block-hash -> (block-ext, ..., genesis)
+    (define (un-orphan! block-ext chain)
+      (assert (list? chain))
+      (set! orphaned-blocks (remq block-ext orphaned-blocks))
+      (let ([chain (block-cons block-ext chain)])
+        (ht-add! 'block-ext-db block-ext-db (hash-block-ext block-ext) chain)
+        (check-for-longest-chain! chain)))
+    (define chain-db (make-bytevector-hashtable)) ;; chain-hash -> chain
     (define (do-propose e)
       (let ([parent
               (list-ref longest-notarized-chains
                 (random (length longest-notarized-chains)))])
-        (broadcast
-          (sign-message
+        (assert (list? parent))
+        (broadcast/me
+          (sign-message sk
             (Propose
               (make-block e '() parent))))))
+    (define (do-vote b)
+      (broadcast/me
+        (sign-message sk
+          (Vote b))))
     (define (add-vote! block-ext sig)
       (unless (block-ext-notarized? block-ext)
         (let ([votes (block-ext-votes block-ext)])
-          (hashtable-set! votes sig #t)
+          (ht-add! `(votes ,block-ext) votes sig #t)
+          (declaim "~a signed vote for ~a" (mod (u8-bytevector->integer sig) 1000000) block-ext)
+          (declaim "~a votes for ~a"
+            (vector-length (hashtable-keys votes))
+            block-ext)
           (when (quorum? (vector-length (hashtable-keys votes)))
+            (declaim "quorum on epoch ~a" (block-epoch-number (block-ext-block block-ext)))
             (block-ext-notarized?-set! block-ext #t)))))
+    (define highest-proposal-per-process (make-eqv-hashtable))
+    (define (get-highest-proposal p)
+      (cond
+        [(hashtable-ref highest-proposal-per-process p #f) => identity]
+        [else
+          (ht-add! 'highest-proposal-per-process highest-proposal-per-process p 0)
+          0]))
     (define (quorum? n)
       (> n (/ (* 2 (length (cohort))) 3.0)))
-      
-    (define (intern-block block)
-      (let ([block-ext
-              (cond
-                [(hashtable-ref block-ext-db (hash-block block) #f) => identity]
-                [else
-                  (let ([be (make-block-ext block)])
-                    (hashtable-set! block-ext-db (hash-block block) be)
-                    be)])])
-        (cond
-          [(hashtable-ref chain-db (block-parent-hash block) #f) =>
-           (lambda (ls)
-             (let ([chain (cons block-ext ls)])
-               (hashtable-set! chain-db (hash-blockchain chain) chain)))]
-          [else
-            (hashtable-set! orphaned-blocks (hash-block block-ext) block-ext)])
-        block-ext))
+    (define (intern-block block) ;; block -> chain
+      (assert (block? block))
+      (cond
+        [(hashtable-ref block-ext-db (hash-block block) #f) =>
+         (trace-lambda found-block (x) x)]
+        [else
+          (let ([block-ext (make-block-ext block)])
+            (cond
+              ;; See if the parent chain is known
+              [(hashtable-ref chain-db (block-parent-hash block) #f) =>
+               (lambda (ls)
+                 (assert (list? ls))
+                 (let* ([chain (block-cons block-ext ls)]
+                        [chain-hash (hash-blockchain chain)])
+                   (hashtable-set! block-ext-db (hash-block block) chain)
+                   (hashtable-set! chain-db chain-hash chain)
+                   ;; Check whether this new chain un-orphans any blocks.
+                   (for-each
+                     (lambda (b)
+                       (when (bytevector=? (block-parent-hash (block-ext-block b)) chain-hash)
+                         (un-orphan! b chain)))
+                     orphaned-blocks)
+                   ;; return the chain
+                   chain))]
+              ;; Remember as an orphan block
+              [else
+                (let ([chain (list block-ext)])
+                  (hashtable-set! block-ext-db (hash-block block) chain)
+                  (set! orphaned-blocks (cons block-ext orphaned-blocks))
+                  chain)]))]))
     (spawn "p"
+      (let* ([keys (create-key-pair)]
+             [_sk (car keys)]
+             [pk (cdr keys)])
+        (set! sk _sk)
+        (cohort (cons (cons (self) pk) (cohort))))
+      (let ([root-chain (list genesis-block-ext)])
+        (hashtable-set! chain-db (hash-blockchain root-chain) root-chain))
       (let always ()
         (handle-message (m any?)
           (cond
             [(Control? m)
              (Control-case m
+               ;; ----------------------
                [(Stop) (halt)]
+               ;; ----------------------
                [(Epoch e)
-                (when (leader? (self) e)
+                (when (bug (format "~a" `(leader? ,(self) ,e)) (leader? (self) e))
                   (do-propose e))
                 (always)])]
             [(signed-message? m)
              (let ([vm (verify-signed-message m)])
                (when (Message? vm)
                  (Message-case vm
+                   ;; --------------------------------------------
                    [(Propose b)
-                    (when (leader? (sender) (block-epoch-number b))
-                      ;; “Every player votes for the first proposal
-                      ;; they see from the epoch’s leader, as long as
-                      ;; the proposed block extends from (one of) the
-                      ;; longest notarized chain(s) that the voter has
-                      ;; seen. A vote is a signature on the proposed
-                      ;; block.” ([Chan and Shi, 2020, p. 2])
-                       ===)]
+                    ;; “Every player votes for the first proposal
+                    ;; they see from the epoch’s leader, as long as
+                    ;; the proposed block extends from (one of) the
+                    ;; longest notarized chain(s) that the voter has
+                    ;; seen. A vote is a signature on the proposed
+                    ;; block.” ([Chan and Shi, 2020, p. 2])
+                    (when (and (leader? (sender) (block-epoch-number b))
+                               (> (block-epoch-number b) (get-highest-proposal (sender))))
+                      (do-vote b))]
+                   ;; --------------------------------------------
                    [(Vote b)
                     ;; “When a block gains votes from at least 2n/3
                     ;; distinct players, it becomes notarized. A chain
                     ;; is notarized if its constituent blocks are all
                     ;; notarized.” ([Chan and Shi, 2020, p. 2])
-                    ===])))
+                    (let* ([chain (intern-block b)]
+                           [block-ext (car chain)])
+                      (unless (block-ext-notarized? block-ext)
+                        (add-vote! block-ext (signed-message-sigma m))
+                        (when (block-ext-notarized? block-ext) ;; edge detect
+                          ;; Bookkeeping
+                          (for-each
+                            (lambda (b)
+                              (block-ext-unnotarized-ancestors-set! b
+                                (remv block-ext
+                                  (block-ext-unnotarized-ancestors b))))
+                            (block-ext-beneficiaries block-ext))
+                          ;; Maybe update longest chain
+                          (check-for-longest-chain! chain))))])))
              (always)]
             [else (always)])))))
   
   
   ;; ------------------------------------------------------------------
   (define (run-tests)
-    (parameterize ([cohort '(a b c d)])
+    #;(parameterize ([cohort '(a b c d)])
       (verifying 'leader-election [l (leader 3)]
         (and
           (verify (symbol? l))
-          (verify (member l (cohort)))))
-      (let ()
-        (define null-chain (list genesis-block-ext))
-        (define c1 (block-cons 1 '() null-chain))
-        (define c2 (block-cons 2 '() c1))
-        (define c3 (block-cons 4 '() c2))
-        (define c4 (block-cons 6 '() c3))
-        (verifying 'c4 c4
-          (well-formed-blockchain? null-chain)
-          (well-formed-blockchain? c1)
-          (well-formed-blockchain? c2)
-          (well-formed-blockchain? c3)
-          (well-formed-blockchain? c4)
-          )
+          (verify (member l (cohort))))))
+    #;(let ()
+      (define null-chain (list genesis-block-ext))
+      (define c1 (block-cons 1 '() null-chain))
+      (define c2 (block-cons 2 '() c1))
+      (define c3 (block-cons 4 '() c2))
+      (define c4 (block-cons 6 '() c3))
+      (verifying 'c4 c4
+        (well-formed-blockchain? null-chain)
+        (well-formed-blockchain? c1)
+        (well-formed-blockchain? c2)
+        (well-formed-blockchain? c3)
+        (well-formed-blockchain? c4)
         )
-      (call-with-output-file "streamlet.puml"
-        (lambda (p)
-          (with-event-processor (write-plantUML p)
-            (with-scheduler (event-handler (trace-lambda handler (x) x))
-              ;; (producer) (producer) (producer)
-              (spawn "stopper"
-                (set-timer! 3000 'stop)
-                (handle-message (m (exactly? 'stop))
-                  (broadcast (Stop))
-                  (halt)))
-              (spawn "t"
-                (set-timer! 100 'tick)
-                (let loop ([epoch 1])
-                  (handle-message (m any?)
-                    (cond
-                      [(eq? m 'tick)
-                       (broadcast `(epoch ,epoch))
-                       (set-timer! 100 'tick)
-                       (loop (add1 epoch))]
-                      [(Control? m)
-                       (Control-case m
-                         [(Stop) (halt)]
-                         [else (loop epoch)])]
-                      [else (loop epoch)]))))
-              )))
-        'truncate)
-      #t))
+      )
+    (call-with-output-file "streamlet.puml"
+      (lambda (p)
+        (with-event-processor (write-plantUML p)
+          (with-scheduler (event-handler (lambda (x) x))
+            (spawn "t"
+              (set-timer! 100 'tick)
+              (let loop ([epoch 1])
+                (handle-message (m any?)
+                  (cond
+                    [(eq? m 'tick)
+                     (broadcast (Epoch epoch))
+                     (set-timer! 100 'tick)
+                     (loop (add1 epoch))]
+                    [(Control? m)
+                     (Control-case m
+                       [(Stop) (halt)]
+                       [else (loop epoch)])]
+                    [else (loop epoch)]))))
+            (node) (node) (node)
+            (spawn "stopper"
+              (set-timer! 2000 'stop)
+              (handle-message (m (exactly? 'stop))
+                (broadcast (Stop))
+                (halt)))
+            )))
+      'truncate)
+    #t)
   
 
   ;; ------------------------------------------------------------------

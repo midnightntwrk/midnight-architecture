@@ -9,6 +9,7 @@
   (import
     (chezscheme)
     (consensus lib verify)
+    (only (consensus lib common) display-pretty-bytes)
     (only (consensus lib leader-election) lookup-pk)
     (only (scheme-actors yassam) sender)
     (slib openssl crypto)
@@ -47,6 +48,15 @@
                  (lambda (pk)
                    (verify-signed-message sm pk))]
                 [else #f]))]))
+
+  (record-writer (record-type-descriptor signed-message)
+    (lambda (r p wr)
+      (display "#signed<" p)
+      (wr (signed-message-m r) p)
+      (display " " p)
+      (display-pretty-bytes (signed-message-sigma r) p)
+      (display ">" p)))
+
 
   ) ;; library
 ;;; ------------------------------------------------------------------------
