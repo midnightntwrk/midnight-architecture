@@ -9,275 +9,234 @@ deactivate "<latex>p_2</latex>"
 deactivate "<latex>p_3</latex>"
 [-> "<latex>stopper_1</latex>" ++ : spawn
 deactivate "<latex>stopper_1</latex>"
-== "launch scheduler with 5 running actors" ==
+[-> "<latex>observer_1</latex>" ++ : spawn
+deactivate "<latex>observer_1</latex>"
+== "launch scheduler with 6 running actors" ==
 "<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 1. tick
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (1)
 == "(2) broadcast [1]: (Epoch 1)" ==
 deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 3. tick
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (2)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (2)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (2)
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (2)
+== "(3) broadcast/me [3]: #signed<(Propose #block<1 (700) 61040624>) 76C77752>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (3)
+== "(4) broadcast/me [3]: #signed<(Vote #block<1 (700) 61040624>) 36C7A3C5>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (3)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (4)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (4)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (3)
+== "(5) broadcast/me [4]: #signed<(Vote #block<1 (700) 61040624>) D5963487>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (4)
+deactivate "<latex>p_3</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (2)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (3)
-== "(4) broadcast [1]: (Epoch 2)" ==
 deactivate "<latex>t_1</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (2)
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (4)
-== "(5) broadcast/me [4]: #signed<(Propose #block<2 () 61040624>) 424E3E6D>" ==
-deactivate "<latex>p_3</latex>"
-"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 6. tick
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (5)
-== "(7) broadcast/me [4]: #signed<(Vote #block<2 () 61040624>) 7337F496>" ==
-deactivate "<latex>p_3</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (2)
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (4)
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (5)
-== "(8) broadcast/me [2]: #signed<(Vote #block<2 () 61040624>) 1255F43E>" ==
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (7)
-note over "<latex>p_1</latex>": "252047 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_1</latex>": "1 votes for #block-ext<#block<2 () 61040624>>"
-deactivate "<latex>p_1</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (2)
-== "(9) broadcast/me [3]: #signed<(Propose #block<1 () 61040624>) D2F4244F>" ==
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (4)
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (5)
-== "(10) broadcast/me [3]: #signed<(Vote #block<2 () 61040624>) 29A2D35E>" ==
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (7)
-note over "<latex>p_2</latex>": "252047 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_2</latex>": "1 votes for #block-ext<#block<2 () 61040624>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (8)
-note over "<latex>p_2</latex>": "63523 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_2</latex>": "2 votes for #block-ext<#block<2 () 61040624>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (9)
-== "(11) broadcast/me [3]: #signed<(Vote #block<1 () 61040624>) 28020566>" ==
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (10)
-note over "<latex>p_2</latex>": "23344 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_2</latex>": "3 votes for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_2</latex>": "quorum on epoch 2"
-deactivate "<latex>p_2</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (8)
-note over "<latex>p_1</latex>": "63523 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_1</latex>": "2 votes for #block-ext<#block<2 () 61040624>>"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (9)
-== "(12) broadcast/me [2]: #signed<(Vote #block<1 () 61040624>) 2301D767>" ==
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (10)
-note over "<latex>p_1</latex>": "23344 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_1</latex>": "3 votes for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_1</latex>": "quorum on epoch 2"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (11)
-note over "<latex>p_1</latex>": "285164 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_1</latex>": "1 votes for #block-ext<#block<1 () 61040624>>"
-deactivate "<latex>p_1</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (11)
-note over "<latex>p_2</latex>": "285164 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_2</latex>": "1 votes for #block-ext<#block<1 () 61040624>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (12)
-note over "<latex>p_2</latex>": "512631 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_2</latex>": "2 votes for #block-ext<#block<1 () 61040624>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (7)
-note over "<latex>p_3</latex>": "252047 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_3</latex>": "1 votes for #block-ext<#block<2 () 61040624>>"
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (8)
-note over "<latex>p_3</latex>": "63523 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_3</latex>": "2 votes for #block-ext<#block<2 () 61040624>>"
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (9)
-== "(13) broadcast/me [4]: #signed<(Vote #block<1 () 61040624>) 50E3E157>" ==
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (10)
-note over "<latex>p_3</latex>": "23344 signed vote for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_3</latex>": "3 votes for #block-ext<#block<2 () 61040624>>"
-note over "<latex>p_3</latex>": "quorum on epoch 2"
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (11)
-note over "<latex>p_3</latex>": "285164 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_3</latex>": "1 votes for #block-ext<#block<1 () 61040624>>"
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (12)
-note over "<latex>p_3</latex>": "512631 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_3</latex>": "2 votes for #block-ext<#block<1 () 61040624>>"
-deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (13)
-note over "<latex>p_3</latex>": "676687 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_3</latex>": "3 votes for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_3</latex>": "quorum on epoch 1"
-deactivate "<latex>p_3</latex>"
-"<latex>stopper_1</latex>" ->o "<latex>stopper_1</latex>" : 14. stop
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (12)
-note over "<latex>p_1</latex>": "512631 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_1</latex>": "2 votes for #block-ext<#block<1 () 61040624>>"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (13)
-note over "<latex>p_1</latex>": "676687 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_1</latex>": "3 votes for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_1</latex>": "quorum on epoch 1"
-deactivate "<latex>p_1</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (13)
-note over "<latex>p_2</latex>": "676687 signed vote for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_2</latex>": "3 votes for #block-ext<#block<1 () 61040624>>"
-note over "<latex>p_2</latex>": "quorum on epoch 1"
-deactivate "<latex>p_2</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (4)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (5)
 deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (3)
+== "(6) broadcast/me [2]: #signed<(Vote #block<1 (700) 61040624>) E5C26920>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (4)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (5)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (5)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (6)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (5)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (6)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (5)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (6)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 7. tick
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (6)
+deactivate "<latex>p_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (6)
-== "(15) broadcast [1]: (Epoch 3)" ==
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (7)
+== "(8) broadcast [1]: (Epoch 2)" ==
 deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (8)
+deactivate "<latex>p_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (8)
 deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (8)
+== "(9) broadcast/me [4]: #signed<(Propose #block<2 (2700) A2015712>) 6C491E4E>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (9)
+== "(10) broadcast/me [4]: #signed<(Vote #block<2 (2700) A2015712>) 635502F4>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (8)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (9)
+== "(11) broadcast/me [3]: #signed<(Vote #block<2 (2700) A2015712>) C1A4CC6B>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (10)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (11)
+deactivate "<latex>p_2</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (9)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (10)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (11)
 deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (10)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (11)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (9)
+== "(12) broadcast/me [2]: #signed<(Vote #block<2 (2700) A2015712>) 55252977>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (10)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (11)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (12)
+deactivate "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (8)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (9)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (10)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (11)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (12)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 13. tick
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (12)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (13)
+== "(14) broadcast [1]: (Epoch 3)" ==
 deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 16. tick
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (14)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (14)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (12)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (14)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (12)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (14)
+== "(15) broadcast/me [3]: #signed<(Propose #block<3 (5000) D1D766B6>) C21556A7>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (15)
+== "(16) broadcast/me [4]: #signed<(Vote #block<3 (5000) D1D766B6>) 6B1D7F10>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (15)
+== "(17) broadcast/me [3]: #signed<(Vote #block<3 (5000) D1D766B6>) 74971493>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (16)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (17)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (14)
+deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (15)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (16)
-== "(17) broadcast [1]: (Epoch 4)" ==
 deactivate "<latex>t_1</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (15)
-== "(18) broadcast/me [3]: #signed<(Propose #block<3 () 3A2F39A7>) 0424E2B4>" ==
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (17)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (15)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (16)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (17)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (15)
+== "(18) broadcast/me [2]: #signed<(Vote #block<3 (5000) D1D766B6>) 2E321B38>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (16)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (17)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (18)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 19. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (18)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (19)
+== "(20) broadcast [1]: (Epoch 4)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (20)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (18)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (20)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (18)
 deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (17)
-== "(19) broadcast/me [3]: #signed<(Propose #block<4 () D4240717>) 3C36F2D1>" ==
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (20)
+== "(21) broadcast/me [3]: #signed<(Propose #block<4 (6700) 70637147>) 32624D78>" ==
 deactivate "<latex>p_2</latex>"
-"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 20. tick
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (15)
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (20)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (21)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (21)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (21)
+== "(22) broadcast/me [3]: #signed<(Vote #block<4 (6700) 70637147>) DD6BA206>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (21)
+== "(23) broadcast/me [2]: #signed<(Vote #block<4 (6700) 70637147>) D7619464>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (22)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (23)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (22)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (23)
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (22)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (23)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (16)
 deactivate "<latex>p_3</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (17)
 deactivate "<latex>p_3</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (18)
-== "(21) broadcast/me [4]: #signed<(Vote #block<3 () 3A2F39A7>) E67286C4>" ==
 deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (19)
-== "(22) broadcast/me [4]: #signed<(Vote #block<4 () D4240717>) E2F97F7C>" ==
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (20)
 deactivate "<latex>p_3</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (18)
-== "(23) broadcast/me [3]: #signed<(Vote #block<3 () 3A2F39A7>) 1D27722B>" ==
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (19)
-== "(24) broadcast/me [3]: #signed<(Vote #block<4 () D4240717>) 26B5E665>" ==
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (21)
-note over "<latex>p_2</latex>": "770959 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_2</latex>": "1 votes for #block-ext<#block<3 () 3A2F39A7>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (22)
-note over "<latex>p_2</latex>": "533499 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_2</latex>": "1 votes for #block-ext<#block<4 () D4240717>>"
-deactivate "<latex>p_2</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (21)
-note over "<latex>p_3</latex>": "770959 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_3</latex>": "1 votes for #block-ext<#block<3 () 3A2F39A7>>"
+== "(24) broadcast/me [4]: #signed<(Vote #block<4 (6700) 70637147>) D4B7A543>" ==
 deactivate "<latex>p_3</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (22)
-note over "<latex>p_3</latex>": "533499 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_3</latex>": "1 votes for #block-ext<#block<4 () D4240717>>"
 deactivate "<latex>p_3</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (23)
-note over "<latex>p_3</latex>": "965496 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_3</latex>": "2 votes for #block-ext<#block<3 () 3A2F39A7>>"
 deactivate "<latex>p_3</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (24)
-note over "<latex>p_3</latex>": "733196 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_3</latex>": "2 votes for #block-ext<#block<4 () D4240717>>"
-deactivate "<latex>p_3</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (15)
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (17)
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (18)
-== "(25) broadcast/me [2]: #signed<(Vote #block<3 () 3A2F39A7>) 6B7A385E>" ==
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (19)
-== "(26) broadcast/me [2]: #signed<(Vote #block<4 () D4240717>) 72661753>" ==
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (21)
-note over "<latex>p_1</latex>": "770959 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_1</latex>": "1 votes for #block-ext<#block<3 () 3A2F39A7>>"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (22)
-note over "<latex>p_1</latex>": "533499 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_1</latex>": "1 votes for #block-ext<#block<4 () D4240717>>"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (23)
-note over "<latex>p_1</latex>": "965496 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_1</latex>": "2 votes for #block-ext<#block<3 () 3A2F39A7>>"
-deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (24)
+deactivate "<latex>observer_1</latex>"
 "<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (24)
-note over "<latex>p_1</latex>": "733196 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_1</latex>": "2 votes for #block-ext<#block<4 () D4240717>>"
 deactivate "<latex>p_1</latex>"
-"<latex>stopper_1</latex>" -> "<latex>stopper_1</latex>" ++: **deliver** (14)
-== "(27) broadcast [5]: (Stop)" ==
-destroy "<latex>stopper_1</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (23)
-note over "<latex>p_2</latex>": "965496 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_2</latex>": "2 votes for #block-ext<#block<3 () 3A2F39A7>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (24)
-note over "<latex>p_2</latex>": "733196 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_2</latex>": "2 votes for #block-ext<#block<4 () D4240717>>"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (25)
-note over "<latex>p_2</latex>": "734168 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_2</latex>": "3 votes for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_2</latex>": "quorum on epoch 3"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (26)
-note over "<latex>p_2</latex>": "612426 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_2</latex>": "3 votes for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_2</latex>": "quorum on epoch 4"
-deactivate "<latex>p_2</latex>"
-"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (27)
-destroy "<latex>p_2</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (25)
-note over "<latex>p_1</latex>": "734168 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_1</latex>": "3 votes for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_1</latex>": "quorum on epoch 3"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (26)
-note over "<latex>p_1</latex>": "612426 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_1</latex>": "3 votes for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_1</latex>": "quorum on epoch 4"
-deactivate "<latex>p_1</latex>"
-"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (27)
-destroy "<latex>p_1</latex>"
-"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (17)
-deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (18)
-deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (19)
-deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (20)
-== "(28) broadcast [1]: (Epoch 5)" ==
-deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (21)
-deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 25. tick
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (24)
+deactivate "<latex>p_3</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (22)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (23)
@@ -285,22 +244,1125 @@ deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (24)
 deactivate "<latex>t_1</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (25)
+== "(26) broadcast [1]: (Epoch 5)" ==
 deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (26)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (24)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (26)
+deactivate "<latex>p_2</latex>"
 "<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (26)
 deactivate "<latex>t_1</latex>"
-"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (27)
-destroy "<latex>t_1</latex>"
-"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (25)
-note over "<latex>p_3</latex>": "734168 signed vote for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_3</latex>": "3 votes for #block-ext<#block<3 () 3A2F39A7>>"
-note over "<latex>p_3</latex>": "quorum on epoch 3"
-deactivate "<latex>p_3</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (26)
-note over "<latex>p_3</latex>": "612426 signed vote for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_3</latex>": "3 votes for #block-ext<#block<4 () D4240717>>"
-note over "<latex>p_3</latex>": "quorum on epoch 4"
 deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (26)
+== "(27) broadcast/me [2]: #signed<(Propose #block<5 (10300) 5A434C55>) 3E177E57>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (27)
+== "(28) broadcast/me [3]: #signed<(Vote #block<5 (10300) 5A434C55>) 7E31174E>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (27)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (28)
+deactivate "<latex>t_1</latex>"
 "<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (27)
+== "(29) broadcast/me [4]: #signed<(Vote #block<5 (10300) 5A434C55>) 13B7A7D6>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (28)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (27)
+== "(30) broadcast/me [2]: #signed<(Vote #block<5 (10300) 5A434C55>) 73736494>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (28)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (29)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 31. tick
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (30)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (27)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (28)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (29)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (30)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (28)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (29)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (30)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (29)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (30)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (29)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (30)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (31)
+== "(32) broadcast [1]: (Epoch 6)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (32)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (32)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (32)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (32)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (32)
+== "(33) broadcast/me [2]: #signed<(Propose #block<6 (12800) F4B10754>) 2B44B724>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (33)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (33)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (33)
+== "(34) broadcast/me [4]: #signed<(Vote #block<6 (12800) F4B10754>) 3491A4F6>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (34)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 35. tick
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (33)
+== "(36) broadcast/me [3]: #signed<(Vote #block<6 (12800) F4B10754>) 451B725B>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (34)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (36)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (33)
+== "(37) broadcast/me [2]: #signed<(Vote #block<6 (12800) F4B10754>) F33463B4>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (34)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (36)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (36)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (37)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (34)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (35)
+== "(38) broadcast [1]: (Epoch 7)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (36)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (37)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (37)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (38)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (38)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (34)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (36)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (37)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (38)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (38)
+== "(39) broadcast/me [3]: #signed<(Propose #block<7 (15200) 65046322>) 4A4E257F>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (39)
+== "(40) broadcast/me [3]: #signed<(Vote #block<7 (15200) 65046322>) 544D2E5C>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (40)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (39)
+== "(41) broadcast/me [2]: #signed<(Vote #block<7 (15200) 65046322>) A4742595>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (40)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (41)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (37)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (38)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (39)
+== "(42) broadcast/me [4]: #signed<(Vote #block<7 (15200) 65046322>) 34447252>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (40)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (41)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (42)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (39)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (40)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (41)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (42)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (41)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (42)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (42)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 43. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (43)
+== "(44) broadcast [1]: (Epoch 8)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (39)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (40)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (41)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (42)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (44)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (44)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (44)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (44)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (44)
+== "(45) broadcast/me [4]: #signed<(Propose #block<8 (17000) 31525829>) E24E35E2>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (45)
+== "(46) broadcast/me [3]: #signed<(Vote #block<8 (17000) 31525829>) 3172D6E5>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (45)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (46)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (45)
+== "(47) broadcast/me [4]: #signed<(Vote #block<8 (17000) 31525829>) 1F33C2B5>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (46)
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (46)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (47)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (45)
+== "(48) broadcast/me [2]: #signed<(Vote #block<8 (17000) 31525829>) 0754F113>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (46)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (47)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (48)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (47)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (48)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (47)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (48)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (45)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (46)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (47)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (48)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (48)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 49. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (49)
+== "(50) broadcast [1]: (Epoch 9)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (50)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (50)
+== "(51) broadcast/me [3]: #signed<(Propose #block<9 (18800) 3F2B1D74>) 1565C584>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (50)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (51)
+== "(52) broadcast/me [2]: #signed<(Vote #block<9 (18800) 3F2B1D74>) 6146F2F2>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (51)
+== "(53) broadcast/me [3]: #signed<(Vote #block<9 (18800) 3F2B1D74>) 45771F62>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (52)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (53)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (52)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (53)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (50)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (51)
+== "(54) broadcast/me [4]: #signed<(Vote #block<9 (18800) 3F2B1D74>) F323E5B5>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (52)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (53)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (50)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (51)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (52)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (53)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (54)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (54)
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (51)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (52)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (53)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (54)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (54)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 55. tick
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (54)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (55)
+== "(56) broadcast [1]: (Epoch 10)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (56)
+== "(57) broadcast/me [4]: #signed<(Propose #block<10 (20700) 54A33443>) 44508024>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (56)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (57)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (57)
+== "(58) broadcast/me [4]: #signed<(Vote #block<10 (20700) 54A33443>) A7825483>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (56)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (57)
+== "(59) broadcast/me [3]: #signed<(Vote #block<10 (20700) 54A33443>) 77460216>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (58)
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (58)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (59)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (59)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (56)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (57)
+== "(60) broadcast/me [2]: #signed<(Vote #block<10 (20700) 54A33443>) E7D171B4>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (58)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (59)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (60)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (60)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (60)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (58)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (59)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (60)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (56)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (57)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (58)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (59)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (60)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 61. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (61)
+== "(62) broadcast [1]: (Epoch 11)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (62)
+== "(63) broadcast/me [3]: #signed<(Propose #block<11 (22800) 3B622D6F>) 6F261E1F>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (63)
+== "(64) broadcast/me [3]: #signed<(Vote #block<11 (22800) 3B622D6F>) B12475FE>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (62)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (63)
+== "(65) broadcast/me [4]: #signed<(Vote #block<11 (22800) 3B622D6F>) 8205F556>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (64)
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (64)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (65)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (62)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (63)
+== "(66) broadcast/me [2]: #signed<(Vote #block<11 (22800) 3B622D6F>) 1A137C23>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (64)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (65)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (62)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (63)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (64)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (65)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (66)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (65)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (66)
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (66)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (62)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (63)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (64)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (65)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (66)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (66)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 67. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (67)
+== "(68) broadcast [1]: (Epoch 12)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (68)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (68)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (68)
+== "(69) broadcast/me [4]: #signed<(Propose #block<12 (25000) 55036314>) 502F552B>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (68)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (69)
+deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (69)
+== "(70) broadcast/me [4]: #signed<(Vote #block<12 (25000) 55036314>) 21444475>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (68)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (69)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (70)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (69)
+== "(71) broadcast/me [2]: #signed<(Vote #block<12 (25000) 55036314>) 444C621E>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (70)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (70)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (71)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (71)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (70)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (71)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (71)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (69)
+== "(72) broadcast/me [3]: #signed<(Vote #block<12 (25000) 55036314>) 153E6F22>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (70)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (71)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (72)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (72)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 73. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (72)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (73)
+== "(74) broadcast [1]: (Epoch 13)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (74)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (74)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (72)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (74)
+== "(75) broadcast/me [4]: #signed<(Propose #block<13 (26900) 9764E243>) 297C1A1C>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (75)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (72)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (74)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (75)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (75)
+== "(76) broadcast/me [4]: #signed<(Vote #block<13 (26900) 9764E243>) 47242867>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (76)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (75)
+== "(77) broadcast/me [3]: #signed<(Vote #block<13 (26900) 9764E243>) 6B5A552C>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (76)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (74)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (75)
+== "(78) broadcast/me [2]: #signed<(Vote #block<13 (26900) 9764E243>) 3187C606>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (76)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (77)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (78)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (76)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (77)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (78)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (77)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (78)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (77)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (78)
+deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (76)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (77)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (78)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 79. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (79)
+== "(80) broadcast [1]: (Epoch 14)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (80)
+deactivate "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (80)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (80)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (80)
+== "(81) broadcast/me [2]: #signed<(Propose #block<14 (29100) A122B849>) D34403B4>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (81)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (81)
+== "(82) broadcast/me [4]: #signed<(Vote #block<14 (29100) A122B849>) 623F3266>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (81)
+== "(83) broadcast/me [2]: #signed<(Vote #block<14 (29100) A122B849>) 2351F205>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (82)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (82)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (83)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (82)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (83)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (83)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (81)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (82)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (83)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (80)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (81)
+== "(84) broadcast/me [3]: #signed<(Vote #block<14 (29100) A122B849>) 3345C361>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (82)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (83)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (84)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (84)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 85. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (84)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (85)
+== "(86) broadcast [1]: (Epoch 15)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (86)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (86)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (84)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (86)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (86)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (84)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (86)
+== "(87) broadcast/me [4]: #signed<(Propose #block<15 (32600) A2120233>) 655A3865>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (87)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 88. tick
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (87)
+== "(89) broadcast/me [2]: #signed<(Vote #block<15 (32600) A2120233>) B2875F7D>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (87)
+== "(90) broadcast/me [4]: #signed<(Vote #block<15 (32600) A2120233>) 623D7278>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (89)
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (87)
+== "(91) broadcast/me [3]: #signed<(Vote #block<15 (32600) A2120233>) 2464F7D2>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (89)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (90)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (89)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (90)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (91)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (87)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (88)
+== "(92) broadcast [1]: (Epoch 16)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (89)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (90)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (91)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (92)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (92)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (89)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (90)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (91)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (92)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (91)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (92)
+== "(93) broadcast/me [3]: #signed<(Propose #block<16 (34300) 7D493C52>) 6A4B71B7>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (93)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (93)
+== "(94) broadcast/me [2]: #signed<(Vote #block<16 (34300) 7D493C52>) 30751643>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (90)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (91)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (92)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (93)
+== "(95) broadcast/me [4]: #signed<(Vote #block<16 (34300) 7D493C52>) 1F96E12C>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (94)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (95)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (93)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (94)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (95)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (94)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (95)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (93)
+== "(96) broadcast/me [3]: #signed<(Vote #block<16 (34300) 7D493C52>) E1862571>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (94)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (95)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (96)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (96)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (96)
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (94)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (95)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (96)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 97. tick
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (96)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (97)
+== "(98) broadcast [1]: (Epoch 17)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (98)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (98)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (98)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (98)
+deactivate "<latex>p_3</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (98)
+== "(99) broadcast/me [3]: #signed<(Propose #block<17 (36600) C4D2D3B5>) 7847803D>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (99)
+== "(100) broadcast/me [3]: #signed<(Vote #block<17 (36600) C4D2D3B5>) D1D116C4>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (99)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (100)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (100)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (99)
+== "(101) broadcast/me [4]: #signed<(Vote #block<17 (36600) C4D2D3B5>) 41454704>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (100)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (101)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (99)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (100)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (101)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (101)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (99)
+== "(102) broadcast/me [2]: #signed<(Vote #block<17 (36600) C4D2D3B5>) A86C7623>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (100)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (101)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 103. tick
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (102)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (102)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (102)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (103)
+== "(104) broadcast [1]: (Epoch 18)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (101)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (102)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (104)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (104)
+== "(105) broadcast/me [2]: #signed<(Propose #block<18 (38600) 636A72E6>) 4312D3F5>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (104)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (105)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (105)
+== "(106) broadcast/me [3]: #signed<(Vote #block<18 (38600) 636A72E6>) 18071425>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (106)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (105)
+== "(107) broadcast/me [2]: #signed<(Vote #block<18 (38600) 636A72E6>) 71724751>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (106)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (106)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (107)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (104)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (105)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (106)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (107)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (107)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (107)
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (102)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (104)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (105)
+== "(108) broadcast/me [4]: #signed<(Vote #block<18 (38600) 636A72E6>) 7FB20234>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (106)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (107)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (108)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (108)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 109. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (109)
+== "(110) broadcast [1]: (Epoch 19)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (108)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (110)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (108)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (110)
+== "(111) broadcast/me [4]: #signed<(Propose #block<19 (40600) 425E7834>) 74DC5A5A>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (111)
+== "(112) broadcast/me [4]: #signed<(Vote #block<19 (40600) 425E7834>) 6136A5D5>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (110)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (111)
+== "(113) broadcast/me [2]: #signed<(Vote #block<19 (40600) 425E7834>) 67738A16>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (112)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (111)
+== "(114) broadcast/me [3]: #signed<(Vote #block<19 (40600) 425E7834>) 37166A67>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (112)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (113)
+deactivate "<latex>p_2</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (108)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (110)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (111)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (112)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (113)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (114)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (110)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (111)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (112)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (113)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (114)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (114)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (112)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (113)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (114)
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (113)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (114)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 115. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (115)
+== "(116) broadcast [1]: (Epoch 20)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (116)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (116)
+== "(117) broadcast/me [3]: #signed<(Propose #block<20 (42700) 36E27126>) F547E6C1>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (117)
+== "(118) broadcast/me [2]: #signed<(Vote #block<20 (42700) 36E27126>) E4373823>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (118)
+deactivate "<latex>p_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (117)
+== "(119) broadcast/me [3]: #signed<(Vote #block<20 (42700) 36E27126>) 171A7A6F>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (118)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (119)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (116)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (117)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (118)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (119)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (116)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (117)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (118)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (119)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (116)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (117)
+== "(120) broadcast/me [4]: #signed<(Vote #block<20 (42700) 36E27126>) A521C505>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (118)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (119)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (120)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (120)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (120)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 121. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (121)
+== "(122) broadcast [1]: (Epoch 21)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (122)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (120)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (122)
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (122)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (122)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (119)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (120)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (122)
+== "(123) broadcast/me [2]: #signed<(Propose #block<21 (45300) 166162D2>) 37225270>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (123)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (123)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (123)
+== "(124) broadcast/me [3]: #signed<(Vote #block<21 (45300) 166162D2>) 5562476D>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (124)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (124)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (123)
+== "(125) broadcast/me [2]: #signed<(Vote #block<21 (45300) 166162D2>) 87964232>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (124)
+deactivate "<latex>p_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (125)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (124)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (125)
+deactivate "<latex>p_2</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (125)
+deactivate "<latex>t_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (125)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 126. tick
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (123)
+== "(127) broadcast/me [4]: #signed<(Vote #block<21 (45300) 166162D2>) 33E2F407>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (124)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (125)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (127)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (126)
+== "(128) broadcast [1]: (Epoch 22)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (127)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (127)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (128)
+deactivate "<latex>observer_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (128)
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (127)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (128)
+deactivate "<latex>p_2</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (127)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (128)
+== "(129) broadcast/me [2]: #signed<(Propose #block<22 (47200) 1B2D9404>) 773D1B39>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (128)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (129)
+== "(130) broadcast/me [4]: #signed<(Vote #block<22 (47200) 1B2D9404>) 52337B16>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (129)
+== "(131) broadcast/me [2]: #signed<(Vote #block<22 (47200) 1B2D9404>) 74454410>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (130)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (131)
+deactivate "<latex>p_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (129)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (130)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (131)
+deactivate "<latex>t_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (129)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (130)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (131)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (130)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (131)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 132. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (132)
+== "(133) broadcast [1]: (Epoch 23)" ==
+deactivate "<latex>t_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (129)
+== "(134) broadcast/me [3]: #signed<(Vote #block<22 (47200) 1B2D9404>) 3B93322F>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (130)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (131)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (133)
+== "(135) broadcast/me [3]: #signed<(Propose #block<23 (49000) 56774A3A>) 482F4710>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (134)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (135)
+== "(136) broadcast/me [3]: #signed<(Vote #block<23 (49000) 56774A3A>) D522A312>" ==
+deactivate "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (133)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (134)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (135)
+== "(137) broadcast/me [4]: #signed<(Vote #block<23 (49000) 56774A3A>) 41303869>" ==
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (136)
+deactivate "<latex>p_3</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (133)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (134)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (135)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (136)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (137)
+deactivate "<latex>t_1</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (137)
+deactivate "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (133)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (134)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (135)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (136)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (137)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (136)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (137)
+deactivate "<latex>p_2</latex>"
+"<latex>stopper_1</latex>" ->o "<latex>stopper_1</latex>" : 138. stop
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (133)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (134)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (135)
+== "(139) broadcast/me [2]: #signed<(Vote #block<23 (49000) 56774A3A>) 94254C5A>" ==
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (136)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (137)
+deactivate "<latex>p_1</latex>"
+"<latex>stopper_1</latex>" -> "<latex>stopper_1</latex>" ++: **deliver** (138)
+== "(140) broadcast [5]: (Stop)" ==
+destroy "<latex>stopper_1</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (139)
+deactivate "<latex>p_2</latex>"
+"<latex>p_2</latex>" -> "<latex>p_2</latex>" ++: **deliver** (140)
+destroy "<latex>p_2</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (139)
+deactivate "<latex>p_3</latex>"
+"<latex>p_3</latex>" -> "<latex>p_3</latex>" ++: **deliver** (140)
 destroy "<latex>p_3</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (139)
+deactivate "<latex>observer_1</latex>"
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (140)
+deactivate "<latex>observer_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (139)
+deactivate "<latex>p_1</latex>"
+"<latex>p_1</latex>" -> "<latex>p_1</latex>" ++: **deliver** (140)
+destroy "<latex>p_1</latex>"
+"<latex>t_1</latex>" ->o "<latex>t_1</latex>" : 141. tick
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (139)
+deactivate "<latex>t_1</latex>"
+"<latex>t_1</latex>" -> "<latex>t_1</latex>" ++: **deliver** (140)
+destroy "<latex>t_1</latex>"
+"<latex>observer_1</latex>" ->o "<latex>observer_1</latex>" : 142. report
+"<latex>observer_1</latex>" -> "<latex>observer_1</latex>" ++: **deliver** (142)
+destroy "<latex>observer_1</latex>"
 == "no further progress with 0 running actors" ==
 @enduml

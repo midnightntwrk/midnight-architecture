@@ -323,12 +323,12 @@
       (unless (block-ext-notarized? block-ext)
         (let ([votes (block-ext-votes block-ext)])
           (hashtable-set! votes sig #t)
-          (declaim "~a signed vote for ~a" (mod (u8-bytevector->integer sig) 1000000) block-ext)
-          (declaim "~a votes for ~a"
-            (vector-length (hashtable-keys votes))
-            block-ext)
+          (bugme 'add-vote! (format "~a signed vote for ~a" (mod (u8-bytevector->integer sig) 1000000) block-ext))
+          (bugme 'add-vote! (format "~a votes for ~a"
+                              (vector-length (hashtable-keys votes))
+                              block-ext))
           (when (quorum? (vector-length (hashtable-keys votes)))
-            (declaim "quorum on epoch ~a" (block-epoch-number (block-ext-block block-ext)))
+            (bugme 'add-vote! (format "quorum on epoch ~a" (block-epoch-number (block-ext-block block-ext))))
             (block-ext-notarized?-set! block-ext #t)))))
     (define highest-proposal-per-process (make-eqv-hashtable))
     (define (get-highest-proposal p)
@@ -338,7 +338,7 @@
           (hashtable-set! highest-proposal-per-process p 0)
           0]))
     (define (quorum? n)
-      (> n (/ (* 2 (length (cohort))) 3.0)))
+      (>= n (/ (* 2 (length (cohort))) 3.0)))
     (define (intern-block block) ;; block -> chain
       (assert (block? block))
       (cond
@@ -386,7 +386,9 @@
                [(Stop) (halt)]
                ;; ----------------------
                [(Epoch e)
+                (bugme 'epoch e)
                 (when (leader? (self) e)
+                  (bugme 'leader e)
                   (do-propose e))
                 (always)])]
             [(signed-message? m)
@@ -395,6 +397,7 @@
                  (Message-case vm
                    ;; --------------------------------------------
                    [(Propose b)
+                    (bugme 'proposal `(,(sender) ,b))
                     ;; “Every player votes for the first proposal
                     ;; they see from the epoch’s leader, as long as
                     ;; the proposed block extends from (one of) the
@@ -406,6 +409,7 @@
                       (do-vote b))]
                    ;; --------------------------------------------
                    [(Vote b)
+                    (bugme 'vote `(,(sender) ,b))
                     ;; “When a block gains votes from at least 2n/3
                     ;; distinct players, it becomes notarized. A chain
                     ;; is notarized if its constituent blocks are all
@@ -461,7 +465,7 @@
                   (cond
                     [(eq? m 'tick)
                      (broadcast (Epoch epoch))
-                     (set-timer! 100 'tick)
+                     (set-timer! 2000 'tick) ;; 2000 required to avoid contention
                      (loop (add1 epoch))]
                     [(Control? m)
                      (Control-case m
@@ -470,7 +474,7 @@
                     [else (loop epoch)]))))
             (node) (node) (node)
             (spawn "stopper"
-              (set-timer! 20000 'stop)
+              (set-timer! 50000 'stop)
               (handle-message (m (exactly? 'stop))
                 (broadcast (Stop))
                 (halt)))
