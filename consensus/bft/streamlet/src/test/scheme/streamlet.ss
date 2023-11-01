@@ -258,16 +258,6 @@
              (set! longest-notarized-length len)
              (set! longest-notarized-chains
                (list chain))]))))
-    #;(define emit-finalized!
-      (let ([cursor 0])
-        (lambda (chain len)
-          (when (> (- len 3 cursor) 0)
-            (let ([cell (hashtable-cell emitted-db (self) '())])
-              (let loop ([i (- len 3 cursor)] [ls (cddr chain)])
-                (unless (zero? i)
-                  (set-cdr! cell (cons (block-txs (block-ext-block (car ls))) (cdr cell)))
-                  (loop (- i 1) (cdr ls)))))
-            (set! cursor (- len 3))))))
     (define emit-finalized!
       (let ([cursor 0]
             [txs (lambda (b)
@@ -275,6 +265,10 @@
                      (block-ext-block b)))])
         (lambda (chain len)
           (let ([cell (hashtable-cell emitted-db (self) '())])
+            ;; cddr chain below is safe because every chain reaching
+            ;; this point has both the genesis block and one newly
+            ;; notarized block.
+            (verify (> len 1))
             (let-values ([(newly-final _) (take (cddr chain) (- len 3 cursor))])
               (unless (null? newly-final)
                 (bugme `(at ,cursor) `(emit-finalized! ,(map txs chain) ,len))
