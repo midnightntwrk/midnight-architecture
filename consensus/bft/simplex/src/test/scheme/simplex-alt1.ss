@@ -18,6 +18,10 @@
 
   (define (bugme label val)
     (bug (format "~a: ~a" (self) label) val))
+
+  (define (?broadcast/me msg)
+    (unless (zero? (random 300))
+      (broadcast/me msg)))
   
   ;; ------------------------------------------------------------------
   ;; Datatypes
@@ -304,7 +308,7 @@
     (eq? pre (chain-prefix chain (chain-h pre))))
   
   (define (node)
-    (define $Delta 200)
+    (define $Delta 100)
     (define sk 'uninitialized-sk)
     (define init-chain (list genesis-block-ext))
     (define h 1) ;; 'height' -- the index of the current slot being decided
@@ -366,7 +370,7 @@
                 ;; p. 11])
                 ;;
                 (unless timer-fired?
-                  (broadcast/me
+                  (?broadcast/me
                     (sign-message sk
                       (Finalize h))))
               
@@ -377,7 +381,10 @@
                 (declaim "h = ~a" h)
               
                 ;; If leader, propose.
-                (when (leader? (self) h) (do-propose! h chain))
+                (when (leader? (self) h)
+                  (if (zero? (random 3))
+                      (bugme 'suppressed-propose h)
+                      (do-propose! h chain)))
               
                 ;; Finally, set a timer for this slot.
                 (set-timer! (* $Delta 3) (Timeout h))
@@ -414,35 +421,36 @@
           (verify (well-formed-blockchain? parent-chain))
           (when (> h highest-proposed)
             (set! highest-proposed h)
-            (broadcast/me
+            (?broadcast/me
               (sign-message sk
                 (Propose
-                  (if #f #;(zero? (random 4))
+                  (if #f ;; (zero? (random 20))
                       ;; create 25% bogus blocks
                       (make-block h parent-chain (list 'bogus))
                       ;; create 75% good blocks
                       (make-block h parent-chain (list (+ (self) (global-time))))))))))))
     (define (do-vote-dummy! h)
+      (bugme 'do-vote-dummy! h)
       (declaim "h = ~a, vote dummy" h)
-      (broadcast/me
+      (?broadcast/me
         (sign-message sk
           (Vote (make-dummy-block h)))))
     (define (do-vote b)
       (declaim "h = ~a, vote ~s" h b)
-      (broadcast/me
+      (?broadcast/me
         (sign-message sk
           (Vote b))))
     (define (add-vote! block-ext sig)
       (unless (block-ext-notarized? block-ext)
         (let ([votes (block-ext-votes block-ext)])
           (hashtable-set! votes sig #t) ;; <- add sig to hash set
-          #;(bugme 'add-vote! (format "~a signed vote for ~a"
-                              (mod (u8-bytevector->integer sig) 1000000) block-ext))
-          #;(bugme 'add-vote! (format "~a votes for ~a"
+          (bugme 'add-vote! (format "pid ~a, sig ~a signed vote for ~a"
+                              (sender) (mod (u8-bytevector->integer sig) 1000000) block-ext))
+          (bugme 'add-vote! (format "~a votes for ~a"
                               (vector-length (hashtable-keys votes))
                               block-ext))
           (when (quorum? (vector-length (hashtable-keys votes)))
-            #;(bugme 'add-vote! (format "vote quorum at height ~a for ~s"
+            (bugme 'add-vote! (format "vote quorum at height ~a for ~s"
                                 (block-h (block-ext-block block-ext))
                                 block-ext))
             (if (dummy-block? (block-ext-block block-ext))
@@ -527,6 +535,8 @@
             block-ext)]))
     (define (intern-block block) ;; block -> chain
       (assert (and (block? block) (not (dummy-block? block))))
+      (unless (zero? (block-d block))
+        (bugme "intern with dummy prefix" block))
       (cond
         [(hashtable-ref block-ext-db (hash-block block) #f) =>
          (lambda (x) x)]
@@ -586,6 +596,7 @@
                 (always)]
                [(Timeout slot-h)
                 (when (= slot-h h)
+                  (bugme 'Timeout h)
                   (declaim "h = ~a; Timeout" h)
                   (set! timer-fired? #t)
                   (do-vote-dummy! h))
@@ -598,7 +609,8 @@
                    ;; --------------------------------------------
                    [(Propose b)
                     ;; (bugme 'proposal `(,(sender) ,b))
-                    (when (well-formed-block? b)
+                    (when (and (not (dummy-block? b))
+                               (well-formed-block? b))
                       ;; It's an incredibly subtle point about Simplex that a
                       ;; process may vote for both a proposal at h and a dummy
                       ;; block at h.  The tie break is the Finalize votes
@@ -634,7 +646,7 @@
                     (when (well-formed-block? b)
                       (let-values ([(chain block-ext)
                                     (if (dummy-block? b)
-                                        (values '() (intern-dummy-block b))
+                                        (values '(not-a-chain) (intern-dummy-block b))
                                         (let* ([chain (intern-block b)]
                                                [block-ext (car chain)])
                                           (values chain block-ext)))])
@@ -651,8 +663,7 @@
                             ;; Maybe vote for a pending proposal
                             (check-for-pending-proposal!)
                             ;; Maybe update longest chain
-                            (unless (dummy-block? b)
-                              (check-for-longest-chain! chain))))))]
+                            (check-for-longest-chain! chain)))))]
                    ;; --------------------------------------------
                    [(Finalize h)
                     (add-finalizer! h (signed-message-sigma m))]
@@ -686,7 +697,7 @@
       (lambda (p)
         (with-event-processor (write-plantUML p)
           (with-scheduler (event-handler (lambda (x) x))
-            (node) (node) (node)
+            (node) (node) (node) ;; (node) (node)
             (spawn "starter"
               (set-timer! 200 'init)
               (handle-message (m (exactly? 'init))
