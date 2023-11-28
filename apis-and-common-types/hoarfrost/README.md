@@ -15,69 +15,113 @@ the format and correctness of this data is managed elsewhere.
 
 ## Data in Hoarfrost
 
-A datum in Hoarfrost consists of:
+Hoarfrost is conceptually a Merklised DAG, which doubles as a radix trie.
 
-- A bytestring `data` encoding the immediate data at the node.
-- A sequence of child datums `children`
-- Metadata attached to the datum
-  - A reference count
-  - Further in-memory only metadata, such as:
-    - A non-persisted reference count
-    - A cache status
-    - Markers to track which parts of state were accessed
+It consists of *vertices* labelled with arbitrary bytestrings `data`, and
+directed *edges*, labelled with integers 0-15, typically written in hexadecimal
+in this document. The graph must be acyclic, and no vertex may have two
+outgoing edges with the same label, and two vertices with the same children and
+label must be equal.
 
-A datum has a hash `H(data, children)`, computed from `data`, and the hash of
-the elements in `children`.
+We will call a vertex a *leaf* if it has no outgoing edges. We will call a set
+of vertices an *extension* if each vertex in it has exactly one outgoing edge,
+the set is connected, and all vertex labels are the empty string. This
+connection forms a total order over the extension, we call the sequence of
+labels of the vertices used in this order the *extension label*. We will call
+vertices that are not a leaf, and not part of an extension a *branch*.
 
-A datum `x`'s closure is smallest set `X` such that `x` is in `X`, and for each
-`y` in `X`, and `z` in the `children` of `y`, `z` is in `X`.
+We call the set of all vertices reachable from a vertex `v` the *closure* of
+`v`.
 
-### Data, concretely
+### On-the-wire
 
-A Hoarfrost datum is targeted for 4k random reads, and will assume that
-references are 256-bit / 32 byte hashes.
+The simplest encoding of Hoarfrost is the on-the-wire encoding. At its simplest,
+it consists of a sequence of encoded vertices, each annotated with the outgoing
+edges, and the index of the vertex at the other end.
 
-We will assume an entry is targeted to be at most 4096 bytes long, potentially
-consisting of both key and value, leaving 4064 bytes for content. Note that
-longer entries are possible, as `data` is not restricted.
+We will first consider how to encode an individual vertex (which may end up
+encoding some of its children), and then how to encode the full closure of a
+vertex. Let us call the encoding of a vertex `v`: `E(v)`.
 
-The first 11 bytes encode the shape of data included in this entry, as well as
-it's (persisted) metadata, in Borsh encoding:
+If `v` is part of an extension; that is, `v` has exactly one outgoing edge, we
+first determine the largest extension starting at `v` that it is a part of,
+`ext`, and the extension label `label`, and first reachable node after the
+extension `u`. Then, we encode:
+- A marker that this vertex is an extension
+- The length of, and content of `label`
+- The target `u` (see below)
 
-- A `u32` size of the `data` entry
-- A `u8` length of `children`, which must be `<= 16`
-- A `u16` bitmask encoding if `children` are a) references or b) inline
-- A `u32` reference count
+If `v` is a leaf or a branch, we encode:
+- A marker that this vertex is a branch
+- The length of, and context of the vertex label `data`
+- The label of largest outgoing edge, or `none`
+- For each label up to and including that, the target vertex `u` for that label
+  (see below)
 
-This is then followed by the `children` either a) encoded directly, or b)
-encoded as content themselves, depending on the bitmask state, and finally
-followed by the `data` entry. 
+Where we encode target vertices `u` above, these can be encoded in one of three
+ways:
+- Recursively as above, iff this is the only incoming edge to `u` in the
+  closure being encoded.
+- As non-existant/null, iff we're encoding a missing node in a branch
+- As a reference to the top-level sequence of vertices, iff this node has
+  multiple incoming edges
 
-By default, `children` are stored by reference, taking up 32 bytes each, unless
-there is room within the 4k read. If there is, children get expanded
-breadth-first while there is still room, ensuring that the final entry contains
-as many nodes as possible, without exceeding a 4k read.
+----
 
-Hoarfrost is parameterised by a 256-bit hash function, which is applied to the
-following data, in Borsh encoding, to determine the key of a datum:
+When encoding a closure of `v`, first the node `v` itself is encoded into an
+array of encodings. This encoding may include references to further nodes,
+which should be counting in order of appearance (left-to-right, in the
+serialized data). If a node has already been encoded, or is queued to be
+encoded, it's already given position is used instead. The encoding queue is then
+processed in-order, encoded each into the array of encodings, and any further
+nodes references are appended to the queue.
 
-- The `u32` size of the `data` entry
-- The content of the `data` entry
-- The `u8` length of `children`
-- The sequence of hashes of `children`
+Finally, the array of encodings is itself serialized.
 
-When a data entry is created, any children references are retrieved, and their
-reference counts are increased by 1. When a data entry is deallocated, any
-children references are retrieved, and their reference counts are decreased by 1.
-Note that:
 
-- We do not necessarily deallocate if a reference count is 0, although it is
-  trivial to implement garbage collection upon this.
-- As reference counts are limited to `u32`s, we consider the maximum `u32`
-  value as "saturated": Anything that reaches a reference count this high will
-  never have its reference count decreased, and will be permanently allocated.
+When decoding, to ensure that the encoding is canonical, a few extra checks are performed:
+- That references are introduced in order: The first reference must be one, and
+  any subsequent reference must be a prior reference, or 1 greater than the prior
+  maximum reference.
+- That no two top-level encoded vertices are equal.
+- That all top-level encoded vertices are reachable from the first vertex.
+- That no extension is encoded as a node, or encoded too short
 
-## Smart pointers
 
-{{TODO: Write on usage in rust, turning the database into smart pointers}}
-{{TODO: Write on additional in-memory metadata, tracking usage and changes between two states}}
+{{TODO: Binary encoding format}}
+
+### In-database
+
+When stored on disk, in a key-value database, Hoarfrost is parameterised by a
+*specific* hash function `H`. Each vertex `v` has a hash, denoted `H(v)`,
+determined by:
+- The label of `v`
+- The ordered sequence of `(l, H(u))` pairs, for each outgoing edge to `u`,
+  labelled `l`.
+
+Vertices `v` are stored in a key-value database, with the key `H(v)`, and the
+value consisting of a) a reference counter, and b) a similarly encoded value to
+the on-the-wire encoding, but using hashes instead of indices in references.
+Further, the conditions of when a vertex should be stored versus inlined are
+changed to favor minimising look-ups over size.
+
+Specifically, incoming edges are no longer used to determine inlining, and
+instead *entries* are optimised to fit within a single disk read. That means
+that a *target size* for an entry, `T` is fixed, and, after encoding a vertex,
+if its entry is smaller than `T`, any children are expanded breadth-first until
+the largest entry that is still smaller than `T` is arrived at. As references
+are now 32 bytes, "small entries" are entries that are smaller than a reference
+to them, and these are always inlined.
+
+As `data` is unbounded, it may be *larger* than `T`. An entry larger than `T`
+is split into consecutive entries, by incrementing `H(v)`. That is, the second
+part of `v`'s entry may be found in `H(v) + 1` and so forth. The first part
+must always contain the metadata, the length of the entry, and the children of
+the entry.
+
+{{TODO: Binary encoding format}}
+
+### In-program
+
+{{TODO: Rust usage, API suggestions}}
+
