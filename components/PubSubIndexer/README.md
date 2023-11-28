@@ -51,29 +51,33 @@ A block explorer will typically allow users to find blocks by their hash or heig
 
 ## Operating Environment
 
-Possibly any _desktop_ operating system may be used, the most popular ones are:
-- Microsoft Windows
+In principle, PubSub Indexer is meant to run in two kinds of environments:
+  - desktops, which require minimum amount of preparation and configuration in order to run the component at all
+  - cloud/server deployments, where setup that supports high availability is needed and high load of queries can be handled
+
+Possibly any _desktop_ operating system may be used, with the most popular being:
 - Linux distributions
 - macOS
-- BSD flavors
+- Microsoft Windows
 
 ## Key Library Dependencies
 
-- Scala standard library
-- Typelevel stack
+- Typelevel stack as a "standard functional library" for types, operations, effects and streaming
   - cats-core
   - cats-effect
-  - doobie
   - fs2
-- Caliban
-- Sttp
-- Circe
+- doobie - for DB Access
+- Caliban - for exposing GraphQL API
+- Sttp - for Http layer
+- Circe - for JSON serialization
 
 ## Logical Data Model
 
 ![](./datamodel.svg)
 
 ### Entities
+
+_TODO: Move these to apis and common types with proper descriptions_
 
 #### Block
 
@@ -82,8 +86,6 @@ Possibly any _desktop_ operating system may be used, the most popular ones are:
 #### Contract Call
 
 #### Contract Deploy
-
-#### WalletAppliedTransaction
 
 ### Invariants
 
@@ -99,114 +101,27 @@ Possibly any _desktop_ operating system may be used, the most popular ones are:
 10. For each contract call there must be a single corresponding contract deploy with the same address.
 11. Each wallet session is uniquely identified by a session ID, which is randomly generated and associated to a viewing key.
 12. If a session ID is removed, a new session ID will be generated for the same viewing key when requested.
-13. Each transaction has an associated wallet local state that can be generated if there is a session with the viewing key that owns the transaction.
-14. The wallet local state associated with a particular transaction remains consistent for every wallet session.
+13. Hosted ViewingWallet need to serve enough data to let client wallets derive
+    the same state as if they were querying node transaction by transaction
 
 
 ## Responsibilities
 
-### Interface Data Types
-
-These are the data types used in the previous interfaces. The ones defined as just `scalar` are yet
-to be defined in more detail.
-
-```graphql
-
-union WalletSyncEvent = ProgressUpdate | TransactionAdded
-
-input BlockOffsetInput {
-  hash: BlockHash
-  height: BlockHeight
-}
-
-input TransactionOffsetInput {
-  hash: String
-  identifier: String
-}
-
-type Block {
-  parent: Block!
-  hash: BlockHash!
-  height: BlockHeight!
-  timestamp: DateTime!
-  transactions: [Transaction!]!
-}
-
-type Transaction {
-  block: Block!
-  hash: TransactionHash!
-  identifiers: [TransactionIdentifier!]!
-  contractCalls: [ContractCallOrDeploy!]!
-  raw: RawTransaction!
-  fallible: Boolean!
-}
-
-type TransactionAdded {
-  transaction: Transaction!
-  state: WalletLocalState
-}
-
-type ProgressUpdate {
-  synced: BlockHeight
-  total: BlockHeight
-}
-
-interface ContractCallOrDeploy {
-  state: ContractState!
-  transaction: Transaction!
-  address: ContractAddress!
-  zswapChainState: ZswapChainState!
-}
-
-type ContractCall implements ContractCallOrDeploy {
-  transaction: Transaction!
-  deploy: ContractDeploy!
-  address: ContractAddress!
-  state: ContractState! # New state after this contract call
-  zswapChainState: ZswapChainState!
-  operation: ContractOperation!
-}
-
-type ContractDeploy implements ContractCallOrDeploy {
-  transaction: Transaction!
-  address: ContractAddress!
-  state: ContractState! # Initial contract state
-  definition: ContractDefinition!
-  zswapChainState: ZswapChainState!
-}
-
-scalar BlockHash
-
-scalar BlockHeight
-
-scalar TransactionHash
-
-scalar TransactionIdentifier
-
-scalar ContractAddress
-
-scalar ContractState
-
-scalar ContractDefinition
-
-scalar ContractOperation
-
-scalar ViewingKey
-
-scalar SessionId
-
-scalar DateTime
-
-scalar Void
-
-scalar RawTransaction
-
-scalar ZswapChainState
-
-scalar WalletLocalState
-```
-
 ### API's
+
+#### GraphQL
+
+Defined in https://github.com/input-output-hk/midnight-pubsub-indexer/blob/main/api/src/main/resources/pubsub_indexer_v0.graphql
+
+It includes 3 major parts:
+  - blockchain and state queries &mdash; stateless request&mdash;response API
+  - blockchain and state subscriptions &mdash; ephemerally stateful push-based subscriptions
+  - wallet update subscriptions - ephemerally stateful push-based subscriptions
+
+Those combined cover needed functionality to meet needs of:
+1. Wallets - by providing them data to update state
+2. dApps - first and foremost - by providing them information about contract state
+3. Block explorers - by providing at least the basic data about entities stored in the blockchain
 
 #### Blockchain queries
 

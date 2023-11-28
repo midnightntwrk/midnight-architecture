@@ -7,13 +7,16 @@ entity Block {
 + parent_hash
 }
 
-entity Wallet {
-+ session_id
-+ viewing_key
+entity WalletSubscription {
++ id
 }
 
-entity WalletAppliedTransaction {
-+ wallet_local_state  
+entity ViewingUpdate {
++ merkleTreeUpdate
+}
+
+entity Wallet {
++ viewingKey (encryption secret key)
 }
 
 entity Transaction {
@@ -22,13 +25,14 @@ entity Transaction {
 + block_hash
 + raw
 + fallible
++ applyStage
 }
 
-entity ContractCallOrDeploy {
+entity ContractUpdate {
 + address
-+ transacion_hash
++ transaction_hash
 + zswapChainState
-+ initial_state
++ state
 }
 
 entity ContractDeploy {
@@ -39,13 +43,13 @@ entity ContractCall {
 + operation
 }
 
-Block ||-o{ Transaction
-Wallet ||--o{ WalletAppliedTransaction
-WalletAppliedTransaction |o--|| Transaction
-Transaction ||--o{ ContractCallOrDeploy
-ContractCallOrDeploy --> ContractCall
-ContractCallOrDeploy --> ContractDeploy
-ContractDeploy ||--o{ ContractCall
-ContractDeploy -[hidden] ContractCall
+Block ||--o{ Transaction
+Transaction ||--o{ ContractUpdate
+ContractUpdate --> ContractCall : variant
+ContractUpdate --> ContractDeploy : variant
 
+Transaction }o--o{ Wallet : is relevant to
+Wallet ||--|{ ViewingUpdate : produces
+WalletSubscription }o--|| Wallet : connects to
+WalletSubscription ||--|{ ViewingUpdate : sends to client
 @enduml
