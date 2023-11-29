@@ -1,5 +1,7 @@
 # Hoarfrost Data Storage
 
+A forest of frozen trees.
+
 Hoarfrost is a scheme for persistently storing persistent data structures,
 specifically Merkle-Patricia tries, in Midnight.
 
@@ -110,8 +112,8 @@ instead *entries* are optimised to fit within a single disk read. That means
 that a *target size* for an entry, `T` is fixed, and, after encoding a vertex,
 if its entry is smaller than `T`, any children are expanded breadth-first until
 the largest entry that is still smaller than `T` is arrived at. As references
-are now 32 bytes, "small entries" are entries that are smaller than a reference
-to them, and these are always inlined.
+are now 32 bytes (or whatever the hash size is), "small entries" are entries
+that are smaller than a reference to them, and these are always inlined.
 
 As `data` is unbounded, it may be *larger* than `T`. An entry larger than `T`
 is split into consecutive entries, by incrementing `H(v)`. That is, the second
@@ -123,5 +125,126 @@ the entry.
 
 ### In-program
 
-{{TODO: Rust usage, API suggestions}}
+In a program, Hoarfrost should be quasi-transparent, acting as a smart pointer
+to data most of the time, equipped with an additional API to access underlying
+storage an serialization formats. This document will focus on usage in rust,
+although it does not preclude using Hoarfrost in other languages in the future.
+
+```rust
+type UntypedDeserializeFn<R, F> = dyn Fn(&Arena, &mut R, F) -> io::Result<Rc<dyn Storable>>;
+
+pub trait Storable: Any {
+    fn children<'a>(&'a self) -> [Option<Rc<dyn Storable>>; 16];
+    fn data_size(&self) -> usize;
+    fn write_data<W: Write>(&self, writer: &mut W) -> io::Result<()>;
+    // Note that when implemented with children, an unsafe type cast is needed
+    // to recover the `Rc<ChildType>` from the `Rc<dyn Storable>` type. This is due to the
+    // limitations of rusts generics: Ideally `F` would of the following type:
+    //   for<T: Storable> Fn(u8) -> io::Result<Rc<T>>
+    // but Rust doesn't have forall types outside of lifetimes.
+    fn deserialize<
+      R: Read + 'static,
+      F: Fn(u8, UntypedDeserializeFn<R, F>) -> io::Result<Rc<dyn Storable>> + 'static,
+    >(arena: &Arena, reader: &mut R, children: F) -> io::Result<Rc<Self>>;
+    fn deserialize_untyped<
+      R: Read,
+      F: Fn(u8, UntypedDeserializeFn<R, F>) -> io::Result<Rc<dyn Storable>> + 'static,
+    >(arena: &Arena, reader: &mut R, children: F) -> io::Result<Rc<dyn Storable>> {
+        Self::deserialize(arena, reader, children).map(Rc::upcast)
+    }
+}
+```
+
+Any type that wants to be stored in Hoarfrost should implement `Storable`.
+
+`children` and `data_size` should be $O(1)$ cost, and `T::Child` should be a
+smart pointer, or an enum of smart pointers to achieve this.
+
+These can be used in a memory arena:
+
+```rust
+pub struct Arena { /* ... */ }
+
+pub struct Rc<T: Storable> { /* ... */ }
+
+impl Arena {
+    // Creates a blank arena in memory
+    pub fn new() -> Self;
+    // Creates an arena from an existing database
+    pub fn from_db(db: DB) -> Self;
+    // Allocates a new storable within the arena
+    pub fn alloc<T: Storable>(&self, value: T) -> Rc<T>;
+    // Is this particular arena disk backed?
+    pub fn is_disk_backed(&self) -> bool;
+    // Is the pointer contained within this particular arena?
+    pub fn is_within<T: Storable>(&self, ptr: Rc<T>) -> bool;
+    // Take a pointer from another arena, and ensure it is present in this one.
+    pub fn copy_into_arena<T: Storable>(&self, ptr: Rc<T>) -> Rc<T>;
+    // Tells a disk-backed arena to flush a particular pointer, and its closure
+    // to disk.
+    pub fn add_disk_root<T: Storable>(&self, ptr: Rc<T>) -> io::Result<()>;
+    // Tells a disk-backed arena to remove a particular pointer from the
+    // storage roots.
+    pub fn remove_disk_root<T: Storable>(&self, ptr: Rc<T>) -> io::Result<()>;
+    // Imports a serialized form of a pointer's closure into this arena.
+    pub fn import_from_serialized<T: Storable, R: Read + 'static>
+        (&self, reader: &mut R) -> io::Result<Rc<T>>;
+}
+
+impl<T: Storable> Rc<T> {
+    pub fn serialize_closure(&self, writer: &mut W) -> io::Result<()>;
+    pub fn owner(&self) -> Arena;
+    pub fn status(&self) -> RcStatus;
+    pub fn upcast(self) -> Rc<dyn Storable>;
+    pub async fn ensure_loaded();
+}
+
+impl Rc<dyn Storable> {
+    pub fn downcast<T: Storable>(self) -> Result<Rc<T>, Rc<dyn Storable>>;
+}
+
+pub enum RcStatus {
+    Unopened,
+    DiskBacked,
+    OnlyInMemory,
+}
+
+impl<T: Storable> Drop for Rc<T> {
+    // ...
+}
+
+impl<T: Storable> Clone for Rc<T> {
+    // ...
+}
+
+impl<T: Storable> Deref for Rc<T> {
+    type Target = T;
+    // ...
+}
+
+impl Eq for Arena {
+    // ...
+}
+```
+
+#### Tracking churn, insertions and deletions
+
+The idea here is to measure these side-effectfully. At the start, before
+measuring, create a new `Arena`, and copy the input `x` into it. This should be
+almost a noop, referencing the original `Arena`, but keeping the smart pointer
+as `RcStatus::Unopened`.
+
+Then, perform the functional computation on `x`, resulting in `y`. With both
+smart pointers in hand, step through the `Rc` tree manually to determine the
+sets of *opened* vertices in both `x` and `y`, `O(x)` and `O(y)` respectively.
+Insertions are the closure of `O(y) \ O(x)`, deletions `O(x) \ O(y)`, and churn
+the union of both. Determining these closures *may* involve opening vertices in
+`x` and `y` that we're previously opened, because it's possible to:
+1. Remove a sub-tree without opening it
+2. Insert a sub-tree by referencing to another `Arena` containing it
+
+However, these operations are proportional to *at least* the churn cost, which
+can pay for this book-keeping.
+
+{{TODO: Suggest how to deal with thread-safety, reference counts, etc}}
 
