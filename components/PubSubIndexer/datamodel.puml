@@ -11,9 +11,16 @@ entity WalletSubscription {
 + id
 }
 
-entity ViewingUpdate {
-+ merkleTreeUpdate
+enum ViewingUpdate {
++ merkleTreeIndex
 }
+entity CollapsedMerkleTreeUpdate {}
+entity TransactionsUpdate {
++ transactions: Transaction[]
+}
+
+ViewingUpdate <|-- CollapsedMerkleTreeUpdate
+ViewingUpdate <|-- TransactionsUpdate
 
 entity Wallet {
 + viewingKey (encryption secret key)
