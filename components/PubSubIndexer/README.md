@@ -14,6 +14,17 @@ they should be aware of.
 
 ## Special Needs
 
+## Operating Environment
+
+In principle, PubSub Indexer is meant to run in two kinds of environments:
+- desktops, which require minimum amount of preparation and configuration in order to run the component at all
+- cloud/server deployments, where setup that supports high availability is needed and high load of queries can be handled
+
+Possibly any _desktop_ operating system may be used, with the most popular being:
+- Linux distributions
+- macOS
+- Microsoft Windows
+
 ## Neighbors & API Dependencies
 
 There are at least, but not limited to, 3 types of clients of the PubSub-Indexer:
@@ -22,20 +33,12 @@ There are at least, but not limited to, 3 types of clients of the PubSub-Indexer
 2. dApps
 3. Block explorers
 
+All depend on Indexer's GraphQL API.
+
 And there is one source from where the PubSub-Indexer pulls the blocks, which is at least
 one [node](missing_documentation).
 
-![](./components.svg)
-
-**Events Source:** This component is responsible for subscribing to and requesting data from a node.
-
-**Indexer:** The indexer receives events from the events source, processes them, and stores them in the index. It also takes care of notifying the pubsub mechanism about these events.
-
-**Pubsub Mechanism:** This component allows various parts of the system to publish and subscribe to specific topics, facilitating real-time data updates.
-
-**Subscription API:** The subscription API provides WebSocket-based subscriptions. Clients can use it to receive real-time updates and notifications about events and data changes.
-
-**Query API:** This component offers an HTTP API that allows clients to query and retrieve data from the index, providing a more structured and user-friendly way to access information through a GraphQL interface.
+Apart from these - an important API dependency is ZSwap one - to allow indexing wallet data.
 
 ### Wallets
 
@@ -43,22 +46,19 @@ Wallets allow users to build transactions that transfer tokens and/or call or de
 
 ### dApps
 
-dApps are all about contracts, and so they need to know when a contract's state was updated. This means knowing when and how a contract was called, in order to update the state.
+DApps are all about contracts, and so they need to know when a contract's state was updated. This means knowing when and how a contract was called, in order to update the state.
 
 ### Block explorers
 
 A block explorer will typically allow users to find blocks by their hash or height, find transactions by hash, or get a contract state by address. PubSub-Indexer allows for simply doing these kind of queries and getting an immediate response.
 
-## Operating Environment
+### Midnight Node
 
-In principle, PubSub Indexer is meant to run in two kinds of environments:
-  - desktops, which require minimum amount of preparation and configuration in order to run the component at all
-  - cloud/server deployments, where setup that supports high availability is needed and high load of queries can be handled
+Runs consensus and ledger. Processes transactions to determine which follow the rules and can be added to the blockchain
 
-Possibly any _desktop_ operating system may be used, with the most popular being:
-- Linux distributions
-- macOS
-- Microsoft Windows
+### ZSwap API
+
+It is the part of ledger, which is responsible for coin management - it dictates the transaction shape related to coins and valid rules of moving coins.
 
 ## Key Library Dependencies
 
@@ -70,6 +70,66 @@ Possibly any _desktop_ operating system may be used, with the most popular being
 - Caliban - for exposing GraphQL API
 - Sttp - for Http layer
 - Circe - for JSON serialization
+
+## Internal component structure
+
+![](./components.svg)
+
+### Events Source
+
+Fetches data from a node and subscribes to events about new blocks and transactions. 
+
+### Indexer
+
+Runs indexers of specific types, most importantly - the ones for blockchain and wallets.
+
+#### Chain Indexer
+
+Processes blocks, transactions and derived data like contract states or zswap chain state.
+
+#### Wallets Indexer
+
+Processes transactions on a per-wallet basis to be able to provide data needed to let wallet prepare valid transactions. Index database is the source of truth for this indexer, which has the following consequences:
+- unified processing for wallets regardless of their status
+- usage of already processed data as input
+- for chain-related events PubSub is primarily a notifier of a fact, contents of the messages can be used for processing to limit latency impact of a round-trip to the Index database, but one needs to consider possibility of a gap between delivered data at arbitrary points in time (e.g. when the PubSub is restarted)     
+
+### PubSub
+
+This component allows various parts of the system to publish and subscribe to specific topics, facilitating real-time data updates. Crucially, it is the synchronization mechanism between various indexers, so that it becomes possible to run and scale specific indexers separately. It also plays an important role in handling requests from GraphQL mutations to avoid writing to the Index database from the API part of the system. PubSub is a stateless component, whose failure and restart are not causing loss of data, but just delays or recoverable errors. For example:
+- if Chain Indexer publishes information about new blocks, but PubSub is not currently working, it should not mean missed blocks data for Wallets Indexer, just a delay and more blocks to process; accordingly - it should not cause a failure on chain indexer's side
+- if there is a command issued from Mutation API, but it was not handled in a timely manner - Mutation API is free to raise an error to the client, who can make decision about further interactions - e.g. to retry
+
+### Index database
+
+This component stores indexed data in a way, that is easy to query. As the data is in a very big part immutable, it is safe to denormalize the data. As Index database is the source of truth for the API layer and other indexers than the Chain one - one needs to be very careful about read and write patterns to maximise throughput during catch-ups and reduce latency when close to the tip of the chain. 
+
+### GraphQL API
+
+Completely stateless implementation of the API - facilitating horizontal scaling and timely restarts in case of issues. 
+
+#### Subscription API
+
+The subscription API provides WebSocket-based subscriptions. Clients can use it to receive real-time updates and notifications about events and data changes.
+
+#### Query API
+This component offers an HTTP API that allows clients to query and retrieve data from the index, providing a structured and user-friendly way to access information through a GraphQL interface.
+
+#### Mutation API
+
+This component offers clients to issue commands (called _mutations_ in GraphQL jargon). An example of such command would be registering a wallet to track. 
+
+## Deployments
+
+As mentioned in the [Operating Environment](#operating-environment) section, PubSub Indexer is meant to be used in 2 environments, which have different needs in terms of amount of configuration needed, failure modes or recovery.
+
+### Local
+
+![](./deployment-local.svg)
+
+### Cloud
+
+![](./deployment-cloud.svg)
 
 ## Logical Data Model
 
