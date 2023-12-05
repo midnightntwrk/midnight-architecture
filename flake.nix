@@ -2,7 +2,7 @@
   description = "Flake for the midnight-architecture";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,10 +28,10 @@
     (system: let
       pkgs = nixpkgs.legacyPackages.${system};
       plantuml-pdf = pkgs.plantuml.overrideAttrs (old: rec {
-        version = "1.2022.3";
+        version = "1.2023.12";
         src = pkgs.fetchurl {
           url = "https://github.com/plantuml/plantuml/releases/download/v${version}/plantuml-pdf-${version}.jar";
-          hash = "sha256-6ad6CUz1UAvNkhdUJhOME7OsLpIXiBoERfTmowzTz64=";
+          hash = "sha256-mR17BU5rc0ONnPfhOTppUI1T7v5W//6FHUYXFt5QrdU=";
         };
       });
     in

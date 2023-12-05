@@ -3,35 +3,69 @@
 node "Node"
 
 node "PubSub-Indexer" {
-  portin Http
-  portin WebSocketIn
-  portout WebSocketOut
-  portout HTTP
+  portin "Node API - WS + HTTP" as node_api
+  portout "GraphQL API - WS + HTTP" as graphql_api_port
 
-  database Index
+  database Index as index
 
-  [EventsSource] --> Http
-  WebSocketIn -> [EventsSource]
-  [EventsSource] --> [Indexer]
-  [Indexer] --> Index
-  [Indexer] --> [PubSub mechanism]
-  [Subscription API] ----> WebSocketOut
-  Index --> [PubSub mechanism]
-  [PubSub mechanism] --> [Subscription API]
-  Index --> [Query API]
-  [Query API] ---> HTTP
+  queue PubSub as pub_sub
+
+  component "Events Source" as events_source
+
+  component Indexer {
+    component "Chain Indexer" as chain_indexer
+    component "Wallets Indexer" as wallets_indexer
+
+    portin  "Events Source Port" as events_source_indexer_port
+    portout "PubSub Port" as pub_sub_indexer_port
+    portout "Persistence Port" as persistence_indexer_port
+
+    chain_indexer --> events_source_indexer_port
+    chain_indexer --> pub_sub_indexer_port
+    wallets_indexer --> pub_sub_indexer_port
+
+    chain_indexer --> persistence_indexer_port
+    wallets_indexer --> persistence_indexer_port
+
+    pub_sub_indexer_port -[hidden]-- persistence_indexer_port
+  }
+
+  component "GraphQL API" as graphql_api {
+    component "Mutation API" as mutation_api
+    component "Query API" as query_api
+    component "Subscription API" as subscription_api
+
+    port "Index Port" as index_graphql_port
+    port "PubSub Port" as pub_sub_graphql_port
+
+    index_graphql_port <-- query_api : read only
+    pub_sub_graphql_port <-- subscription_api
+    index_graphql_port <-- subscription_api : read only
+    pub_sub_graphql_port <-- mutation_api
+  }
+
+  node_api <-- events_source
+  events_source <-- events_source_indexer_port
+
+  persistence_indexer_port --> index : read/write
+  pub_sub_indexer_port --> pub_sub
+
+  index <-- index_graphql_port
+  pub_sub <-- pub_sub_graphql_port
+
+  graphql_api --> graphql_api_port
+
 }
 
-Node --> WebSocketIn
-Http -> Node
+Node <-- node_api
 
 node Wallet
-WebSocketOut --> Wallet
+graphql_api_port <-- Wallet
 
 node dApp
-WebSocketOut --> dApp
+graphql_api_port <-- dApp
 
 node "Block Explorer" as explorer
-HTTP --> explorer
+graphql_api_port <-- explorer
 
 @enduml

@@ -1,0 +1,77 @@
+@startuml
+
+node "Node\nDedicated Instance" as node
+
+actor "Client\nexternal" as client
+
+queue "PubSub\nRedis" as pub_sub
+database "Index\nPostgreSQL" as index_db
+
+node "GraphQL API Cluster" as graphql_api_cluster {
+  portin "API Load Balancer" as api_load_balancer
+  portout " " as graphql_cluster_index_port
+  portout " " as graphql_cluster_pub_sub_port
+  node "GraphQL API Instance 1\n<<container>>" as graphql_api_instance_1 {
+    component "GraphQL API" as graphql_api_1
+  }
+  node "GraphQL API Instance 2\n<<container>>" as graphql_api_instance_2 {
+    component "GraphQL API" as graphql_api_2
+  }
+  node "GraphQL API Instance n\n<<container>>" as graphql_api_instance_n {
+    component "GraphQL API" as graphql_api_n
+  }
+
+  api_load_balancer ---> graphql_api_instance_1
+  api_load_balancer ---> graphql_api_instance_2
+  api_load_balancer ---> graphql_api_instance_n
+
+  graphql_api_instance_1 ---> graphql_cluster_index_port
+  graphql_api_instance_2 ---> graphql_cluster_index_port
+  graphql_api_instance_n ---> graphql_cluster_index_port
+
+  graphql_api_instance_1 ---> graphql_cluster_pub_sub_port
+  graphql_api_instance_2 ---> graphql_cluster_pub_sub_port
+  graphql_api_instance_n ---> graphql_cluster_pub_sub_port
+}
+
+node "Indexing Cluster" as indexing_cluster {
+  portin " " as indexing_cluster_index_port
+  portin " " as indexing_cluster_pub_sub_port
+
+  node "Primary Indexer\n<<container>>" as primary_indexer {
+    component "Events Source" as events_source
+    component "Chain Indexer" as chain_indexer
+    component "Wallets Indexer\noptional" as wallets_indexer_1
+  }
+
+  node "Secondary Indexer 1\n<<container>>" as secondary_indexer_1 {
+    component "Wallets Indexer" as wallets_indexer_2
+  }
+
+  node "Secondary Indexer n\n<<container>>" as secondary_indexer_n {
+    component "Wallets Indexer" as wallets_indexer_n
+  }
+
+  indexing_cluster_index_port <---- primary_indexer
+  indexing_cluster_index_port <---- secondary_indexer_1
+  indexing_cluster_index_port <---- secondary_indexer_n
+
+  indexing_cluster_pub_sub_port <---- primary_indexer
+  indexing_cluster_pub_sub_port <---- secondary_indexer_1
+  indexing_cluster_pub_sub_port <---- secondary_indexer_n
+
+  secondary_indexer_1 -l[hidden]- secondary_indexer_n
+}
+
+client --> api_load_balancer: public network
+
+events_source --> node
+
+pub_sub -r[hidden]- index_db
+
+graphql_cluster_pub_sub_port --> pub_sub
+graphql_cluster_index_port --> index_db
+pub_sub <-- indexing_cluster_pub_sub_port
+index_db <-- indexing_cluster_index_port
+
+@enduml
