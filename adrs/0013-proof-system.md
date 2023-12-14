@@ -8,7 +8,7 @@ accepted
 <!-- These are optional elements. Feel free to remove any of them. -->
 | -         | -                                                                                                                            |
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
-| date      | 2023-12-14[^1]                                                                                                                       |
+| date      | 2023-12-14[^1]                                                                                                               |
 | deciders  | Thomas Kerber, Jon Rossie, Vanishree Rao                                                                                     |
 | consulted | Carlos Pérez Baró, Inigo Querejeta Azurmendi |
 ---
@@ -50,4 +50,4 @@ This option was chosen because:
 - While KZG requires a trusted setup, we believe the benefits outweigh this
   drawback.
 
-[^1] Note that this ADR includes relatively old decisions at the point of writing.
+[^1]: Note that this ADR includes relatively old decisions at the point of writing.
