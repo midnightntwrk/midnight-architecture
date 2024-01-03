@@ -15,7 +15,7 @@ Together, these operations contribute to possibility of leveraging tokens in DAp
 
 ## Minting new tokens
 
-Allows contracts, and contracts only to mint brand new tokens. The process is as follows:
+Allows contracts, and contracts only to mint new tokens. The process is as follows:
 
 ![](./mint/Mint.svg)
 
@@ -29,15 +29,15 @@ At the end of the process, the transaction, that is produced:
   - has an output created for specified recipient, which contains the newly created token
   - newly created token may not be present in imbalances, because of registered mint
 
-## Receiving tokens from contract
+## Receiving tokens from contract and providing tokens to contract / balancing tokens
+
+![](./balance&receive/Balance%20&%20Receive.svg)
 
 After a mint performed directly for the user or a withdrawal of tokens from a pool held by contract, wallet needs to receive the tokens, there are 2 possible cases for transaction shape:
-1. There is prepared output for the wallet. In this case receiving the coin does not differ from receiving a DUST coin. 
-2. There is no prepared output, transaction has a positive balance of certain token type. In this situation wallet is free to create a new output coin for itself. In case of custom tokens the value is expected to be equal to the token imbalance, in case of DUST - it needs to be deducted by necessary fees. 
+1. There is prepared output for the wallet and information about the coin is provided. In this case receiving the coin does not differ from receiving a DUST coin. That is - wallet registers a watcher for new coin's nonce to detect when it is spendable.
+2. There is no prepared output, transaction has a positive balance of certain token type and no additional information about coins is provided. In this situation wallet is free to create a new output coin for itself. In case of custom tokens the value is expected to be equal to the token imbalance, in case of DUST - it needs to be deducted by necessary fees. It is important that such new outputs are encrypted, so wallet can restore their state correctly when being restored from scratch.
 
 In both cases, Wallet's UI should allow the end user to set a human&ndash;readable description of the token type. Preferably as soon as receiving the transaction from a DApp.
-
-## Providing tokens to contract / balancing tokens
 
 The basic rule for balancing tokens is that wallet, upon receiving an unbalanced transaction, should add inputs and outputs necessary to reduce imbalances to zero. In case of DUST &mdash; this means the inputs need to cover all outputs and all fees. In case of other tokens &mdash; the inputs need to cover outputs in 1:1 ratio.
 

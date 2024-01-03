@@ -5,6 +5,8 @@
 header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 '-----------------------------------------------------------
 
+actor User
+
 participant DApp
 
 participant "Midnight.js" as mnjs
@@ -15,8 +17,7 @@ participant "Compact standard library" as cstd
 
 participant "Builtins/Runtime" as runtime
 
-participant "Wallet"
-
+participant "Wallet" as wallet
 
 DApp --> mnjs : call_contract
 mnjs --> Contract : call
@@ -28,11 +29,7 @@ cstd --> mnjs : create_zswap_output(coin, recipient)
 cstd --> runtime : claim_zswap_coin_spend(coin_commitment)
 cstd --> Contract : coin
 Contract --> mnjs : coin
-mnjs --> Wallet : balance(transaction)
-note over Wallet : No need to balance new token
-Wallet --> Wallet : balance_dust()
-Wallet --> mnjs : balanced_transaction
-mnjs --> DApp : transaction_id
+
 '-----------------------------------------------------------
 ' Please include this standard footer
 footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
