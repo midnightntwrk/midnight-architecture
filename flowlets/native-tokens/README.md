@@ -2,8 +2,6 @@
 
 Zswap supports native tokens using colored coins approach - every coin/shielded utxo has assigned type, where DUST is just a very specific, well-known type.
 
-_TODO_ - comparison with Cardano and Ethereum
-
 Following basic operations need to be covered across whole stack, some of them are variations in usage of the same API/mechanics: 
   - minting new tokens (not possible for DUST)
   - receiving tokens from contract
@@ -13,7 +11,7 @@ Following basic operations need to be covered across whole stack, some of them a
   - displaying tokens balance
   - swapping tokens
 
-Together, these operations contribute to possibility of leveraging tokens in DApps, an example of such approach can be seen in [the DAO example](../../example-dapps/dao).
+Together, these operations contribute to possibility of leveraging tokens in DApps, an example of such approach can be seen in [the DAO example](../../example-dapps/dao). 
 
 ## Minting new tokens
 
@@ -72,3 +70,26 @@ Coins have assigned types, which are hashes for custom tokens or `0x000000000000
 TBD.
 
 Basic mechanic is that 2 users prepare 2 imbalanced transactions which, upon merging, produce a balanced transaction. In order to be able to merge the transaction though, an exchange infrastructure of a sort is needed, which requires is a dedicated effort in terms of defining requirements, speccing and scoping.   
+
+
+## Comparison with Cardano and Ethereum
+
+Using https://github.com/IntersectMBO/cardano-ledger/blob/master/doc/explanations/features.rst as a starting point, we can compare Midnight Native Token support to Cardano and ERC-20-like tokens.
+
+One can notice that in many ways Midnight's native token support is very similar to Cardano's. With the biggest difference being party controlling custom token:
+
+|                                                               | Native Tokens                                                  | Native Tokens                                                          | ERC-20                                                                                                    |
+|---------------------------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| Blockchain                                                    | Midnight                                                       | Cardano                                                                | Ethereum                                                                                                  |
+| Relationship to the blockchain                                | Not a standard. Most functionality is built into ledger itself | Not a standard. Most functionality is built into ledger itself         | A contract standard, users copy-paste the standard code and modify it or use standard source as a library |
+| Controlled by                                                 | A Compact contract                                             | A minting policy script in any scripting language supported by Cardano | A Solidity smart contract                                                                                 |
+| Requires a smart contract to mint/burn?                       | Y                                                              | Y                                                                      | Y                                                                                                         |
+| Requires a smart contract to transfer?                        | N                                                              | N                                                                      | Y                                                                                                         |
+| Can be used by other smart contracts without special support? | Y                                                              | Y                                                                      | N                                                                                                         |
+| Can be transferred alongside other tokens?                    | Y                                                              | Y                                                                      | N (depends on a contract though)                                                                          |
+| Transfer logic provided by                                    | The Midnight Ledger itself                                     | The Cardano ledger itself                                              | ERC-20 template/library or custom implementation                                                          |
+| Transfer logic can be customized                              | N (custom spend logic should address that)                     | N                                                                      | Y                                                                                                         |
+| Requires special fees to transfer                             | N                                                              | N                                                                      | Y                                                                                                         |
+| Requires additional event-handling logic to track transfers   | N                                                              | N                                                                      | Y                                                                                                         |
+| Supports non-fungible tokens                                  | Y                                                              | Y                                                                      | Y (through a dedicated, inherently incompatible standard)                                                 |
+| Readable metadata                                             | _To be defined_, operating contract may provide it             | Provided by the off-chain metadata server                              | Provided by the operating smart contract as part of standard interface                                    |
