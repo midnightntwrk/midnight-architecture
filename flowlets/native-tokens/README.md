@@ -2,6 +2,8 @@
 
 Zswap supports native tokens using colored coins approach - every coin/shielded utxo has assigned type, where DUST is just a very specific, well-known type.
 
+_TODO_ - comparison with Cardano and Ethereum
+
 Following basic operations need to be covered across whole stack, some of them are variations in usage of the same API/mechanics: 
   - minting new tokens (not possible for DUST)
   - receiving tokens from contract
@@ -69,4 +71,4 @@ Coins have assigned types, which are hashes for custom tokens or `0x000000000000
 
 TBD.
 
-Basic mechanic is that 2 users prepare 2 imbalanced transactions which, upon merging, produce a balanced transaction. In order to be able to merge the transaction though, an exchange infrastructure of a sort is needed, which is out of scope for the time being.   
+Basic mechanic is that 2 users prepare 2 imbalanced transactions which, upon merging, produce a balanced transaction. In order to be able to merge the transaction though, an exchange infrastructure of a sort is needed, which requires is a dedicated effort in terms of defining requirements, speccing and scoping.   
