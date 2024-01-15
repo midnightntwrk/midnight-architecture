@@ -37,7 +37,7 @@ alt User approves
   wallet_engine --> wallet_engine : receive_tokens(transaction, new_coins)
   note over wallet_engine : Provide balance of non-DUST tokens
   wallet_engine --> wallet_engine : provide_non_dust
-  note over wallet_engine : Provide balance of DUST
+  note over wallet_engine : Provide balance of DUST\nall other inputs and outpus are known at this point
   wallet_engine --> wallet_engine : provide_dust
   alt Sufficient balance
     wallet_engine --> wallet_extension : balanced_transaction
