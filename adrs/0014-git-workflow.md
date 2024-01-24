@@ -79,30 +79,6 @@ There should be naming conventions and procedures around creating and merging th
 * Branch from: `release-stream`.
 * Merge into: `release-stream` and `develop`. Merging this into the `develop` branch might also require some cherry picking or redoing of work.
 
-<!-- This is an optional element. Feel free to remove. -->
-## Pros and Cons of the Options
-
-### Purposed Git Workflow
-
-* Good, beacuse it separates the `develop` and `release-stream` branches.
-* Good, because {argument a}
-* Good, because {argument b}
-<!-- use "neutral" if the given argument weights neither for good nor bad -->
-* Neutral, because {argument c}
-* Bad, because {argument d}
-* … <!-- numbers of pros and cons can vary -->
-
-### {title of other option}
-
-{example | description | pointer to more information | …}
-
-* Good, because {argument a}
-* Good, because {argument b}
-* Neutral, because {argument c}
-* Bad, because {argument d}
-* …
-
-<!-- This is an optional element. Feel free to remove. -->
 ## More Information
 
 I found [Git workflow on Midnight's confluence page](https://input-output.atlassian.net/wiki/spaces/MN/pages/3378086090/Git+Workflow). However, it misses the separation of the `develop` and `release-stream` branches.
