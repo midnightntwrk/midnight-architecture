@@ -138,6 +138,8 @@ Links to other decisions and resources might here appear as well.}
    Some circuits implement functionality that does not modify the state of a contract. These are analogous to static
    functions in Java. The Compact standard library contains such functions.
 
+   How are "pure" functions implemented? Are keys created for them? Is their execution proven?
+
 ### Other Open Questions
 
 1. What account API is available to contracts?
@@ -169,3 +171,85 @@ Links to other decisions and resources might here appear as well.}
     to predict. It is important to have a way to verify that a contract is behaving as expected.
 
 12. Can contracts be instantiated in contract constructors?
+
+------------------------------------------------------------------------------------------------------------------------
+
+# Proving Dynamic Contract Instantiation
+
+The main question is:
+
+> What does it mean to prove correct computation of a contract constructor?
+
+At minimum this should mean:
+
+1. The shape of the ledger state is correct; _exactly_ the ledger fields defined in the contract are present in the new
+   contract state.
+2. The ledger and witness queries performed in the constructor are provably correct.
+3. The contract address returned by the constructor is provably correct.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Calls corresponds call transactions and instantiations corresponds to deploys
+
+In this scenario, contract calls and instantiations are represented by call transactions. Each dynamic contract instantiation
+produces data required to construct a deploy transaction. Each inter-contract call produces data required to construct a
+call transaction. All deploy transactions _D_ precede all call transactions and all transactions are merged into a single
+transaction _T_. This raises the following questions.
+
+### Transaction Atomicity
+
+For this approach to be viable, we must guarantee the following:
+
+1. Either all of _D_ and _C_ succeed or fail.
+
+
+2. _T_ is never merged with another transaction.
+
+   This property is particularly important. If deploy $D_1$
+   
+3. _D_ and _C_ are executed in sequence.
+
+## Constructors are circuits
+
+In this scenario, contract constructors are circuits. They accept Compact values and return a contract address. The
+body of the circuit consists of a set of public and private oracle queries that initialize the ledger and witness state.
+Contract constructors proofs use the same message-passing commitment scheme as inter-contract calls do. This raises the 
+following questions.
+
+### Generating Fresh Addresses
+
+Can a fixed circuit generate a fresh address each time?
+
+### Prover and Verifier Keys for Constructors
+
+Since prover _P_ and verifier _V_ keys need to be attached for each circuit to verify proofs, what does it mean that _P_
+and _V_ would exist for the constructor circuit? Does this mean call transactions can be can target constructors?
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
