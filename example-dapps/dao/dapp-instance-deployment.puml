@@ -7,83 +7,55 @@ footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
 actor User
 
 node UserComputer as "User Computer\n<<machine>>" {
-    node UserTerminal as "User Terminal\n<<process>>"
-
-    node UserBrowser as "User Browser\n<<process>>" {
-        component DappFrontend as "Dapp Frontend"
+    node UserBrowserTab as "User Browser Tab\n<<process>>" {
+        component DApp as "DApp"
     }
+
+    node WalletBrowserExtension as "Wallet Browser Extension\n<<process>>" {
+      component DAppConnector as "DApp Connector"
+    }
+
+    node ProofServer as "Proof Server\n<<process>>" {
+      component Plonk
+    }
+
+    DApp -- DAppConnector : "extension messaging API"
+    DApp -- ProofServer
+    WalletBrowserExtension -- ProofServer
 }
 
-node Server as "Server\n<<machine>>" {
-    artifact DappFrontendBundle as "Dapp Frontend Bundle"
+node DAppServer as "DApp Server\n<<machine>>" {
+    artifact DAppBundle as "DApp Bundle"
 
-    artifact DappSecretKey as "Dapp Secret Key\n<<per instance>>\nto initialize the private state"
+    node HttpServer as "DApp Http Server\n<<process>>"
 
-    node DappServer as "Dapp Server\n<<process>>" {
-        component DappBackend as "Dapp Backend"
-        component Contract as "DAO Contract"
-        component ApplicationBackend as "Application Backend"
-        storage DappPublicState as "Dapp Public State\n<<ephemeral>>"
-        storage DappPrivateState as "Dapp Private State\n<<ephemeral>>"
-        component DappSyncClient as "Sync Client"
-        component DappLedgerLib as "Ledger Lib"
-        component DappPlonk as "Plonk" 
-        component WalletAPIClient as "Wallet Client"
-
-        DappBackend -- ApplicationBackend
-        ApplicationBackend -- Contract
-        ApplicationBackend -- DappPublicState
-        ApplicationBackend -- DappPrivateState
-        ApplicationBackend -- DappSyncClient
-        ApplicationBackend -- DappLedgerLib
-        Contract -- DappLedgerLib
-        DappLedgerLib -- DappPlonk
-        ApplicationBackend -- WalletAPIClient
-        ApplicationBackend -- DappSecretKey : "initializes with"
-    }
-
-    node Wallet as "Wallet\n<<process>>" {
-        component WalletTUI as "Wallet TUI"
-        component WalletEngine as "Wallet Engine"
-        component WalletLedgerLib as "Ledger Lib"
-        component WalletPlonk as "Plonk"
-        component WalletSyncClient as "Sync Client"
-        artifact WalletSecretKey as "Wallet Secret Key\n<<per instance>>"
-        component WalletAPIServer as "Wallet API Server"
-
-        WalletEngine -- WalletSyncClient
-        WalletEngine -- WalletLedgerLib
-        WalletLedgerLib -- WalletPlonk
-        WalletAPIServer -- WalletEngine
-        WalletTUI -- WalletEngine
-    }
-    WalletAPIClient -- WalletAPIServer 
-    DappServer -- DappFrontendBundle : "hosts"
+    HttpServer -- DAppBundle : "hosts"
 }
 
-node Node as "Node Host\n<<machine>>" {
-    artifact Bootstrap as "Bootstrap data\nto mint initial tokens"
+node ServiceHost as "Service Host\n<<machine>>" {
+    node PubSubIndexer as "PubSub Indexer\n<<process>>"
+
+
     node NodeInstance as "Node\n<<process>>" {
-        component NodeAPI as "Node API Server"
-        component NodeLedger as "Node Ledger"
-        component NodeLedgerLib as "Ledger Lib"
-        component NodePlonk as "Plonk"
-        storage LedgerState as "Ledger State\n<<ephemeral>>"
 
-        NodeAPI -- NodeLedger
-        NodeLedger -- NodeLedgerLib
-        NodeLedgerLib -- NodePlonk
     }
 
-    NodeLedger -- Bootstrap : "initializes with"
+    PubSubIndexer -- NodeInstance
 }
 
-User -- UserBrowser
-User -- UserTerminal
+node BlockProducerHost as "Block Producer Host\n<<machine>>" {
+  node BlockProducerNodeInstance as "Block Producer Node\n<<process>>"
+}
 
-DappFrontend -- DappBackend : "communicates over network"
-DappSyncClient -- NodeAPI
-WalletSyncClient -- NodeAPI
-UserTerminal -- WalletTUI : "renders, over network"
+cloud MidnightNetwork as "Midnight Network"
+
+User -- UserBrowserTab
+User -- WalletBrowserExtension
+UserBrowserTab -- HttpServer
+NodeInstance -- MidnightNetwork
+UserBrowserTab -- PubSubIndexer
+WalletBrowserExtension -- PubSubIndexer
+WalletBrowserExtension -- NodeInstance
+MidnightNetwork -- BlockProducerNodeInstance
 
 @enduml

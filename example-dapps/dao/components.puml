@@ -6,99 +6,87 @@ footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
 
 actor User
 
+component mnjs as "Midnight.JS"
+
 component DaoDapp {
-    interface DaoStateAPI as "Dao State API                                "
+    interface DaoStateAPI as "Dao State API"
 
-    component DappFrontend {
-        component DappUI
-        component DappClient
-        DaoStateAPI <|-- DappClient
-        DappUI -- DappClient
+    component DappUI
+
+    component Contract {
+        component TypeScriptRunnable
+        component zkKeys
     }
 
-    component DappServer {
-        component DappController
+    component DAOFacade
 
-        component DappBackend {
-            component Contract {
-                component TypeScriptRunnable
-                component zkKeys
-            }
+    component DAOState
 
-            component DAOState
-        }
-
-        DappController -- DAOState
-        DaoStateAPI <|-- DAOState
-    }
-
-    DappClient -- DappController : "over network"
+    DAOFacade -- DAOState
+    DAOFacade -- Contract
+    DAOFacade -- mnjs
+    DappUI -- DAOFacade
+    DappUI -- DaoStateAPI
+    DaoStateAPI <|-- DAOState
 }
 
-component SyncClient
+component PubSub as "PubSub Indexer"
+interface PubSubGQLAPI as "PubSub GraphQL API"
 
 component Wallet {
-    interface WalletAPI as "Wallet API                              "
+    interface WalletAPI as "Wallet API"
 
-    component WalletTUI
+    component WalletUI
 
-    component WalletServer
+    component WalletEngine
 
-    component WalletState
-
-    component WalletClient
-
-    WalletTUI -- WalletState
-    WalletServer -- WalletState
-    WalletAPI <|-- WalletState
-    WalletClient --|> WalletAPI
-    WalletClient -- WalletServer : "over network"
+    WalletUI -- WalletAPI
+    WalletAPI <|-- WalletEngine
 }
 
-component WalletEngine
 
-component LedgerLib
+
+component LedgerLibs {
+  component CompactRuntime
+  component Zswap
+}
 
 component Node {
-    component SyncServer
+    component NodeRPC
 
     component NodeLedger
 
-    SyncServer -- NodeLedger
+    NodeRPC -- NodeLedger
 }
 
 component ZKIR
 
 component Plonk
 
-component Abcirdc
+component Compactc
 
 component LedgerADTs {
     component ADTInterface
     component ADTImplmentation
 }
 
-component ApplicationBackend
+PubSubGQLAPI <|-- PubSub
+PubSub -- NodeRPC
 
 User -- DappUI
-DAOState -- ApplicationBackend
-User -- WalletTUI
-ApplicationBackend -- SyncClient
-WalletEngine -- SyncClient
-WalletEngine -- LedgerLib
-NodeLedger -- LedgerLib
-ApplicationBackend -- LedgerLib
-Contract -- ApplicationBackend
-WalletAPI -- ApplicationBackend
+User -- WalletUI
+mnjs -- PubSubGQLAPI
+WalletEngine -- PubSubGQLAPI
+WalletEngine -- Zswap
+NodeLedger -- LedgerLibs
+mnjs -- LedgerLibs
 ZKIR -- Plonk
-LedgerLib -- Plonk
-Contract .. Abcirdc : "is produced by"
-Abcirdc -- ZKIR
-LedgerLib -- ZKIR
-Abcirdc -- ADTInterface
-ADTImplmentation -- LedgerLib
-SyncClient -- SyncServer : "over network"
-WalletState -- WalletEngine
+LedgerLibs -- Plonk
+Contract .. Compactc : "is produced by"
+Compactc -- ZKIR
+LedgerLibs -- ZKIR
+Compactc -- ADTInterface
+ADTImplmentation -- LedgerLibs
 
 
 @enduml
