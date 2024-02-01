@@ -18,15 +18,16 @@ This document proposes changes to the Compact syntax to support contract declara
 
 Currently, contract developers have no means to reuse the state and behavior of other contracts and no means to abstract
 the state and behavior of contracts. To solve these issues, this document proposes the addition of `contract` and `interface`
-declarations to Compact.
+declarations to Compact. For Midnight TestNet, the critical addition here is `contract` declarations, so `interface`
+declarations are considered a stretch goal.
 
 ## Compact Syntax Changes
 
 ### `contract` Declarations
 
-The most significant change introduced in this proposal is the addition of contract declarations. Similarly to `contract`
-declarations in Solidity, or `class` declarations in Javascript, `contract` declarations in Compact denote independently-deployable
-computational units that encapsulate state and behavior.
+The most significant change introduced in this proposal is the addition of contract declarations. Similarly to contract
+declarations in Solidity, contract declarations in Compact denote independently-deployable computational units that 
+encapsulate state and behavior.
 
 A contract declaration consists of the `contract` keyword, followed by the name of the contract, optional type parameters,
 and a body wrapped in braces `{}`. For example, the following is a valid (body-less) declaration for the
@@ -40,7 +41,7 @@ contract AuthCell[V] {
 
 The body of a contract contains a sequence of circuit declarations. A circuit declaration consists of the `circuit` keyword
 followed by a name, a sequence of parameters wrapped in parentheses `()`, a return type, and a body wrapped in braces `{}`.
-Circuit declaration _signatures_ are mostly from Compact version **??**. Adding circuit declarations (without specifying
+The syntax for circuit signatures is unchanged from the current Compact version. Adding circuit declarations (without specifying
 their implementations) to the previous example might look as follows:
 
 ```
@@ -60,15 +61,18 @@ contract AuthCell[V] {
 }
 ```
 
-The body of the contract also contains a sequence (of length >= 1) of ledger variable declarations. A ledger declaration
-consists of the `ledger` keyword followed by the name and type of the ledger variable. The previous example with ledger
-declarations might look as follows:
+All circuits defined in a contract are callable. There is no need to mark a circuit as `public` or `private` as in Solidity, 
+or to use the `export` keyword as in the current Compact version.
+
+The body of the contract also contains a sequence (of length >= 1, see [Limitations](#contracts-must-have-a-public-state) section) 
+of ledger declarations. A ledger declaration consists of the `ledger` keyword followed by a mutability specifier (`let` or `const`)
+and the name and type of the ledger variable. The previous example with ledger declarations might look as follows:
 
 ```
 contract AuthCell[V] {
 
-    ledger value: V;
-    ledger authorized_pk: Bytes[32];
+    ledger let value: V;
+    ledger const authorized_pk: Bytes[32];
     
     circuit get(): V {
         ...
@@ -85,25 +89,26 @@ contract AuthCell[V] {
 ```
 
 The body of `AuthCell` contains two ledger variable declarations: `value` and `authorized_pk`. The type of `value` is `V`,
-a generic, and the type of `authorized_pk` is `Bytes[32]`, a fixed-length byte array. Both ledger variables together constitute
-the public state of the contract. Note, all ledger variables are initialized to default values. Note, for brevity, the syntax
-above removes the `Cell` wrapper around the `V` and `Bytes[32]` types required by Compact version **??**. Ledger declarations
-may declare any ADT type supported by Compact version **??**. However, ledger operations cannot accept contract types as
-arguments or return contract types. For a justification of this constraint, see the [Limitations](#no-storing-contracts-in-the-ledger)
-section.
+a generic, and the type of `authorized_pk` is `Bytes[32]`, a fixed-length byte array. The mutability specifiers indicate
+whether the value can be modified. The `const` keyword indicates that the value cannot be changed, while the `let` keyword 
+indicates that the value can be mutated freely. Both ledger variables together constitute the public state of the contract. 
+All ledger variable types _except_ contract values have default values. This is discussed in a [later section](#internal-contract-calls).
 
-The body of the contract may also contain a sequence of witness declarations. A witness declaration consists of the `witness`
-keyword followed by a name, an (optional) sequence of parameters wrapped in parentheses `()`, a return type. Witnesses do not have a body.
-They are just signatures. Witnesses without a parameter list are treated as constants. The previous example with witness
-declarations might look as follows:
+The example above does not use the `Cell` syntax to wrap the types of mutable ledger variables. This is intentional. 
+The `Cell` syntax should be removed in favor of the `let` mutability specifier so that a syntactic symmetry exists
+between `let` and `const` ledger variables.
+
+The body of a contract also contains a sequence (of length >= 0) of witness declarations. A witness declaration consists of the `witness`
+keyword followed by a name, an (optional) sequence of parameters wrapped in parentheses `()`, and a return type. Witnesses do not have a body.
+They are just signatures. The previous example with witness declarations might look as follows:
 
 ```
 contract AuthCell[V] {
 
-    ledger value: V;
-    ledger authorized_pk: Bytes[32];
+    ledger let value: V;
+    ledger const authorized_pk: Bytes[32];
 
-    witness sk: Bytes[32];
+    witness sk(): Bytes[32];
 
     circuit get(): V {
         ...
@@ -135,10 +140,10 @@ and witness invocations. The previous example with a constructor might look as f
 ```
 contract AuthCell[V] {
 
-    ledger value: V;
-    ledger authorized_pk: Bytes[32];
+    ledger let value: V;
+    ledger const authorized_pk: Bytes[32];
 
-    witness sk: Bytes[32];
+    witness sk(): Bytes[32];
 
     constructor (value: V, authorized_pk: Bytes[32]) {
         ...
@@ -159,22 +164,23 @@ contract AuthCell[V] {
 ```
 
 A contract does not need to have a constructor. If a contract does not have a constructor, the ledger variables are initialized
-to their default values. Although each contract defines a constructor, Compact does not support invoking contract constructors,
-and it does not support dynamic contract instantiation. For a justification of this constraint, see the [Limitations](#no-dynamic-contract-instantiation)
-section. Furthermore, constructors cannot accept contract-typed parameters. For a justification of this constraint, see the
-[Limitations](#no-contracts-as-constructor-parameters) section.
+to their default values. Exceptions to this rule are `ledger const` ledger variables
 
-Ledger variables and witnesses can be accessed in the body of a contract with the `this` keyword, which functions
+Although each contract defines a constructor, Compact does not support invoking contract constructors,
+and it does not support dynamic contract instantiation. For a justification of this constraint, see the [Limitations](#no-dynamic-contract-instantiation)
+section.
+
+Circuits, ledger variables, and witnesses can be accessed in the body of a contract with the `this` keyword, which functions
 similarly to `this` in Javascript. With all of these elements, the implementations of the `get` and `set` circuits, as well as the `constructor`, can be
 completed. The previous example with implementations might look as follows:
 
 ```
 contract AuthCell[V] {
 
-    ledger value: V;
-    ledger authorized_pk: Bytes[32];
+    ledger let value: V;
+    ledger const authorized_pk: Bytes[32];
 
-    witness sk: Bytes[32];
+    witness sk(): Bytes[32];
 
     constructor (value: V, authorized_pk: Bytes[32]) {
         this.value = value;
@@ -182,12 +188,12 @@ contract AuthCell[V] {
     }
 
     circuit get(): V {
-        assert public_key(this.sk) == authorized_pk;
+        assert this.public_key(this.sk()) == this.authorized_pk;
         return this.value;
     }
 
     circuit set(new_value: V): Void {
-        assert public_key(this.sk) == this.authorized_pk;
+        assert this.public_key(this.sk()) == this.authorized_pk;
         this.value = new_value;
     }
 
@@ -203,18 +209,169 @@ This restriction is imposed to simplify the implementation. Future Compact versi
 
 ### Modules
 
-Modules may contain contract declarations, but not all contract declarations need to be must be contained in an explicit
+Modules may contain contract declarations, but not all contract declarations must be contained in an explicit
 `module` wrapper. Contracts may or may not be exported from modules using the `export` keyword. Contracts that are not
 exported from a module cannot be accessed outside the enclosing module. However, _all_ contracts in a program, regardless
-of whether they are exported, and regardless of the module in which they are defined, can be deployed. This will make
-more sense after section on [internal contract calls](#internal-contract-calls). Modules may also contain `interface` declarations,
-which are explored in the next section. Modules may also contain circuit declarations, but note that any such circuit is
-necessarily a pure circuit, since it does not have access to the ledger variables or witnesses of a contract. Finally, modules
-may also contain `struct` declarations, just as in the current Compact version.
+of whether they are exported, and regardless of the module in which they are defined, can be deployed. Modules may also 
+contain circuit declarations, but note that any such circuit is necessarily a pure circuit since it does not have access 
+to the ledger variables or witnesses of a contract. Finally, modules may also contain `struct` declarations, just as in 
+the current Compact version.
 
 **Question for Kent**: Are files that export contracts but contain no module declarations automatically wrapped in a module
 identified by the file name of the file containing the contract declarations? How does this work when a file contains both
 a module and top-level declarations?
+
+## Internal Contract Calls
+
+An internal contract call is when a circuit in one contract calls a circuit in another contract. Internal contract calls
+will be supported with the following additions to the syntax described so far:
+
+- Contract constructors may accept contract-typed arguments. 
+- Contract values be assigned to `ledger const` variables. 
+- A circuit can call a circuit defined on a contract value using dot notation.
+
+and the following usage constraints: 
+
+- A constructor cannot call the circuits of a contract parameter.
+- A circuit cannot accept contract arguments or return contract values.
+- A witness cannot accept contract arguments or return contract values.
+
+For justifications for these constraints, see the [Limitations] section.
+
+Given the above constraints, and given that contracts cannot be dynamically instantiated, the only way for a circuit to
+get a contract value is to read one from a `ledger const` variable. Using the running `AuthCell` example, this situation
+might look like the following.
+
+Contract parameters are like normal circuit parameters except the type of the circuit parameter is either the name of a contract
+or the name of an interface. Using the running `AuthCell` example, an internal contract call might look as follows:
+
+```
+contract AuthCellUser {
+
+    ledger const auth_cell: AuthCell[Field];
+    
+    constructor (auth_cell: AuthCell[Field]) {
+        this.auth_cell = auth_cell;
+    }
+    
+    circuit use_auth_cell(): Void {
+        const v = this.auth_cell.get();
+        this.auth_cell.set(f + 1);
+        return v;
+    }
+}
+```
+
+The `use_auth_cell` circuit in the `AuthCellUser` calls `this.auth_cell.get` to retrieve the field value stored in `auth_cell`, 
+stores the result, and then calls `this.auth_cell.set` to increment the original value by one. The `use_auth_cell` 
+circuit returns the original value.
+
+Although a contract can call a circuit on a contract to which it has reference, a contract cannot directly access 
+the ledger variables or witnesses of another contract. For example, `use_auth_cell` cannot directly access `authorized_pk` 
+or `value` in `AuthCell`. Nor can it directly access `sk`. See the [Limitations](#no-external-ledger-variable-accesses) section for a justification of this 
+constraint.
+
+## The Compact Standard Library
+
+Due to uncertainty about the semantics of ledger kernel operations and ZSwap witnesses in a version of Compact with
+contract declarations, the Compact standard library will be treated as a special case. The kernel operations will be
+in-lined using the same techniques that are used currently.
+
+## Limitations
+
+The following limitations are imposed on the version of Compact proposed in this document. Some sections also include 
+requirements on `compactc` that the limitations imply.
+
+### Only `const` Contract Ledger Variables
+
+For security purposes, we only permit storing contract values in `ledger const` variables. This is because the value of
+such variables is set in the contract constructor at the time the contract is deployed. We must assume that the deployer
+trusts the instance of the contract that is stored in the `ledger const` variable, but the deployer _cannot_ trust an
+instance of a contract that is passed as a parameter to a circuit, since all circuits are callable by anyone. We have the
+following requirement:
+
+> `compactc` should statically detect when a circuit attempts to assign a contract value to a `ledger let` variable and
+report an informative error.
+
+### Default Contract Ledger Variables
+
+Since there is no natural default value for a contract-typed ledger variable (and to avoid the hornet's nest of `null`), 
+all `ledger const` variables storing contracts must be explicitly initialized in the contract constructor. We have the
+following requirement:
+
+> `compactc` should statically detect when a contract-typed ledger variable is not initialized and report an informative error.
+
+### Circuits May Not Accept/Return Contract Parameters/Values
+
+To minimize the complexity of the contract runtime, contracts may not be passed as arguments to circuits. This constraint 
+makes contracts more secure, since allowing consumers of a contract to pass arbitrary contracts in circuit parameters 
+means that the state of the contract being called can be modified by a contract that is potentially unknown to the deployer. 
+This also leads to the following requirement:
+
+> `compactc` should statically detect when a circuit attempts to accept a contract as a parameter and report an informative
+error
+
+Circuits may not return contract values. At the moment, this doesn't look like a security issue. The constraint is imposed
+for implementation simplicity and because the implications of such a feature are unclear. See [Open Questions](
+#can-circuits-return-contract-values) for a discussion. This also leads to the following requirement:
+
+> `compactc` should statically detect when a contract attempts to return a contract from a circuit and report an informative
+error
+
+### Witnesses May Not Accept/Return Contract Parameters/Values
+
+The runtime will likely represent contracts by their addresses, and it is unclear how the witness implementor would
+expect a contract to be represented. This leads to the requirement:
+
+> `compactc` should statically detect when a witness attempts to accept a contract parameter or return a contract value
+and report an informative error
+
+### Contracts Must Have a Public State
+
+Each contract must have at least one ledger declaration in its body. This constraint is imposed because, otherwise, the 
+declared contract has no ledger state, and it is semantically meaningless to deploy a contract with no ledger state to 
+the blockchain. This leads to the following requirement.
+
+> `compactc` should statically detect when a contract attempts to define a contract without a public state and report an
+informative error.
+
+### No Calling Circuits of Contract Parameters in Constructors
+
+The current proposal does not allow the circuits of contract parameters to be called in the constructor of a contract.
+This is because it isn't clear what it means to prove the correctness of a circuit that is called in a constructor. We have
+the following requirement:
+
+> `compactc` should statically detect when a constructor attempts to call a circuit defined on a contract argument and
+report an informative error.
+
+### Contracts May Not Be Passed 
+
+### No Dynamic Contract Instantiation
+
+Although each contract defines a constructor, such constructors may not be invoked to instantiate a contract dynamically.
+This constraint is imposed to minimize the complexity of the contract runtime. Although dynamic instantiation is a useful
+and desirable feature, more work is required to understand the semantics of dynamic contract instantiation, as well as 
+its broader implications for contract security. The key question dynamic instantiation raises is, what does it mean to
+prove the correctness of a contract instantiation? There is no clear answer to this question at present, making implementation
+infeasible for our timeline.
+
+### No External Ledger Variable Accesses
+
+In object-oriented languages, the members of a class can often be accessed with dot notation (e.g. `foo.bar`). The ledger
+declarations in a contract somewhat resemble member declarations on classes. However, to reduce implementation complexity
+and preserve strict, common-sense contract security, we impose the constraint that only the circuits declared in a contract
+can access the ledger values declared in the same contract. Direct inter-contract ledger state access is useful and technically feasible, but it is not a critical feature. We
+therefore err on the side of caution and disallow it entirely. Future Compact versions could relax the above constraint
+by introducing access modifiers (e.g. `public`/`private`) for `ledger` declarations.
+
+## Proving System Changes
+
+Internal contract calls will use the exact commitment-messaging mechanism proposed [here](./0004-micro-adt-language.md#proposed-changes).
+The key difference in this proposal is that commitments occur over contracts instead of interfaces.
+
+## Stretch Goals
+
+The following sections describe features that are nice to have but not strictly necessary for Midnight DevNet.
 
 ### `interface` Declarations
 
@@ -225,7 +382,7 @@ interface declarations.
 Interface declarations in Compact are similar to interface declarations in Typescript. An interface declaration consists
 of the `interface` keyword, followed by the name of the interface, optional type parameters, and a body wrapped in braces
 `{}`. The body of an interface contains a sequence of interface circuit declarations. The syntax for an interface circuit
-declaration is the same as the syntax for a contract circuit declaration, but without a circuit body wrapped in braces. The
+declaration is the same as the syntax for a contract circuit declaration but without a circuit body wrapped in braces. The
 following is an example of a valid interface declaration.
 
 ```
@@ -251,10 +408,10 @@ interface IAuthCell[V] {
 
 contract AuthCell[V] implements IAuthCell[V] {
 
-    ledger value: V;
-    ledger authorized_pk: Bytes[32];
+    ledger let value: V;
+    ledger const authorized_pk: Bytes[32];
 
-    witness sk: Bytes[32];
+    witness sk(): Bytes[32];
 
     constructor (value: V, authorized_pk: Bytes[32]) {
         this.value = value;
@@ -262,12 +419,12 @@ contract AuthCell[V] implements IAuthCell[V] {
     }
 
     circuit get(): V {
-        assert public_key(this.sk) == authorized_pk;
+        assert public_key(this.sk()) == authorized_pk;
         return this.value;
     }
 
     circuit set(new_value: V): Void {
-        assert public_key(this.sk) == this.authorized_pk;
+        assert public_key(this.sk()) == this.authorized_pk;
         this.value = new_value;
     }
 
@@ -278,132 +435,52 @@ contract AuthCell[V] implements IAuthCell[V] {
 ```
 
 Although we support contracts implementing interfaces, we do not support multiple interface inheritance (using `implements`
-followed by a comma-separated list of interfaces the contract satisfies), and we do not contract inheritance analogous
+followed by a comma-separated list of interfaces the contract satisfies), and we do not support contract inheritance analogous
 to class inheritance in Javascript. This is to simplify the implementation. Future Compact versions may relax
 this constraint.
 
-## Internal Contract Calls
+### Support for Const and Mutable Witness Variables
 
-An internal contract call is when a circuit in one contract calls a circuit in another contract. Since contracts cannot
-be dynamically instantiated, the only way to get a contract value is to pass it as parameter to the circuit that needs it.
-Contract parameters are like normal circuit parameters except the type of the circuit parameter is either the name of a contract
-or the name of an interface. Using the running `AuthCell` example, an internal contract call might look as follows:
+In the `AuthCell` example, the `sk()` witness always returns the same value. As such, it should be possible to specify
+such in the source language. Analogous to `let` and `const` ledger variables, future Compact versions may consider adding
+`let` and `const` witness variables. The mutability of these variables could be reflected in the generated Typescript code
+as `readonly` or non-`readonly` properties of the generated `Witness` type.
 
-```
-contract AuthCellUser {
-    circuit use_auth_cell(auth_cell: AuthCell[Field]): Void {
-        const v = auth_cell.get();
-        auth_cell.set(f + 1);
-        return v;
-    }
-}
-```
+### Accessing Pure Circuits via Dot Notation
 
-The `use_auth_cell` circuit in the `AuthCellUser` contract accepts a contract argument of type `AuthCell[Field]`, calls
-the `get` circuit on `auth_cell`, stores the result, and then calls the `set` circuit on `auth_cell` to increment the
-original value by one. The `use_auth_cell` circuit returns the original value. The `use_auth_cell` circuit could also
-return the value of `auth_cell` itself, although, at present, although doing so would not be useful since the caller
-of `use_auth_cell` already has a reference to `auth_cell`.
+It would be very useful for the pure circuits of a contract to be accessible from another contract using dot notation,
+similarly to how `static` methods are available to other classes in Javascript.
 
-One contract cannot directly access the ledger variables or witnesses of another contract. For example, `use_auth_cell`
-cannot directly access `authorized_pk` or `value` in `AuthCell`. Nor can it directly access `sk`. See the
-[Limitations](#no-external-ledger-variable-accesses) section for a justification of this constraint.
+## Open Questions
 
-Any pure circuit in a contract can be accessed from another contract using dot notation similar to how static methods are
-accessed in Javascript. For example, the `public_key` circuit in `AuthCell` can be accessed using `AuthCell.public_key`.
+### Can Circuits of Contract Parameters be Called in the Constructor?
 
-**Open Question**: The above is not strictly necessary, since any pure circuit can be lifted to a top-level circuit.
-Maybe we should remove this feature to simplify the implementation?
+The current proposal does not allow the circuits of contract parameters to be called in the constructor of a contract.
+This is because there isn't a clear answer to the question, what does it mean to prove the correctness of a circuit that
+is invoked in a constructor?
 
-**Open Question**: Can `pure_circuits` also accept contract arguments and return contract values? Doing so is seemingly
-redundant, since only the pure circuits of the contract argument can be called any pure circuit defined in a contract
-can be accessed directly with dot notation.
+### Can Circuits Return Contract Values?
 
-## The Compact Standard Library (In Progress)
+The current proposal does not allow circuits to return contract values, but (according to the author's understanding) there
+is no fundamental reason why this should not be possible. Passing contracts as parameters to circuits is different from 
+returning contracts from circuits. Assuming the former is not possible, then, in the latter case, the outer contract 
+necessarily trusts the inner contract that returns the contract value, since the outer contract specifies the inner 
+contract in its constructor.
 
-Ideally, the Compact standard library should be accessed through the same composition mechanisms as regular
-contracts. The ledger kernel and ZSwap witnesses are special cases to some extent, but they should not be treated as such
-unless absolutely necessary.
+### Can Contract Values Be Stored In ADTs?
 
-One idea is to introduce a `System` contract (analogous to Java's [System](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html)
-class) that contains the ledger kernel and ZSwap witnesses, as well as the circuits for sending and receiving funds. Such
-a contract should never be instantiable, and it should be accessible from any contract without having to receive it as a
-parameter.
+If there is support for assigning contract values to `let const` ledger declarations, then we have to decide if contracts
+can be stored in ADT ledger declarations. This seems technically possible, since a contract state resolution process would
+need to traverse the contract state dependency graph anyway. However, it is unclear what the implications of this feature
+are.
 
-## Limitations
+## Future Directions
 
-### No Storing Contracts in the Ledger
+The standard library should be accessed through the same composition mechanisms as regular contracts. The ledger kernel
+and ZSwap witnesses are special cases to some extent, but they should not be treated as such unless absolutely necessary.
+One idea is to introduce a special `System` contract (analogous to Java's [System](https://docs.oracle.com/javase/8/docs/api/java/lang/System.html) class) that contains the ledger 
+kernel and ZSwap witnesses, as well as the circuits for sending and receiving funds. Such should not be instantiable and 
+should be accessible from any contract without having to receive it as a parameter.
 
-To minimize the complexity of the contract runtime, contracts may not be arguments or return values of ledger operations.
-To see why, consider the following contract.
-
-```
-contract Bar {
-    ...
-    circuit bar(): Void {
-      ...
-    }
-}
-
-contract Foo {
-    ledger b: Bar;
-    circuit foo (bar: Bar): Void {
-      this.b = bar;
-    }
-    circuit baz (): Void {
-      this.b.bar();
-    }
-}
-```
-
-The circuit `Foo.foo` contract accepts a contract argument of type `Bar` (represented as a `ContractAddress` by the
-runtime) and stores it in the ledger value `Foo.b`. The circuit `Foo.baz` reads `Foo.b` and calls a circuit `Bar.bar`
-on `b`. For circuits like `Foo.baz` to be supported, the contract runtime would need a ledger state for `b`, which would
-require one of the following:
-
-1. Fetch the ledger state of `b` dynamically, or
-2. Traverse the ledger state of `Foo` before execution begins to determine which additional ledger states are required
-   (in this case the ledger state of `b`) and fetch them prior to executing `baz`.
-
-Both of these options introduce implementation complexity. To ensure the changes proposed in this document are feasible
-for public TestNet, such contracts are disallowed. We also have the following requirement.
-
-> `compactc` should statically detect when a program attempts to write a `contract` type to a `ledger` value and report an
-informative error.
-
-### No Contracts as Constructor Parameters
-
-To minimize the complexity of the contract runtime, contracts may not be constructor parameters. To see why, consider when
-passing contracts as constructor parameters would be useful. Remember that contract constructors cannot be directly invoked
-in Compact. Hence, the only way to pass a contract as a constructor parameter would be to pass it as an argument to the
-`initialState` function in the contract executable produced by `compactc`. Since contracts cannot be arguments to ledger
-operations or witnesses, such a contract parameter would only be useful if the contract constructor were to invoke a circuit
-defined on the contract. But, this creates a similar issue to the issue that dynamic contract invocations create. Namely,
-what does it mean to prove the correctness a circuit executed inside a contract constructor? Due to the ambiguity here,
-this feature is not supported. We also have the following requirement:
-
-> `compactc` should statically detect when a contract attempts to define a contract-typed constructor parameter and report
-an informative error.
-
-### No Dynamic Contract Instantiation
-
-Although each contract defines a constructor, such constructors may not be invoked to instantiate a contract dynamically.
-This constraint is imposed to minimize the complexity of the contract runtime. Although dynamic instantiation is a useful
-and desirable feature, more work must is required to understand the semantics of dynamic contract instantiation, as well
-its broader implications for contract security. The key question dynamic instantiation raises is, what does it mean to
-prove the correctness of a contract instantiation? There is no clear answer to this question at present, making implementation
-infeasible for our timeline.
-
-### No External Ledger Variable Accesses
-
-In object-oriented languages, the members of a class can often be accessed with dot notation (e.g. `foo.bar`). The ledger
-declarations in a contract somewhat resemble member declarations on classes. However, to reduce implementation complexity
-and preserve strict, common-sense contract security, we impose the constraint that only the circuits declared in a contract
-can access the ledger values declared in the same contract. Direct inter-contract ledger state access is useful and technically feasible, but it is not a critical feature. We
-therefore err on the side of caution and disallow it entirely. Future Compact versions could relax the above constraint
-by introducing access modifiers (e.g. `public`/`private`) for `ledger` declarations.
-
-## Proving System Changes
-
-Internal contract calls will use the exact commitment-messaging mechanism proposed [here](./0004-micro-adt-language.md#proposed-changes).
-The key difference in this proposal is that commitments occur over `contract`s instead of `interface`s.
+Future versions should attempt to support [dynamic contract instantiation](#no-dynamic-contract-instantiation) and some
+form of interface inheritance, and [direct inter-contract](#no-external-ledger-variable-accesses) ledger state access.
