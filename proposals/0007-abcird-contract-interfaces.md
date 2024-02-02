@@ -88,19 +88,24 @@ circuit foo(x: Field): Field {
 }
 ```
 
-behaves like (pseudocode):
+behaves like the following pseudocode, which is *not* the responsibility of the
+compiler, but that of the ZK libraries:
 
 ```
+witness builtin#nonce(): Field;
+
 circuit foo(x: Field): Field {
   ...
   const result = 42;
-  const comm = transient_hash(transient_hash(local$kernel$external_nonce(), x), result);
-  declare_public_input(comm);
+  const comm = transient_hash(transient_hash(builtin#nonce(), x), result);
+  ledger.communications_commitment(comm);
   return result;
 }
 ```
 
-Likewise,
+This is counteracted when a contract is called, where a call to `foo` will
+inject a similar commitment computation (which in this case *is* done by the
+compiler):
 
 ```
 contract Foo {
@@ -115,20 +120,31 @@ circuit bar(a: Foo): Void {
 behaves like (pseudocode):
 
 ```
-struct Foo { address: Field; }
+struct CallResults[T] {
+  nonce: Field;
+  result: T;
+}
+
+witness builtin#perform_call[C, A, B](contract: C, entry_point: Opaque["string"], args: A): CallResult[B];
+
+struct Foo { address: Bytes[32], ... }
 
 circuit bar(a: Foo): Void {
-  const result = local$kernel$call_result$Foo$foo();
-  const nonce = local$kernel$fresh_nonce();
-  const comm = transient_hash(transient_hash(nonce, 42), result);
-  ledger$kernel$claim_contract_call(a.address, "foo", comm);
-  assert !(404 == result) "Meaning of life not found";
-  ...
+  const call_args: Field = 42;
+  const call_result = builtin#perform_call[Foo, Field, Field](a, "foo", call_args);
+  const comm = transient_hash(transient_hash(call_result.nonce, call_args), call_result.result);
+  ledger.claim_contract_call(a.address, "foo", comm);
+  assert !(404 == call_result.result) "Meaning of life not found";
 }
 ```
 
 Care must be taken to ensure that the nonces match up only in the case of one
-call being the child of another.
+call being the child of another. In practice, this means that when
+`builtin#perform_call` is called, it should return the same `nonce` that is
+provided as the input nonce to the contract that gets called.
+`builtin#perform_call` signals to the calling environment to add a new contract
+call into the same transaction, passing the contract to be called, the entry
+point to be called, and the arguments to it.
 
 # Desired Result
 

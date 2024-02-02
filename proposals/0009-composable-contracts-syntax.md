@@ -366,7 +366,7 @@ by introducing access modifiers (e.g. `public`/`private`) for `ledger` declarati
 
 ## Proving System Changes
 
-Internal contract calls will use the exact commitment-messaging mechanism proposed [here](./0004-micro-adt-language.md#proposed-changes).
+Internal contract calls will use the exact commitment-messaging mechanism proposed [here](./0007-abcird-contract-interfaces.md).
 The key difference in this proposal is that commitments occur over contracts instead of interfaces.
 
 ## Stretch Goals
