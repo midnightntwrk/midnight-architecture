@@ -36,6 +36,7 @@ and Compact.
 * Halo 2 over Pallas/Vesta with IPA
 * Halo 2 over Pluto/Eris with IPA
 * Halo 2 over Pluto/Eris with KZG
+* Halo 2 over BLS12-381 with KZG
 
 ## Decision Outcome
 
@@ -49,5 +50,8 @@ This option was chosen because:
   Halo 2's recursion strategy, and the performance uplift of KZG.
 - While KZG requires a trusted setup, we believe the benefits outweigh this
   drawback.
+- Pluto/Eris, being a larger curve than Pallas/Vesta or BLS12-381 is more
+  expensive than the latter for basic operations. We believe this cost to be
+  outweighed by the future advantages of the curve.
 
 [^1]: Note that this ADR includes relatively old decisions at the point of writing.
