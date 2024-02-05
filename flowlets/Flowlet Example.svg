@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="594px" preserveAspectRatio="none" style="width:411px;height:594px;background:#FFFFFF;" version="1.1" viewBox="0 0 411 594" width="411px" zoomAndPan="magnify"><defs/><g><rect fill="#DDDDDD" height="472.5254" style="stroke:#181818;stroke-width:0.5;" width="210.5" x="142.5" y="65.8867"/><a href="http://plantuml.com" target="_top" title="Optional tooltip" xlink:actuate="onRequest" xlink:href="http://plantuml.com" xlink:show="new" xlink:title="Optional tooltip" xlink:type="simple"><text fill="#0000FF" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" text-decoration="underline" textLength="125" x="185.25" y="78.4551">Server Component</text></a><rect height="216.1289" style="stroke:#000000;stroke-width:1.5;fill:none;" width="384" x="10" y="225.7949"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="38" x2="38" y1="150.1738" y2="458.9238"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="176.5" x2="176.5" y1="150.1738" y2="458.9238"/><line style="stroke:#181818;stroke-width:0.5;fill:none;stroke-dasharray:5.0,5.0;" x1="316" x2="316" y1="150.1738" y2="458.9238"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="20" y="147.2207">User</text><ellipse cx="38.5" cy="82.1855" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M38.5,90.1855 L38.5,117.1855 M25.5,98.1855 L51.5,98.1855 M38.5,117.1855 L25.5,132.1855 M38.5,117.1855 L51.5,132.1855 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="31" x="20" y="471.459">User</text><ellipse cx="38.5" cy="482.9121" fill="#E2E2F0" rx="8" ry="8" style="stroke:#181818;stroke-width:0.5;"/><path d="M38.5,490.9121 L38.5,517.9121 M25.5,498.9121 L51.5,498.9121 M38.5,517.9121 L25.5,532.9121 M38.5,517.9121 L51.5,532.9121 " fill="none" style="stroke:#181818;stroke-width:0.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="153.5" y="130.7324">Client</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="54" x="146.5" y="147.2207">Handler</text><ellipse cx="176.5" cy="101.1973" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><polygon fill="#181818" points="172.5,89.1973,178.5,84.1973,176.5,89.1973,178.5,94.1973,172.5,89.1973" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="153.5" y="471.459">Client</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="54" x="146.5" y="487.9473">Handler</text><ellipse cx="176.5" cy="506.9004" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><polygon fill="#181818" points="172.5,494.9004,178.5,489.9004,176.5,494.9004,178.5,499.9004,172.5,494.9004" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="284" y="147.2207">Sessions</text><ellipse cx="316.5" cy="117.6855" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="304.5" x2="328.5" y1="131.6855" y2="131.6855"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="59" x="284" y="471.459">Sessions</text><ellipse cx="316.5" cy="490.4121" fill="#E2E2F0" rx="12" ry="12" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="304.5" x2="328.5" y1="504.4121" y2="504.4121"/><polygon fill="#181818" points="164.5,177.4844,174.5,181.4844,164.5,185.4844,168.5,181.4844" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="38.5" x2="170.5" y1="181.4844" y2="181.4844"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="44" x="45.5" y="176.7422">join(id)</text><polygon fill="#181818" points="304.5,206.7949,314.5,210.7949,304.5,214.7949,308.5,210.7949" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="176.5" x2="310.5" y1="210.7949" y2="210.7949"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="116" x="183.5" y="206.0527">registerSession(id)</text><path d="M10,225.7949 L72,225.7949 L72,233.1055 L62,243.1055 L10,243.1055 L10,225.7949 " fill="#EEEEEE" style="stroke:#000000;stroke-width:1.5;"/><rect fill="none" height="216.1289" style="stroke:#000000;stroke-width:1.5;" width="384" x="10" y="225.7949"/><text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacing" textLength="17" x="25" y="239.3633">alt</text><text fill="#000000" font-family="sans-serif" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="51" x="87" y="238.4297">[success]</text><rect fill="#FEFFDD" height="23" style="stroke:#181818;stroke-width:0.5;" width="135" x="249" y="248.1055"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="127" x="253" y="264.6738">added as session_id</text><polygon fill="#181818" points="187.5,293.7266,177.5,297.7266,187.5,301.7266,183.5,297.7266" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="181.5" x2="315.5" y1="297.7266" y2="297.7266"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="93" x="193.5" y="292.9844">Ok(session_id)</text><polygon fill="#181818" points="49.5,323.0371,39.5,327.0371,49.5,331.0371,45.5,327.0371" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="43.5" x2="175.5" y1="327.0371" y2="327.0371"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="114" x="55.5" y="322.2949">Joined(session_id)</text><line style="stroke:#000000;stroke-width:1.0;stroke-dasharray:2.0,2.0;" x1="10" x2="394" y1="336.0371" y2="336.0371"/><text fill="#000000" font-family="sans-serif" font-size="11" font-weight="bold" lengthAdjust="spacing" textLength="45" x="15" y="346.6719">[failure]</text><rect fill="#FEFFDD" height="23" style="stroke:#181818;stroke-width:0.5;" width="87" x="273" y="354.9922"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="79" x="277" y="371.5605">failed to add</text><polygon fill="#181818" points="187.5,400.6133,177.5,404.6133,187.5,408.6133,183.5,404.6133" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="181.5" x2="315.5" y1="404.6133" y2="404.6133"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="37" x="193.5" y="399.8711">Failed</text><polygon fill="#181818" points="49.5,429.9238,39.5,433.9238,49.5,437.9238,45.5,433.9238" style="stroke:#181818;stroke-width:1.0;"/><line style="stroke:#181818;stroke-width:1.0;" x1="43.5" x2="175.5" y1="433.9238" y2="433.9238"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="77" x="55.5" y="429.1816">FailedToJoin</text><rect height="58.8867" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="118" x="285" y="5"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="69" x="334" y="14.668">example.puml</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="118" x="285" y="26.4453">2024.01.03 at 12:43 CET</text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="400" y="38.2227"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="400" y="50"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="400" y="61.7773"> </text><rect height="47.1094" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="222" x="90.5" y="539.4121"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="200" y="549.0801"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="200" y="560.8574"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="3" x="200" y="572.6348"> </text><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="222" x="90.5" y="584.4121">Copyright 2024, Input Output Hong Kong, Ltd.</text><!--MD5=[f1e1b145bc84518d49d416b4729f8c71]
+@startuml "Flowlet Example"
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+actor User as user
+box "[[http://plantuml.com{Optional tooltip} Server Component]]"
+        control "Client\nHandler" as clientHandler
+        entity Sessions as sessions
+end box
+
+
+user -> clientHandler : join(id)
+clientHandler -> sessions : registerSession(id)
+alt success
+        rnote over sessions: added as session_id
+        sessions -> clientHandler : Ok(session_id)
+        clientHandler -> user : Joined(session_id)
+else failure
+        rnote over sessions: failed to add
+        sessions -> clientHandler : Failed
+        clientHandler -> user : FailedToJoin
+end
+
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Hong Kong, Ltd.
+'- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+@enduml
+
+@startuml "Flowlet Example"
+
+header example.puml\n2024.01.03 at 12:43 CET\n\n\n
+
+actor User as user
+box "[[http://plantuml.com{Optional tooltip} Server Component]]"
+        control "Client\nHandler" as clientHandler
+        entity Sessions as sessions
+end box
+
+
+user -> clientHandler : join(id)
+clientHandler -> sessions : registerSession(id)
+alt success
+        rnote over sessions: added as session_id
+        sessions -> clientHandler : Ok(session_id)
+        clientHandler -> user : Joined(session_id)
+else failure
+        rnote over sessions: failed to add
+        sessions -> clientHandler : Failed
+        clientHandler -> user : FailedToJoin
+end
+
+footer \n\n\nCopyright 2024, Input Output Hong Kong, Ltd.
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 18:10:57 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: PL
+--></g></svg>

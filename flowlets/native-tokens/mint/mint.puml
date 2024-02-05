@@ -1,0 +1,39 @@
+@startuml "Mint"
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+actor User
+
+participant DApp
+
+participant "Midnight.js" as mnjs
+
+participant Contract
+
+participant "Compact standard library" as cstd
+
+participant "Builtins/Runtime" as runtime
+
+participant "Wallet" as wallet
+
+DApp --> mnjs : call_contract
+mnjs --> Contract : call
+Contract --> cstd : mint_token(domain_sep, value, nonce, recipient)
+cstd --> cstd : token_type(domain_sep, ledger.self())
+cstd --> cstd : new CoinInfo(token_type, value, nonce)
+cstd --> runtime : mint(domain_sep, value, nonce)
+cstd --> mnjs : create_zswap_output(coin, recipient)
+cstd --> runtime : claim_zswap_coin_spend(coin_commitment)
+cstd --> Contract : coin
+Contract --> mnjs : coin
+
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+'-----------------------------------------------------------
+
+
+@enduml

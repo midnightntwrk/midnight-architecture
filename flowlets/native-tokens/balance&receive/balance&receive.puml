@@ -1,0 +1,62 @@
+@startuml "Balance & Receive"
+
+'-----------------------------------------------------------
+' Please include this standard header
+header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
+'-----------------------------------------------------------
+
+actor User
+
+participant DApp
+
+participant "Midnight.js" as mnjs
+
+participant "Contract" as contract
+
+participant "Wallet Extension" as wallet_extension
+
+participant "Wallet Engine" as wallet_engine
+
+User --> DApp : trigger action
+DApp --> mnjs : call_contract
+mnjs --> contract : call
+alt Mint
+  contract --> contract : mint_token(domain_sep, value, nonce, recipient)
+else Send
+  contract --> contract : send(input_coin, value, recipient)
+end
+contract --> mnjs : create_zswap_output(new_coin)
+mnjs --> mnjs : record new coin
+contract --> mnjs : return new_coin
+mnjs --> wallet_extension : balance(transaction, new_coins)
+wallet_extension --> User : request approval
+alt User approves
+  User --> wallet_extension : approve
+  wallet_extension --> wallet_engine : balance_transaction(transaction, new_coins)
+  note over wallet_engine : Collect new coins, create new self-owned outputs for positively unbalanced tokens
+  wallet_engine --> wallet_engine : receive_tokens(transaction, new_coins)
+  note over wallet_engine : Provide balance of non-DUST tokens
+  wallet_engine --> wallet_engine : provide_non_dust
+  note over wallet_engine : Provide balance of DUST\nall other inputs and outpus are known at this point
+  wallet_engine --> wallet_engine : provide_dust
+  alt Sufficient balance
+    wallet_engine --> wallet_extension : balanced_transaction
+    wallet_extension --> mnjs : balanced_transaction
+    mnjs --> DApp : transaction_id
+  else Insufficient balance
+    wallet_engine --> wallet_extension : balance_error(insufficient_balance, DUST)
+    wallet_extension --> mnjs : balance_error(insufficient_balance, DUST)
+    mnjs --> DApp : error
+  end
+else User does not approve
+  User --> wallet_extension : not approve
+  wallet_extension --> mnjs : balance_error(user_disapproval)
+  mnjs --> DApp : error
+end
+'-----------------------------------------------------------
+' Please include this standard footer
+footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
+'-----------------------------------------------------------
+
+
+@enduml
