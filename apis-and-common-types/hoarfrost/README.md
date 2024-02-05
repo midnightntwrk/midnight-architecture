@@ -90,7 +90,8 @@ When decoding, to ensure that the encoding is canonical, a few extra checks are 
 - That no extension is encoded as a node, or encoded too short
 
 
-{{TODO: Binary encoding format}}
+A binary encoding is left for future specification -- the first revision of
+this document is focused on high-level concepts.
 
 ### In-database
 
@@ -121,7 +122,8 @@ part of `v`'s entry may be found in `H(v) + 1` and so forth. The first part
 must always contain the metadata, the length of the entry, and the children of
 the entry.
 
-{{TODO: Binary encoding format}}
+A binary encoding is left for future specification -- the first revision of
+this document is focused on high-level concepts.
 
 ### In-program
 
@@ -246,5 +248,52 @@ the union of both. Determining these closures *may* involve opening vertices in
 However, these operations are proportional to *at least* the churn cost, which
 can pay for this book-keeping.
 
-{{TODO: Suggest how to deal with thread-safety, reference counts, etc}}
+#### Implementation Concerns
 
+Hoarfrost will naturally induce contention on a global resource: The database.
+Care must be taken to limit this contention, both reducing time spent waiting
+on disk, and time where spent on secondary resources which may induce
+contention. In particular, the use of locks in inevitable in many places, but
+should be reduced to a bare minimum.
+
+When handling `Rc<T>` pointers, data should be accessed from the following, in
+order of availability:
+
+1. An internal shared pointer, for instance an `Arc<T>` (requiring no locks).
+2. An in-memory cache of on-disk data base state, for instance internal data of
+   an `Arena` (requiring a read lock).
+3. The on-disk storage of the value (requiring a disk/db lock).
+
+It appears reasonable to handle data requests in a separate thread, to allow DB
+requests to be handled independently of standard program operation.
+
+To enable parallel loading of data, batch loading should be possible. There are broadly three classes of loads:
+
+1. Loading a (set of) hash(es) directly
+2. Loading a (set of) known keys under a (set of) known hash(es)
+3. Loading unknown keys under known hash(es)
+
+Although in the worst case, 3. will require synchronous disk access, it can be
+mitigated by loading relatively small vertices entirely. For this reason, a
+disk-backed arena should expose endpoints to hint at loading a combination of
+these:
+
+```rust
+impl Arena {
+    /// Returns a promise that, once complete, all keys are guaranteed to be
+    /// in-cache
+    pub async fn preload_keys<T: AsRef<[u8]>>(&self, root: Hash, keys: &[T]) -> io::Result<()>;
+    /// Returns a promise that, once complete, all keys are loaded (as far as
+    /// possible) recursively into cache, up to `max_depth` depth depth, and a
+    /// total size of `max_total_size`. /// Returns `true` if this is the
+    /// entire closure, and `false` if the closure is limited due to resource
+    /// bounds.
+    pub async fn preload_dyn_keys<T: AsRef<[u8]>>(&self, root: Hash, keys: &[T], max_depth: u8, max_total_size: usize) -> io::Result<bool>;
+    /// Marker that this is a good point to garbage collect the in-memory cache
+    /// Behaviour is unspecified, but should release memory as possible if
+    /// memory is running out
+    pub async fn release_cache(&self);
+    /// Forces a hard write to the DB of new additions.
+    pub async fn sync(&self) -> io::Result<()>;
+}
+```

@@ -8,7 +8,7 @@ proposed
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
 | date      | 2023-11-27                                                                                                                       |
 | deciders  | Thomas Kerber, Jon Rossie |
-| consulted | Alex Dalton, Giles Cope |
+| consulted | Alex Dalton, Giles Cope, Andrzej Kopeć, Jonathan Sobel |
 ---
 
 ## Context and Problem Statement
