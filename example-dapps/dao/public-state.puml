@@ -4,13 +4,32 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 
 footer \n\n\nCopyright %date("yyyy"), Input Output Global, Ltd.
 
-[*] --> Setup : Deploy
+Setup : - organizer's public key is set
+Setup : - voting token price is set
+Setup : - no proposal
+
+Commit : - proposal topic is set
+Commit : - proposal beneficiary is set
+Commit : - vote commitments
+Commit : - voters nullifiers
+
+Reveal : - proposal topic is set
+Reveal : - proposal beneficiary is set
+Reveal : - vote commitments
+Reveal : - voters nullifiers
+Reveal : - ballot
+
+Final : - proposal topic is set
+Final : - proposal beneficiary is set
+Final : - ballot
+
 Setup --> Commit : Set topic by organizer
+[*] --> Setup : Deploy
 Commit --> Commit : Commit vote by voter
 Commit --> Reveal : advance by organizer
 Reveal --> Reveal : Reveal vote by voter
 Reveal --> Final : advance by organizer
-Final --> Setup : Cash out by beneficiary if there's more "yes" votes
-Final --> Setup : advance by organizer if there's more "no" votes
+Final --> Setup : Cash out by beneficiary\nif there's more "yes" votes
+Final --> Setup : advance by organizer\notherwise
 
 @enduml

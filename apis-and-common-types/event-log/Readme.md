@@ -8,6 +8,7 @@ __Status__: Draft
 ## Use cases
 
 Major use-cases this API has to enable are:
+  - Implementing a PubSub Indexer
   - Implementing a block explorer
   - Implementing a (light)wallet backend
   - Implementing DApp ledger state sync
@@ -24,7 +25,7 @@ of shape of those can be found at [Ledger Repository](https://github.com/input-o
 
 Most of these events are sourced from ledger and mempool/consensus, rising a requirement
 for the component APIs to report these. It is not required from node code to know exact 
-contents of the events or how to parse them.
+contents of the events or how to parse them as long as a canonical serialization is defined for ledger-owned datatypes
 
 ```TS
 // New block added to chain
@@ -147,3 +148,8 @@ Events `NewBlock`, `NewNullifiers`, `NewCommitments`, `ContractCalled` and
 `NewContract` seem to cover many cases related to blockchain data itself.
 If events `NewBlock` and `NewPendingTx` have timestamps, it becomes feasible to 
 calculate time-bound metrics related to e.g. network congestion
+
+## Current state
+
+Node uses substrate integration points to expose necessary APIs as a mix of RPC 
+methods and Substrate events in the Midnight pallet definition: https://github.com/input-output-hk/midnight-substrate-prototype/blob/main/pallets/midnight
