@@ -176,13 +176,11 @@ impl Arena {
     pub fn from_db(db: DB) -> Self;
     // Allocates a new storable within the arena
     pub fn alloc<T: Storable>(&self, value: T) -> Rc<T>;
-    // Is this particular arena disk backed?
-    pub fn is_disk_backed(&self) -> bool;
     // Is the pointer contained within this particular arena?
     pub fn is_within<T: Storable>(&self, ptr: Rc<T>) -> bool;
     // Take a pointer from another arena, and ensure it is present in this one.
     pub fn copy_into_arena<T: Storable>(&self, ptr: Rc<T>) -> Rc<T>;
-    // Tells a disk-backed arena to flush a particular pointer, and its closure
+    // Tells a disk-backed arena to write a particular pointer, and its closure
     // to disk.
     pub fn add_disk_root<T: Storable>(&self, ptr: Rc<T>) -> io::Result<()>;
     // Tells a disk-backed arena to remove a particular pointer from the
