@@ -1,12 +1,12 @@
-# 12. State Storage
+# 14. State Storage
 
 ## Status
 
-proposed
+accepted
 
 | -         | -                                                                                                                            |
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
-| date      | 2023-11-27                                                                                                                       |
+| date      | 2024-02-13                                                                                                                       |
 | deciders  | Thomas Kerber, Jon Rossie |
 | consulted | Alex Dalton, Giles Cope, Andrzej Kopeć, Jonathan Sobel |
 ---

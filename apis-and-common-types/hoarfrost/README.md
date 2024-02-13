@@ -120,7 +120,8 @@ As `data` is unbounded, it may be *larger* than `T`. An entry larger than `T`
 is split into consecutive entries, by incrementing `H(v)`. That is, the second
 part of `v`'s entry may be found in `H(v) + 1` and so forth. The first part
 must always contain the metadata, the length of the entry, and the children of
-the entry.
+the entry. This splitting is to prevent $O(1)$ operations from being used to
+require the database to load large sections of data into memory for low cost.
 
 A binary encoding is left for future specification -- the first revision of
 this document is focused on high-level concepts.
