@@ -34,3 +34,13 @@ Native tokens
 
 Custom spend logic
 : Term used to indicate a potential feature of Midnight, where spending a coin involves executing attached logic so that certain invariants of token lifecycle can be enforced. An example use–case can be requiring known/allowed source of tokens.   
+
+Hard-fork
+: An update to protocol, which makes previously invalid events, valid. Such kind of update requires all clients connected to network to upgrade.
+See: https://en.bitcoin.it/wiki/Hardfork
+While in Bitcoin no intended hard-forks were executed, they are a common approach to bring new features in other networks, like Ethereum or Cardano. 
+
+Soft-fork
+: An update to protocol, which makes previously valid events, invalid. Such kind of update requires all block producers to upgrade, but other clients not necessarily
+See: https://en.bitcoin.it/wiki/Softfork
+
