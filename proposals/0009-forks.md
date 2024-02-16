@@ -105,9 +105,15 @@ We know, that ZK operations are taking a lot of time in WASM environment.
 
 ## Proposed Changes
 
+It is an important consideration and guiding principle, that after the proposal is implemented, certain properties are held:
+- separation of ledger and consensus
+- keep ledger transaction validation a pure function
+- keep ledger state evolution a pure function
+- keep different ledger versions oblivious of each other
+
 ### Protocol
 
-At this moment there is no proposed protocol. Partially - because a big part of protocol definition falls under governance and incentives. 
+At this moment there is no detailed protocol. Partially - because a big part of protocol definition falls under governance and incentives. 
 
 Nonetheless, there is a set of identified desired properties, which seem to indicate the direction:
 - no federation or single party holding governance keys - this removes issues and risks related to selecting the parties, as well as managing very sensitive key material. It also seems to reduce legal risks for potential parties involved 
@@ -117,6 +123,36 @@ Nonetheless, there is a set of identified desired properties, which seem to indi
 - blocks have encoded latest version supported by its producer to allow at any time verify software upgrades adoption
 - initiation of the upgrade is recorded on-chain and need to include 2 pieces of information: policy to be used to determine activation and next version to be activated; the policy may vary - it might follow statistical approach as in Bitcoin, it might be as well a specific transaction, or subject of a voting mechanism; Encoding both data will reduce number of assumptions that need to be made on consensus in order to determine set of rules to apply, as well as should simplify chain selection at the time of a fork
 - in order to let clients efficiently choose version of rules to comply, PubSub needs to provide an API to query the current protocol version
+
+#### Compatibility chart
+
+Semantics of compatibility between data and code may be unclear in certain cases, table below may be used as a reference
+
+Legend:
+  - ✅ - yes
+  - ❌ - no
+  - ☑️ - should
+
+| Data (block) version | Protocol (code) version | Can (compatible) data be produced by the code | Can data be consumed by the code |
+|----------------------|-------------------------|-----------------------------------------------|----------------------------------|
+| `X.Y.Z`              | `X.Y.Z`                 | ✅                                             | ✅                                |
+| `(X+n).Y.Z`          | `X.Y.Z`                 | ❌                                             | ❌                                |
+| `X.Y.Z`              | `(X+n).Y.Z`             | ❌                                             | ❌                                |
+| `X.(Y+n).Z`          | `X.Y.Z`                 | ❌                                             | ☑️(not necessarily fully)        |
+| `X.Y.Z`              | `X.(Y+n).Z`             | ✅                                             | ✅                                |
+| `X.Y.(Z+n)`          | `X.Y.Z`                 | ✅                                             | ✅                                |
+| `X.Y.Z`              | `X.Y.(Z+n)`             | ✅                                             | ✅                                |
+| `X.Y.Z-pre.A`        | `X.Y.Z-pre.A`           | ✅                                             | ✅                                |
+| `X.Y.Z-pre.A`        | `X.Y.Z-pre.B`           | ❌                                             | ❌                                |
+| `X.Y.Z`              | `X.Y.Z-pre.A`           | ☑️                                            | ☑️                               |
+| `X.Y.Z-pre.A`        | `X.Y.Z`                 | ☑️                                            | ☑️                               |
+
+In other words:
+  - major version change involve complete lack of compatibility and requires a hard-fork to do the update 
+  - minor version change maintains backward compatibility, but older code might not be able to fully inspect the data, thus a soft-fork is required to do the update
+  - patch version change maintains backward and forward compatibility, so the update can be performed in-place at will
+  - pre-releases in principle are treated as major versions, but preferably maintain compatibility with minor version - usually the point of a pre-release is exactly to verify integration and compatibility 
+
 
 ### Mechanism
 
@@ -167,7 +203,7 @@ The design would follow following mechanic:
         - ensure wallet state is initialized accordingly
         - find implementation for current version
         - delegate calculation
-  - it is expected, that the facades will need to support sum of all operations from a range of versions, like ledger queries, wallet state queries, etc.; In such cases API should communicate it clearly, that there is a possibility of lack of support for an operation on current version of a component 
+  - it is expected, that the facades will need to support sum of all operations from a range of versions, like ledger queries, wallet state queries, etc.; In such cases API should communicate it clearly, that there is a possibility of lack of support for an operation on current version of a component
 
 ### Policy
 
@@ -207,3 +243,12 @@ Eventually it seems to be a preferred approach to equip the facades with capabil
 
 ### Is the immediate policy really needed? Can't it be used to take ownership of network at the moment of emergency?
 
+TBD
+
+### The mechanics are very likely to require separate packages for major versions/eras of underlying components
+
+There are ecosystems, where such approach is common, as it allows for gradual upgrades between, otherwise completely incompatible, versions.
+
+### How does SCALE and Borsh handle serialization of data structure extended with an additional field?
+
+TBD
