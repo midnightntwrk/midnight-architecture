@@ -29,67 +29,67 @@ The most significant change introduced in this proposal is the addition of contr
 declarations in Solidity, contract declarations in Compact denote independently-deployable computational units that 
 encapsulate state and behavior.
 
-A contract declaration consists of the `contract` keyword, followed by the name of the contract, optional type parameters,
-and a body wrapped in braces `{}`. For example, the following is a valid (body-less) declaration for the
-`AuthCell` contract.
+A contract declaration consists of the `contract` keyword, followed by the name of the contract and a body wrapped in braces `{}`. 
+For example, the following is a valid (body-less) declaration for the `AuthCell` contract. Contracts may not be generic, i.e.,
+they may not have type parameters (see [Limitations](#no-parametrically-polymorphic-contracts)).
 
 ```
-contract AuthCell[V] {
+contract AuthCell {
     ...
 }
 ```
 
-The body of a contract contains a sequence of circuit declarations. A circuit declaration consists of the `circuit` keyword
-followed by a name, a sequence of parameters wrapped in parentheses `()`, a return type, and a body wrapped in braces `{}`.
-The syntax for circuit signatures is unchanged from the current Compact version. Adding circuit declarations (without specifying
+The body of a contract contains a sequence (of length >= 1) of circuit declarations. A circuit declaration consists of the `circuit` keyword
+followed by a name, a sequence of parameters wrapped in parentheses `()`, a return type, a body wrapped in braces `{}`, and an optional `export`
+modifier. The syntax for circuit signatures is unchanged from the current Compact version. Adding circuit declarations (without specifying
 their implementations) to the previous example might look as follows:
 
 ```
-contract AuthCell[V] {
+contract AuthCell {
 
-    circuit get(): V {
+    export circuit get(): Field {
         ...
     }
 
-    circuit set(new_value: V): Void {
+    export circuit set(new_value: Field): Void {
         ...
     }
 
-    circuit public_key (sk: Bytes[32]): Void {
+    export circuit public_key (sk: Bytes[32]): Void {
         ...
     }
 }
 ```
 
-All circuits defined in a contract are callable. There is no need to mark a circuit as `public` or `private` as in Solidity, 
-or to use the `export` keyword as in the current Compact version.
+Circuits with an `export` modifier are externally callable, while circuits without an `export` modifier are not, just as
+is the case for the current Compact version.
 
 The body of the contract also contains a sequence (of length >= 1, see [Limitations](#contracts-must-have-a-public-state) section) 
 of ledger declarations. A ledger declaration consists of the `ledger` keyword followed by a mutability specifier (`let` or `const`)
 and the name and type of the ledger variable. The previous example with ledger declarations might look as follows:
 
 ```
-contract AuthCell[V] {
+contract AuthCell {
 
-    ledger let value: V;
+    ledger let value: Field;
     ledger const authorized_pk: Bytes[32];
     
-    circuit get(): V {
+    export circuit get(): Field {
         ...
     }
 
-    circuit set(new_value: V): Void {
+    export circuit set(new_value: Field): Void {
         ...
     }
 
-    circuit public_key (sk: Bytes[32]): Void {
+    export circuit public_key (sk: Bytes[32]): Void {
         ...
     }
 }
 ```
 
-The body of `AuthCell` contains two ledger variable declarations: `value` and `authorized_pk`. The type of `value` is `V`,
-a generic, and the type of `authorized_pk` is `Bytes[32]`, a fixed-length byte array. The mutability specifiers indicate
+The body of `AuthCell` contains two ledger variable declarations: `value` and `authorized_pk`. The type of `value` is `Field`, 
+and the type of `authorized_pk` is `Bytes[32]`, a fixed-length byte array. The mutability specifiers indicate
 whether the value can be modified. The `const` keyword indicates that the value cannot be changed, while the `let` keyword 
 indicates that the value can be mutated freely. Both ledger variables together constitute the public state of the contract. 
 All ledger variable types _except_ contract values have default values. This is discussed in a [later section](#internal-contract-calls).
@@ -103,29 +103,29 @@ keyword followed by a name, an (optional) sequence of parameters wrapped in pare
 They are just signatures. The previous example with witness declarations might look as follows:
 
 ```
-contract AuthCell[V] {
+contract AuthCell {
 
-    ledger let value: V;
+    ledger let value: Field;
     ledger const authorized_pk: Bytes[32];
 
     witness sk(): Bytes[32];
 
-    circuit get(): V {
+    export circuit get(): Field {
         ...
     }
 
-    circuit set(new_value: V): Void {
+    export circuit set(new_value: Field): Void {
         ...
     }
 
-    circuit public_key (sk: Bytes[32]): Void {
+    export circuit public_key (sk: Bytes[32]): Void {
         ...
     }
 }
 ```
 
 The `AuthCell` contract above contains only a single witness, `sk`. In many programming languages, one _tends_ to have
-functions with signatures `() => V` always return the same value. Although `AuthCell` does not explicitly _require_ `sk` 
+functions with signatures `() => T` always return the same value. Although `AuthCell` does not explicitly _require_ `sk` 
 to always return the same value, that is the convention we assume in the `AuthCell` implementation above (see
 [Limitations](#support-for-const-and-mutable-witness-variables) for a discussion of this convention). Witnesses 
 cannot accept contract types as arguments or return contract types as results for similar reasons that ledger operations cannot. 
@@ -141,26 +141,26 @@ The body of the constructor initializes the ledger and witness state of the cont
 and witness invocations. The previous example with a constructor might look as follows:
 
 ```
-contract AuthCell[V] {
+contract AuthCell {
 
-    ledger let value: V;
+    ledger let value: Field;
     ledger const authorized_pk: Bytes[32];
 
     witness sk(): Bytes[32];
 
-    constructor (value: V, authorized_pk: Bytes[32]) {
+    constructor (value: Field, authorized_pk: Bytes[32]) {
         ...
     }
 
-    circuit get(): V {
+    export circuit get(): Field {
         ...
     }
 
-    circuit set(new_value: V): Void {
+    export circuit set(new_value: Field): Void {
         ...
     }
 
-    circuit public_key (sk: Bytes[32]): Void {
+    export circuit public_key (sk: Bytes[32]): Void {
         ...
     }
 }
@@ -174,33 +174,33 @@ and it does not support dynamic contract instantiation. For a justification of t
 section.
 
 Circuits, ledger variables, and witnesses can be accessed in the body of a contract with the `this` keyword, which functions
-similarly to `this` in Javascript. With all of these elements, the implementations of the `get` and `set` circuits, as well as the `constructor`, can be
-completed. The previous example with implementations might look as follows:
+similarly to `this` in Javascript. With all of these elements, the implementations of the `get` and `set` circuits, as well 
+as the `constructor`, can be completed. The previous example with implementations might look as follows:
 
 ```
-contract AuthCell[V] {
+contract AuthCell {
 
-    ledger let value: V;
+    ledger let value: Field;
     ledger const authorized_pk: Bytes[32];
 
     witness sk(): Bytes[32];
 
-    constructor (value: V, authorized_pk: Bytes[32]) {
+    constructor (value: Field, authorized_pk: Bytes[32]) {
         this.value = value;
         this.authorized_pk = authorized_pk
     }
 
-    circuit get(): V {
+    export circuit get(): Field {
         assert this.public_key(this.sk()) == this.authorized_pk;
         return this.value;
     }
 
-    circuit set(new_value: V): Void {
+    export circuit set(new_value: Field): Void {
         assert this.public_key(this.sk()) == this.authorized_pk;
         this.value = new_value;
     }
 
-    circuit public_key (sk: Bytes[32]): Void {
+    export circuit public_key (sk: Bytes[32]): Void {
         return persistent_hash(pad(32, "auth-cell:pk"), sk);
     }
 }
@@ -251,13 +251,13 @@ or the name of an interface. Using the running `AuthCell` example, an internal c
 ```
 contract AuthCellUser {
 
-    ledger const auth_cell: AuthCell[Field];
+    ledger const auth_cell: AuthCell;
     
-    constructor (auth_cell: AuthCell[Field]) {
+    constructor (auth_cell: AuthCell) {
         this.auth_cell = auth_cell;
     }
     
-    circuit use_auth_cell(): Void {
+    export circuit use_auth_cell(): Void {
         const v = this.auth_cell.get();
         this.auth_cell.set(f + 1);
         return v;
@@ -373,6 +373,15 @@ by introducing access modifiers (e.g. `public`/`private`) for `ledger` declarati
 attempts to call a circuit that does not exist on a contract (is not present in the corresponding instance of `ContractState`),
 then the runtime must fail with an error indicating as much.
 
+### No Parametrically Polymorphic Contracts
+
+The current proposal does not support parametrically polymorphic contracts. This is because it is unclear what it means
+to deploy a parametrically polymorphic contract. In typical parametrically polymorphic languages, one must eventually
+supply a concrete type for a type parameter. What does it mean to supply a concrete type to a parametrically polymorphic
+contract? Is the concrete type supplied when the contract is deployed? If so, how would such a type be represented on chain?
+Is the concrete type fixed for the lifetime of the contract? If not, under what conditions can the concrete type change, and
+what is the mechanism for doing so?
+
 ## Proving System Changes
 
 Internal contract calls will use the exact commitment-messaging mechanism proposed [here](./0007-abcird-contract-interfaces.md).
@@ -389,10 +398,11 @@ composability, Compact also needs a mechanism to abstract the state and behavior
 interface declarations.
 
 Interface declarations in Compact are similar to interface declarations in Typescript. An interface declaration consists
-of the `interface` keyword, followed by the name of the interface, optional type parameters, and a body wrapped in braces
-`{}`. The body of an interface contains a sequence of interface circuit declarations. The syntax for an interface circuit
-declaration is the same as the syntax for a contract circuit declaration but without a circuit body wrapped in braces. The
-following is an example of a valid interface declaration.
+of the `interface` keyword, followed by the name of the interface, and a body wrapped in braces `{}`. Unlike contracts,
+interfaces may be parametrically polymorphic, since interfaces are compile-time entities. The body of an interface contains 
+a sequence of interface circuit declarations. The syntax for an interface circuit declaration is the same as the syntax 
+for a contract circuit declaration but without a circuit body wrapped in braces. The following is an example of a valid 
+interface declaration.
 
 ```
 interface IAuthCell[V] {
@@ -402,11 +412,12 @@ interface IAuthCell[V] {
 }
 ```
 
-Interfaces do not contain witness or ledger declarations. Interfaces are not deployed to the blockchain; they are simply a
-type-level construct. The type-checking procedure for contracts implementing interfaces is similar to that of the type-checking
-procedure for classes that implement interfaces in Typescript; a contract that implements an interface must provide implementations
-for all interface circuit declarations in the interface it implements. Only contracts can implement interfaces. For example, the
-`AuthCell` contract can implement the `IAuthCell` interface:
+Interfaces do not contain witness or ledger declarations, and the circuits defined in interfaces may not have access (`export`)
+modifiers. Interfaces are not deployed to the blockchain; they are simply a type-level construct. The type-checking procedure 
+for contracts implementing interfaces is similar to that of the type-checking procedure for classes that implement interfaces in 
+Typescript; a contract that implements an interface must provide implementations for all interface circuit declarations 
+in the interface it implements. Only contracts can implement interfaces. For example, the `AuthCell` contract can implement 
+the `IAuthCell` interface:
 
 ```
 interface IAuthCell[V] {
@@ -415,29 +426,29 @@ interface IAuthCell[V] {
     circuit public_key (sk: Bytes[32]): Void;
 }
 
-contract AuthCell[V] implements IAuthCell[V] {
+contract AuthCell implements IAuthCell[Field] {
 
-    ledger let value: V;
+    ledger let value: Field;
     ledger const authorized_pk: Bytes[32];
 
     witness sk(): Bytes[32];
 
-    constructor (value: V, authorized_pk: Bytes[32]) {
+    constructor (value: Field, authorized_pk: Bytes[32]) {
         this.value = value;
         this.authorized_pk = authorized_pk
     }
 
-    circuit get(): V {
+    export circuit get(): Field {
         assert public_key(this.sk()) == authorized_pk;
         return this.value;
     }
 
-    circuit set(new_value: V): Void {
+    export circuit set(new_value: Field): Void {
         assert public_key(this.sk()) == this.authorized_pk;
         this.value = new_value;
     }
 
-    circuit public_key (sk: Bytes[32]): Void {
+    export circuit public_key (sk: Bytes[32]): Void {
         return persistent_hash(pad(32, "auth-cell:pk"), sk);
     }
 }
@@ -453,7 +464,9 @@ this constraint.
 In the `AuthCell` example, the `sk()` witness always returns the same value. As such, it should be possible to specify
 such in the source language. Analogous to `let` and `const` ledger variables, future Compact versions may consider adding
 `let` and `const` witness variables. The mutability of these variables could be reflected in the generated Typescript code
-as `readonly` or non-`readonly` properties of the generated `Witness` type.
+as `readonly` or non-`readonly` properties of the generated `Witness` type. One approach to enforcing the mutability of
+a witness is to record the value of all `const` witnesses prior to beginning the execution of a circuit, and to ensure that
+the value returned by each `const` witness is the same for the duration of the execution of the circuit.
 
 ### Accessing Pure Circuits via Dot Notation
 
