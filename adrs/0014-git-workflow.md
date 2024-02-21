@@ -8,9 +8,8 @@ proposed.
 | -         | -                                                                                                                            |
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
 | date      | Jan 23, 2024
-| deciders  | {list everyone involved in the decision}                                                                                     |
-| consulted | Jonathan Sobel |
-| informed  | Andrzej Kopec                           |
+| deciders  | Thomas Kerber, Andrzej Kopec, Kent Dybvig, Jonathan Sobel, Thomas Ubermeier, Jon Rossie, <all git repo maintainers, please add anyone that I'm missing here.>                                                                                      |
+| consulted | Jonathan Sobel, Andrzej Kopec |
 ---
 
 ## Context and Problem Statement
@@ -19,12 +18,13 @@ Currently, different teams have their own standards, if any, as a Git workflow. 
 
 ## Decision Drivers
 
-* A workflow that supports seamless interaction of multiple github repositories with each other.
-* Clean, organized, and consistent workflow across Midnight's pipeline.
+* A workflow that allows managing multiple publicly and internally available versions of software with ease and clarity.
+* A workflow that supports seameless releases and concurrent development.
+* A wprlflow that supports consistent mechanism for creating PR and merges across Midnight's pipeline.
 
 ## Considered Options
 
-* Purposed Git workflow (explained below)
+* Purposed Git workflow (explained below) accompanied with a checklist for merging PRs. 
 
 ## Decision Outcome
 
@@ -78,6 +78,16 @@ There should be naming conventions and procedures around creating and merging th
 * Naming convention: use `hotfix-x.y.w` for fixing a bug in production for the release `x.y.z` where `w` is the increment of `z` everytime a hotfix occurs.
 * Branch from: `release-stream`.
 * Merge into: `release-stream` and `develop`. Merging this into the `develop` branch might also require some cherry picking or redoing of work.
+
+
+## Merge Checklist
+
+A merge can only occur if all the items on the checklist have been done. This checklist may vary depending on the repo but it must contain all the items that a review must check before approving the PR. Some of these items are:
+
+- Has the change log been updated?
+- Has the version been updated?
+- Has new tests been added to test the new feature/bug?
+- Has new tests been added to CI for the new feature/bug?
 
 ## More Information
 
