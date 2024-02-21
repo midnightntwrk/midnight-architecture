@@ -124,13 +124,16 @@ contract AuthCell[V] {
 }
 ```
 
-The `AuthCell` contract above contains only a single witness value, which is immutable. Note the difference between the
-`sk` witness and the `authorized_pk` and `values` ledger variables. The `sk` witness is immutable, whereas
-the `authorized_pk` and `values` ledger variables are mutable. More complex witnesses are possible, i.e., those behave
-as functions. Furthermore, future Compact versions may consider adding `const` or `var` modifiers to ledger variables to
-allow for immutable and mutable ledger variables, respectively. Witnesses cannot accept contract types as arguments or return
-contract types as results for similar reasons that ledger operations cannot. For a justification of this constraint, see
-the [Limitations](#no-storing-contracts-in-the-ledger) section.
+The `AuthCell` contract above contains only a single witness, `sk`. In many programming languages, one _tends_ to have
+functions with signatures `() => V` always return the same value. Although `AuthCell` does not explicitly _require_ `sk` 
+to always return the same value, that is the convention we assume in the `AuthCell` implementation above (see
+[Limitations](#support-for-const-and-mutable-witness-variables) for a discussion of this convention). Witnesses 
+cannot accept contract types as arguments or return contract types as results for similar reasons that ledger operations cannot. 
+For a justification of this constraint, see the [Limitations](#no-storing-contracts-in-the-ledger) section.
+
+The `let` and `const` modifiers used for the `ledger` declarations indicate the mutability of the ledger variables.
+the `let` modifier used for `value` requires that `value` is mutable, while the `const` modifier used for `authorized_pk` requires
+that `authorized_pk` is immutable.
 
 The body of the contract may also contain a single `constructor` declaration. Constructor declarations consist of the
 `constructor` keyword followed by a sequence of parameters wrapped in parentheses `()`, and a body wrapped in braces `{}`.
@@ -363,6 +366,12 @@ and preserve strict, common-sense contract security, we impose the constraint th
 can access the ledger values declared in the same contract. Direct inter-contract ledger state access is useful and technically feasible, but it is not a critical feature. We
 therefore err on the side of caution and disallow it entirely. Future Compact versions could relax the above constraint
 by introducing access modifiers (e.g. `public`/`private`) for `ledger` declarations.
+
+### If a Circuit Does Not Exist for a Contract, the Runtime Must Fail With An Informative Error
+
+`Contract` parameters will be represented at runtime as the contract address for the contract being passed. If the runtime
+attempts to call a circuit that does not exist on a contract (is not present in the corresponding instance of `ContractState`),
+then the runtime must fail with an error indicating as much.
 
 ## Proving System Changes
 
