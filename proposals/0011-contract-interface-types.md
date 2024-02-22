@@ -7,7 +7,7 @@ expressing the type of all contracts with *at least* some set of circuits export
 
 This proposal assumes the composable contracts syntax proposal as a prerequisite, because that proposal
 introduces contract reference types and their semantics.  This proposal extends those types to include
-abtract interfaces, in addition to concretely defined contract types.
+abstract interfaces, in addition to concretely defined contract types.
 
 ## Problem Statement
 
@@ -24,7 +24,7 @@ contract types can implement that interface in different ways.
 
 Interface declarations declare a set of circuits that must be present in any implementing contract.
 
-The following change to the grammer is proposed (assuming the changes proposed in composable contracts syntax):
+The following change to the grammar is proposed (assuming the changes proposed in composable contracts syntax):
 
 ```
 PELT   --> IFDEFN
@@ -42,7 +42,10 @@ of the `export` modifier on a circuit declaration in an interface is accepted, b
 affect the semantics of the declaration.
 
 Interfaces do not contain witness or ledger declarations.
-An interfaces cannot be deployed; it simply define a type that can be used to label a contract reference.
+An interface cannot be deployed; it simply defines a type that can be used to label a contract reference.
+
+An interface name can appear anywhere that a concrete contract type name could appear in the type of a ledger state field or a parameter.
+All restrictions on the use of contract types also apply to interface types.
 
 The type-checking procedure 
 for contracts implementing interfaces is similar to that of the type-checking procedure for classes that implement interfaces in 
