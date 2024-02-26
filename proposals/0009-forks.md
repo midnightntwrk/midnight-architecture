@@ -252,3 +252,14 @@ There are ecosystems, where such approach is common, as it allows for gradual up
 ### How does SCALE and Borsh handle serialization of data structure extended with an additional field?
 
 TBD
+
+### Why not forkless runtime upgrades Substrate offers? 
+
+They are not completely ruled out. In fact - this mechanic still may be used in the future. 
+Substrate offers _Runtime Interface_ feature to link native code to WASM one, so that computationally expensive operations or IO can be performed natively (see https://docs.rs/sp-runtime-interface/latest/sp_runtime_interface/ and https://docs.rs/sp-runtime-interface/latest/sp_runtime_interface/attr.runtime_interface.html).
+
+There are some observations though, which make it hard to select _today_:
+- ledger as a whole does not compile to WASM today and size of the effort to compile it to WASM is unknown - this also prevents performing benchmarks and profiling to assess performance impact
+- refactoring of ledger code would be needed to be able to factor out operations like IO or ZK; Effort needed for this kind of refactoring would be significant
+- certain forms of upgrades still need a form of hard-fork, because of the need to adjust runtime interfaces
+- without defined governance the `sudo` pallet would be needed, which in turn would require master keys to the network
