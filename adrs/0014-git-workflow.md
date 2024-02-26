@@ -61,14 +61,14 @@ There should be naming conventions and procedures around creating and merging th
 
 #### Feature Branches
 
-* Naming convention: use `WIP/git-ID/jira-ticket-number/feature-X` for adding a new feature where `git-ID` is the engineer's GitHub ID, `jira-ticket-number` is Jira ticket's number if it exists, `feature-X` is a summary of the feature. For example, `WIP/pataei/PM-7005/relational-ops`. If a branch is more experimental, exchange `EXP` for `WIP`. If a branch is bug fix exchange `bugfix` for `WIP`.
+* Naming convention: use `jira-ticket-number/feature-X` for adding a new feature where `jira-ticket-number` is Jira ticket's number if it exists and `feature-X` is a summary of the feature. If there are multiple branches addressing the same feature prefix the branch name with your GitHub ID, that is, `git-ID/jira-ticket-number/feature-X`. If a branch is more experimental or fixes a bug prefix the branch name with `exp` and `bugfix`, respectively.
 * Branch from: `develop`.
 * Check before merge: if `develop` needs to be merged or rebased back into your feature branch.
 * Merge into: `develop`.
 
 #### Release-Candidate Branches
 
-* Naming convention: use `RC-x.y.z` for a release candidate branch for version `x.y.z`. Once this branch is created, any development on the `develop` branch is aimed for the release after this one. On this branch only bug fixes can occur. For a bug fix, a new branch is created from the `RC-x.y.z` branch which follows the naming convention explained above (for example, `bugfix/pataei/PM-2345/bug-description`) and after approval of the PR, such a branch is merged back into the `RC-x.y.z`. The [versioning scheme explained on Confluence](https://input-output.atlassian.net/wiki/spaces/MN/pages/3378151425/Versioning) should be followed for as a guideline for clear versioning.
+* Naming convention: use `rc-x.y.z` for a release candidate branch for version `x.y.z`. Once this branch is created, any development on the `develop` branch is aimed for the release after this one. On this branch only bug fixes can occur. For a bug fix, a new branch is created from the `rc-x.y.z` branch which follows the naming convention explained above (for example, `bugfix/pataei/PM-2345/bug-description`) and after approval of the PR, such a branch is merged back into the `rc-x.y.z`. The [versioning scheme explained on Confluence](https://input-output.atlassian.net/wiki/spaces/MN/pages/3378151425/Versioning) should be followed for as a guideline for clear versioning.
 * Branch from: `develop`.
 * Merge into: `release-stream`.
 * Note: if bug fixes occur on this branch they must be merged back into the `develop` branch. Once this happens, one might need to cherry pick or even redo some of the changes in such a merge.
@@ -99,6 +99,8 @@ I found [Git workflow on Midnight's confluence page](https://input-output.atlass
 
 Questions to consider when picking a git workflow model:
 
+* How do environments for testing play a role in this model?
+* How do tags play a role in this model?
 * Will we support multiple version of Midnight and roll backs to previous versions?
 * Once we have mainnet and testnet do we need to keep separate release branches for each?
 * This proposal gets rid of the `main` branch. However, if there is strong incentive to have a branch named `main` we can alternatively rename the `develop` branch to `main` for most of the Midnight repositories, where the outputs are binary artifacts, rather than the repository itself. For repositories that are consumed primarily by cloning (i.e., the output is the repository itself), rename the `release-stream` branch to `main`.
