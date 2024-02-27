@@ -34,7 +34,7 @@ Following the requirements and other standards it can be said, that the minimum 
 | shielded         | ✅        | boolean                      | flag, whether the token is a shielded one or not                                                                                                                                                      |
 | name             | ✅        | string                       | name of a token, as should be displayed in e.g. wallet                                                                                                                                                |
 | version          | ✅        | positive integer             | a sequence number, increased with each update; registry should reject updates which do not increase version                                                                                           |
-| signature        | ✅        | object (see below)           | a signature and signer's public key                                                                                                                                                                   |
+| signatures       | ✅        | array of objects (see below) | a signature and signer's public key                                                                                                                                                                   |
 | description      | ❌        | string                       | description of the token, it's very common, so should be present in many cases, though there are standards, which do not require description, so it would be impossible to be converted automatically |
 | image            | ❌        | string                       | an URI (including a data base64 one) of an image representing the token, it's also very common, but many existing tokens do not have the image attached                                               |
 | decimals         | ❌        | non-negative integer         | how many decimals are allowed to split token "units", e.g. for decimals value `3`, a coin with value `1`, would be `0.001` of a token "unit"                                                          |
@@ -59,10 +59,12 @@ Some examples, in JSON:
   "shielded": false,
   "name": "Foo",
   "version": 1,
-  "signature": {
-    "signature": "abcdef",
-    "public_key": "012345"
-  }
+  "signatures": [
+    {
+      "signature": "abcdef",
+      "public_key": "012345"
+    }
+  ]
 }
 ```
 
@@ -74,10 +76,12 @@ Some examples, in JSON:
   "shielded": false,
   "name": "Foo",
   "version": 1,
-  "signature": {
-    "signature": "abcdef",
-    "public_key": "012345"
-  },
+  "signatures": [
+    {
+      "signature": "abcdef",
+      "public_key": "012345"
+    }
+  ],
   "description": "My foo token",
   "image": "ipfs://aaa/image.png",
   "decimals": 0,
@@ -100,10 +104,12 @@ For example, there may be an ERC-20 token, that is bridged from Ethereum, in suc
   "shielded": false,
   "name": "Foo",
   "version": 1,
-  "signature": {
-    "signature": "abcdef",
-    "public_key": "012345"
-  },
+  "signatures": [
+    {
+      "signature": "abcdef",
+      "public_key": "012345"
+    }
+  ],
   "description": "My foo token",
   "image": "ipfs://aaa/image.png",
   "decimals": 0,
@@ -140,3 +146,7 @@ No indication of fungibility also makes it easier to accommodate varying shapes 
 ### This API focuses on metadata, should it be re-defined to allow possibility of attaching metadata to other kinds of objects?
 
 Any ideas?
+
+### Why not signing metadata entries independently, like CIP-26 describes
+
+In many cases, metadata are considered a single entity, thus it makes it easier to sign whole entity.
