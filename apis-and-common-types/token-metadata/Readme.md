@@ -136,3 +136,7 @@ Having upgradeability in mind - should this information be encoded and how? Shou
 It is already being observed with various token types, e.g. on Solana or Ethereum, that there are assets, which are not clearly fungible or non-fungible, and it is their usage/contract that tells about what they are. For that reason it would make sense to not distinguish token's fungibility in any way in the basic metadata, but instead accomodate both cases in the common metadata and define clear extension points if very specific types arise in the future.
 
 No indication of fungibility also makes it easier to accommodate varying shapes of tokens across ecosystems. 
+
+### This API focuses on metadata, should it be re-defined to allow possibility of attaching metadata to other kinds of objects?
+
+Any ideas?
