@@ -5,7 +5,7 @@ This document proposes changes to the Compact syntax and Midnight ledger to supp
 ## Problem Statement
 
 The representation of contract state in the Midnight ledger is functional, in the sense that each transaction produces a replacement state for the contract.
-The "shape" of the replacement state is effectively constrained by the operations that must succeed on that state, 
+The "shape" of the replacement state is effectively constrained by the operations that must succeed on that state,
 and further constrained in practice by the kinds of updates that can be expressed in the Compact language.
 
 Contract state is currently represented by a vector of values, each of which is one of a fixed set of ADTs.
@@ -14,24 +14,28 @@ and the Impact VM ends the transaction by producing a new state vector to repres
 
 What is missing from this system is direct support for establishing a portion of the contract's state
 which is *sealed* at the time the contract is deployed, with the guarantee that it can never be changed
-any any post-deployment transaction.
+in any post-deployment transaction.
 
 The sealed portion of the state is not truly "constant" or "immutable" in the usual programmatic senses,
 because it may be constructed incrementally in the contract's constructor using the ADTs' update operations,
 but the Impact VM will never replace the sealed portion of the state after the contract is deployed.
 This provides safety guarantees for contract users and opportunities for optimization by the Compact compiler.
 
-## Ledger Changes
+While the preceding description of the need and outline for a solution is expressed in terms of the ledger
+data structures, the contract writer's experience of sealed state is determined largely by how
+such sealing is expressed in Compact.  Thus, this proposal focuses on the changes to Compact to
+enable sealed state.  The actual changes to the ledger data structures could be implemented
+at any point after the changes to the compiler and runtime libraries.
 
-The ledger currently maps contract addresses to contract states, and a contract state holds a single state value,
-updated by transactions.
-Instead, the contract state will hold two values, one fixed at deployment time and one updated by transactions.
+## Semantic Model
 
-### Comment
+The ledger currently (prior to this proposal) maps contract addresses to contract states,
+and a contract state holds a single state value, updated by transactions.
 
-Additional uses for the fixed-at-deployment state have been proposed,
-beyond the sealed state elements declared by the contract author.
-For example, the contract's own address may be represented within this state.
+Under the semantic model of this proposal, the contract state will hold two values,
+one fixed at deployment time and one updated by transactions.
+This semantic model is reflected in Compact, regardless of whether the physical implementation of the ledger matches it.
+(Of course, greater safety is enabled by enforcing sealed state in the ledger, and not only in the compiler.)
 
 ## Syntax Changes
 
@@ -64,11 +68,13 @@ CONSDEFN  --> constructor ( ARG, ARG, ... ) BLOCK
 ```
 
 Thus, the `sealed` keyword can appear as an optional modifier on a `ledger` field declaration,
-much like `export` can appear on various definitions. 
+much like `export` can appear on various definitions.
 
 As before, the definition of a constructor is not mandatory.
 Any ledger state fields not initialized explicitly in a constructor
 are initialized to their default values.
+
+There need not be any ledger fields declared at all.  A contract with zero ledger declarations is valid.
 
 ### Rationale
 
@@ -97,20 +103,34 @@ documentation describing ledger state ADTs.
 (This change is at the intersection of Compact syntactic changes and ADT changes,
 so it is described in its own section.)
 
-Any `ledger` state field declaration of type *T*, where *T* is a primitive Compact type or user-defined type 
+Any `ledger` state field declaration of type *T*, where *T* is a primitive Compact type or user-defined type
 (not a ledger ADT type), that is *not* modified with `sealed` is inherently writable.
-Thus, it is implemented with the `Cell` ADT.
+Thus, the need for the `Cell` ADT "behind the scenes" to implement such a field can be inferred reliably
+by the compiler.  There is no need for the contract author to declare the use of the `Cell` ADT explicitly,
+and it should be removed from the syntax of Compact.
+
+The compiler may implement sealed primitive-type fields with `Cell` also, if it is convenient to do so.
 
 ## Static Analysis and Type System Changes
 
-Ledger state field declarations and circuit definitions may be interleaved,
-but forward references to ledger state fields are not allowed.
-Thus, any ledger state references in a circuit must name only those fields
-that were declared prior to the circuit definition.
+Ledger state field declarations and circuit definitions may be interleaved.
+Forward references are allowed.
 
-If a ledger state field is declared with the `sealed` modifier, 
-then *write* operations may occur only in the contract's constructor, but not in circuits.
-*Read* operations may occur in both constructor and circuit contexts.
+If a ledger state field is declared with the `sealed` modifier,
+then *write* operations may occur only in the context of the contract's constructor,
+but not in later transactions.
+*Read* operations may occur in both constructor and circuit transaction contexts.
+
+Thus, code appearing in an *exported* circuit that might update a sealed field
+would produce a compile-time error, because such a circuit could be called
+in a post-deployment transaction.
+
+For non-exported circuits, the situation is more complicated.
+- A non-exported circuit that is statically known to be called *only* in the context
+  of a constructor for some contract is allowed to update the sealed ledger state fields
+  of that contract.
+- A non-exported circuit that might be called, even indirectly, outside the context of
+  a contract's constructor is *not* allowed to update that contract's sealed ledger state fields.
 
 ## Examples
 
@@ -182,10 +202,10 @@ export circuit public_key (sk: Bytes[32]): Void {
 }
 ```
 
-Notice that the `authorized_pk` field is written in the constructor, 
+Notice that the `authorized_pk` field is written in the constructor,
 but never in the circuits.
-Code that attempts to update the sealed `authorized_pk` field in a circuit
-would produce a compile-time error.
+Code that might update the sealed `authorized_pk` field after the contract
+is deployed, such as in an *exported* circuit, would produce a compile-time error.
 
 ## Optional Support for Field Grouping (Backward Compatibility)
 

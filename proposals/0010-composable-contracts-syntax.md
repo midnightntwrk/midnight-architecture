@@ -7,14 +7,15 @@ This document proposes changes to the Compact syntax to support
 
 ## Terminology
 
-- A _program_ is a set of `module`, `contract`, and type definitions, along with `include`, `import`, and `export` declarations.
+- A _program_ is a set of `module`, `contract`, and type definitions, along with `include`, `import`, and `export` declarations. !!!
 - The _executable_ of a contract is the JavaScript output of the Compact compiler.
 - The _ledger state_ of a contract is the portion of the contract state that is stored at a contract address on the ledger.
-- The _witness state_ of a contract is the private state that is updated by the witnesses declared in a contract.
+- The _private state_ of a contract is the state that is queried or updated by the witnesses declared in a contract.
 - The _runtime_ of a contract is the portion of the contract executable that is responsible for managing the intermediate
-  ledger and witness states throughout the execution of a circuit.
-- An _instance_ of a contract is a specific deployed instantiation of a contract type, with its own ledger and witness state.
-- An _foreign contract call_ is when a circuit in one contract calls a circuit defined in another contract.
+  ledger and private states throughout the execution of a circuit.
+- An _instance_ of a contract is a specific deployed instantiation of a contract type, with its own ledger and private state.
+- An _inter-contract call_ is when a circuit in one contract calls a circuit defined in another contract.
+  Some other smart contract systems calls this an "internal" contract call.
 
 ## Problem Statement
 
@@ -36,6 +37,9 @@ so that ledger fields and variables may hold references to contracts.
 Prior to this proposal, there is no name *in Compact* for the ledger state, witnesses, and circuits that describe a contract.
 In order to refer to contract types in Compact, it is necessary to add a construct to the language
 that collects the elements of the contract and associates them with an identifier.
+That identifier becomes available as a *contract type* in Compact, used to describe references
+to any instance of the contract.  The same identifier is used as a stem for various
+names outside of Compact, such as file names and TypeScript type names.
 
 The following change to the grammar is proposed:
 
@@ -44,16 +48,22 @@ PELT   --> CTDEFN
 
 CTDEFN --> contract CONTRACT-NAME { CTELT ... }
 
-CTELT  --> INCLD
+CTELT  --> PRAGMA
+       --> INCLD
+       --> CTMDEFN
+       --> IDECL
+       --> XDECL
        --> LDECL
        --> CDEFN
+       --> EDECL
        --> WDECL
+       
+CTMDEFN --> EXPORT_OPT module MODULE-NAME TPARAMS_OPT { CTELT ... }
 ```
 
-The grammar productions for ledger declarations and witness declarations
+The other grammar productions for program elements are retained, except that the productions 
+for ledger declarations (`LDECL`) and witness declarations (`WDECL`)
 are *removed* from top-level program elements.  They may occur *only* within a contract definition.
-Pure circuits may be defined outside of contract definitions, without access to any
-ledger state.
 
 If the proposal for sealed ledger state is adopted, an additional grammar rule must be added
 for a separately declared constructor,
@@ -63,6 +73,14 @@ CTELT  --> CONSDEFN
 ```
 
 and, like other contract elements, removed from top-level program elements.
+
+An empty contract is valid.
+
+The preceding rules disallow user-defined typed (structures and enumerations) inside contracts.
+They allow contracts to be defined in modules and modules to be defined in contracts.
+
+While the grammar, as written, does not express it, contract definitions must not appear inside
+parameterized modules.  See the restrictions below.
 
 ### Example
 
@@ -103,33 +121,25 @@ contract AuthCell {
 ### Restrictions
 
 Contracts may not be generic, i.e., they may not have type parameters
-(see [Limitations](#no-parametrically-polymorphic-contracts)).
+(see [Further Constraints](#no-parametrically-polymorphic-contracts)).
 
 Circuits with an `export` modifier are externally callable, while circuits without an `export` modifier are not, just as
 is the case for the current Compact version.
 
-The body of the contract must declare at least one contract state field 
-(see [Limitations](#contracts-must-have-a-public-state) section).
-
 ### Interactions with Module Definitions
 
 Modules may contain contract definitions, but not all contract declarations must be contained in an explicit
-`module` wrapper. Contract type names may or may not be exported from modules using the `export` keyword.
+`module` wrapper. Contract type names may be exported from modules using the `export` keyword.
 Contract type names that are not exported from a module cannot be accessed outside the enclosing module
 *in Compact*. However, _all_ contracts in a program, regardless
-of whether they are exported and regardless of the module in which they are defined, can be deployed. Modules may also 
-contain circuit declarations, but note that any such circuit is necessarily a pure circuit since it does not have access 
-to the ledger variables or witnesses of a contract.
-
-**Question for Kent**: Are files that export contracts but contain no module declarations automatically wrapped in a module
-identified by the file name of the file containing the contract declarations? How does this work when a file contains both
-a module and top-level declarations?
+of whether they are exported and regardless of the module in which they are defined, can be deployed.
 
 ## Contract References
 
 Any contract type name in scope may be used as the type of a ledger state field or a local `const` binding statement.
-Constructor parameters and witness function parameters may also be declared to hold contract types.
-**Circuit parameter types, circuit return types, and witness return types may not include contract types.**
+Such a field or variable holds a *reference to an instance of a contract of that type*.
+Constructor parameters and witness function parameters may also be declared to hold contract references.
+**Circuit parameter types, circuit return types, and witness return types may not incorporate contract types.**
 
 There is no "null" contract reference value and no default value for contract types.
 
@@ -140,28 +150,31 @@ The only way a ledger state field of contract type could be updated is with some
 already provided at the time a contract was deployed.  In other words, all possible references from one
 contract to another are known at the time the referring contract is deployed, regardless of sealing declarations.
 
-It appears that no changes to the Compact grammar are necessary to support contract types.
+It appears that no changes to the Compact grammar are necessary to support contract references
+and the types that describe them.
 They will be parsed in the same way as user-defined types, such as enumerations and structure types.
 
 Changes to the type checker are clearly required to support contract types,
 both to reject programs that attempt to use contract types in invalid places
-and to validate foreign contract calls, described in the next section.
+and to validate inter-contract calls, described in the next section.
 
 If the proposal for contract interface types is adopted, then all of the preceding rules
-about contract types also apply to contract interface types.
+about contract types also apply to contract interface types.  That is, a variable
+may be declared to have a contract interface type, meaning that the variable holds a reference
+to an instance of some contract exporting at least the set of circuits declared in the interface.
 
-## Foreign Contract Calls
+## Inter-Contract Calls
 
-An foreign contract call is when a circuit in one contract calls a circuit in another contract.
-No changes to the grammar are necessary to support this, because the foreign circuits
-will be parsed as ledger accessors.
+An inter-contract call is when a circuit in one contract calls a circuit in another contract.
+No changes to the grammar are necessary to support this, because the references to circuits
+in another contract will be parsed as ledger accessors.
 
-The Compact type checker must verify that any foreign contract call refers to an exported
+The Compact type checker must verify that any inter-contract call refers to an exported
 circuit of the appropriate contract type (or contract interface type, if that proposal is adopted).
 
 ### Example
 
-This example demonstrates the use of contract types and foreign contract calls.
+This example demonstrates the use of contract types and inter-contract calls.
 It assumes that the above definition of `AuthCell` is in scope.
 
 ```
@@ -181,12 +194,13 @@ contract AuthCellUser {
 }
 ```
 
-The `use_auth_cell` circuit in the `AuthCellUser` calls the foreign circuits `get` and `set` from the `AuthCell` contract,
+The `use_auth_cell` circuit in the `AuthCellUser` calls the circuits `get` and `set` from the `AuthCell` contract,
 by referring to the `auth_cell` ledger state field in its own ledger state.
 
 Although a contract can call a circuit on a contract to which it has reference, a contract cannot directly access 
 the ledger variables or witnesses of another contract. For example, `use_auth_cell` cannot directly access `authorized_pk` 
-or `value` in `AuthCell`. Nor can it directly access `sk`. See the [Limitations](#no-external-ledger-variable-accesses) section for a justification of this 
+or `value` in `AuthCell`. Nor can it directly access `sk`. 
+See the [Further Constraints](#no-external-ledger-variable-accesses) section for a justification of this 
 constraint.
 
 ### The Compact Standard Library
@@ -195,10 +209,10 @@ Due to uncertainty about the semantics of ledger kernel operations and ZSwap wit
 contract definitions, the Compact standard library will be treated as a special case. The kernel operations will be
 in-lined using the same techniques that are used currently.
 
-## Limitations
+## Further Constraints
 
-The following limitations are imposed on the version of Compact proposed in this document. Some sections also include 
-requirements on `compactc` that the limitations imply.
+The following constraints are imposed on the version of Compact proposed in this document. Some sections also include 
+requirements on `compactc` that the constraints imply.
 
 ### Default Contract Ledger Variables
 
@@ -206,7 +220,7 @@ Since there is no natural default value for a contract-typed ledger variable (an
 all ledger state fields holding contract references must be initialized in the contract constructor. We have the
 following requirement:
 
-> `compactc` must statically detect when a contract-typed ledger state field is not initialized and report an informative error.
+> `compactc` must statically detect when a contract-typed ledger state field might not be initialized and report an informative error.
 
 ### Contract Types May Not Appear in Circuit Parameter/Return Types
 
@@ -217,14 +231,14 @@ This also leads to the following requirement:
 
 > `compactc` must statically detect the use of contract types in circuit parameters and report an informative error.
 
-Circuits may not return contract values. At the moment, this doesn't look like a security issue. The constraint is imposed
-for implementation simplicity and because the implications of such a feature are unclear. 
+Circuits may not return contract values. This constraint is imposed for implementation simplicity.
+See [Open Questions](#can-circuits-return-contract-values) for a discussion. 
 
-See [Open Questions](#can-circuits-return-contract-values) for a discussion. This also leads to the following requirement:
+This also leads to the following requirement:
 
 > `compactc` must statically detect the use of contract types in circuit return types and report an informative error.
 
-### Contract Types May Not Appear in Witness Parameter/Return Types
+### Contract Types May Not Appear in Witness Return Types
 
 If witnesses return contract values, they may inject unknown contracts into a context
 where all contracts were otherwise known at deployment time.  This is a security risk
@@ -233,27 +247,16 @@ and must be rejected.
 > `compactc` must statically detect the use of contract types in witness return types and report an informative error.
 
 There appears to be no security risk created by circuits that deliver contract references into the contract's
-private state through witness functions.  On the other hand, there exist ambiguities about the form
-and type under which such references would be represented in the TypeScript target.  Thus, this proposal
-*allows* the compiler to reject the use of contract types in witness parameter types.
-
-> `compactc` may statically detect the use of contract types in witness parameter types and report an informative error.
-
-### Contracts Must Have a Public State
-
-Each contract must have at least one ledger declaration in its body. This constraint is imposed because, otherwise, the 
-defined contract has no ledger state, and it is semantically meaningless to deploy a contract with no ledger state to 
-the blockchain. This leads to the following requirement.
-
-> `compactc` must statically detect when a contract attempts to define a contract without a public state and report an informative error.
+private state through witness functions.  Thus, witness parameter types may incorporate contract types.
 
 ### No Calling Circuits of Contract Parameters in Constructors
 
-The current proposal does not allow the circuits of contract parameters to be called in the constructor of a contract.
+Contract references may be passed as parameters to constructors, but
+the current proposal does not allow the invocation of circuits on those references *within the constructor*.
 This is because it isn't clear what it means to prove the correctness of a circuit that is called in a constructor. We have
 the following requirement:
 
-> `compactc` must statically detect when a constructor attempts to call a circuit defined on a contract argument and report an informative error.
+> `compactc` must statically detect the possibility of an inter-contract call in a constructor and report an informative error.
 
 ### No Dynamic Contract Instantiation
 
@@ -298,20 +301,28 @@ to reject this situation entirely.
 
 ## Proving System Changes
 
-Foreign contract calls will use the exact commitment-messaging mechanism proposed [here](./0007-abcird-contract-interfaces.md).
+Inter-contract calls will use the exact commitment-messaging mechanism proposed [here](./0007-abcird-contract-interfaces.md).
 The key difference in this proposal is that commitments occur over contracts instead of interfaces.
 
 ## Optional Extensions
 
-### Replace `ledger` with `this` in circuits
+### Eliminate the `ledger` qualifier for accessing ledger state
 
 Compact uses the `ledger` keyword to declare ledger state fields.
-Currently, it also uses the `ledger` keyword to access the ledger state
-of the current contract in circuits.  To improve clarity in the presence of
-foreign contract references, it may be helpful to replace `ledger` with `this`
-when referring to the ledger state of the current contract in circuits.
+Currently, it also uses the `ledger` keyword as a prefix to access the ledger
+state of the current contract in circuits.  Calling circuits and
+witnesses requires no such qualifier.
 
-### Access Pure Foreign Circuits using Dot Notation
+The programmer experience will be more consistent if the `ledger.` prefix is
+eliminated, so that ledger fields are simply in scope inside the circuits
+of a contract.  The presence of multiple contracts in the same
+Compact code aggravates the problem, because it is no longer meaningful
+to refer to *the* ledger state when each contract has its own ledger state.
+
+Name resolution should follow standard scoping rules, and modules make it possible
+to hide names that should not be visible outside a narrow scope.
+
+### Access Pure Circuits in Other Contracts using Dot Notation
 
 It would be very useful for the pure circuits of a contract to be accessible from another contract using dot notation,
 even without a reference to an instance of the contract,
@@ -332,7 +343,7 @@ form of interface inheritance, as well as [direct inter-contract](#no-external-l
 
 ### Can Circuits Return Contract Values?
 
-Calling a foreign circuit that returns a contract value would seem to introduce contract references
+Calling a circuit in another contract that returns a contract value might seem to introduce contract references
 into a contract after deployment, violating the goal of knowing all contract references at
 deployment time.  On the other hand, it can be proven inductively that the potential call graph
 of circuits is still closed at deployment time.

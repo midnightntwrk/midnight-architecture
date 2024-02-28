@@ -37,12 +37,9 @@ CTDEFN --> contract CONTRACT-NAME { CTELT ... }
 IFIMPL --> INTERFACE-NAME TARGS_OPT
 ```
 
-All circuits declared in the interface definition are necessarily exported, so the appearance
-of the `export` modifier on a circuit declaration in an interface is accepted, but does not
-affect the semantics of the declaration.
-
 Interfaces do not contain witness or ledger declarations.
-An interface cannot be deployed; it simply defines a type that can be used to label a contract reference.
+An interface cannot be deployed; it simply defines a type that can be used to label a contract reference variable
+or ledger state field.
 
 An interface name can appear anywhere that a concrete contract type name could appear in the type of a ledger state field or a parameter.
 All restrictions on the use of contract types also apply to interface types.
