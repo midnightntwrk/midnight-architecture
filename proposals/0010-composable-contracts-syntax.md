@@ -61,7 +61,9 @@ CTELT  --> PRAGMA
 
 EXPORT --> export
        
-CTMDEFN --> EXPORT_OPT module MODULE-NAME TPARAMS_OPT { CTELT ... }
+CTMDEFN --> EXPORT_OPT module MODULE-NAME TPARAMS_OPT { CTMELT ... }
+
+CTMELT --> CTELT
 ```
 
 The other grammar productions for program elements are retained, except that the productions 
@@ -75,8 +77,8 @@ for a separately declared constructor:
 CTELT  --> CONSDEFN
 ```
 
-CONSDEFN would, like other contract elements, be removed from top-level program elements,
-and it would not be permitted inside a CMTDEFN.
+CONSDEFN would, like other contract elements, no longer be permitted as a PELT.
+CONSDEFN would also not be permitted as a CTMELT.
 
 An empty contract is valid.
 
@@ -97,9 +99,8 @@ No executable code is produced for contracts whose type names not exported by a 
 This permits the definition of a separately compiled and deployed contract to be included
 or imported into a program for the sole purpose of allowing the contract to be called from
 other contracts for which executable code is produced.
-It also places the responsibility on the programmer to resolve naming conflicts via the
-existing support for import prefixes when producing executable code for like-named
-contracts importd from different
+It also allows the programmer to resolve naming conflicts for like-named contracts
+imported from different modules via the existing support for import prefixing.
 
 ### Example
 
