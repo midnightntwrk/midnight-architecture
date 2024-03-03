@@ -60,21 +60,39 @@ to create the total ledger state for the contract.
 PELT      --> LDECL
           --> CONSDEFN
 
-LDECL     --> SEALED^OPT ledger ID : LEDGER-ADT ;
+LDECL     --> EXPORT^OPT SEALED^OPT ledger ID : LEDGER-ADT ;
 
 SEALED    --> sealed
+
+EXPORT    --> export
 
 CONSDEFN  --> constructor ( ARG, ARG, ... ) BLOCK
 ```
 
 Thus, the `sealed` keyword can appear as an optional modifier on a `ledger` field declaration,
-much like `export` can appear on various definitions.
+in addition to the optional `export` modifier.
 
-As before, the definition of a constructor is not mandatory.
+As before, the definition of a constructor is not mandatory, and only one constructor
+definition is allowed to appear in a program.
 Any ledger state fields not initialized explicitly in a constructor
 are initialized to their default values.
 
 There need not be any ledger fields declared at all.  A contract with zero ledger declarations is valid.
+
+Any module definition can contain the same kind of program elements that can appear
+at the top level of a program, except for CONSDEFN.
+
+Any ledger state declared in a module is included in a contract's ledger if the
+module is imported (directly or indirectly) into the contract's top level,
+*even if the ledger state is not exported from the module*.
+However, any ledger state that is declared in a module but not exported from the module
+is visible only to circuits defined within the module.
+This allows access to the ledger state to be controlled only by the
+circuits within the module.
+Explicit initialization of a module's unexported ledger state can be handled by a user-defined initialization
+circuit that is exported from the module and called by the constructor.
+
+Exporting a ledger field from the program's top level has the same effect as not exporting it.
 
 ### Rationale
 
@@ -241,3 +259,11 @@ constructor (name: Opaque["string"]) {
 
 The backwards compatibility is only partial, because constructors are still
 defined outside the ledger field declarations.
+
+## Open Question
+
+### Unreferenced ledger state
+
+Should the compiler include in the ledger any ledger state that is never explicitly
+initialized, referenced, or updated, or should it exclude such ledger state?
+
