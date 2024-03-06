@@ -7,15 +7,26 @@ This document proposes changes to the Compact syntax to support
 
 ## Terminology
 
-- A _program_ is a set of `module`, `contract`, and type definitions, along with `include`, `import`, and `export` declarations. !!!
-- The _executable_ of a contract is the JavaScript output of the Compact compiler.
+- A Compact source _program_ is a set of contract definitions and pure circuit definitions along with
+  supporting items.
+- A Compact _contract_ is a set of ledger declarations, witness declarations, and circuit definitions,
+  along with supporting items.
+- In both case, _supporting items_ are pragmas, include forms, module definitions,
+  import declarations, export declarations, type (struct and enum) definitions, and
+  external circuit declarations.
+- The _target files_ produced by the Compact compiler for a contract contain the executable
+  TypeScript code (in the form of a TypeScript declaration file and
+  a JavaScript implementation file), the proof circuits, and the
+  proof keys for the contract.
 - The _ledger state_ of a contract is the portion of the contract state that is stored at a contract address on the ledger.
 - The _private state_ of a contract is the state that is queried or updated by the witnesses declared in a contract.
-- The _runtime_ of a contract is the portion of the contract executable that is responsible for managing the intermediate
+- The _runtime_ of a contract is the portion of the contract executable code that is responsible for managing the intermediate
   ledger and private states throughout the execution of a circuit.
 - An _instance_ of a contract is a specific deployed instantiation of a contract type, with its own ledger and private state.
-- An _inter-contract call_ is when a circuit in one contract calls a circuit defined in another contract.
-  Some other smart contract systems calls this an "internal" contract call.
+- An _inter-contract call_ is when a circuit in one contract calls a circuit defined in another contract
+  directly and as part of a single transaction.
+  (Some other smart contract systems call this an "internal" contract call, but we use the term
+  "inter-contract" to avoid confusion with other, more obvious meanings for "internal".)
 
 ## Problem Statement
 
@@ -24,15 +35,38 @@ other than copying the code from one contract into another.
 Contract developers want to write contracts that depend on already-deployed contracts.
 
 Concretely, the need is for contract *B* to hold a reference to another contract *A* 
-and for the circuits of *B* to be able to call circuits in *A*, 
-so that *B*’s functionality depends on the functionality of *A*.
+and for the circuits of *B* to be able to call circuits in *A*, directly and in a single
+transaction, so that *B*’s functionality depends on the functionality of *A*.
 
 Meeting this need requires the introduction of *contract types* within Compact, 
 so that ledger fields and variables may hold references to contracts.
 
 ## Compact Syntax Changes
 
-### `contract` Definitions
+### Programs
+
+We assume throughout this proposal that the proposal for sealed ledger state is adopted.
+
+With this proposal, programs become, in essence, collections of contract definitions and pure
+circuit definitions.
+So to the existing set of program elements we add a program element for contract definitions:
+
+```
+PELT   --> CTDEFN
+```
+
+Since witness declarations, ledger declarations, and constructor definitions are inherently
+contract-level entities, PELT can no longer be one of these.
+
+```
+PELT   --> WDECL        _removed_
+       --> LDECL        _removed_
+       --> CONSDEFN     _removed_
+```
+
+Modules at the program level can contain exactly the same set of PELTs as a program.
+
+### Contract Definitions
 
 Prior to this proposal, there is no name *in Compact* for the ledger state, witnesses, and circuits that describe a contract.
 In order to refer to contract types in Compact, it is necessary to add a construct to the language
@@ -40,45 +74,35 @@ that collects the elements of the contract and associates them with an identifie
 That identifier becomes available as a *contract type* in Compact, used to describe references
 to any instance of the contract.
 
-The following change to the grammar is proposed:
+With this proposal, we adopt the following grammar for contract definitions:
 
 ```
-PELT   --> CTDEFN
+CTDEFN  --> EXPORT^OPT contract CONTRACT-NAME { CTELT ... }
 
-CTDEFN --> EXPORT^OPT contract CONTRACT-NAME { CTELT ... }
+CTELT   --> CTMELT
+        --> CONSDEFN
 
-CTELT  --> PRAGMA
-       --> INCLD
-       --> CTMDEFN
-       --> IDECL
-       --> XDECL
-       --> LDECL
-       --> CDEFN
-       --> EDECL
-       --> WDECL
-       --> STRUCT
-       --> ENUMDEF
+CTMELT  --> PRAGMA
+        --> INCLD
+        --> CTMDEFN
+        --> IDECL
+        --> XDECL
+        --> LDECL
+        --> CDEFN
+        --> EDECL
+        --> WDECL
+        --> STRUCT
+        --> ENUMDEF
 
-EXPORT --> export
-       
 CTMDEFN --> EXPORT_OPT module MODULE-NAME TPARAMS_OPT { CTMELT ... }
 
-CTMELT --> CTELT
+EXPORT --> export
 ```
 
-The other grammar productions for program elements are retained, except that the productions 
-for ledger declarations (`LDECL`) and witness declarations (`WDECL`)
-are *removed* from top-level program elements.  They may occur *only* within a contract definition.
-
-If the proposal for sealed ledger state is adopted, an additional grammar rule must be added
-for a separately declared constructor:
-
-```
-CTELT  --> CONSDEFN
-```
-
-CONSDEFN would, like other contract elements, no longer be permitted as a PELT.
-CONSDEFN would also not be permitted as a CTMELT.
+As specified by the grammar, a constructor definition can appear only at
+the top level of a contract body and not within a module.
+Furthermore, although not specified by the grammar, at most one constructor
+definition can appear in each contract.
 
 An empty contract is valid.
 
@@ -87,20 +111,25 @@ are externally callable, while circuits that are not exported from a contract ar
 
 ### Exported vs Non-Exported Contracts
 
-The Compact compiler produces executable code for all contracts whose type names are
+The Compact compiler produces target files for each contract whose type name is
 exported by a program.
 The contract type name exported from the program is used as a stem for various names
-outside of Compact, such as file names and TypeScript type names.
+outside of Compact, such as target file names and TypeScript type names.
 For a contract defined in and exported from a module, then imported by and reexported
 from a program, the contract type name might differ from its original name due to the
 addition of a prefix when the module is imported.
 
-No executable code is produced for contracts whose type names not exported by a program.
+No target files are produced for a contract whose type name is not exported by a program,
+though executable portions of its circuits may appear in the target files of
+exported circuits for purposes of performing inter-contract calls.
 This permits the definition of a separately compiled and deployed contract to be included
 or imported into a program for the sole purpose of allowing the contract to be called from
-other contracts for which executable code is produced.
+other contracts for which target files are produced.
 It also allows the programmer to resolve naming conflicts for like-named contracts
 imported from different modules via the existing support for import prefixing.
+
+If the proposal for contract interfaces is adopted, interfaces provide another way for
+one contract to call another without generating target files for the other.
 
 ### Example
 
@@ -228,6 +257,14 @@ following requirement:
 
 > `compactc` must statically detect when a contract-typed ledger state field might not be initialized and report an informative error.
 
+### No Calling Circuits of Contract Parameters in Constructors
+
+Contract references may be passed as parameters to constructors, but
+the current proposal does not allow the invocation of circuits on those references *within the constructor*.
+This restriction is intended to limit initial implementation complexity and might be lifted in a later version.
+
+> `compactc` must statically detect the possibility of an inter-contract call in a constructor and report an informative error.
+
 ### Contract Types May Not Appear in Circuit Parameter/Return Types
 
 To minimize the complexity of the contract runtime, contracts may not be passed as arguments to circuits. This constraint 
@@ -340,36 +377,4 @@ because all the referenced contracts must still be provided at deployment time. 
 it may be simpler and clearer to restrict contract types to appearing directly as
 ledger state field types, perhaps with the additional requirement that they be sealed.
 Is this necessary or desirable?
-
-### No Parametrically Polymorphic Contracts
-
-RKD: moved this to Open Questions section until we decide if the proving keys prevent unsafe
-calls and if not, what, if any, additional constraints we need to add, such as prohibiting
-free type-variable references in contract definitions.
-
-The current proposal does not support parametrically polymorphic contracts.
-
-Deploying a contract with one instantiated type and referring to it with another one is unsafe,
-and the mechanisms are not yet implemented to detect and prevent such unsafe actions in the Impact VM.
-Thus, contracts cannot be parameterized by type.
-
-> `compactc` must reject contract definitions containing type parameters.
-
-Because contract definitions can appear inside modules, and modules can be defined with type parameters,
-the possibility exists that type parameters could appear in modules.  The Compact compiler is allowed
-to reject this situation entirely.
-
-> `compactc` may reject any appearance of a contract definition inside a type-parameterized module.
-
-### No Calling Circuits of Contract Parameters in Constructors
-
-RKD: moved this to Open Questions because we don't need circuit proofs for the constructor, so the
-rationale needs to be clarified or the constraint removed.
-
-Contract references may be passed as parameters to constructors, but
-the current proposal does not allow the invocation of circuits on those references *within the constructor*.
-This is because it isn't clear what it means to prove the correctness of a circuit that is called in a constructor. We have
-the following requirement:
-
-> `compactc` must statically detect the possibility of an inter-contract call in a constructor and report an informative error.
 
