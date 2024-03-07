@@ -377,4 +377,3 @@ because all the referenced contracts must still be provided at deployment time. 
 it may be simpler and clearer to restrict contract types to appearing directly as
 ledger state field types, perhaps with the additional requirement that they be sealed.
 Is this necessary or desirable?
-
