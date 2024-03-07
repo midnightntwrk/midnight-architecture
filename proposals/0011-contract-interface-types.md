@@ -27,7 +27,8 @@ Interface declarations declare a set of circuits that must be present in any imp
 The following change to the grammar is proposed (assuming the changes proposed in composable contracts syntax):
 
 ```
-PELT   --> IFDEFN
+PELT    --> IFDEFN
+CTMELT  --> IFDEFN
 
 IFDEFN --> interface INTERFACE-NAME TPARAMS^OPT { EDECL ... }
 
