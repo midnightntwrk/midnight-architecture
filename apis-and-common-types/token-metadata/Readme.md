@@ -123,30 +123,34 @@ For example, there may be an ERC-20 token, that is bridged from Ethereum, in suc
 }
 ```
 
-## Open questions
+## Questions / concerns
 
 ### Should the domain separator be included in the metadata?
 
-Having the domain separator in the metadata would allow clients to perform consistency checks (as the triple contract address, domain separator, shielded allows to calculate token type) and thus - verify if token is related to a contract, this might be useful in a situation, where contract asks for some tokens to perform an operation, it would be highly suspicious if it also asks for e.g. some high-value NFT, so wallets would have a tool available to grade transaction risks depending on tokens involved in a transaction.
+Yes. Having the domain separator in the metadata would allow clients to perform consistency checks (as the triple contract address, domain separator, shielded allows to calculate token type) and thus - verify if token is related to a contract, this might be useful in a situation, where contract asks for some tokens to perform an operation, it would be highly suspicious if it also asks for e.g. some high-value NFT, so wallets would have a tool available to grade transaction risks depending on tokens involved in a transaction.
 
 ### Should the domain separator be token name/ticker?
 
-That would allow to verify token type against contract address, on the other hand though domain separator is an identifier, which should be stable in code, and the same domain separator used across multiple contracts could result with tokens with different names in the metadata.
+No. That would allow to verify token type against contract address, on the other hand though domain separator is an identifier, which should be stable in code, and the same domain separator used across multiple contracts could result with tokens with different names in the metadata.
 
 ### Should signature include information about algorithm used to sign and hash message? How should such metadata look like?
 
-Having upgradeability in mind - should this information be encoded and how? Should it be left for later and tackled as a dedicated effort? Is there an existing standard that would define identifiers of algorithms we would like to use or are likely to use?
+TBD. Having upgradeability in mind - should this information be encoded and how? Should it be left for later and tackled as a dedicated effort? Is there an existing standard that would define identifiers of algorithms we would like to use or are likely to use?
 
 ### Should fungible and non-fungible tokens be differentiated? 
 
-It is already being observed with various token types, e.g. on Solana or Ethereum, that there are assets, which are not clearly fungible or non-fungible, and it is their usage/contract that tells about what they are. For that reason it would make sense to not distinguish token's fungibility in any way in the basic metadata, but instead accomodate both cases in the common metadata and define clear extension points if very specific types arise in the future.
+No. It is already being observed with various token types, e.g. on Solana or Ethereum, that there are assets, which are not clearly fungible or non-fungible, and it is their usage/contract that tells about what they are. For that reason it would make sense to not distinguish token's fungibility in any way in the basic metadata, but instead accomodate both cases in the common metadata and define clear extension points if very specific types arise in the future.
 
 No indication of fungibility also makes it easier to accommodate varying shapes of tokens across ecosystems. 
 
 ### This API focuses on metadata, should it be re-defined to allow possibility of attaching metadata to other kinds of objects?
 
-Any ideas?
+No. This API defines token metadata only. Though server of the metadata may provide separate endpoints to provide APIs specific to other kinds of data.
 
 ### Why not signing metadata entries independently, like CIP-26 describes
 
 In many cases, metadata are considered a single entity, thus it makes it easier to sign whole entity.
+
+### "domain_separator" is an unintuitive term to people not knowing it. Is there a better name, which could be used across the code, APIs and documentation?
+
+TBD.
