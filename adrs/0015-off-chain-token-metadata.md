@@ -6,86 +6,69 @@ Proposed
 
 ---
 <!-- These are optional elements. Feel free to remove any of them. -->
-| -         | -                                                                                                                            |
-|-----------|------------------------------------------------------------------------------------------------------------------------------|
-| date      | {date}                                                                                                                       |
-| deciders  | {list everyone involved in the decision}                                                                                     |
-| consulted | {list everyone whose opinions are sought (typically subject-matter experts; and with whom there is a two-way communication}) |
-| informed  | {list everyone who is kept up-to-date on progress; and with whom there is a one-way communication}                           |
+| -               | -                                                                               |
+|-----------------|---------------------------------------------------------------------------------|
+| date            | March 2024                                                                      |
+| deciders        | Andrzej Kopeć, Thomas Kerber                                                    |
+| consulted       | Jonathan Sobel, Jon Rossie                                                      |
+| informed        | Mike Lin                                                                        |
+| PRD             | https://docs.google.com/document/d/1uhVGU7iV9OHMdo_HrMYVFAO-gvlnHkdHrkUvm0-hP3c |
+| Jira initiative | [PM-8517](https://input-output.atlassian.net/browse/PM-8517)                    |
 ---
 
 ## Context and Problem Statement
 
-{Describe the context and problem statement, e.g., in free form using two to three sentences or in the form of an illustrative story.
-You may want to articulate the problem in form of a question and add links to collaboration boards or issue management systems.}
+Midnight needs a dedicated space to attach token metadata to. As the name says - they are metadata - that is ledger code does not make any use of this information to validate transactions. But ledger operates in a big part on opaque hashes of values, which are very difficult to work with for humans. 
+
+Another issue with metadata is that it is particularly difficult to prove correctness of it. For example - USDC is a widely present stablecoin, which can be brought to chains using different mechanisms - e.g. natively, or through various bridges. How to encode that only token of type "abc" is USDC, while "def" is a completely unrelated token, which just chose USDC name (unaware of name clash or with malicious intents)?
+
+Across the industry, there are multiple approaches to this problem. Ranging from storing the metadata on-chain, as part of the originating contract, to independent off-chain services.
 
 <!-- This is an optional element. Feel free to remove. -->
 ## Decision Drivers
 
-* {decision driver 1, e.g., a force, facing concern, …}
-* {decision driver 2, e.g., a force, facing concern, …}
-* … <!-- numbers of drivers can vary -->
+* Fit into existing architecture
+* Security/trust assumptions always needed
+* Security/trust assumptions flexibility
 
 ## Considered Options
 
-* {title of option 1}
-* {title of option 2}
-* {title of option 3}
-* … <!-- numbers of options can vary -->
+* Store metadata on-chain, defined by contracts or through dedicated transaction extension
+* Store metadata off-chain, similarly to [CIP-26](https://cips.cardano.org/cip/CIP-0026) design
 
 ## Decision Outcome
 
-Chosen option: "{title of option 1}", because
-{justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force {force} | … | comes out best (see below)}.
-
-<!-- This is an optional element. Feel free to remove. -->
-### Positive Consequences
-
-* {e.g., improvement of one or more desired qualities, …}
-* …
-
-<!-- This is an optional element. Feel free to remove. -->
-### Negative Consequences
-
-* {e.g., compromising one or more desired qualities, …}
-* …
+Chosen option: "Store metadata off-chain, similarly to CIP-26", because
+it allows to implement many different security models and start small with the implementation - a simple HTTP server serving data from a predefined, community-maintained repository. Serving token metadata is a good case for PubSub Indexer within existing architecture.
 
 ## Validation
 
-{describe how the implementation of/compliance with the ADR is validated. E.g., by a review or an ArchUnit test}
-{measurable and easy to automate metrics are preferred, like: less bugs, less churn, 
-specific performance metric, etc. }
+Review shows that initial implementation of the initiative does not store token metadata on chain and is served from PubSub Indexer.
 
-<!-- This is an optional element. Feel free to remove. -->
 ## Pros and Cons of the Options
 
-### {title of option 1}
+### On-chain metadata
 
-<!-- This is an optional element. Feel free to remove. -->
-{example | description | pointer to more information | …}
+* Good, because all data are on-chain and can be easily indexed and served to users
+* Good, because of convenience of defining new tokens
+* Bad, because security/trust model becomes very rigid and inherently tied to contract authorship
+* Bad, because storing data on-chain is expensive
+* Bad, because metadata could not be verified by ledger in any meaningful way and yet are stored with other data ledger cares about
 
-* Good, because {argument a}
-* Good, because {argument b}
-<!-- use "neutral" if the given argument weights neither for good nor bad -->
-* Neutral, because {argument c}
-* Bad, because {argument d}
-* … <!-- numbers of pros and cons can vary -->
+### Off-chain metadata
 
-### {title of other option}
+* Good, because storage independent of chain is relatively cheap, and still, if someone wants to build a metadata server on top of a contract - it remains an option
+* Good, because provides flexibility regarding trust and security model
+* Good, because first iteration can be implemented relatively quickly
+* Neutral, because  PubSub Indexer is a natural hosting service for the metadata
+* Bad, because metadata is stored independently of the data it describes, which adds additional source of data to manage
 
-{example | description | pointer to more information | …}
 
-* Good, because {argument a}
-* Good, because {argument b}
-* Neutral, because {argument c}
-* Bad, because {argument d}
-* …
-
-<!-- This is an optional element. Feel free to remove. -->
 ## More Information
 
-{You might want to provide additional evidence/confidence for the decision outcome here and/or
-document the team agreement on the decision and/or
-define when this decision when and how the decision should be realized and if/when it should be re-visited and/or
-how the decision is validated.
-Links to other decisions and resources might here appear as well.}
+It is a clear trend in Cardano ecosystem to move towards off-chain metadata. The initial transaction metadata, which is defined to describe tokens too, is stored on-chain, but then, there is a series of CIPs and metadata designs, which move the metadata off-chain: 
+  - [SMASH](https://github.com/IntersectMBO/cardano-db-sync/blob/master/doc/smash.md)
+  - [CIP-26](https://cips.cardano.org/cip/CIP-0026)
+  - [CIP-72](https://cips.cardano.org/cip/CIP-0072)
+
+
