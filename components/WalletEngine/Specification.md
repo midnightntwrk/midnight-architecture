@@ -36,14 +36,14 @@ The zero-knowledge proof can assure ledger that no new tokens are created in a t
 
 Preventing double spends is achieved using _nullifiers_ - these are hashes, which take as input: coin (value, type and nonce) and sender secret key. Involvement of sender secret key allows only sender to calculate nullifier that will match the one encoded in a proof, while the whole coin makes each nullifier unique for that coin. Ledger keeps track of nullifiers in a set data structure, so that whenever an input provides a nullifier, which already is known to ledger - it means the transaction should be rejected, because a double spend attempt is taking place.
 
-Ensuring that coin was earlier created as an output is slightly more involved. Firstly, it requires a hash called coin commitment, which takes coin as an input, together with receiver address. This allows both sender and receiver to calculate the same value, but no one else (because coin nonce is secret). Each output to the transaction has the commitment publicly readable, and ledger tracks them in a data structure called Merkle tree, which allows to generate a succinct proof that a value is stored in the tree. Such proof needs to be provided when spending a coin. If the proof leads to a tree root, which ledger did not register - it means the coin being spent was not created in a transaction known to the ledger.
+Ensuring that coin was earlier created as an output is slightly more involved. Firstly, it requires a function to calculate value called coin commitment. This function takes coin as an input, together with receiver address. This allows both sender and receiver to calculate the same value, but no one else (because coin nonce is secret). Each output to the transaction has the commitment publicly readable, and ledger tracks them in a data structure called Merkle tree, which allows to generate a succinct proof that a value is stored in the tree. Such proof needs to be provided when spending a coin. If the proof leads to a tree root, which ledger did not register - it means the coin being spent was not created in a transaction known to the ledger.
 
 ### Binding randomness
 
 Many other protocols make use of signature schemes to prevent transaction malleability and prove credentials to issue transaction. To enable atomic swaps, ultimately needed are (at least) 2 parties, which create matching offers, which eventually are combined into a single transaction or executed within a single transaction. The approach Zswap is taking to enable atomic swaps is by allowing controlled malleability - namely merging transactions. But this means known signature schemes can not be used as they prevent malleability completely. It is already not needed to prove credentials to issue transaction - each input and output has relevant zero-knowledge proof attached. 
 
 It is enabled by a construction called _sparse homomorphic commitment_, which is built from 3 functions:
-1. for calculating a value commitment (a hash) for a set consisting of pairs of coin type and value, and additional random element called randomness
+1. for calculating a value commitment for a set consisting of pairs of coin type and value, and additional random element called randomness
 2. for combining the value commitments
 3. for combining the randomnesses
 
