@@ -115,11 +115,11 @@ One can also treat seed as a private key of an account in a BIP-44 (or similar) 
 
 ### Output encryption keys
 
-Encryption secret key is a random point on the embedded curve (JubJub), generated as the first value from the RNG initialized with seed.
+Encryption secret key is a random element of the embedded curve's (JubJub) scalar field, generated as the first value from the RNG initialized with seed.
 
 Although it is a secret key, so it should be treated with a special care, there is one situation, where it can be shared - as a key letting a trusted backend service index wallet transactions - in such context it acts as a viewing key.
 
-Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so effectively a point on the JubJub curve too).
+Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve).
 
 ### Coin keys
 
