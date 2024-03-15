@@ -1,7 +1,8 @@
 # Proposal 0007: Contract Interfaces in Abcird
 
 This proposal suggests a means of specifying callable interface for external
-contracts in Abcird.
+contracts in Abcird. The interface proposal in this document has been superseded by proposal [0011](./0011-contract-interface-types.md),
+while the [contract communication mechanism](#circuit-and-transaction-structure) has been adopted in [0010](./0010-composable-contracts-syntax.md).
 
 # Problem Statement
 
