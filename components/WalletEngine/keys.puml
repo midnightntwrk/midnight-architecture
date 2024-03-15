@@ -1,0 +1,20 @@
+@startuml
+
+[*] --> seed
+seed --> RNG
+RNG --> ESK: 1st generated value
+RNG --> CSK: 2nd generated value
+ESK --> EPK: ECDH
+CSK --> CPK: Poseidon Hash
+EPK --> addr: Hex
+CPK --> addr: Hex
+
+state "Seed" as seed: 32 bytes
+state "Random Number Generator" as RNG: ChaCha20 RNG
+state "Encryption Secret Key" as ESK: Key to decrypt outputs\nPoint on embedded curve (JubJub)
+state "Encryption Public Key" as EPK: Key to encrypt outputs
+state "Coin Secret Key" as CSK: Key which allows to spend coins
+state "Coin Public Key" as CPK: Key which allows to receive coins
+state "Address" as addr: Address for sharing with other parties\nConcatenation of public keys
+
+@enduml
