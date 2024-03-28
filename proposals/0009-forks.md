@@ -1,5 +1,8 @@
 # Proposal 00009: Upgrades with forks
 
+Related PRD: https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5dTdXsixIu9kXctHFpCneQ/edit?usp=sharing
+Related Jira ticket: https://input-output.atlassian.net/browse/PM-8288
+
 ## Problem Statement
 Midnight's design and capabilities, similarly to other chains, are not set in 
 stone. There are many known and unknown protocol changes in the future, which will require a clear protocol, mechanism and policy for upgrades, so that they can be delivered to Midnight users without: 
@@ -364,7 +367,7 @@ If contract kernel is introduced, it becomes a more natural target than wallet t
 
 ## Desired Result
 
-As per related PRD, the desired result is as follows:
+As per related [PRD](https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5dTdXsixIu9kXctHFpCneQ/edit?usp=sharing), the desired result is as follows:
 - Enable Midnight users to verify upgrade readiness of their DApps and other software they are interacting with
 - Support upgrades related to partner chains scope, as mentioned in [Migration strategy: change management system](https://input-output.atlassian.net/wiki/spaces/SID/pages/3951624306/Migration+strategy+change+management+system), [Change management strategy, PI4 MVP proposal](https://input-output.atlassian.net/wiki/spaces/SID/pages/4002381997/Change+management+strategy+PI4+MVP+proposal).
 - Provide a mechanism to execute snark upgrades.
