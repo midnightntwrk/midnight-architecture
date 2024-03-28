@@ -10,17 +10,18 @@ stone. There are many known and unknown protocol changes in the future, which wi
 - users funds at risk
 
 In particular, with following good practices which enable engineering teams to progress, certain properties of the solution should be kept:
-- separation of ledger and consensus
+- separation of ledger, consensus and rest of node code
 - ledger transaction validation a pure function
 - ledger state evolution a pure function
 - different ledger versions oblivious of each other
 - separation of ledger and Substrate APIs
 
-It is recognized, that there are aspects of the problem, which are not necessarily considered primary concerns, but should be taken into consideration, when evaluation different options:
+It is recognized, that there are aspects of the problem, which are not necessarily considered primary, but should be taken into consideration, when evaluation different options:
   - centralization, in various forms: code, implementation, governance
   - overall flexibility
   - block validation time
-  - historic block validation throughput, including parallelization
+  - historic block validation throughput
+  - possibility of introducing parallelization as part of ledger state evolution and transaction validation
 
 Focus for this proposal is on changes requiring hard-forks (see [Glossary](../product/Glossary.md)) because of their inherently trickier nature. It is very likely though, that the same protocol, mechanism and policy would apply to changes requiring soft-forks for consistency.
 
@@ -118,7 +119,7 @@ Many data structures are already versioned with `MAJOR.MINOR` numbers and serial
 
 Also - Node implementation has a well-defined entrypoints for interaction with ledger for transaction validation and execution.
 
-FRAME also requires runtime to be versioned for validation purposes. But it seems that making use of any versioning, require to use runtime upgrades for the changes to take effect with the alternative being replacing code in-place.
+FRAME also requires runtime to be versioned for validation purposes. But it seems that making use of any versioning, require to use runtime upgrades for the changes to take effect with the alternative being replacing code in-place. Most of pallets being part of Polkadot SDK make heavy use of runtime upgrades and migration capabilities offered by Substrate.
 
 Currently - the runtime (consensus + midnight-specific APIs) is already being built with WASM, but ledger is hidden behind the runtime interface API. Whole runtime WASM file at this moment takes around 1MB - 2MB depending on amount of optimizations enabled. The runtime can be (experimentally, see https://medium.com/@OneBlockplus/substrate-monthly-substrate-technical-newsletter-february-issue-56a7556301cf) compiled to a RISC-V bytecode, but it seems the polkavm (https://github.com/koute/polkavm) is of a similar speed as the WASM runtimes, so it is hardly a performance gain. 
 
@@ -128,21 +129,21 @@ We know, that ZK operations are taking a lot of time in WASM environment and tha
 
 ### Hard-fork-combinator-like framework(s)
 
-Although not a strong requirement from the beginning, with a hope most changes will be backward-compatible to some extent, the client components will eventually need to know how and when to address their processing in presence of a fork. For that reason a framework similar to hard-fork-combinator should be developed in their target languages. It is meant to act as a facade to a ledger functionality in those components, where based on blockchain state it is identified, what set of rules to choose.
+Although not a strong requirement from the beginning, with a hope most changes will be backward-compatible to some extent, the client components will eventually need to know how and when to address their processing in presence of a fork. For that reason a framework similar to hard-fork-combinator should be developed in their target languages. It is meant to act as a facade to a ledger/runtime functionality in those components, where based on blockchain state it is identified, what set of rules to choose.
 
-The framework can be built organically, but in such case a special care should be put to coupling, to be able to extract the framework from the place it was developed.
+The frameworks can be built organically, but in such case a special care should be put to coupling, to be able to extract them from the places they were developed.
 
 The design would follow following mechanic:
 - there exists a (heterogeneous) list of protocol implementations annotated with their versions
 - there exist a set of combinators to offer following capabilities:
-    - find a version given block/transaction/operation is supposed to follow
+    - find a version given block/transaction/operation/state is supposed to follow
     - find a protocol for a specific version
-    - given a version, find set of next supported versions - major, minor, patch and prerelease
-    - fold left or right the list
+    - given a version, find previous version
+    - fold left or right the list in ascending/descening version order 
     - find first, last, or all protocols matching a predicate
-    - iterate over the list
+    - iterate over the list in ascending/descending version order
 - each component can hava facade implemented, which holds the list, and delegate operation using mentioned combinators, specifically
-    - ledger:
+    - Ledger:
         - validating a transaction
             - get current protocol version
             - find ledger implementation for that version
@@ -152,10 +153,10 @@ The design would follow following mechanic:
             - ensure ledger state is initialized accordingly
             - find ledger implementation for current version
             - delegate application
-    - wallet:
+    - Wallet Engine:
         - applying a transaction/update (includes indexing wallet)
             - get current protocol version
-            - ensure wallet state is initialized accordingly
+            - ensure wallet state is initialized accordingly (and perform migration from previous version if needed)
             - find implementation for current version
             - delegate application
         - calculating balances
@@ -166,14 +167,14 @@ The design would follow following mechanic:
             - get current protocol version
             - find implementation for current version
             - delegate calculation
-    - indexer:
+    - Indexer:
         - indexing a block/transaction
             - get current protocol version
             - find implementation for current version
             - delegate calculation
         - calculating auxiliary data like zswap chain state:
             - get current protocol version
-            - ensure wallet state is initialized accordingly
+            - ensure wallet state is initialized accordingly (and perform migration from previous version if needed)
             - find implementation for current version
             - delegate calculation
     - Midnight.js
@@ -196,7 +197,9 @@ The design would follow following mechanic:
           - delegate the query
 - it is expected, that the facades will need to support sum of all operations from a range of versions, like ledger queries, wallet state queries, etc.; In such cases API should communicate it clearly, that there is a possibility of lack of support for an operation on current version of a component
 
-While languages like Rust or Scala offer very extensive support for type-level operations, TypeScript is more limited in certain aspects of them. There, the facade API could likely be implemented using a combination of strategy and visitor pattern, enums and switch statements, more dynamic constructs (like proxies and/or accessing properties by their names, relying on conventions, etc.) or all of them. It should be entirely avoided though to spread fork/version-checking code across codebase. 
+While languages like Rust or Scala offer very extensive support for type-level operations, TypeScript is more limited in certain aspects of them. There, the facade API could likely be implemented using a combination of strategy and visitor pattern, enums and switch statements, more dynamic constructs (like proxies and/or accessing properties by their names, relying on conventions, etc.) or all of them. It should be entirely avoided though to spread fork/version-checking code across codebase and keep it very close to APIs exposed to users. 
+
+The facades and frameworks play a particularly important role in ensuring smooth operations around the time upgrade is executed, thus they should be implemented with extensive test coverage from the beginning using various approaches, preferably including property-based tests from the beginning.  
 
 ### Protocol
 
@@ -209,36 +212,7 @@ Nonetheless, there is a set of identified desired properties, which seem to indi
 - initial protocol version (the one network starts with) is encoded in the genesis block - so specific-purpose networks can be spun up using desired set of rules
 - blocks have encoded latest version supported by its producer to allow at any time verify software upgrades adoption
 - initiation of the upgrade is recorded on-chain and need to include 2 pieces of information: policy to be used to determine activation and next version to be activated; the policy may vary - it might follow statistical approach as in Bitcoin, it might be as well a specific transaction, or subject of a voting mechanism; Encoding both data will reduce number of assumptions that need to be made on consensus in order to determine set of rules to apply, as well as should simplify chain selection at the time of a fork
-- in order to let clients efficiently choose version of rules to comply, PubSub needs to provide an API to query the current protocol version
-
-###### Compatibility chart
-
-Semantics of compatibility between data and code may be unclear in certain cases, table below may be used as a reference
-
-Legend:
-- ✅ - yes
-- ❌ - no
-- ☑️ - should
-
-| Data (block) version | Protocol (code) version | Can (compatible) data be produced by the code | Can data be consumed by the code |
-|----------------------|-------------------------|-----------------------------------------------|----------------------------------|
-| `X.Y.Z`              | `X.Y.Z`                 | ✅                                             | ✅                                |
-| `(X+n).Y.Z`          | `X.Y.Z`                 | ❌                                             | ❌                                |
-| `X.Y.Z`              | `(X+n).Y.Z`             | ❌                                             | ❌                                |
-| `X.(Y+n).Z`          | `X.Y.Z`                 | ❌                                             | ☑️(not necessarily fully)        |
-| `X.Y.Z`              | `X.(Y+n).Z`             | ✅                                             | ✅                                |
-| `X.Y.(Z+n)`          | `X.Y.Z`                 | ✅                                             | ✅                                |
-| `X.Y.Z`              | `X.Y.(Z+n)`             | ✅                                             | ✅                                |
-| `X.Y.Z-pre.A`        | `X.Y.Z-pre.A`           | ✅                                             | ✅                                |
-| `X.Y.Z-pre.A`        | `X.Y.Z-pre.B`           | ❌                                             | ❌                                |
-| `X.Y.Z`              | `X.Y.Z-pre.A`           | ☑️                                            | ☑️                               |
-| `X.Y.Z-pre.A`        | `X.Y.Z`                 | ☑️                                            | ☑️                               |
-
-In other words:
-- major version change involve complete lack of compatibility and requires a hard-fork to do the update
-- minor version change maintains backward compatibility, but older code might not be able to fully inspect the data, thus a soft-fork is required to do the update
-- patch version change maintains backward and forward compatibility, so the update can be performed in-place at will
-- pre-releases in principle are treated as major versions, but preferably maintain compatibility with minor version - usually the point of a pre-release is exactly to verify integration and compatibility
+- in order to let clients efficiently choose version of rules to comply, Indexer needs to provide an API to query the current protocol version
 
 ### Policy
 
@@ -264,7 +238,7 @@ Usage runtime interface to interact with a ledger facade, implemented with [hard
 2. Usage of proven, reliable and type-safe pattern
 3. Possibility to test the moment of switching protocol/ledger version in various ways and layers (including property-based tests)
 4. No expected performance impact compared with current state
-5. Possibility to share the framework with clients of nodes - like wallets and pubsub 
+5. Possibility to share the framework with clients of nodes - like wallets and Indexer 
 6. Avoidance of storing large amount of code on-chain
 7. No need to compile ledger to WASM
 8. No code centralization
@@ -289,7 +263,7 @@ Mechanism boils down to use substrate capabilities related to upgrade runtime, h
 A wide range of policies is available out of the box, as well as implementing new ones should be rather straightforward.
 In particular - existing pallets like sudo (which should be avoided), collective or democracy can be used, it would also be possible to implement a policy, which is based on number of nodes that are updated to relevant version.
 
-Because of the separation of ledger from the rest of the runtime, it is even possible to trigger hard forks independently from runtime upgrades, and it is mostly matter of policy.
+Because of the separation of ledger from the rest of the runtime, it is even possible to trigger hard forks independently of runtime upgrades, and it is mostly matter of policy and implementation details of specific upgrade.
 
 ##### Pros
 
@@ -332,8 +306,8 @@ Similarly to Option B - wide range of policies is available out of the box and i
 
 1. Code centralization - the on-chain WASM code is the one, that dictates the rules
 2. Substrate-specific tooling needed to test upgrades, in particular testing a case of simulating some operations, and then triggering an update seems to be particularly involved case (though maybe it would be possible to try to instantiate 2 runtimes separately?)
-3. Node clients like pubsub or wallets still need a solution to react to updates
-4. Ledger code needs to be refactored and adjusted to compile with WASM - it is an effort of significant and unknown size, with unknown size of performance impact
+3. Node clients like Indexer or wallets still need a solution to react to updates
+4. Ledger code needs to be refactored and adjusted to compile to WASM - it is an effort of significant and unknown size, with unknown performance impact
 5. Depending on specific implementation/linking - a performance impact is expected for nodes not running recent versions as well as for validating historical blocks because they will defer to WASM code
 6. Node updates, and thus - hard forks, are still needed, just maybe a bit less frequently
 7. Introduction of parallelization in ledger requires careful interaction with runtime interface, which practically may be significantly limiting factor
@@ -342,7 +316,7 @@ Similarly to Option B - wide range of policies is available out of the box and i
 
 It is important to provide a mechanism, which would allow to perform contract upgrade, effective on a specific protocol upgrade. Primary use case for that mechanism would be a situation, where SNARK upgrade is scheduled and DApp builders need to update their contracts ahead of time of the upgrade. 
 
-Almost equally important as letting developers perform updates ahead of time, is to enable end users to check whether dapps used by them are ready for an upgrade. 
+Equally important as letting developers perform updates ahead of time, is to enable end users to check whether DApps used by them are ready for an upgrade. 
 
 #### Option A - Staged rollout
 
@@ -392,8 +366,9 @@ If contract kernel is introduced, it becomes a more natural target than wallet t
 
 As per related PRD, the desired result is as follows:
 - Enable Midnight users to verify upgrade readiness of their DApps and other software they are interacting with
+- Support upgrades related to partner chains scope, as mentioned in [Migration strategy: change management system](https://input-output.atlassian.net/wiki/spaces/SID/pages/3951624306/Migration+strategy+change+management+system), [Change management strategy, PI4 MVP proposal](https://input-output.atlassian.net/wiki/spaces/SID/pages/4002381997/Change+management+strategy+PI4+MVP+proposal).
 - Provide a mechanism to execute snark upgrades.
-- Provide a framework for managing rules changes both server-side (node, pubsub) as well as client-side (dapps, wallets)
+- Provide a framework for managing rules changes both server-side (node, indexer) and client-side (DApps, wallets)
 - It is possible to execute protocol backward-incompatible changes, without affecting past block validity.
 - Various kinds of forecasted upgrades can be deployed with a confidence and network stability:
   - Transaction format upgrade - Introduce a capability that affects transaction format without affecting previous transactions. Showcase example: adding a signature.
@@ -438,14 +413,14 @@ In most cases Cardano changes should not affect Midnight at all. There are three
 
 ### RISC-V support?
 
-For polkadot support contracts in other format than WASM, there is a RISC-V VM created called polkavm (https://github.com/koute/polkavm). That VM is already integrated into a recent version of Substrate. 
+For Polkadot support contracts in other format than WASM, there is a RISC-V VM created called polkavm (https://github.com/koute/polkavm). That VM is already integrated into a recent version of Substrate. It seems to support running runtime according to https://medium.com/@OneBlockplus/substrate-monthly-substrate-technical-newsletter-february-issue-56a7556301cf.
 
-It is for contracts only at the time of writing, and still - it offers similar performance to a good WASM runtime, thus - it does not change much from performance/execution perspective. What it might improve (though it is not entirely clear to what extent) is overall easiness of compilation. 
+It is at experimental stage at the time of writing, and still - it offers similar performance to a good WASM runtime, thus - it does not change much from performance/execution perspective. What it might improve (though it is not entirely clear to what extent) is overall easiness of compilation and resulting artifact size.
 
 ## Recommendation
 
 Considering pros and cons of all options, the recommendation is to:
-- build necessary frameworks client-side, promoting code reuse within technology stack, preferably (but not necessarily) proactively to simplify changes when a hard-fork will be needed
+- build necessary frameworks client-side, promoting code reuse within technology stack, preferably (but not necessarily) proactively to reduce amount of changes when a hard-fork will be needed
 - in the node follow [Option B](#option-b---mix-runtime-upgrades-and-ledger-through-runtime-interface) - mix runtime upgrades with ledger accessible via native runtime interface
 - in the ledger follow [Option B](#option-b---generalized-contract-cell) - generalized contract cell
 - for reporting fork readiness to users follow [Option B](#option-b---wallet-api) - dedicated wallet/contract kernel API
