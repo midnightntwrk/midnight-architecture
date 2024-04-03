@@ -1,0 +1,22 @@
+@startuml
+
+state pending as "Pending": Coin expected to be received\nPart of pending balance
+state confirmed as "Confirmed": Coin received in a transaction added to the chain\nPart of pending balance
+state final as "Final": Coin received in a finalized transaction\nPart of available balance
+state booked as "Booked": Coin booked for a transaction\nNot part of balance
+
+[*] --> confirmed : apply(receive)
+[*] --> pending : spend
+[*] --> pending : watch_for
+pending --> confirmed : apply(receive)
+confirmed --> final : finalize
+confirmed --> pending : rollback
+confirmed --> [*] : discard
+final --> booked : spend|apply(spend)
+confirmed --> booked : apply(spend)
+booked --> booked : apply | rollback
+booked --> [*] : finalize
+booked --> final : discard
+pending --> [*] : discard
+
+@enduml
