@@ -140,3 +140,112 @@ Since coin ownership and output encryption are separated and use different keys,
 
 Such built address can be sent to other parties, and the sender wallet can easily extract both components by splitting at `|` character.
 
+
+
+## Transaction structure and statuses
+
+Midnight transaction includes 3 components:
+1. guaranteed Zswap offer
+2. (optional) fallible Zswap offer
+3. (optional) list of contract calls and deploys
+
+Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs and transients. The split into guaranteed and fallible offers is related to contracts and paying fees - guaranteed offer is applied first and needs to succeed for transaction to succeed at all, this offer needs to cover transaction fees. Then fallible offer is applied, which may fail, or may succeed, together with contract part. Because Midnight Node might include in a block transaction, which failed execution, there are 3 possible statuses to derive:
+- success - in which case all present components of transaction were successfully applied by ledger
+- partial success - when only guaranteed offer was successfully applied
+- failure - when even the guaranteed offer failed
+
+Transients are an extension needed for contract execution - they are intermediate coins created and spent within transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones.
+
+## State management
+
+Wallet has a state, which needs accurate maintenance in order to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
+- keys
+- set of known coins
+- coin commitment Merkle tree
+
+Additionally, it is in practice important to track progress of synchronization with chain, pool of pending transactions and transaction history.
+
+There can be 6 foundational operations defined, which should be atomic to whole wallet state:
+- `apply_transaction(transaction, status)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming transactions
+- `finalize_transaction(transaction)` - which marks transaction as final according to consensus rules
+- `rollback_last_transaction` - which reverts effects of applying last transaction 
+- `discard_transaction(transaction)` - which considers a pending transaction irreversibly failed  
+- `spend(coins_to_spend, new_coins)` - which spends coins in a new transaction
+- `watch_for(coin)` - which adds a coin to explicitly watch for
+
+With the `apply_transaction`, `finalize_transaction` and `rollback_transaction` possibly be extended to blocks or ranges of blocks. Since shielded tokens are implemented using effectively an UTxO mode, one can find [Cardano Wallet Formal Specification](https://iohk.io/en/research/library/papers/formal-specification-for-a-cardano-wallet/) a relevant read, with many similarities present.
+
+Full transaction lifecycle in relationship to those operations is presented on figure below. Please note, that confirmed and final transactions have statuses related to their execution.
+
+![](./tx-lifecycle.svg)
+
+
+### Balances
+
+A balance of token in a wallet is a sum of values of coins of that token type.
+
+Because consensus finality is not instant, and sometimes wallet knows about coins before they can be spent, there are 3 distinct balances recognized:
+- available - derived from final unspent coins, that is - this is the balance, which wallet is safe to spend at the moment, with no risk of transaction being rejected due to coin double spend
+- pending - derived from pending coins; this balance represents amount of tokens wallet knows it waits for, but they are not final yet
+- total - sum of available and pending balances; it represents total amount of tokens under wallet's control, taking into consideration known pending transactions and coins
+
+Because of need to book coins for ongoing transactions, coin lifecycle differs from transaction lifecycle as presented on the figure below:
+
+![](./coin-lifecycle.svg)
+
+### Operations
+
+#### `apply_transaction`
+
+Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for a successful offer are:
+1. Update coin commitment tree with commitments of outputs present in the offer
+2. Book coins, whose nullifiers match the ones present in offer inputs 
+3. Watch for received coins, for each output:
+   1. Match commitment with set of pending coins, if it is a match, mark coin as confirmed
+   2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
+   3. If decryption fails - ignore output
+
+If transaction is reported to fail entirely, it is up to implementor to choose how to progress. It is advised to record such event in transaction history and notify user.
+
+If transaction history is tracked, an entry should be added, with confirmed status. Amount of tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. 
+
+#### `finalize_transaction`
+
+Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide definitive information about finalization, thus there is no need to implement probabilistic rules. It is expected wallet state has already applied provided transaction. 
+This operation needs to:
+1. Mark coin commitment tree state from that transaction as final
+2. Update status of known coins to final, so that they become part of available balance
+3. Update statuses of transactions in history if tracked
+
+#### `rollback_last_transaction`
+
+Reverts effects of applying last transaction in response to chain reorganization. It needs to:
+1. Revert coin commitment tree state to one from before that transaction
+2. If transaction is considered own:
+   1. Add it to the pool of pending transactions, so it can be submitted to the network again
+   2. Move coins received from it to pending state
+3. Otherwise discard transaction
+
+#### `discard_transaction`
+
+Frees resources related to tracking a transaction considered not relevant anymore. Following steps need to be taken:
+1. Move transaction to transaction history as failed
+2. Remove coins received in the transaction
+3. Unbook coins spent in the transaction
+
+#### `spend`
+
+Spend coins in a transaction, either by initiating swap, making transfer or balancing other transaction. Only final coins should be provided as inputs to the transaction. 
+
+In certain situations implementation might allow to use confirmed coins. Such transaction is bound to fail in case of reorganization because of coin commitment tree root mismatch.
+
+Following steps need to be taken, from perspective of wallet state:
+1. Select coins to use in transaction and book them
+2. Prepare change output, add it to pending coin pool
+3. Prepare transaction, add it to pending transaction pool
+
+#### `watch_for`
+
+Watches for a coin whose details are provided. There are limitations, which require usage of this operation to receive coins from contracts.
+
+It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history as expected.
