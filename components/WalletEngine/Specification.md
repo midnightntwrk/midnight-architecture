@@ -237,11 +237,11 @@ Frees resources related to tracking a transaction considered not relevant anymor
 
 Spend coins in a transaction, either by initiating swap, making transfer or balancing other transaction. Only final coins should be provided as inputs to the transaction. 
 
-In certain situations implementation might allow to use confirmed coins. Such transaction is bound to fail in case of reorganization because of coin commitment tree root mismatch.
+In certain situations implementation might allow to use confirmed and yet not final coins. Such transaction is bound to fail in case of reorganization because of coin commitment tree root mismatch, so a special care should be put into user experience of managing such transactions.
 
 Following steps need to be taken, from perspective of wallet state:
 1. Select coins to use in transaction and book them
-2. Prepare change output, add it to pending coin pool
+2. Prepare change outputs, add them to pending coin pool
 3. Prepare transaction, add it to pending transaction pool
 
 #### `watch_for`
