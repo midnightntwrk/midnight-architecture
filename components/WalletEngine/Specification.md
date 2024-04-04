@@ -149,12 +149,32 @@ Midnight transaction includes 3 components:
 2. (optional) fallible Zswap offer
 3. (optional) list of contract calls and deploys
 
-Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs and transients. The split into guaranteed and fallible offers is related to contracts and paying fees - guaranteed offer is applied first and needs to succeed for transaction to succeed at all, this offer needs to cover transaction fees. Then fallible offer is applied, which may fail, or may succeed, together with contract part. Because Midnight Node might include in a block transaction, which failed execution, there are 3 possible statuses to derive:
+Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs and transients. It also tracks token imbalances, because finalized offer does not contain information about coins values. The split into guaranteed and fallible offers is related to contracts and paying fees - guaranteed offer is applied first and needs to succeed for transaction to succeed at all, this offer needs to cover transaction fees. Then fallible offer is applied, which may fail, or may succeed, together with contract part. Because Midnight Node might include in a block transaction, which failed execution, there are 3 possible statuses to derive:
 - success - in which case all present components of transaction were successfully applied by ledger
 - partial success - when only guaranteed offer was successfully applied
 - failure - when even the guaranteed offer failed
 
-Transients are an extension needed for contract execution - they are intermediate coins created and spent within transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones.
+Offer input represents a coin spent in a transaction. It contains:
+- coin nullififer
+- value commitment
+- root of a coin commitment tree expected to be a result of a merkle proof
+- zero-knowledge spend proof
+- optionally, contract address, if contract is providing the input.
+
+Offer output represents coin received in a transaction. It contains:
+- coin commitment
+- value commitment
+- zero knowledge creation proof
+- optionally, coin ciphertext
+- optionally, contract address, if coin is meant to be received by a contract
+
+Transients are an extension needed for contract execution - they are intermediate coins created and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received. For that reason they share many of properties of both inputs and outputs, which are:
+- coin nullifier
+- coin commitment
+- input value commitment
+- output value commitment
+- optionally, coin ciphertext,
+- optionally, contract address, if a contract received the original coin 
 
 ## State management
 
@@ -165,8 +185,8 @@ Wallet has a state, which needs accurate maintenance in order to be able to use 
 
 Additionally, it is in practice important to track progress of synchronization with chain, pool of pending transactions and transaction history.
 
-There can be 6 foundational operations defined, which should be atomic to whole wallet state:
-- `apply_transaction(transaction, status)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming transactions
+There are 7 foundational operations defined, which should be atomic to whole wallet state:
+- `apply_transaction(transaction, status, expected_root)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming transactions
 - `finalize_transaction(transaction)` - which marks transaction as final according to consensus rules
 - `rollback_last_transaction` - which reverts effects of applying last transaction 
 - `discard_transaction(transaction)` - which considers a pending transaction irreversibly failed  
@@ -199,8 +219,9 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 
 Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for a successful offer are:
 1. Update coin commitment tree with commitments of outputs present in the offer
-2. Book coins, whose nullifiers match the ones present in offer inputs 
-3. Watch for received coins, for each output:
+2. Verify coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
+3. Book coins, whose nullifiers match the ones present in offer inputs 
+4. Watch for received coins, for each output:
    1. Match commitment with set of pending coins, if it is a match, mark coin as confirmed
    2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
    3. If decryption fails - ignore output
@@ -231,7 +252,7 @@ Reverts effects of applying last transaction in response to chain reorganization
 Frees resources related to tracking a transaction considered not relevant anymore. Following steps need to be taken:
 1. Move transaction to transaction history as failed
 2. Remove coins received in the transaction
-3. Unbook coins spent in the transaction
+3. Un-book coins spent in the transaction
 
 #### `spend`
 
@@ -249,3 +270,12 @@ Following steps need to be taken, from perspective of wallet state:
 Watches for a coin whose details are provided. There are limitations, which require usage of this operation to receive coins from contracts.
 
 It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history as expected.
+
+## Usage of indexer
+
+Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant.
+
+
+
+
+
