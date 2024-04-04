@@ -176,6 +176,8 @@ Transients are an extension needed for contract execution - they are intermediat
 - optionally, coin ciphertext,
 - optionally, contract address, if a contract received the original coin 
 
+Transaction hash is not a reliable identifier of a Midnight transaction because it is possible for transaction to be merged with another one. Instead, any value commitment can be used - they are part of transaction data and remain unchanged when transactions are merged.
+
 ## State management
 
 Wallet has a state, which needs accurate maintenance in order to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
@@ -274,8 +276,3 @@ It only adds a coin to a pending set, if transaction details are provided too, t
 ## Usage of indexer
 
 Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant.
-
-
-
-
-
