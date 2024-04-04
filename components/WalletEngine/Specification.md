@@ -13,8 +13,8 @@ This document comprises a couple of sections:
 3. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
 4. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
 5. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
-6. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
-7. **Transaction building** - on the details and steps to be performed to build transaction
+6. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
+7. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
 <!-- TOC -->
 * [Midnight Wallet Specification](#midnight-wallet-specification)
@@ -40,6 +40,13 @@ This document comprises a couple of sections:
       * [`spend`](#spend)
       * [`watch_for`](#watch_for)
   * [Synchronization process](#synchronization-process)
+  * [Building transactions](#building-transactions)
+    * [Building an input](#building-an-input)
+    * [Building an output](#building-an-output)
+    * [Combining inputs and outputs into an offer](#combining-inputs-and-outputs-into-an-offer)
+    * [Creating transaction with the offer](#creating-transaction-with-the-offer)
+    * [Merging with other transaction](#merging-with-other-transaction)
+      * [Merging offers](#merging-offers)
   * [Transaction submission](#transaction-submission)
 <!-- TOC -->
 
@@ -247,9 +254,9 @@ Applies transaction to wallet state. Most importantly - to discover received coi
    2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
    3. If decryption fails - ignore output
 
-If transaction is reported to fail entirely, it is up to implementor to choose how to progress. It is advised to record such event in transaction history and notify user.
+If transaction is reported to fail entirely and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
 
-If transaction history is tracked, an entry should be added, with confirmed status. Amount of tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
+If transaction history is tracked and transaction is found relevant, an entry should be added, with confirmed status. Amount of tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
 
 #### `finalize_transaction`
 
@@ -298,7 +305,7 @@ Following steps need to be taken, from perspective of wallet state:
 
 Watches for a coin whose details are provided. There are limitations, which require usage of this operation to receive coins from contracts.
 
-It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be tracked as a pending one.
+It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history with "expected" status. 
 
 Note: in many cases such transaction would be requested to be balanced, in such case the final transaction should only be added as pending one. 
 
@@ -306,15 +313,82 @@ Note: in many cases such transaction would be requested to be balanced, in such 
 
 Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant. Such option requires only a stream of blocks from a node, perform basic consistency checks and run `apply_transaction` one by one (alternatively batch all transactions from a block).
 
-
 An alternative idea is to implement a service, which receives encryption secret key, uses it to scan for transactions relevant for particular wallet and provides data needed to evolve the state, that is:
 - necessary updates to coin commitment tree (including roots for consistency checks)
 - filtered transactions to apply
 Such service cannot spend coins because it does not have access to coin secret key. It needs to be trusted by user though (because it has access to otherwise private information) while the upside is that it can offer better user experience.
 
+## Building transactions
+
+While there are structural similarities, building Midnight transaction is more involved than in most UTxO chains. The reason for that is that wallet needs to prove to ledger being eligible to spend coins and not minting new coins without having right to do so.
+
+Although there is only single kind of transaction, there are various semantics of transactions wallet can build:
+- a regular transfer of tokens, with possibly many inputs and outputs of DUST as well as other types of tokens
+- balancing existing transaction, that is - creating a transaction containing a counter-offer, which after merging results in a transaction reporting only DUST imbalances needed to cover fees
+- initiating a swap - creating a transaction (usually containing some inputs of token A and some outputs of token B), which is purposefully not balanced, to let another party balance such transaction and in that way - exchange tokens
+
+Technically, building a transaction by wallet means:
+1. Creating inputs
+2. Creating outputs
+3. Combining inputs and outputs into an offer
+4. Creating a transaction with the offer
+5. Merging with other transaction
+
+### Building an input
+
+Building an input requires information, which coin owned by wallet should be provided, additionally access to part of wallet state is needed - the coin secret key and coin commitment Merkle tree. Steps to follow are:
+1. calculate nullifier
+2. sample randomness
+3. calculate value commitment
+4. calculate Merkle proof of the coin
+5. generate zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
+6. return randomness and the input (nullifier, value commitment, root of coin commitment tree, zero-knowledge proof)
+
+### Building an output
+
+Building an output requires information of an address to receive tokens, their type and amount. Steps to follow are:
+1. sample new nonce
+2. calculate coin commitment
+3. sample randomness
+4. calculate value commitment
+5. encrypt output using recipient's public encryption key
+6. generate zero-knowledge proof using coin public key or recipient, new coin's type, amount and nonce and randomness
+7. return randomness and the output (coin commitment, value commitment, output ciphertext, zero-knowledge proof, contract address if contract is recipient)
+
+### Combining inputs and outputs into an offer
+
+When inputs and outputs are ready, they can be combined into a Zswap offer with following steps:
+1. Calculate imbalances:
+   1. Group inputs and outputs by token type
+   2. For each token type calculate imbalance as a sum of input values minus sum of output values
+   3. Discard imbalances equal zero
+   4. Return a map, where keys are token types, and values are their imbalances
+2. Calculate binding randomness - iteratively combine randomnesses of inputs and outputs
+3. Return binding randomness and the offer (inputs, outputs, imbalances)
+
+### Creating transaction with the offer
+
+Given an offer and its binding randomness, a transaction can be created using them directly, that is by returning structure containing provided offer as a guaranteed one, no fallible offer, no contract calls, and offer's randomness.
+
+### Merging with other transaction
+
+Transactions can be merged, by merging their guaranteed offers, fallible offers, contract calls and binding randomnesses.
+
+#### Merging offers
+
+1. Verify if there are any identical inputs, outputs, or transients. Abort, if true
+2. Join list of inputs from one offer, with list of inputs from the other one, sort resulting list
+3. Join list of outputs from one offer, with list of outputs from the other one, sort resulting list
+4. Join list of transients from one offer, with list of transients from the other one, sort resulting list
+5. Join imbalances:
+   1. Collect token types to include as a sum of imbalances key sets of one and other offer
+   2. For each token type found take imbalance as a sum of imbalances from one and the other offer, defaulting to 0 if necessary (in pseudocode: `offer1.imbalances.getOrElse(token_type, 0) + offer1.imbalances.getOrElse(token_type, 0)`),
+   3. Return new map, discarding entries, for which values are equal 0
+6. Return offer containing joined inputs, outputs, transients and imbalances
+
 ## Transaction submission
 
-Once transaction is created, it can be submitted to the network or other party. 
+Once transaction is created, it can be submitted to the network or other party.
 
 For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking problems, node being temporarily unavailable or the network being congested.
 
