@@ -327,12 +327,14 @@ Although there is only single kind of transaction, there are various semantics o
 - balancing existing transaction, that is - creating a transaction containing a counter-offer, which after merging results in a transaction reporting only DUST imbalances needed to cover fees
 - initiating a swap - creating a transaction (usually containing some inputs of token A and some outputs of token B), which is purposefully not balanced, to let another party balance such transaction and in that way - exchange tokens
 
-Technically, building a transaction by wallet means:
+Technically, building a transaction by wallet involves:
 1. Creating inputs
 2. Creating outputs
-3. Combining inputs and outputs into an offer
-4. Creating a transaction with the offer
-5. Merging with other transaction
+3. Creating transients
+4. Combining inputs and outputs into an offer
+5. Replacing output with a transient in an offer
+6. Creating a transaction with the offer
+7. Merging with other transaction
 
 ### Building an input
 
@@ -355,16 +357,37 @@ Building an output requires information of an address to receive tokens, their t
 6. generate zero-knowledge proof using coin public key or recipient, new coin's type, amount and nonce and randomness
 7. return randomness and the output (coin commitment, value commitment, output ciphertext, zero-knowledge proof, contract address if contract is recipient)
 
-### Combining inputs and outputs into an offer
+### Building a transient
+
+Building a transient can be thought as a process of taking an output, and converting it into a transient. Therefore - the output is needed, its randomness, information about the coin - its type, value and nonce, and access to part of wallet state - the coin secret key and the encryption secret key (if output ciphertext needs to be decrypted)
+Steps to follow are very similar as in the case of creating input:
+1. if no coin information is available - extract it by decrypting provided output ciphertext, abort if decryption fails
+2. calculate nullifier
+3. sample input randomness
+4. calculate input value commitment
+5. calculate Merkle proof of the coin - but using an empty tree with the coin commitment only
+6. generate input zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
+7. return input randomness, output randomness and the transient containing both input data (nullifier, input value commitment, input zero-knowledge proof) and output data (coin commitment, output value commitment, ciphertext, output zero-knowledge proof, no contract address) 
+
+### Combining inputs, outputs and transients into an offer
 
 When inputs and outputs are ready, they can be combined into a Zswap offer with following steps:
-1. Calculate imbalances:
-   1. Group inputs and outputs by token type
+1. Find and discard outputs to be replaced by transients, by comparing their coin commitments or value commitments
+2. Calculate imbalances:
+   1. Group inputs and outputs by token type (transients can be skipped, because they are inherently balanced)
    2. For each token type calculate imbalance as a sum of input values minus sum of output values
    3. Discard imbalances equal zero
    4. Return a map, where keys are token types, and values are their imbalances
-2. Calculate binding randomness - iteratively combine randomnesses of inputs and outputs
-3. Return binding randomness and the offer (inputs, outputs, imbalances)
+3. Calculate binding randomness - iteratively combine randomnesses of inputs, outputs and transients (both input and output randomness for each)
+4. Return binding randomness and the offer (inputs, outputs, imbalances)
+
+### Replacing output with a transient
+
+Many use-cases involving transients require replacing an existing output with a transient in an offer. Such operation requires offer, transient, its input randomness and coin information - type and amount. The steps are:
+1. Identify and remove the output to be replaced from output list, one can use output value commitment or coin commitment available in transient as a reference 
+2. Add transient to transient list, keeping the list sorted
+3. Update the offer's binding randomness, by combining it with provided transient's input randomness
+4. Update the offer's imbalances by increasing the imbalance for a provided coin's type by provided amount
 
 ### Creating transaction with the offer
 
@@ -381,8 +404,8 @@ Transactions can be merged, by merging their guaranteed offers, fallible offers,
 3. Join list of outputs from one offer, with list of outputs from the other one, sort resulting list
 4. Join list of transients from one offer, with list of transients from the other one, sort resulting list
 5. Join imbalances:
-   1. Collect token types to include as a sum of imbalances key sets of one and other offer
-   2. For each token type found take imbalance as a sum of imbalances from one and the other offer, defaulting to 0 if necessary (in pseudocode: `offer1.imbalances.getOrElse(token_type, 0) + offer1.imbalances.getOrElse(token_type, 0)`),
+   1. Collect token types to include: take a sum of key sets of imbalance maps of one offer and the other one (in pseudocode: `offer1.imbalances.keys() ++ offer2.imbalances.keys()`)
+   2. For each token type found take imbalance as a sum of imbalances from one and the other offer, defaulting to 0 if necessary (in pseudocode: `offer1.imbalances.getOrDefault(token_type, 0) + offer1.imbalances.getOrDefault(token_type, 0)`),
    3. Return new map, discarding entries, for which values are equal 0
 6. Return offer containing joined inputs, outputs, transients and imbalances
 
