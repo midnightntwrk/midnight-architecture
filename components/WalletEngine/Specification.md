@@ -140,8 +140,6 @@ Since coin ownership and output encryption are separated and use different keys,
 
 Such built address can be sent to other parties, and the sender wallet can easily extract both components by splitting at `|` character.
 
-
-
 ## Transaction structure and statuses
 
 Midnight transaction includes 3 components:
@@ -168,7 +166,7 @@ Offer output represents coin received in a transaction. It contains:
 - optionally, coin ciphertext
 - optionally, contract address, if coin is meant to be received by a contract
 
-Transients are an extension needed for contract execution - they are intermediate coins created and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received. For that reason they share many of properties of both inputs and outputs, which are:
+Transients are an extension needed mostly for contract execution - they are intermediate coins created as an output and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received, so it enables use-cases of creating a atomic chains of transfers, etc. For that reason they share many of properties of both inputs and outputs, which are:
 - coin nullifier
 - coin commitment
 - input value commitment
@@ -220,7 +218,7 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 #### `apply_transaction`
 
 Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for a successful offer are:
-1. Update coin commitment tree with commitments of outputs present in the offer
+1. Update coin commitment tree with commitments of outputs and transients present in the offer
 2. Verify coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
 3. Book coins, whose nullifiers match the ones present in offer inputs 
 4. Watch for received coins, for each output:
@@ -230,7 +228,7 @@ Applies transaction to wallet state. Most importantly - to discover received coi
 
 If transaction is reported to fail entirely, it is up to implementor to choose how to progress. It is advised to record such event in transaction history and notify user.
 
-If transaction history is tracked, an entry should be added, with confirmed status. Amount of tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. 
+If transaction history is tracked, an entry should be added, with confirmed status. Amount of tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
 
 #### `finalize_transaction`
 
