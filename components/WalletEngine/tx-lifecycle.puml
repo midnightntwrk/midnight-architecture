@@ -28,7 +28,6 @@ pending --> confirmed : apply
 confirmed --> final : finalize
 confirmed --> pending : rollback
 pending ---> failed : discard
-pending <-- final : rollback
 confirmed --> failed : discard
 
 @enduml
