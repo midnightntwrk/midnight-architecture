@@ -271,6 +271,24 @@ Watches for a coin whose details are provided. There are limitations, which requ
 
 It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history as expected.
 
-## Usage of indexer
+## Synchronization process
 
-Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant.
+Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant. Such option requires only a stream of blocks from a node, perform basic consistency checks and run `apply_transaction` one by one (alternatively batch all transactions from a block).
+
+An alternative idea is to implement a service, which receives encryption secret key, uses it to scan for transactions relevant for particular wallet and provides data needed to evolve the state, that is:
+- necessary updates to coin commitment tree (including roots for consistency checks)
+- filtered transactions to apply
+Such service cannot spend coins because it does not have access to coin secret key. It needs to be trusted by user though (because it has access to otherwise private information) and it can offer way better user experience.
+
+## Transaction submission
+
+After transaction was created, it can be submitted to the network or other party. 
+
+For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking issues or node being temporarily unavailable.
+
+For example:
+1. When transaction is added to the pending pool - assign it a certain positive integer called `TTL`
+2. Repeatedly, in constant time intervals:
+   1. submit all transactions present in pending set
+   2. decrease their `TTL` by 1
+   3. discard transactions with `TTL` equal 0
