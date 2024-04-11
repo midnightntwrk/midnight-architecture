@@ -1,5 +1,29 @@
 # Midnight Wallet Specification
 
+This document is meant to be a reference for wallet implementors: explaining the differences between other well-known blockchain protocols, providing details on data needed to successfully create and submit transactions, as well as provide practical insights. There are some aspects of cryptography and algorithms used, which are unique to wallet, and thus - are explained in more detail, while others, more ubiquitous across the stack - are meant to be a target of separate documents.  
+
+Midnight features a unique set of features, which influence the way wallet software can operate significantly. In particular, in comparison to many other blockchain protocols:
+- transactions are not sealed with signatures
+- usage of zero-knowledge technology requires users to generate proofs, which takes relatively a lot of resources: time, CPU and memory
+- knowing wallet balance requires iterating over every single transaction present
+
+This document comprises a couple of sections:
+1. *[Introduction](#introduction)* - which explains, how addressing goals stated for the protocol leads to differences mentioned above
+2. *Key management* - where the details of key structure, address format and relationship with existing standards are provided
+3. *Transaction structure* - which explains, what data are present in transactions
+4. *State management* - where state needed to build transactions is defined, together with operations necessary to manipulate it
+5. *Transaction building* - on the details and steps to be performed to build transaction
+
+<!-- TOC -->
+* [Midnight Wallet Specification](#midnight-wallet-specification)
+  * [Introduction](#introduction)
+    * [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
+    * [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
+    * [Binding randomness](#binding-randomness)
+    * [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
+    * [Summary](#summary)
+<!-- TOC -->
+
 ## Introduction
 
 Wallet is an important component in a whole network - it stores and protects user's secret keys and allows to use them in order to create or confirm transactions.
