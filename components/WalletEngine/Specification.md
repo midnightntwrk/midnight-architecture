@@ -8,11 +8,13 @@ Midnight features a unique set of features, which influence the way wallet softw
 - knowing wallet balance requires iterating over every single transaction present
 
 This document comprises a couple of sections:
-1. *[Introduction](#introduction)* - which explains, how addressing goals stated for the protocol leads to differences mentioned above
-2. *Key management* - where the details of key structure, address format and relationship with existing standards are provided
-3. *Transaction structure* - which explains, what data are present in transactions
-4. *State management* - where state needed to build transactions is defined, together with operations necessary to manipulate it
-5. *Transaction building* - on the details and steps to be performed to build transaction
+1. **[Introduction](#introduction)** - which explains, how addressing goals stated for the protocol leads to differences mentioned above
+2. **[Key management](#key-management)** - where the details of key structure, address format and relationship with existing standards are provided
+3. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
+4. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
+5. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
+6. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
+7. **Transaction building** - on the details and steps to be performed to build transaction
 
 <!-- TOC -->
 * [Midnight Wallet Specification](#midnight-wallet-specification)
@@ -22,6 +24,23 @@ This document comprises a couple of sections:
     * [Binding randomness](#binding-randomness)
     * [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
     * [Summary](#summary)
+  * [Key management](#key-management)
+    * [Seed](#seed)
+    * [Output encryption keys](#output-encryption-keys)
+    * [Coin keys](#coin-keys)
+    * [Address](#address)
+  * [Transaction structure and statuses](#transaction-structure-and-statuses)
+  * [State management](#state-management)
+    * [Balances](#balances)
+    * [Operations](#operations)
+      * [`apply_transaction`](#apply_transaction)
+      * [`finalize_transaction`](#finalize_transaction)
+      * [`rollback_last_transaction`](#rollback_last_transaction)
+      * [`discard_transaction`](#discard_transaction)
+      * [`spend`](#spend)
+      * [`watch_for`](#watch_for)
+  * [Synchronization process](#synchronization-process)
+  * [Transaction submission](#transaction-submission)
 <!-- TOC -->
 
 ## Introduction
@@ -153,7 +172,7 @@ Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs
 - failure - when even the guaranteed offer failed
 
 Offer input represents a coin spent in a transaction. It contains:
-- coin nullififer
+- coin nullifier
 - value commitment
 - root of a coin commitment tree expected to be a result of a merkle proof
 - zero-knowledge spend proof
@@ -185,7 +204,7 @@ Wallet has a state, which needs accurate maintenance in order to be able to use 
 
 Additionally, it is in practice important to track progress of synchronization with chain, pool of pending transactions and transaction history.
 
-There are 7 foundational operations defined, which should be atomic to whole wallet state:
+There are 6 foundational operations defined, which should be atomic to whole wallet state:
 - `apply_transaction(transaction, status, expected_root)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming transactions
 - `finalize_transaction(transaction)` - which marks transaction as final according to consensus rules
 - `rollback_last_transaction` - which reverts effects of applying last transaction 
@@ -196,6 +215,8 @@ There are 7 foundational operations defined, which should be atomic to whole wal
 With the `apply_transaction`, `finalize_transaction` and `rollback_transaction` possibly be extended to blocks or ranges of blocks. Since shielded tokens are implemented using effectively an UTxO mode, one can find [Cardano Wallet Formal Specification](https://iohk.io/en/research/library/papers/formal-specification-for-a-cardano-wallet/) a relevant read, with many similarities present.
 
 Full transaction lifecycle in relationship to those operations is presented on figure below. Please note, that confirmed and final transactions have statuses related to their execution.
+
+The status "failed entirely" is conceptually the same as "failed" (there was no effect on ledger state), with the major difference being the reason - if transaction was confirmed with "failed entirely" status it meant it was successfully submitted to the network and there was an attempt of adding it to a block, but it was rejected by ledger rules, so it was added to a block as a failed one. The "failed" status means though that transaction was submitted to the network, but there is no block to include it in any form (because of some intermittent issues or a chain reorganization).
 
 ![](./tx-lifecycle.svg)
 
@@ -217,9 +238,9 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 
 #### `apply_transaction`
 
-Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for a successful offer are:
+Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for an offer are:
 1. Update coin commitment tree with commitments of outputs and transients present in the offer
-2. Verify coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
+2. Verify obtained coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
 3. Book coins, whose nullifiers match the ones present in offer inputs 
 4. Watch for received coins, for each output:
    1. Match commitment with set of pending coins, if it is a match, mark coin as confirmed
@@ -240,16 +261,24 @@ This operation needs to:
 
 #### `rollback_last_transaction`
 
-Reverts effects of applying last transaction in response to chain reorganization. It needs to:
+Reverts effects of applying last transaction in response to chain reorganization.
+
+It needs to:
 1. Revert coin commitment tree state to one from before that transaction
 2. If transaction is considered own:
    1. Add it to the pool of pending transactions, so it can be submitted to the network again
    2. Move coins received from it to pending state
-3. Otherwise discard transaction
+   3. Restore coins spent in the transaction in a booked state
+3. Otherwise, discard transaction
+
+There are a couple of practical considerations:
+- usage of persistent data structures will allow coin commitment tree revert to be as simple as picking an older pointer
+- depending on the APIs for providing blockchain data slightly different input to this operation might be needed for a more efficient implementation; in all cases though handling reorganization is conceptually first - finding relevant range of blocks/transactions to revert, then reverting them and then applying new updates  
 
 #### `discard_transaction`
 
-Frees resources related to tracking a transaction considered not relevant anymore. Following steps need to be taken:
+Frees resources related to tracking a transaction considered not relevant anymore due to a reorganization or wallet giving up on submitting one. 
+Following steps need to be taken:
 1. Move transaction to transaction history as failed
 2. Remove coins received in the transaction
 3. Un-book coins spent in the transaction
@@ -269,22 +298,25 @@ Following steps need to be taken, from perspective of wallet state:
 
 Watches for a coin whose details are provided. There are limitations, which require usage of this operation to receive coins from contracts.
 
-It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history as expected.
+It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history with "expected" status. 
+
+Note: in many cases such transaction would be requested to be balanced, which, after merging, would result in the final, single transaction marked as pending instead of adding the original one with "expected" status.
 
 ## Synchronization process
 
 Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant. Such option requires only a stream of blocks from a node, perform basic consistency checks and run `apply_transaction` one by one (alternatively batch all transactions from a block).
 
+
 An alternative idea is to implement a service, which receives encryption secret key, uses it to scan for transactions relevant for particular wallet and provides data needed to evolve the state, that is:
 - necessary updates to coin commitment tree (including roots for consistency checks)
 - filtered transactions to apply
-Such service cannot spend coins because it does not have access to coin secret key. It needs to be trusted by user though (because it has access to otherwise private information) and it can offer way better user experience.
+Such service cannot spend coins because it does not have access to coin secret key. It needs to be trusted by user though (because it has access to otherwise private information) while the upside is that it can offer better user experience.
 
 ## Transaction submission
 
-After transaction was created, it can be submitted to the network or other party. 
+Once transaction is created, it can be submitted to the network or other party. 
 
-For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking issues or node being temporarily unavailable.
+For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking problems, node being temporarily unavailable or the network being congested.
 
 For example:
 1. When transaction is added to the pending pool - assign it a certain positive integer called `TTL`
