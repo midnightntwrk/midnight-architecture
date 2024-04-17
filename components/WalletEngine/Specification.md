@@ -327,16 +327,24 @@ Although there is only single kind of transaction, there are various semantics o
 - balancing existing transaction, that is - creating a transaction containing a counter-offer, which after merging results in a transaction reporting only DUST imbalances needed to cover fees
 - initiating a swap - creating a transaction (usually containing some inputs of token A and some outputs of token B), which is purposefully not balanced, to let another party balance such transaction and in that way - exchange tokens
 
-Technically, building a transaction by wallet involves:
-1. Creating inputs
-2. Creating outputs
-3. Creating transients
-4. Combining inputs and outputs into an offer
-5. Replacing output with a transient in an offer
-6. Creating a transaction with the offer
-7. Merging with other transaction
+Technically, building a transaction by wallet involves following operations:
+- Creating inputs
+- Creating outputs
+- Creating transients
+- Combining inputs and outputs into an offer
+- Replacing output with a transient in an offer
+- Creating a transaction with the offer
+- Merging with other transaction
 
-### Building an input
+A structured process for building transactions like mentioned above generally can be done in 2 steps:
+1. Prepare/retrieve transaction with necessary inputs and outputs, which drive the outcome - whether it is a regular transfer, contract call or a swap
+2. (optional) balance the transaction obtained in step #1 - to ensure fees are paid and other inputs provided if needed
+
+Following subsections define the steps needed to perform particular operation of prepare part of transaction. 
+
+### Building operations
+
+#### Building an input
 
 Building an input requires information, which coin owned by wallet should be provided, additionally access to part of wallet state is needed - the coin secret key and coin commitment Merkle tree. Steps to follow are:
 1. calculate nullifier
@@ -346,7 +354,7 @@ Building an input requires information, which coin owned by wallet should be pro
 5. generate zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
 6. return randomness and the input (nullifier, value commitment, root of coin commitment tree, zero-knowledge proof)
 
-### Building an output
+#### Building an output
 
 Building an output requires information of an address to receive tokens, their type and amount. Steps to follow are:
 1. sample new nonce
@@ -357,7 +365,7 @@ Building an output requires information of an address to receive tokens, their t
 6. generate zero-knowledge proof using coin public key or recipient, new coin's type, amount and nonce and randomness
 7. return randomness and the output (coin commitment, value commitment, output ciphertext, zero-knowledge proof, contract address if contract is recipient)
 
-### Building a transient
+#### Building a transient
 
 Building a transient can be thought as a process of taking an output, and converting it into a transient. Therefore - the output is needed, its randomness, information about the coin - its type, value and nonce, and access to part of wallet state - the coin secret key and the encryption secret key (if output ciphertext needs to be decrypted)
 Steps to follow are very similar as in the case of creating input:
@@ -369,7 +377,7 @@ Steps to follow are very similar as in the case of creating input:
 6. generate input zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
 7. return input randomness, output randomness and the transient containing both input data (nullifier, input value commitment, input zero-knowledge proof) and output data (coin commitment, output value commitment, ciphertext, output zero-knowledge proof, no contract address) 
 
-### Combining inputs, outputs and transients into an offer
+#### Combining inputs, outputs and transients into an offer
 
 When inputs and outputs are ready, they can be combined into a Zswap offer with following steps:
 1. Find and discard outputs to be replaced by transients, by comparing their coin commitments or value commitments
@@ -381,7 +389,7 @@ When inputs and outputs are ready, they can be combined into a Zswap offer with 
 3. Calculate binding randomness - iteratively combine randomnesses of inputs, outputs and transients (both input and output randomness for each)
 4. Return binding randomness and the offer (inputs, outputs, imbalances)
 
-### Replacing output with a transient
+#### Replacing output with a transient
 
 Many use-cases involving transients require replacing an existing output with a transient in an offer. Such operation requires offer, transient, its input randomness and coin information - type and amount. The steps are:
 1. Identify and remove the output to be replaced from output list, one can use output value commitment or coin commitment available in transient as a reference 
@@ -389,15 +397,15 @@ Many use-cases involving transients require replacing an existing output with a 
 3. Update the offer's binding randomness, by combining it with provided transient's input randomness
 4. Update the offer's imbalances by increasing the imbalance for a provided coin's type by provided amount
 
-### Creating transaction with the offer
+#### Creating transaction with the offer
 
 Given an offer and its binding randomness, a transaction can be created using them directly, that is by returning structure containing provided offer as a guaranteed one, no fallible offer, no contract calls, and offer's randomness.
 
-### Merging with other transaction
+#### Merging with other transaction
 
 Transactions can be merged, by merging their guaranteed offers, fallible offers, contract calls and binding randomnesses.
 
-#### Merging offers
+##### Merging offers
 
 1. Verify if there are any identical inputs, outputs, or transients. Abort, if true
 2. Join list of inputs from one offer, with list of inputs from the other one, sort resulting list
@@ -408,6 +416,52 @@ Transactions can be merged, by merging their guaranteed offers, fallible offers,
    2. For each token type found take imbalance as a sum of imbalances from one and the other offer, defaulting to 0 if necessary (in pseudocode: `offer1.imbalances.getOrDefault(token_type, 0) + offer1.imbalances.getOrDefault(token_type, 0)`),
    3. Return new map, discarding entries, for which values are equal 0
 6. Return offer containing joined inputs, outputs, transients and imbalances
+
+### Building stages
+
+#### Prepare transfer
+
+Transfer transaction can be built by taking a list of desired transfers, where each one has defined the recipient's address, token type and amount to be sent.
+Such list can be transformed into a transaction by:
+1. Creating an output for each of elements
+2. Combining all the outputs into an offer
+3. Creating the transaction from the offer
+
+Resulting transaction will not be balanced, thus the next step of balancing transaction (to 0 for each token type) needs to be employed before transaction is ready to be submitted to the network.
+
+#### Prepare a swap
+
+Swap can be thought as a specific case of a transfer - with the difference being multiple parties providing inputs and outputs to the transaction. 
+To prepare a swap, one needs to provide what amounts of tokens of certain types one wants to exchange (provide as an input to the swap) for other types of tokens (receive from the swap).
+The transaction that initiates the swap will be a result of:
+1. Creating necessary output for each of token types to be received in the swap
+2. Combining them all into an offer
+3. Creating a transaction with the offer.
+
+Resulting transaction will only have outputs to be received defined, with no inputs. Thus, the next step of balancing transaction (to positive amount for each token type being input to the swap and to negative amount to each token type being output from the swap) needs to be employed before the swap offer is ready to be submitted.
+
+#### Contract call
+
+Contract calls are prepared by other components than wallet. Once ready, in most cases an unbalanced transaction would be passed to wallet in order to provide necessary inputs and pay fees in the balancing process.
+
+#### Balance transaction
+
+Balancing a transaction is a process of creating a transaction with a counter-offer, so that after merging them both, resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. Particular difficulty in the process is coin selection (out of scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.  
+
+Balancing in the most generic form requires 2 inputs:
+1. The transaction to be balanced
+2. Map of desired imbalances per token type, if any are different than 0 or fees (in case of DUST)
+
+Conceptually, the process can be implemented as follows:
+1. Create an empty offer `offer`
+2. Calculate total fees to be paid for the unbalanced transaction and the offer.
+3. Calculate resulting imbalances by merging ones from the unbalanced transaction, the offer and target imbalances with values inversed (multiplied by -1), additionally for DUST - subtract total fees from the imbalance.
+4. Verify if target imbalances are met, if they are - create transaction from the offer, merge with the unbalanced transaction and return, continue if not.
+5. Sort token types present in result imbalances in a way, that DUST is left last and select first token type
+6. Perform a balancing step for the selected token type:
+   - if the imbalance is positive (there is more value in inputs than outputs) - create an output for self with the amount equal to imbalance, and add it to the offer; in case of DUST - subtract estimated fees for an output from the amount
+   - if the imbalance is negative (there is more value in outputs than inputs) - select a single coin of the selected type, create an input and add it to the offer; abort with error if there is no coin available to be spent
+   - Go back to step #2
 
 ## Transaction submission
 
