@@ -298,9 +298,9 @@ Following steps need to be taken, from perspective of wallet state:
 
 Watches for a coin whose details are provided. There are limitations, which require usage of this operation to receive coins from contracts.
 
-It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history with "expected" status. 
+It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be tracked as a pending one.
 
-Note: in many cases such transaction would be requested to be balanced, which, after merging, would result in the final, single transaction marked as pending instead of adding the original one with "expected" status.
+Note: in many cases such transaction would be requested to be balanced, in such case the final transaction should only be added as pending one. 
 
 ## Synchronization process
 
@@ -319,7 +319,7 @@ Once transaction is created, it can be submitted to the network or other party.
 For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking problems, node being temporarily unavailable or the network being congested.
 
 For example:
-1. When transaction is added to the pending pool - assign it a certain positive integer called `TTL`
+1. When transaction is added to the pending pool and is meant to be submitted to the network - assign it a certain positive integer called `TTL` - it translates to amount of time/number of submission retries
 2. Repeatedly, in constant time intervals:
    1. submit all transactions present in pending set
    2. decrease their `TTL` by 1

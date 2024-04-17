@@ -18,12 +18,9 @@ state final as "Final" {
 }
 
 state failed as "Failed"
-state expected as "Expected"
 
-[*] --> pending : spend
+[*] --> pending : spend | watch_for
 [*] --> confirmed : apply
-[*] --> expected : watch_for
-expected --> confirmed : apply
 pending --> confirmed : apply
 confirmed --> final : finalize
 confirmed --> pending : rollback
