@@ -403,12 +403,12 @@ As per related [PRD](https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5d
 - Provide a framework for managing rules changes both server-side (node, indexer) and client-side (DApps, wallets)
 - It is possible to execute protocol backward-incompatible changes, without affecting past block validity.
 - Various kinds of forecasted upgrades can be deployed with a confidence and network stability:
-  - Transaction format upgrade - Introduce a capability that affects transaction format without affecting previous transactions. Showcase example: adding a signature.
-  - Runtime upgrade -upgrade/change the way contracts are executed or validated on-chain(very likely to affect off-chain components as well). Example: providing new on-chain vm operations, introduction of first-class ledger ADTs.
-  - Zswap protocol upgrade - upgrade/change coin management and validation in the protocol, which might affect wallet implementation and auxiliary components of the wallet. Example: adding encrypted memos
-  - Zswap cryptography upgrade - Alter/upgrade  the cryptography that is used for coin management . example: by affecting key derivation, introducing viewing keys or diversified addresses
-  - Backward incompatible Changes: Provide a way to validate historical transactions in case of an Upgrade/Change the are backward incompatible.  Example: removing some capability or data - deprecating one way of executing contracts.
-  - Ledger emergency Upgrade: Provide a way to persist ledger state in case of a hard fork due to an emergency bugfix affecting ledger execution or state, like usage of persistent storage or serialization/deserialization code.
+  - Transaction format upgrade - Introduce a capability that affects transaction format without affecting previous transactions. Showcase example: adding a signature (e.g. to support unshielded tokens). Such kind of change would affect Ledger first, then indexer and wallets. It alone would likely be an opaque change for the node, Compact compiler, runtime and Midnight.js. 
+  - Runtime upgrade (or Compact language change involving changes in runtime) - upgrade/change the way contracts are executed or validated on-chain(very likely to affect off-chain components as well). Example: providing new on-chain vm operations, introduction of first-class ledger ADTs, allowing contracts to interact with unshielded tokens. Such change would require update to runtime first, affecting ledger, Compact compiler, Midnight.js and in some cases - VS Code Compact plugin. Components like wallets or indexer might be affected but don't have to (depends on the kind of change), node itself would most likely be unaffected, or only in a minor way to provide new APIs for indexer.  
+  - Zswap protocol upgrade - upgrade/change coin management and validation in the protocol. Example: adding encrypted memos. Such change would ideally affect only wallets and ledger, though node, indexer and Midnight.js would need to be instructed there is a transaction format change. 
+  - Zswap cryptography upgrade - Alter/upgrade  the cryptography that is used for coin management . example: by affecting key derivation, introducing viewing keys or diversified addresses. Such change would likely affect almost all components present: Ledger, wallets, node, Compact standard library, Midnight.js and indexer. The components which should not receive updates in such case would be Compact compiler and its runtime
+  - Backward incompatible Changes: Provide a way to validate historical transactions in case of an Upgrade/Change the are backward incompatible. Example: removing some capability or data - deprecating one way of executing contracts. Components affected by such change will vary a lot depending on its specifics.
+  - Ledger emergency Upgrade: Provide a way to persist ledger state in case of a hard fork due to an emergency bugfix affecting ledger execution or state, like usage of persistent storage or serialization/deserialization code. Scope of changes would depend on the character of a change, but in many cases only Ledger and node would require update at first, with rest of components required to update at convenient time
   - Consensus Upgrade??
 - API Updates guidelines - various kinds of upgrades to the ledger code requiring hard-fork are very likely to affect APIs of all Midnight components. It is important to have at least guidelines to evolve the APIs in responses to hard forks
 
@@ -426,9 +426,9 @@ Eventually it seems to be a preferred approach to equip the facades with capabil
 
 ### Is an "immediate" policy needed? How could it be safely implemented?
 
-In case of network incidents, a policy which would allow to update immediately would be very useful, though it seems possible ways of implementing such would go against requirements: 
+In case of network incidents, a policy which would allow to update immediately would be very useful. Though possible ways of implementing such would go against requirements: 
 - using sudo requires sudo keys and makes Midnight team network custodians
-- allowing to trigger certain updates with an immediate effect would require storing an allowance list somewhere, which would make nodes unnecessarily aware of allowed emergency updates in the network, requiring to store such lists in the code/configuration on a per network basis to facilitate validation in the future
+- allowing to trigger certain updates with an immediate effect would require storing an allowance list somewhere, requiring to store such lists in the code/configuration on a per network basis to facilitate validation in the future
 - encoding allowance in spec version is possible, but ties code version with the way it can be deployed as well as complicates version parsing, on top of unknown Substrate assumptions about spec version monotonicity 
 - usage of collective pallet, which would require additional tooling and key management concerns to let block producers vote and enact upgrades, with unknown possibility of sourcing public keys from Ariadne
 
