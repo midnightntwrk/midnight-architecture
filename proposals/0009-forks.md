@@ -1,32 +1,38 @@
 # Proposal 00009: Upgrades with forks
 
-Related PRD: https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5dTdXsixIu9kXctHFpCneQ/edit?usp=sharing
+Related PRD: https://docs.google.com/document/d/1q7W9cg3VDnNgWCQNLJBFyNhnhff4KtE84qof6wmxWG4/edit?usp=sharing
 Related Jira ticket: https://input-output.atlassian.net/browse/PM-8288
 
 ## Problem Statement
 Midnight's design and capabilities, similarly to other chains, are not set in 
-stone. There are many known and unknown protocol changes in the future, which will require a clear protocol, mechanism and policy for upgrades, so that they can be delivered to Midnight users without: 
+stone. There are many known and unknown changes in the future, which will require a clear protocol, mechanism and policy for upgrades, so that they can be delivered to Midnight users without: 
 - putting Midnight network to stop
 - causing operational inconveniences to people running Midnight nodes 
-- Midnight value at risk
-- users data at risk
-- users funds at risk
+- putting Midnight value at risk
+- putting users data at risk
+- putting users funds at risk
 
-In particular, with following good practices which enable engineering teams to progress, certain properties of the solution should be kept:
+It is recognized, that there are aspects of the problem, which are not necessarily considered primary, but should be taken into consideration, when evaluating different options:
+  - centralization, in various forms: code, implementation, governance
+  - overall flexibility
+  - block validation time
+  - historic block validation throughput
+  - possibility of introducing parallelization as part of Midnight ledger state evolution and transaction validation
+
+Focus for this proposal is on changes requiring hard-forks (see [Glossary](../product/Glossary.md)) because of their inherently trickier nature. It is very likely though, that the same protocol, mechanism and policy would apply to changes requiring soft-forks for consistency.
+
+## Additional requirements
+
+_Note: unless pointed differently, the rest of this document will refer to Midnight's Ledger as just **ledger**_
+
+There are certain engineering and architectural concerns, which are desired to be maintained:
 - separation of ledger, consensus and rest of node code
 - ledger transaction validation a pure function
 - ledger state evolution a pure function
 - different ledger versions oblivious of each other
 - separation of ledger and Substrate APIs
-
-It is recognized, that there are aspects of the problem, which are not necessarily considered primary, but should be taken into consideration, when evaluation different options:
-  - centralization, in various forms: code, implementation, governance
-  - overall flexibility
-  - block validation time
-  - historic block validation throughput
-  - possibility of introducing parallelization as part of ledger state evolution and transaction validation
-
-Focus for this proposal is on changes requiring hard-forks (see [Glossary](../product/Glossary.md)) because of their inherently trickier nature. It is very likely though, that the same protocol, mechanism and policy would apply to changes requiring soft-forks for consistency.
+- client codebase focusing mostly on the recent version of the protocol
+- clear testing story and interfaces
 
 ## Prior art
 
@@ -95,7 +101,7 @@ In Cardano, Shelley upgrade equipped the code and the protocol in capabilities f
 
 In its initial form, the protocol is to issue a transaction signed by 5 out of 7 governing keys as defined in genesis, early enough in epoch to be stabilized on total of at least `4k` blocks before next epoch starts. With CIP-1694 the protocol changes to allow other forms of voting and proposing hard-fork activation.
 
-Technically - it as all managed by a type-driven facade called _Hard-fork combinator_, which is ensuring state is properly adjusted to the active rules and that rules are activated properly.
+Technically - it is all managed by a type-driven facade called _Hard-fork combinator_, which is ensuring state is properly adjusted to the active rules and that rules are activated properly.
 
 Sources:
   - https://ouroboros-consensus.cardano.intersectmbo.org/docs/for-developers/AddingAnEra
@@ -119,6 +125,8 @@ Updates to runtime can be done either with sudo module or through governance - w
 ## Current state
 
 Many data structures are already versioned with `MAJOR.MINOR` numbers and serialization verifies version compatibility following semantic versioning guidelines.
+
+By default, Substrate proposes to use a Block datatype, which uses enveloping, so header needs to be kept backwards compatible, but the contents of body can change more dynamically.
 
 Also - Node implementation has a well-defined entrypoints for interaction with ledger for transaction validation and execution.
 
@@ -145,7 +153,7 @@ The design would follow following mechanic:
     - fold left or right the list in ascending/descening version order 
     - find first, last, or all protocols matching a predicate
     - iterate over the list in ascending/descending version order
-- each component can hava facade implemented, which holds the list, and delegate operation using mentioned combinators, specifically
+- each component can hava a facade implemented, which holds the list, and delegate operation using mentioned combinators, specifically
     - Ledger:
         - validating a transaction
             - get current protocol version
@@ -200,28 +208,49 @@ The design would follow following mechanic:
           - delegate the query
 - it is expected, that the facades will need to support sum of all operations from a range of versions, like ledger queries, wallet state queries, etc.; In such cases API should communicate it clearly, that there is a possibility of lack of support for an operation on current version of a component
 
-While languages like Rust or Scala offer very extensive support for type-level operations, TypeScript is more limited in certain aspects of them. There, the facade API could likely be implemented using a combination of strategy and visitor pattern, enums and switch statements, more dynamic constructs (like proxies and/or accessing properties by their names, relying on conventions, etc.) or all of them. It should be entirely avoided though to spread fork/version-checking code across codebase and keep it very close to APIs exposed to users. 
+While languages like Rust or Scala offer very extensive support for type-level operations, TypeScript is more limited in certain aspects of them. There, the facade API could likely be implemented using a combination of strategy and visitor pattern, enums and switch statements, more dynamic constructs (like proxies and/or accessing properties by their names, relying on conventions, etc.) or all of them. It should be entirely avoided though to spread fork/version-checking code across codebase and keep it very close to API entrypoints exposed to users. 
 
-The facades and frameworks play a particularly important role in ensuring smooth operations around the time upgrade is executed, thus they should be implemented with extensive test coverage from the beginning using various approaches, preferably including property-based tests from the beginning.  
+The facades and frameworks play a particularly important role in ensuring smooth operations around the time upgrade is executed, thus they should be implemented with extensive test coverage from the beginning using various approaches,  including randomized tests, like property-based tests or forms of fuzzing.  
 
 ### Protocol
 
-At this moment there is no detailed protocol. Partially - because a big part of protocol definition falls under governance and incentives.
+Protocol, as the definition of messages, their semantics and possible responses, is likely to change, because a big part of protocol definition falls under governance and incentives.
 
 Nonetheless, there is a set of identified desired properties, which seem to indicate the direction:
 - no federation or single party holding governance keys - this removes issues and risks related to selecting the parties, as well as managing very sensitive key material. It also seems to reduce legal risks for potential parties involved
-- protocol updates follow semantic versioning - to clearly indicate compatibility; including support for pre-releases, to allow testing changes e2e _before_ they are released and assigned version number. Following semantic versioning also allows to schedule multiple upgrades in parallel, with clear semantics of compatibility and exact set of rules to obey
-- current protocol version is encoded in block and is the same as block version - block is a datatype, which is shared by both consensus and ledger and need to convey data for both, this makes it a perfect target to encode the protocol version
-- initial protocol version (the one network starts with) is encoded in the genesis block - so specific-purpose networks can be spun up using desired set of rules
-- blocks have encoded latest version supported by its producer to allow at any time verify software upgrades adoption
+- Midnight protocol updates versioned - to clearly indicate compatibility; Version of Midnight protocol is equal to `spec_version` of runtime (https://docs.substrate.io/maintain/runtime-upgrades/).
+- current Midnight protocol version is encoded in block header - for validation purpose it needs to be equal to protocol version encoded in parent block, unless protocol upgrade was performed;
+- initial protocol version (the one network starts with) is encoded in the genesis block - so specific-purpose networks can be spun up using desired set of rules, network specification should also include a unique network identifier, so that 2 nodes connected to 2, otherwise identically specified, networks, would know to reject connections and updates between each other 
+- blocks have encoded latest version supported by its producer to allow at any time verify software upgrades adoption - in practice it is native runtime implementation's `spec_version`.
+- current protocol version is encoded in block header to help determine how to parse the body, while next/native protocol version is encoded in block body as an extrinsic, as it is data that might change with introduction of governance-managed updates 
 - initiation of the upgrade is recorded on-chain and need to include 2 pieces of information: policy to be used to determine activation and next version to be activated; the policy may vary - it might follow statistical approach as in Bitcoin, it might be as well a specific transaction, or subject of a voting mechanism; Encoding both data will reduce number of assumptions that need to be made on consensus in order to determine set of rules to apply, as well as should simplify chain selection at the time of a fork
-- in order to let clients efficiently choose version of rules to comply, Indexer needs to provide an API to query the current protocol version
+- in order to let clients efficiently choose version of rules to comply, Indexer needs to provide an API to query the protocol version on a per-block basis
 
 ### Policy
 
-For initial phases of Midnight, a policy where upgrade is activated automatically whenever there is adoption across majority of block producers, seems to be a good default.
+For initial phases of Midnight, a policy where upgrade is activated automatically whenever there is adoption across majority of block producers, seems to be a good default. While it requires a manual intervention from block producers - namely to update their installations, it seems to be at least a consistent experience with each change and one that is easy to perform.
 
-For emergencies requiring immediate action and preventing use of the previous policy, a dedicated, immediate one might be provided - so that the version upgrade happens immediately at the block it is proposed to. Nodes with incompatible implementation would reject such blocks, but as soon as the majority of block producers/nodes upgrade, whole network would eventually pick up the version with a fix. At the time of network functioning properly - this policy could not be used without a majority of block producers enforcing it.
+Specifically:
+- according to protocol description, block producers upon upgrade of the node would start producing blocks which encode different version for current and next one
+- once a specified amount of blocks within a specified time range expresses the same next protocol version (but not necessarily a subsequent one), first block producer to observe that publishes an extrinsic, which schedules update:  
+  - what Midnight's protocol version it will be - derived from native runtime version
+  - hash of WASM code expected to be set with `system.setCode` extrinsic - accessed from the node deployment
+  - block height `system.setCode` call should be performed - configured in a runtime as a minimal number of blocks that need to pass
+- once the target block number to trigger `system.setCode` is reached - the first block producer to observe that includes that extrinsic with proper WASM code
+
+Parameters for various environments (to be refined with regards to specifics of Ariadne consensus and possible scenarios) could be set as follows:
+Devnet:
+- amount of blocks to trigger update schedule: 75% out of last 900
+- amount of blocks to pass before enactment: 900
+- with target block time of 6s these values mean ~1.5h wide time windows
+Testnet:
+- amount of blocks to trigger update schedule: 75% out of last 14 400
+- amount of blocks to pass before enactment: 14 400
+- with target block time of 6s these values mean ~24h wide time windows
+Mainnet:
+- amount of blocks to trigger update schedule: 90% out of last 14 400
+- amount of blocks to pass before enactment: 43 200 (3*14 400)
+- with target block time of 6s these values mean ~24h wide time window to schedule update and then 3 days before update is enacted
 
 Eventually, updates should be managed by a governance mechanism.
 
@@ -350,7 +379,7 @@ DApps and other software information can be collected on a website dedicated to 
 
 #### Option B - Wallet API
 
-Extend DApp Connector API with capability to list all contract addresses used with particular wallet (by scanning transaction history). It would enable creation of a DApp, which collects those addresses and inspects readiness for upgrade of:
+Extend DApp Connector API with capability to list all contract addresses used with particular wallet (by scanning wallet's transaction history). It would enable creation of a DApp, which collects those addresses and inspects readiness for upgrade of:
 - listed contracts - by verifying if contract code/data needed for update is already deployed to the chain
 - wallet - by verifying DApp connector API version
 - used services like indexer, node and proof server - by verifying API versions
@@ -376,8 +405,8 @@ As per related [PRD](https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5d
 - Various kinds of forecasted upgrades can be deployed with a confidence and network stability:
   - Transaction format upgrade - Introduce a capability that affects transaction format without affecting previous transactions. Showcase example: adding a signature.
   - Runtime upgrade -upgrade/change the way contracts are executed or validated on-chain(very likely to affect off-chain components as well). Example: providing new on-chain vm operations, introduction of first-class ledger ADTs.
-  - Zswap upgrade - upgrade/change coin management and validation in the protocol, which might affect wallet implementation and auxiliary components of the wallet. Example: adding encrypted memos
-  - Zswap upgrade- Alter/upgrade  the cryptography that is used for coin management . example: by affecting key derivation, introducing viewing keys or diversified addresses
+  - Zswap protocol upgrade - upgrade/change coin management and validation in the protocol, which might affect wallet implementation and auxiliary components of the wallet. Example: adding encrypted memos
+  - Zswap cryptography upgrade - Alter/upgrade  the cryptography that is used for coin management . example: by affecting key derivation, introducing viewing keys or diversified addresses
   - Backward incompatible Changes: Provide a way to validate historical transactions in case of an Upgrade/Change the are backward incompatible.  Example: removing some capability or data - deprecating one way of executing contracts.
   - Ledger emergency Upgrade: Provide a way to persist ledger state in case of a hard fork due to an emergency bugfix affecting ledger execution or state, like usage of persistent storage or serialization/deserialization code.
   - Consensus Upgrade??
@@ -395,9 +424,13 @@ It seems excessive and slow to perform state readiness check on each block/trans
 
 Eventually it seems to be a preferred approach to equip the facades with capability of checking whether there might be a fork executed soon, and in such case - perform necessary checks only when expected.
 
-### Is the immediate policy really needed? Can't it be used to take ownership of network at the moment of emergency?
+### Is an "immediate" policy needed? How could it be safely implemented?
 
-TBD
+In case of network incidents, a policy which would allow to update immediately would be very useful, though it seems possible ways of implementing such would go against requirements: 
+- using sudo requires sudo keys and makes Midnight team network custodians
+- allowing to trigger certain updates with an immediate effect would require storing an allowance list somewhere, which would make nodes unnecessarily aware of allowed emergency updates in the network, requiring to store such lists in the code/configuration on a per network basis to facilitate validation in the future
+- encoding allowance in spec version is possible, but ties code version with the way it can be deployed as well as complicates version parsing, on top of unknown Substrate assumptions about spec version monotonicity 
+- usage of collective pallet, which would require additional tooling and key management concerns to let block producers vote and enact upgrades, with unknown possibility of sourcing public keys from Ariadne
 
 ### The mechanics are very likely to require separate packages for major versions/eras of underlying components
 
@@ -420,10 +453,12 @@ For Polkadot support contracts in other format than WASM, there is a RISC-V VM c
 
 It is at experimental stage at the time of writing, and still - it offers similar performance to a good WASM runtime, thus - it does not change much from performance/execution perspective. What it might improve (though it is not entirely clear to what extent) is overall easiness of compilation and resulting artifact size.
 
+Polkavm might still be an interesting approach to consider in the future, because of usage of Apache 2.0 license.
+
 ## Recommendation
 
 Considering pros and cons of all options, the recommendation is to:
-- build necessary frameworks client-side, promoting code reuse within technology stack, preferably (but not necessarily) proactively to reduce amount of changes when a hard-fork will be needed
-- in the node follow [Option B](#option-b---mix-runtime-upgrades-and-ledger-through-runtime-interface) - mix runtime upgrades with ledger accessible via native runtime interface
+- build necessary mechanics client-side, promoting code reuse within technology stack, preferably (but not necessarily) proactively to reduce amount of changes when a hard-fork will be needed
+- in the node follow [Option B](#option-b---mix-runtime-upgrades-and-ledger-through-runtime-interface) - mix runtime upgrades with ledger accessible via native runtime interface, revisit the decision in the future, considering going for [Option C - ledger being part of WASM runtime](#option-c---fully-use-runtime-upgrades)
 - in the ledger follow [Option B](#option-b---generalized-contract-cell) - generalized contract cell
 - for reporting fork readiness to users follow [Option B](#option-b---wallet-api) - dedicated wallet/contract kernel API
