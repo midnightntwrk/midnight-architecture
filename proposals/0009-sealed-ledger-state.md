@@ -92,7 +92,12 @@ circuits within the module.
 Explicit initialization of a module's unexported ledger state can be handled by a user-defined initialization
 circuit that is exported from the module and called by the constructor.
 
-Exporting a ledger field from the program's top level has the same effect as not exporting it.
+Inspection of ledger field values via the `ledger` function defined in the generated
+JavaScript code is possible for and only for those named by top-level exports of the
+program (contract, if the composable contracts proposal is adopted).
+This gives the Compact programmer control over field visibilty and forces the programmer
+to choose unique names for ledger fields that need to be directly visible from
+TypeScript or JavaScript.
 
 ### Rationale
 
