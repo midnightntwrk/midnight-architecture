@@ -41,12 +41,20 @@ This document comprises a couple of sections:
       * [`watch_for`](#watch_for)
   * [Synchronization process](#synchronization-process)
   * [Building transactions](#building-transactions)
-    * [Building an input](#building-an-input)
-    * [Building an output](#building-an-output)
-    * [Combining inputs and outputs into an offer](#combining-inputs-and-outputs-into-an-offer)
-    * [Creating transaction with the offer](#creating-transaction-with-the-offer)
-    * [Merging with other transaction](#merging-with-other-transaction)
-      * [Merging offers](#merging-offers)
+    * [Building operations](#building-operations)
+      * [Building an input](#building-an-input)
+      * [Building an output](#building-an-output)
+      * [Building a transient](#building-a-transient)
+      * [Combining inputs, outputs and transients into an offer](#combining-inputs-outputs-and-transients-into-an-offer)
+      * [Replacing output with a transient](#replacing-output-with-a-transient)
+      * [Creating transaction with the offer](#creating-transaction-with-the-offer)
+      * [Merging with other transaction](#merging-with-other-transaction)
+        * [Merging offers](#merging-offers)
+    * [Building stages](#building-stages)
+      * [Prepare transfer](#prepare-transfer)
+      * [Prepare a swap](#prepare-a-swap)
+      * [Contract call](#contract-call)
+      * [Balance transaction](#balance-transaction)
   * [Transaction submission](#transaction-submission)
 <!-- TOC -->
 
@@ -192,7 +200,7 @@ Offer output represents coin received in a transaction. It contains:
 - optionally, coin ciphertext
 - optionally, contract address, if coin is meant to be received by a contract
 
-Transients are an extension needed mostly for contract execution - they are intermediate coins created as an output and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received, so it enables use-cases of creating a atomic chains of transfers, etc. For that reason they share many of properties of both inputs and outputs, which are:
+Transients are an extension needed mostly for contract execution - they are intermediate coins created as an output and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received, so it enables use-cases of creating an atomic chains of transfers, etc. For that reason they share many of properties of both inputs and outputs, which are:
 - coin nullifier
 - coin commitment
 - input value commitment
