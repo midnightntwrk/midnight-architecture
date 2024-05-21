@@ -434,6 +434,14 @@ It seems excessive and slow to perform state readiness check on each block/trans
 
 Eventually it seems to be a preferred approach to equip the facades with capability of checking whether there might be a fork executed soon, and in such case - perform necessary checks only when expected.
 
+### What constitutes a ledger version change? Is it always as massive as a proof system change?
+
+Essentially anything, which makes ledger accept different transactions/blocks. Some general examples are mentioned in section [Desired Result](#desired-result).
+
+### Are there any situations where the ledger itself deals with backwards incompatibility? How should that be dealt with?
+
+Yes, in all the cases, where it is desired for ledger to be backwards-compatible to some extent. Especially when a new functionality replaces old one in a multi-stage process, ledger would need to have understanding of both at the same time. In all circumstances token-related updates need to maintain a form of backward compatibility.
+
 ### Is an "immediate" policy needed? How could it be safely implemented?
 
 In case of network incidents, a policy which would allow to update immediately would be very useful. Though possible ways of implementing such would go against requirements:
