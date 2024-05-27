@@ -233,11 +233,10 @@ Nonetheless, there is a set of identified desired properties, which seem to indi
 
 - no federation or single party holding governance keys - this removes issues and risks related to selecting the parties, as well as managing very sensitive key material. It also seems to reduce legal risks for potential parties involved
 - Midnight protocol updates versioned - to clearly indicate compatibility; Version of Midnight protocol is equal to `spec_version` of runtime (<https://docs.substrate.io/maintain/runtime-upgrades/>).
-- current Midnight protocol version is encoded in block header - for validation purpose it needs to be equal to protocol version encoded in parent block, unless protocol upgrade was performed;
+- current Midnight protocol version (`spec_version` of the runtime) is encoded in block header - for validation purpose it needs to be equal to protocol version encoded in parent block, unless protocol upgrade was performed;
 - initial protocol version (the one network starts with) is encoded in the genesis block - so specific-purpose networks can be spun up using desired set of rules, network specification should also include a unique network identifier, so that 2 nodes connected to 2, otherwise identically specified, networks, would know to reject connections and updates between each other
-- blocks have encoded latest version supported by its producer to allow at any time verify software upgrades adoption - in practice it is native runtime implementation's `spec_version`.
-- current protocol version is encoded in block header to help determine how to parse the body, while next/native protocol version is encoded in block body as an extrinsic, as it is data that might change with introduction of governance-managed updates
-- initiation of the upgrade is recorded on-chain and need to include 2 pieces of information: policy to be used to determine activation and next version to be activated; the policy may vary - it might follow statistical approach as in Bitcoin, it might be as well a specific transaction, or subject of a voting mechanism; Encoding both data will reduce number of assumptions that need to be made on consensus in order to determine set of rules to apply, as well as should simplify chain selection at the time of a fork
+- next/native protocol version (`spec_version` of the native runtime), together with hash of the runtime blob (as in the same code that would be used to run `system_setCode` call) is encoded in block body as an extrinsic, as it is data that might change with introduction of governance-managed updates
+- protocol version given block should follow is available through node's API so that clients can learn how to parse the body,  
 - in order to let clients efficiently choose version of rules to comply, Indexer needs to provide an API to query the protocol version on a per-block basis
 
 ### Policy
@@ -247,7 +246,7 @@ For initial phases of Midnight, a policy where upgrade is activated automaticall
 Specifically:
 
 - according to protocol description, block producers upon upgrade of the node would start producing blocks which encode different version for current and next one
-- once a specified amount of blocks within an epoch expresses the same next protocol version (but not necessarily a subsequent one), first block producer to observe that publishes an extrinsic, which schedules update at the beginning of the next epoch with following data:  
+- once a specified amount of blocks within an epoch expresses the same next protocol version (but not necessarily subsequent ones), first block producer to observe that publishes an extrinsic, which schedules update at the beginning of the next epoch with following data (this is not technically necessary, but would simplify things for other clients and look similarly when governance is introduced):  
   - what Midnight's protocol version it will be - derived from native runtime version
   - hash of WASM code expected to be set with `system.setCode` extrinsic - accessed from the node deployment
   - epoch number `system.setCode` call should be performed - this data is not necessary, but is a great help to components using data from blockchain
