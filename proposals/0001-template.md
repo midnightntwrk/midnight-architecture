@@ -4,13 +4,13 @@ this template to be lightweight, so that it does not impede the process of
 capturing the proposals, and we to evolve this template over the time, as we
 figure out the process of proposing changes to our architecture.
 
-# Problem Statement
+## Problem Statement
 Please start by clearly stating the problem your proposal is trying to solve.
 Describe the context and why this propsal is important.
 
-# Proposed Changes
+## Proposed Changes
 Describe your proposal in detail.
 
-# Desired Result
+## Desired Result
 Finally, describe what you hope to achieve and how you can evaluate that you
 have achieved it.
