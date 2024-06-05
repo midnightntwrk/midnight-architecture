@@ -269,7 +269,7 @@ Protocol-layer changes will be needed to be implemented in Midnight's runtime to
 
 Usage runtime interface to interact with a ledger facade, implemented with [hard-fork-combinator-like framework](#hard-fork-combinator-like-frameworks) is the desired mechanism in this option.
 
-Theretically - Substrate is flexible enough to not use FRAME in such context, which would allow for less friction between Midnight code and the framework, but this is largely unexplored idea.
+Theoretically - Substrate is flexible enough to not use FRAME in such context, which would allow for less friction between Midnight code and the framework, but this is largely unexplored idea.
 
 ##### Pros
 
