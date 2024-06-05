@@ -1,4 +1,4 @@
-# Proposal 00009: Upgrades with forks
+# Proposal 00012: Upgrades with forks
 
 Related PRD: <https://docs.google.com/document/d/1q7W9cg3VDnNgWCQNLJBFyNhnhff4KtE84qof6wmxWG4/edit?usp=sharing>
 Related Jira ticket: <https://input-output.atlassian.net/browse/PM-8288>
