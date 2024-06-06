@@ -243,12 +243,12 @@ A final fallback for many types of cryptographic updates is to require manual
 intervention of end users. For instance, in translating hashes or signatures,
 it is possible to allow a manual step that:
 
-- Proves that, for $h \mapsto h’$, $exists x . H_1(x) = h \land H_2(x) = h’$
+- Proves that, for $h \mapsto h’$, $\exists x . H_1(x) = h \land H_2(x) = h’$
 - For a signature $\sigma$ valid for $pk_1$, produces $\sigma’ valid for
-  $pk_2$, and signs $(\sigma, \pk_1) \mapsto (\sigma’, \pk_2)$ with $sk_1$.
+  $pk_2$, and signs $(\sigma, pk_1) \mapsto (\sigma’, pk_2)$ with $sk_1$.
 - For a signature $\sigma$ valid for an unknown $pk$, provides $\sigma \mapsto
-  \sigma’$, and proves that $\exists pk, pk’, \sigma_\delta . verify((\sigma,
-  pk, \sigma’, pk’), \sigma_delta’, pk)$.
+  \sigma’$, and proves that $\exists pk, pk’, \sigma_\delta . \mathsf{verify}((\sigma,
+  pk, \sigma’, pk'), \sigma_\delta’, pk)$.
 
 In short, it is possible to allow a transitionary period, where zero-knowledge
 proofs are used to allow users to translate data for which they know the
@@ -296,7 +296,3 @@ verifier key updates already requires a fallback allowed to change the rules
 and keys of a contract. Therefore, a forced translation can be implemented by
 updating verifier keys to describe rules for permitted translation operations
 inside of a contract, rather than globally for all of Midnight.
-
-## Desired Result
-Finally, describe what you hope to achieve and how you can evaluate that you
-have achieved it.
