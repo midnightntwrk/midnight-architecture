@@ -31,6 +31,10 @@ be able to resume operations, *if* it follows best practices. In particular, use
 funds should not be lost or redistributed as a result of a cryptographic
 upgrade.
 
+A secondary, but important criteria is that we *do* wish to use Snark-friendly
+cryptography, for hashes and commitments, which are significantly cheaper than
+primitives which are independent of the Snark's scalar field.
+
 ## Proposed Changes
 
 While these problems have the same root cause – data we cannot trivially
