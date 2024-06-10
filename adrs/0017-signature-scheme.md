@@ -117,7 +117,6 @@ Ed25519 and Schnorr signatures both offer robust cryptographic solutions, with E
 
 ### Elliptic Curves and Hashing for Schnorr
 
-<!-- Ask Inigo to clarify: Why not Ed25519? -->
 #### SECP256k1 + SHA256
 
 SECP256k1 and SHA256 are supported across multiple ecosystems (Cardano,
