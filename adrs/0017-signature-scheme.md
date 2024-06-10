@@ -16,11 +16,12 @@ proposed
 
 ## Context and Problem Statement
 
-Midnight requires a signature scheme for use in two contexts:
+Midnight requires a signature scheme for use in several contexts:
 - For tracking the owner set of smart contracts, allowing owners to patch a
   contract, both for routine bugfixes, and for the contract to remain
   executable after a major proof system update.
 - For the unshielded tokens due to be added.
+- For controlling metadata registry entries
 
 These should use the same signature scheme.
 
@@ -105,8 +106,8 @@ systems. However, Schnorr signatures offer several advantages over ECDSA.
   assumption and do not have the same malleability issues as ECDSA.
 * Efficiency: Schnorr signatures are generally more efficient than ECDSA in
   terms of both signature size and verification speed.
-* Aggregation: Schnorr signatures support straightforward signature
-  aggregation, which ECDSA does not natively support.
+* Aggregation: Schnorr signatures direct support interactive signature
+  aggregation, while ECDSA does not natively support any.
 
 Given these advantages, Schnorr signatures are a preferred choice over ECDSA
 for modern cryptographic applications, particularly in blockchain contexts
