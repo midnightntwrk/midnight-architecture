@@ -112,6 +112,9 @@ Given these advantages, Schnorr signatures are a preferred choice over ECDSA
 for modern cryptographic applications, particularly in blockchain contexts
 where aggregation and efficiency are critical.
 
+#### EdDSA vs Schnorr
+Ed25519 and Schnorr signatures both offer robust cryptographic solutions, with Ed25519 being a variant of the Schnorr signature scheme over the Edwards curve edwards25519. This variant is notably used in the Cardano blockchain. One significant advantage of Ed25519 is that Edwards curves support complete addition formulas, which enhances implementation efficiency and reduces the likelihood of errors. However, a notable drawback is that the curve's group order is not prime, having a cofactor that complicates protocol translation. Careful study is needed to adapt protocols, traditionally designed for prime order groups, to work with this cofactor. While Ed25519 has its advantages, the thoroughly audited and optimized implementation of secp256k1 minimizes the advantages offered by Edwards curves, particularly in contexts where the highest levels of scrutiny and optimization have already been achieved.
+
 ### Elliptic Curves and Hashing for Schnorr
 
 <!-- Ask Inigo to clarify: Why not Ed25519? -->
