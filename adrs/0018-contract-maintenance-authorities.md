@@ -69,7 +69,7 @@ that:
     maintenance public keys, or the threshold `k`, either as a full overwrite
     or as a state delta.
   - Verifier key change operations, which are modifications to the set of
-    verifier keys, either as full overwrites of as a state deltas. This includes:
+    verifier keys, either as full overwrites or as a state deltas. This includes:
     - Adding new copies of verifier keys for a new major version, that may or
       may not be fully deployed at this point (for instance, the version may be
       supported, but not yet enabled for use in transactions).
