@@ -163,10 +163,10 @@ The design would follow following mechanic:
   - find a version given block/transaction/operation/state is supposed to follow
   - find a protocol for a specific version
   - given a version, find previous version
-  - fold left or right the list in ascending/descening version order
+  - fold left or right the list in ascending/descending version order
   - find first, last, or all protocols matching a predicate
   - iterate over the list in ascending/descending version order
-- each component can hava a facade implemented, which holds the list, and delegate operation using mentioned combinators, specifically
+- each component can have a facade implemented, which holds the list, and delegate operation using mentioned combinators, specifically
   - Ledger:
     - validating a transaction
       - get current protocol version
