@@ -139,7 +139,7 @@ This option was tried for several years and had certain shortfalls:
 ### Using Conda
 
 Anaconda is the only crossplatform packaging framework that can work on Windows as well as Mac and Unix.
-Having used it for a year at another establishment I can confirm it's unsuitable because:
+Having used it for a year at another establishment @gilescope can confirm it's unsuitable because:
 - It's very very slow.
 - Making conda packages is non-trivial (considerably less fun than making nix packages).
 - Nix is hands down a better packaging framework in every way except it doesn't support Windows.
