@@ -44,7 +44,7 @@ of the final product.
 
 ## Decision Drivers
 
-* local environment consistent with the one Cicero uses
+* local environment consistent with the one CI uses
 * local environment easy to set up for engineers on the team, with as little manual steps
   as possible
 * local environment set up ideally does not require platform-specific knowledge and is
