@@ -107,7 +107,8 @@ Chosen option: "Earthly + shared per-stack guidelines for people not using nix w
 
 ### Negative Consequences
 
-* Time will be spent on battling issues coming either from different versions in use or specific local setup (but this has to be conterballanced by the time saved not waiting for nix.)
+* Time will be spent on battling issues coming either from different versions in use or specific
+  local setup (but this has to be conterballanced by the time saved not waiting for nix.)
 
 * Earthly does NOT set up a local dev environment.
   For this reason standard per-stack conventions should be used or a simple Nix shell for installing
@@ -127,7 +128,9 @@ CI defined in an Earthfile. A Nix devshell should be made available for those th
 but where possible it should defer to stack specific conventions for which tool versions to install.
 (I.e. the nix devshells should be as minimal as possible to be fast to enter and more likely to be cached.
 In particular devshells that depend on devshells that depend on devshells should be avoided where possible
-and heavy computation of things like public parameters should be cached in a shared image rather than being constantly recomputed. - Earthly makes it very easy to pull files out of images and save them locally)
+and heavy computation of things like public parameters should be cached in a shared image rather
+than being constantly recomputed. - Earthly makes it very easy to pull files out of images and save
+them locally)
 
 ## Pros and Cons of the Options
 
@@ -137,8 +140,14 @@ This option was tried for several years. It excelled in replicating the CI envir
 and in installing all the dependencies required for development.
 
 But nix had certain shortfalls:
-- People complain of sometimes 30 mins+ to wait for nix to build the environment due to the lack of a distributed nix caching setup such as we had when we were using Cicero.
-- When people got used to Nix they still found it hard. "Nix is hard. You just won't believe how vastly, hugely, mind-bogglingly hard it is. I mean, you may think debugging Conda packages is hard, but that's just peanuts to Nix." -- Douglas Adams might have said about nix
+- For nix to work well with teams it requires cache infrastructure, which we lost,
+  and we lost people with Nix experience who could set it up and maintain for us (which directly
+  affects performance in many places). Sometimes there can be a wait of 30 mins+ or more for nix
+  to build the environment due to the lack of a distributed caching setup
+  (such as we had when we were using Cicero).
+- When people got used to Nix they still found it hard. "Nix is hard. You just won't believe how vastly,
+  hugely, mind-bogglingly hard it is. I mean, you may think debugging Conda packages is hard, but
+  that's just peanuts to Nix." -- Douglas Adams might have said about nix.
   E.g. how to switch which version of rustc we're using?
   This delayed releases when we hit nix issues (sometimes for days, sometimes a lot longer).
   While using nix is relatively easy (if slow), changing nix isn't easy. This is mostly down to the
@@ -147,7 +156,8 @@ But nix had certain shortfalls:
 - nix created images while theoretically 'more secure' as they had just what they needed in them,
   but the security scanning doesn't seem to handle them well.
 
-nix devshell is still helpful for non-windows users a sensible way to install all the dependencies you might need to get started, but we can slim down the devshell to be as minimal as possible so that they
+nix devshell is still helpful for non-windows users a sensible way to install all the dependencies
+you might need to get started, but we can slim down the devshell to be as minimal as possible so that they
 can be entered into quickly. *We're not completely removing nix devshells*, but making them optional
 and not required by the CI toolchain.
 
