@@ -6,7 +6,7 @@ Midnight uses ZK SNARKs to prove that each transaction conforms to a valid execu
 
 ## Object-Oriented Intuitions
 
-Without committing to an object-oriented implementation of the Midnight programming model, some OO concepts can make it easier to undetstand the flows in a Midnight dApp.
+Without committing to an object-oriented implementation of the Midnight programming model, some OO concepts can make it easier to understand the flows in a Midnight dApp.
 
 It's useful to think of a dApp as containing one or more *contracts*, each of which is an implementation of the abstract `ContractBase`.  Each of these contracts has two helper classes, one to manage the private state and one to manage the public state.  These are referred to as the public and private *oracles*.  Each *transition function* in the contract accesses public and private state exclusively through the methods on these helper classes.  
 
@@ -31,11 +31,11 @@ The private transcript contains sensitive information and cannot be shared outsi
 
 ## The Proof Server
 
-Midnight is designed to support the benefits of privacy with the ease-of-use of a light wallet.  An important piece of the solution is the way Midnight allows clients to safely offload the heavy computation of ZK proofs to untrusted servers.  Our solution, in brief, is that IOHK and other interested parties will host *Proof Servers* that compute the necessary proofs within a Trusted Execution Environment, or TEE.  Each client's private witness data is protected in transit by a TLS connection that is terminated within the TEE hardware enclave to prevent snooping by the Proof Server host.  The service provided by the Proof Server could be monetized to offset costs, or could be run without fees by interested parties otherwise incented to make Midnight succeed.
+Midnight is designed to support the benefits of privacy with the ease-of-use of a light wallet. Computing ZK proofs in browser, even if possible, is not convenient because of the amount of time the computation requires. For that reason a native application is introduced in a form of a server to ask for proof computation. Preferably that application is run locally by user, but it doesn't have to be - for example it might be run on a different machine in local network. 
 
-## Extremely Simplified Flow
+## Simplified Flow
 
-The following figure illustrates an extremely high-level simplification of the flow that enables a user to push a transaction through the blockchain and witness its result.  A step-by-step discussion follows the figure.
+The following figure illustrates a high-level simplification of the flow that enables a user to push a transaction through the blockchain and witness its result.  A step-by-step discussion follows the figure.
 
 ![](call-tx-extremely-simplified.svg)
 
@@ -44,38 +44,43 @@ The following figure illustrates an extremely high-level simplification of the f
 3. The contract executes the transition function, capturing transcripts of the function's interactions with the public and private oracles.
 4. The dApp uses a secure connection to a Proof Server to request a ZK proof, using the transition function's corresponding circuit and the witness extracted in previous step.
 5. The Proof Server provides the necessary ZK proof.
-6. The dApp stores the private-oracle transcript, indexed by the TX id of the new transaction.
+6. The dApp stores pending data, like private-oracle transcript, indexed by the TX id of the new transaction.
 7. Stored successfully
-8. The dApp calls wallet frontend to prepare and submit transaction with performed call details
+8. The dApp calls wallet frontend to balance call transaction (most importantly - to pay fees)
 9. The wallet uses a secure connection to a Proof Server to request a spend ZK proof
 10. The Proof Server provides the necessary ZK proof.
-11. The wallet frontend submits transaction to its backend. The transaction includes the contract's ID, the ZK proof, and everything needed to complete any required spends of Midnight's base currency, such as gas or other fees, or movement of funds between the contract and other parties.
-12. Midnight submits the transaction to consensus.  
-13. Wallet backend responds to frontend that transaction is pending.
-14. Wallet frontend responds with pending status to the dApp.
-15. The dApp advises the user that the request is pending. At this point the user may safely go offline and await a result, or stay connected to monitor updates.
-16. Once the TX is verified on chain, wallet backend will eventually witness the verified TX and the new public state.
-17. Then wallet frontend will learn them from wallet backend.
-18. Then the dApp learn them from wallet frontend.
-19. The dApp installs the observed public state (or, equivalently, computes the public state from the public-oracle transcript -- the choice comes down to performance).
-20. The dApp looks up the corresponding saved private-oracle transcript.
-21. Successfully retrieved.
-22. The dApp applies the private-oracle transcript, executing each query or command in sequence.
-23. After successful application of private state, the dApp installs the resulting private state as the current private state of the given contract.
-24. The dApp advises the user that of the public and private effects of the verified transaction.
+11. The wallet assembles transaction including both call details and necessary spends.
+12. Wallet returns assembled transaction to the dApp.
+13. dApp asks wallet to submit transaction to the network
+14. The wallet submits transaction to the node it is connected to. The transaction includes the contract's ID, the ZK proof, and everything needed to complete any required spends of Midnight's base currency, such as gas or other fees, or movement of funds between the contract and other parties.
+15. Node broadcasts the transaction, so that it can be included in a block.  
+16. Node responds to frontend that transaction is pending.
+17. Wallet frontend responds with pending status to the dApp.
+18. The dApp advises the user that the request is pending. At this point the user may safely go offline and await a result, or stay connected to monitor updates.
+19. Once the TX is verified on chain, indexer will eventually witness the verified TX
+20. Then wallet frontend will learn them from indexer.
+21. Wallet will notify user about the outcome
+22. Then the dApp learn them from wallet frontend
+23. dApp now fetches new public state (optional, it may have a push-based subscription in place)
+24. dApp receives new public state 
+25. The dApp installs the observed public state
+26. The dApp looks up the corresponding saved private data.
+27. Successfully retrieved.
+28. The dApp installs the retrieved private data
+29. The dApp advises the user that of the public and private effects of the verified transaction.
 
 ## Conclusion
 
-This is, as previously stated, an extreme oversimplifiction of the flow, but it illustrates the key points where Midnight smart contracts are implemented across the Midnight stack.  
+This is, as previously stated, a simplifiction of the flow, but it illustrates the key points where Midnight smart contracts are implemented across the Midnight stack.  
 
 * dApps call transition functions to generate transactions
 * state updates of transition functions are delayed and separated into corresponding public and private transcripts
 * proof servers offload the heavy computation of ZK proofs
 * verifiers use both the ZK proof and the public oracle to verify transactions, and the act of verification also performs the public-state updates
 * dApps re-combine the private part of the computation with its public part by applying the saved private transcript after the TX is verified
-* application of private transcripts MUST succeed; this demands that Midnight provide a means of writing private-state oracles that ensures safe application in the presence of intervening private-state updates.
+* management of private data MUST succeed in a range of possible issues coming from e.g. networking or consensus; this demands that Midnight provide a means of writing private-state oracles that ensures safe application in the presence of intervening private-state updates.
 
 ### A Brief Note On Latency
 
-This overview flow gives us some initial insights into the latencies a user will face.  Ignoring the (likely trivial) latency of the actual dApp logic, the key points of latency are the Proof Server and consensus.  The Proof Server introduces two forms of latency: the time it takes to perform the proof, and the queueing latency inherent in a shared service.  The proving latency can be considered a speed-of-light limitation among competing ZK-based smart-contract platforms, since all must execute proofs using the best available proving technology.  (And this speaks to the need for Midnight to support upgrades to the proving system!) The queueing latency is an artifact of Midnight's exclusive use of light wallets, and can be mitigated only by providing a sufficient Proof Server pool and load distribution scheme.
+This overview flow gives us some initial insights into the latencies a user will face.  Ignoring the (likely trivial) latency of the actual dApp logic, the key points of latency are the Proof Server and consensus. The Proof Server introduces latency depending on a the time it takes to perform the proof. The proving latency can be considered a speed-of-light limitation among competing ZK-based smart-contract platforms, since all must execute proofs using the best available proving technology. (And this speaks to the need for Midnight to support upgrades to the proving system!).
 
