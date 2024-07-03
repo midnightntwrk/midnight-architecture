@@ -9,7 +9,7 @@ proposed
 | -         | -                                                                                                                            |
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
 | date      | 2024-06-10 |
-| deciders  | Thomas Kerber, Andrezj Kopeć |
+| deciders  | Thomas Kerber, Andrzej Kopeć |
 | consulted | Iñigo Azurmendi, Jon Rossie |
 | informed  |                            |
 ---
