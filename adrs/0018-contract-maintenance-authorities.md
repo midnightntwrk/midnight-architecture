@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+accepted
 
 ---
 <!-- These are optional elements. Feel free to remove any of them. -->
@@ -10,7 +10,7 @@ proposed
 |-----------|------------------------------------------------------------------------------------------------------------------------------|
 | date      | 2024-06-10 |
 | deciders  | Thomas Kerber, Andrzej Kopeć |
-| consulted | Iñigo Azurmendi, Jon Rossie |
+| consulted | Iñigo Querejeta Azurmendi, Jon Rossie |
 | informed  |                            |
 ---
 
@@ -75,6 +75,9 @@ that:
       supported, but not yet enabled for use in transactions).
     - Adding new, or modifying existing keys for an existing version.
     - Removing existing verifier keys
+
+It should be noted that this decision was made with opposition, and with the
+intent to revisit it in future.
 
 ## Validation
 
