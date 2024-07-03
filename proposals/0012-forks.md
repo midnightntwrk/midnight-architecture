@@ -415,7 +415,7 @@ They are meant to be addressed through the means of staged rollout, similarly to
 2. An upgrade is performed, which includes ledger version `N+0.5`:
    1. This ledger version executes transaction under rules of version `N`
    2. This ledger version allows to migrate state to one compatible with version `N+1` in a small, controlled batches
-   3. This ledger version tracks the progress of migration and exposes a queryable API to do so
+   3. This ledger version tracks the progress of migration and exposes a queryable API to do so. It is likely that performed transactions would require performing state migrations again (either because of changed contents or need to keep up), tracking progress needs to take that into account, so that there are not leftover pieces of state left at the last block before next upgrade. 
    4. Runtime can schedule running a single batch migration with every block - so that state migration is effectively performed on-chain, in a manner suitable for both synced nodes, and ones in the process of catching up with the network 
 3. Once migration is found to be completed, another upgrade is performed, which updates ledger to version `N+1`, and can finish off state migration in a cheap way by discarding not-needed data
 
