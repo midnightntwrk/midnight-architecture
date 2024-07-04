@@ -106,8 +106,8 @@ It is enabled by a construction called _sparse homomorphic commitment_, which is
 3. for combining the randomnesses
 
 These functions are carefully selected so that together they provide a really nice properties:
-- combining commitments is equal to calculating a commitment for a set being a sum of sets provided to combined commitments and randomnesses combined too
-- commitment for a coin when value is equal 0 is equal to a commitment of an empty set
+- combining commitments is equal to calculating a commitment for a set being a sum of sets provided to combined commitments and randomnesses combined too, that is: $commitment(s1, r1) \oplus commitment(s2, r2) = commitment(s1 \cup s2, r1 \circ r2)$
+- commitment for a coin when value is equal 0 is equal to a commitment of an empty set: $commitment((0, x), r) = commitment(\emptyset, r)$
 
 With such scheme in place one can do the following: 
 - attach the commitment to each input and output as well as calculate it in its proof (so that proof binds the input or output it is attached to)
