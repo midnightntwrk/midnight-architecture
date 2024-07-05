@@ -143,13 +143,28 @@ The keys used in Midnight are presented below:
 
 A secret 32 bytes, which allow to generate all the other keys. Rest of key generation is performed using a ChaCha20 random number generator.
 
-Since it is 32 bytes, it can be encoded directly as 24 seed phrase following [BIP-0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) algorithm.
+Since it is 32 bytes, it can be encoded directly as 24-word seed phrase following [BIP-0039](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) algorithm.
 
 One can also treat seed as a private key of an account in a BIP-44 (or similar) hierarchy. At this moment no value `coin_type` is selected nor registered in [SLIP-0044](https://github.com/satoshilabs/slips/blob/master/slip-0044.md), but mentioned SLIP mentions that all testnets should use `0x80000001`.
 
 ### Output encryption keys
 
-Encryption secret key is a random element of the embedded curve's (JubJub) scalar field, generated as the first value from the RNG initialized with seed.
+Encryption secret key is an element of the embedded curve's (JubJub) scalar field, generated as first SHA-256 hash in a sequence being an element of the scalar field, with domain separation "midnight:esk". Resulting byte sequence is interpreted to scalar assuming a padded, little-endian layout. In naive pseudocode:
+```ts
+function toScalar(bytes: Buffer): BigInt {
+    return BigInt(`0x${bytes.toString('hex')}`);
+}
+function encryptionSecretKey(seed) {
+    for (const i = 0; ; i++) {
+        const esk_i = sha256("midnight:esk", sha256(i, seed));
+        if (JubJubScalar.contains(toScalar(esk_i))) {
+            return esk_i;
+        } else {
+            continue;
+        }
+    }
+}
+```
 
 Although it is a secret key, so it should be treated with a special care, there is one situation, where it can be shared - as a key letting a trusted backend service index wallet transactions - in such context it acts as a viewing key.
 
@@ -157,7 +172,7 @@ Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so 
 
 ### Coin keys
 
-Coin secret key is 32 random bytes, generated as the second value generated from the RNG. Through coin commitment calculation in a zero-knowledge proof it is a credential to rights to spend particular coin.
+Coin secret key is 32 random bytes, generated as a SHA-256 hash of seed with domain separator "midnight:csk". Through coin commitment calculation in a zero-knowledge proof it is a credential to rights to spend particular coin.
 
 Coin public key is 32 bytes calculated as Poseidon hash of width 3 (2 inputs, one output) over the main curve (BLS12-381) with domain separator `midnight:pk-derive` padded to 32 bytes, that is (in a TS pseudocode):
 
