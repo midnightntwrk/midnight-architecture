@@ -149,7 +149,7 @@ One can also treat seed as a private key of an account in a BIP-44 (or similar) 
 
 ### Output encryption keys
 
-Encryption secret key is an element of the embedded curve's (JubJub) scalar field, generated as first SHA-256 hash in a sequence being an element of the scalar field, with domain separation "midnight:esk". Resulting byte sequence is interpreted to scalar assuming a padded, little-endian layout. In naive pseudocode:
+Encryption secret key is an element of the embedded curve's (JubJub) scalar field, generated as first SHA-256 hash in a sequence being an element of the scalar field (not including zero), with domain separation "midnight:esk". Resulting byte sequence is interpreted to scalar assuming a padded, little-endian layout. In naive pseudocode:
 ```ts
 function toScalar(bytes: Buffer): BigInt {
     return BigInt(`0x${bytes.toString('hex')}`);
@@ -157,7 +157,8 @@ function toScalar(bytes: Buffer): BigInt {
 function encryptionSecretKey(seed) {
     for (const i = 0; ; i++) {
         const esk_i = sha256("midnight:esk", sha256(i, seed));
-        if (JubJubScalar.contains(toScalar(esk_i))) {
+        const esk_i_scalar = toScalar(esk_i);
+        if (esk_i_scalar != 0n && JubJubScalar.contains(esk_i_scalar)) {
             return esk_i;
         } else {
             continue;
