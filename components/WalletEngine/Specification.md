@@ -155,7 +155,7 @@ function toScalar(bytes: Buffer): BigInt {
     return BigInt(`0x${bytes.toString('hex')}`);
 }
 function sampleBytes(bytes: number, domainSeparator: string, seed: Buffer): Buffer {
-    const rounds = Math.ceil(bytes/4);
+    const rounds = Math.ceil(bytes/32);
     const result = Buffer.alloc(bytes);
     for (const i = 0; i < rounds; i++) {
         const segment = sha256(domainSeparator, sha256(i, seed));
@@ -164,7 +164,8 @@ function sampleBytes(bytes: number, domainSeparator: string, seed: Buffer): Buff
     return result;
 }
 function encryptionSecretKey(seed: Buffer): BigInt {
-    const sampledBytes = sampleBytes(JubJubScalar.bytes, "midnight:esk", seed);
+    // Generating 16 bytes more is important to get a better distribution of keys
+    const sampledBytes = sampleBytes(JubJubScalar.bytes + 16, "midnight:esk", seed);
     return toScalar(sampledBytes) % JubJubScalar.prime;
 }
 ```
