@@ -9,9 +9,9 @@ The changes proposed here could each be individually accepted or rejected.
 ## Problem Statement
 
 In our marketing materials we describe Compact using the phrase "a
-TypeScript-based" language or similar ones.  It is a selling that the language
-is familiar to developers who can read TypeScript code.  We should also avoid
-superficial syntactic differences that will only make it difficult for
+TypeScript-based" language or similar ones.  It is a selling point that the
+language is familiar to developers who can read TypeScript code.  We should also
+avoid superficial syntactic differences that will only make it difficult for
 developers to switch between the two languages when writing code.
 
 Here we describe a batch of small changes to Compact's syntax.  Some of them
@@ -40,7 +40,7 @@ annotation, it is instantiated to types by writing, for example,
 instantiated using square brackets for type parameters and type arguments.
 
 In contrast, TypeScript uses angle brackets `<` and `>` instead of square
-bracketws to enclose generic type parameters and type arguments.
+brackets to enclose generic type parameters and type arguments.
 
 > **We propose to change Compact to use angle brackets for generic definitions and
 > instantiations.**
@@ -52,7 +52,7 @@ parameterized over types, but a number literal like `32` is actually a type.  It
 is the "[literal type](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types)"
 of number *literals* that are exactly equal to 32.
 
-This change to compact syntax will include builtin types, so developers will
+This change to Compact syntax will include builtin types, so developers will
 write `Bytes<16>` and `Vector<3, Field>`, for instance.  This also includes
 the type `Unsigned Integer`.  Developers will write
 `Unsigned Integer<32>`, for instance.
@@ -169,17 +169,19 @@ arrays), the equivalents would be `v0.map(add, v1)` (though, note,
 
 Proposals: [TODO: select one of these and describe it.
 
-* `map add(v0, v1)` and `fold add(0, v0)`: they are unary prefx operators that
-  have higher precedence than circuit/witness application.
-
-* `add.map(v0, v1)` and `add.fold(0, v0)`: they are "methods" on circuits. 
+* `map add(v0, v1)` and `fold add(0, v0)`: they are unary prefix operators that
+  have higher precedence than circuit/witness application.  Note that in most
+  languages, nothing has higher precedence than application except perhaps
+  member select (the "dot" operator).
 
 * `v0.map(add, v1)` and `v0.fold(add, 0)`: they are methods on vectors.  This
   closely matches TypeScript.
 
-There's probably only a small number of such combinators that we will need to
-provide, but there might be others than these two.  The second and third
-proposals above mean that adding more of them is not a breaking change.]
+* `add.map(v0, v1)` and `add.fold(0, v0)`: they are "methods" on circuits. 
+
+There's probably only a small number of such higher-order combinators that we
+will need to provide, but there might be others than these two.  The second and
+third proposals above mean that adding more of them is not a breaking change.]
 
 ## Proposed Rollout Plan
 
@@ -187,7 +189,7 @@ proposals above mean that adding more of them is not a breaking change.]
 we will roll them out.  We need to reach developers, and clearly explain why we
 are making these changes and asking them to change their code.  Though these are
 breaking changes, we might choose to just change the syntax rather than (1)
-deprecate the old one and introduce the new oen and then (2) later remove the
+deprecate the old one and introduce the new onen and then (2) later remove the
 old one.  Note also that we have to update documentation, example DApps, and
 tests at the same time.  These changes (along with the ledger syntax changes,
 which possibly needs identifier renaming) could be performed by an automated
