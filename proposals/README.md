@@ -22,3 +22,4 @@ File names should use `kebab-case` without any non-ASCII characters.
 - [0011: Contract Interface Types](./0011-contract-interface-types.md) for changes to Compact syntax to support contract interface types
 - [0012: Upgrades with Forks](./0012-forks.md) for upgrading the Midnight chain
 - [0013: Midnight HD Wallet](./0013-hd-wallet-options.md) HD (Hierarchical Deterministic) wallets for Midnight
+- [0014: Compact Syntax Changes](./0014-compact-syntax-changes.md) for a batch of changes to Compact's syntax.
