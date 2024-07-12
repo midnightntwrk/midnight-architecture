@@ -167,21 +167,56 @@ arrays), the equivalents would be `v0.map(add, v1)` (though, note,
 `Array.prototype.map` only works for single argument functions) and
 `v0.reduce(add, 0)`.
 
-Proposals: [TODO: select one of these and describe it.
+Here are three possible proposals to consider:
 
-* `map add(v0, v1)` and `fold add(0, v0)`: they are unary prefix operators that
-  have higher precedence than circuit/witness application.  Note that in most
-  languages, nothing has higher precedence than application except perhaps
-  member select (the "dot" operator).
+#### `map` and `fold` are prefix operators
 
-* `v0.map(add, v1)` and `v0.fold(add, 0)`: they are methods on vectors.  This
-  closely matches TypeScript.
+We could have `map` and `fold` be unary prefix operators applied to a circuit
+and an argument list.  The programmer could write `map add(v0, v1)` and
+`fold add(0, v0)`.
 
-* `add.map(v0, v1)` and `add.fold(0, v0)`: they are "methods" on circuits. 
+If we ultimately wanted to have first-class circuits, then `map add` would
+naturally convert `add` from a function taking a pair of numbers to a number
+into a function taking a pair of vectors into a vector.  But for the time being,
+we would say that `map` and `fold` had to be supplied with both a circuit and an
+operator list.
 
-There's probably only a small number of such higher-order combinators that we
-will need to provide, but there might be others than these two.  The second and
-third proposals above mean that adding more of them is not a breaking change.]
+One drawback of this proposal is that, in most programming languages, function
+application has higher precedence than all unary operators.  So this might defy
+programmers' expectations.
+
+#### `map` and `fold` are "methods" on vectors
+
+This proposal is very much like the way that TypeScript programmers will be used
+to higher-order combinators.  The programmer could write `v0.map(add, v1)` and
+`v0.fold(add, 0)`.
+
+An advantage of this proposal is that it is possibly the most familiar to
+TypeScript developers.  Another advantage over the first proposal is that it
+removes `map` and `fold` as keywords.  They are just methods available on
+vectors.  There are possibly a small number of other higher-order combinators we
+would want to introduce, and not requiring them to all be keywords makes that an
+easier (i.e., non-breaking) change.
+
+A disadvantage is that, at least until we introduce first-class circuits, it
+can't be explained as a normal method invocation and has to remain special
+because it takes a circuit as an "argument".  Another disadvantage is that it
+doesn't correspond to the "natural" way to write a curried map or fold function.
+That is, if we made circuits into first-class values, then `v0.map` would be a
+circuit that took a circuit and a vector as arguments and mapped over the fixed
+vector `v0`.
+
+#### `map` and `fold` are "methods" on circuits
+
+This proposal is more like the way that a functional programmer would think of
+`map` and `fold`, and still removes them as keywords and feels "TypeScripty" to
+an extent.  The programmer could write `add.map(v0, v1)` and `add.fold(v0, 0)`
+(or we swap the order of the arguments to `add.fold`).
+
+Advantages are: (1) it's not completely surprising to TypeScript developers, (2)
+it removes `map` and `fold` as keywords, and (3) the "curried" version `add.map`
+is practically useful (if we ever allowed it) as a circuit that takes a pair of
+vectors and maps the fixed circuit `add` over them.
 
 ## Proposed Rollout Plan
 
