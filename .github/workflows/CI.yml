@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+
+jobs:
+  check:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: './components/WalletEngine/key-derivation-reference/.nvmrc'
+
+      - name: Dependencies cache restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ./components/WalletEngine/key-derivation-reference/node_modules
+          key: npm-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            npm-${{ github.ref_name }}
+            npm-master
+
+      - name: Install dependencies
+        run: |
+          cd ./components/WalletEngine/key-derivation-reference
+          npm install
+
+      - name: Dependencies cache save
+        uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: |
+            ./components/WalletEngine/key-derivation-reference
+          key: npm-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Test Pluto test vectors
+        run: |
+          cd ./components/WalletEngine/key-derivation-reference/
+          npm run test-pluto
+
+      - name: Test JubJub test vectors
+        run: |
+          cd ./components/WalletEngine/key-derivation-reference/
+          npm run test-jubjub
