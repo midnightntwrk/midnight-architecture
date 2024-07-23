@@ -40,12 +40,7 @@ jobs:
             ./components/WalletEngine/key-derivation-reference
           key: npm-${{ github.ref_name }}-${{ github.run_id }}
 
-      - name: Test Pluto test vectors
+      - name: Check test vectors
         run: |
           cd ./components/WalletEngine/key-derivation-reference/
-          npm run test-pluto
-
-      - name: Test JubJub test vectors
-        run: |
-          cd ./components/WalletEngine/key-derivation-reference/
-          npm run test-jubjub
+          npm run test

@@ -8,7 +8,7 @@ import {
   Field,
   fromScalar,
   JubJubScalar,
-  PlutoBase,
+  ErisScalar,
 } from "./reference.js";
 import { program, Option } from "commander";
 import * as fs from "node:fs";
@@ -68,12 +68,12 @@ function generateTestVectors(seeds: Buffer[], field: Field) {
 
 const fields = {
   JubJubScalar: JubJubScalar,
-  PlutoBase: PlutoBase,
+  ErisScalar: ErisScalar,
 };
 
 const fieldsOption = new Option("--field <field>", "What field to target")
   .choices(Object.keys(fields))
-  .makeOptionMandatory(true);
+  .default("ErisScalar");
 
 program
   .description("Generate&test test vectors for key derivation")
