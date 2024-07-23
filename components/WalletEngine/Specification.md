@@ -216,7 +216,7 @@ Offer output represents coin received in a transaction. It contains:
 - coin commitment
 - value commitment
 - zero knowledge creation proof
-- optionally, coin ciphertext
+- optionally, coin ciphertext (containing details of the coin: its value, nonce and token type)
 - optionally, contract address, if coin is meant to be received by a contract
 
 Transients are an extension needed mostly for contract execution - they are intermediate coins created as an output and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received, so it enables use-cases of creating an atomic chains of transfers, etc. For that reason they share many of properties of both inputs and outputs, which are:
