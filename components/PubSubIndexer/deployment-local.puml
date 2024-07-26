@@ -1,0 +1,32 @@
+@startuml
+
+node Node as node
+node "PubSub Indexer\nSingle Process" as pub_sub_indexer {
+  port "GraphQL API Port" as graphql_api_port
+  portout "Node API Port" as node_api_port
+
+  component "GraphQL API" as graphql_api
+  component "Events source" as events_source
+  component "In-process Indexer" as in_process_indexer
+  queue "In-memory PubSub" as in_memory_pub_sub
+
+  database Sqlite as sqlite
+
+  in_process_indexer --> sqlite
+  in_process_indexer --> events_source
+  in_process_indexer --> in_memory_pub_sub
+  events_source ----> node_api_port
+  graphql_api --> sqlite
+  graphql_api --> in_memory_pub_sub
+  graphql_api --> graphql_api_port
+  sqlite -[hidden]- in_memory_pub_sub
+}
+
+actor "Clients" as clients
+
+clients --> graphql_api_port
+node_api_port <-- node
+
+
+
+@enduml

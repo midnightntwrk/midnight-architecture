@@ -1,0 +1,62 @@
+@startuml
+
+entity Block {
++ hash
++ height
++ timestamp
++ parent_hash
+}
+
+entity WalletSubscription {
++ id
+}
+
+enum ViewingUpdate {
++ merkleTreeIndex
+}
+entity CollapsedMerkleTreeUpdate {}
+entity TransactionsUpdate {
++ transactions: Transaction[]
+}
+
+ViewingUpdate <|-- CollapsedMerkleTreeUpdate
+ViewingUpdate <|-- TransactionsUpdate
+
+entity Wallet {
++ viewingKey (encryption secret key)
+}
+
+entity Transaction {
++ hash
++ identifiers
++ block_hash
++ raw
++ fallible
++ applyStage
+}
+
+entity ContractUpdate {
++ address
++ transaction_hash
++ zswapChainState
++ state
+}
+
+entity ContractDeploy {
++ definition
+}
+
+entity ContractCall {
++ operation
+}
+
+Block ||--o{ Transaction
+Transaction ||--o{ ContractUpdate
+ContractUpdate --> ContractCall : variant
+ContractUpdate --> ContractDeploy : variant
+
+Transaction }o--o{ Wallet : is relevant to
+Wallet ||--|{ ViewingUpdate : produces
+WalletSubscription }o--|| Wallet : connects to
+WalletSubscription ||--|{ ViewingUpdate : sends to client
+@enduml

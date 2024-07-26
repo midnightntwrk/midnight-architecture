@@ -13,4 +13,3 @@ Every flowlet `example` should be defined in three parts:
 - `example.md` : documentation of the flowlet, including the `example.png` image for reference
 
 See the [example](example.md) flowlet.
-

@@ -9,3 +9,4 @@ Please define each new component as a new subfolder here, and use the provided [
 - Circuit Compiler
 - Lares Runtime (Typescript)
 - [Transaction kernel](kernel)
+- [Pub-Sub Indexer](./PubSubIndexer/)

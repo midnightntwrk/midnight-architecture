@@ -1,0 +1,120 @@
+# Native tokens
+
+Zswap supports native tokens using colored coins approach — every coin/shielded UTxO has assigned type, where DUST 
+is just a very specific, well–known type that is being used to pay transaction fees. 
+
+Following basic operations need to be covered across whole stack, some of them are variations in usage of the same API/mechanics: 
+  - minting new tokens (not possible for DUST)
+  - receiving tokens from contract
+  - providing tokens to contract / [balancing transaction with tokens](../../product/Glossary.md) for submission
+  - sending tokens from wallet
+  - sending tokens from contract
+  - displaying tokens balance
+  - swapping tokens
+
+Specifically, the components directly involved in the flows above are:
+  - ledger
+  - wallet: engine, UI and DApp connector
+  - Compact: its runtime and standard library ([related PR](https://github.com/input-output-hk/compactc/pull/436/files))
+  - Midnight.js
+
+Node and PubSub Indexer are not expected to receive any changes related to tokens specifically. Standard PubSub's support for wallets and DApps should cover native token–involved use–cases too.
+
+Together, these operations contribute to possibility of leveraging tokens in DApps, an example of such approach can be seen in [the DAO example](../../example-dapps/dao). 
+
+## Minting new tokens
+
+Allows contracts, and contracts only to mint new tokens. The process is as follows:
+
+![](./mint/Mint.svg)
+
+The crucial points/facts about it are:
+  - contracts can only mint tokens of types produced by the `token_type` function for their contract address 
+  - `token_type` function is a combined hash of the domain separator (see [Glossary](../../product/Glossary.md)) and contract address — this means that only single contract can mint tokens of a particular type and that the same domain separator used by two different contracts will result with different token types
+  - because of domain separator being input to `token_type` — contracts can issue tokens of many types
+  - `token_type` is exposed both as a Compact standard library function, and a runtime function, so that it can be used in many contexts
+  - `mint` call is very important in whole process — it registers the mint with the transaction, so that ledger will allow this single token type to be not balanced up to defined amount
+
+At the end of the process, the transaction, that is produced:
+  - has an output created for specified recipient, which contains the newly created token
+  - newly created token may not be present in imbalances, because of registered mint
+
+## Receiving tokens from contract and providing tokens to contract / balancing tokens
+
+![](./balance&receive/Balance%20&%20Receive.svg)
+
+After a mint performed directly for the user or a withdrawal of tokens from a pool held by contract, wallet needs to receive the tokens, there are 2 possible cases for transaction shape:
+1. There is prepared output for the wallet and information about the coin is provided. In this case receiving the coin does not differ from receiving a DUST coin. That is — wallet registers a watcher for new coin's nonce to detect when it is spendable.
+2. There is no prepared output, transaction has a positive balance of certain token type and no additional information about coins is provided. In this situation wallet is free to create a new output coin for itself. In case of custom tokens the value is expected to be equal to the token imbalance, in case of DUST — it needs to be deducted by necessary fees. It is important that such new outputs are encrypted, so wallet can restore their state correctly when being restored from scratch.
+
+In both cases, Wallet's UI should allow the end user to set a human–readable description of the token type. Preferably as soon as receiving the transaction from a DApp.
+
+The basic rule for balancing tokens is that wallet, upon receiving an unbalanced transaction, should add inputs and outputs necessary to reduce imbalances to zero. In case of DUST — this means the inputs need to cover all outputs and all fees. In case of other tokens — the inputs need to cover outputs in 1:1 ratio. Each transaction can involve many different token types, for that reason wallet needs to iterate over all imbalanced ones, leaving DUST for the end in order to properly accommodate for fees.
+
+This approach allows providing tokens to contract interactions by letting contract execute with necessary outputs created, then submitting such imbalanced transaction to wallet, which, depending on its balance and user decision, can either balance and submit the transaction, or reject it.
+
+At the moment of writing fees are calculated based on transaction size that is only precisely known (and accessible in transaction API) once a transaction is proven. Ledger ZSwap API exposes constants called `inputFeeOverhead` and `outputFeeOverhead` that return approximate amount of DUST needed to cover fees for a single input and output, respectively. Since proven transaction provides an API to accurately calculate fees, the final fees estimate is `balanced_transaction_fees + no_of_new_inputs * input_fee_overhead + no_of_new_outputs * output_fee_overhead`. 
+
+There exists another (actually, it is the original) idea for managing the process of providing tokens to contract, which is — DApp, before calling contract, would ask wallet to create an imbalanced transaction with necessary outputs to use in the contract, then contract would be executed, finally letting wallet balance whole transaction.
+
+## Sending tokens from wallet
+
+Wallet, in order to send tokens to another wallet, should first create an unbalanced transaction with desired outputs. And then follow the process of balancing. In some simple cases it is possible for wallet to prepare all inputs and outputs in a single step, though in the interest of reducing complexity it is preferred to make the approach involving balancing the default one.    
+
+Sending tokens to contracts is only possible if contract claims the tokens, which means an explicit contract interaction needs to be involved.
+
+## Sending tokens from contract
+
+Contract, in order to send tokens, preferably calls a standard library circuit `send`. It takes input coin, recipient, value to be sent and returns an output coin and, optionally a change. 
+
+It ensures necessary ledger/runtime functions are being called to let contract spend a coin as well as it might create proper outputs. 
+
+At the end of the process, the transaction, that is produced:
+- has an output created for specified recipient, which contains the newly created token
+- newly created token may not be present in imbalances, because of registered mint
+
+## Displaying tokens balance
+
+Coins have assigned types, which are hashes for custom tokens or `0x00000000000000000000000000000000` for DUST. 
+While hashes are very friendly for various ways of computing, they are not friendly for humans. For that reason wallet
+UI implementations are advised to let users add/adjust displayed name of a token so that in various circumstances 
+user can identify what tokens are part of balance and what tokens would be involved in a transaction.
+
+This approach, while quite effective, should not be considered a final one. It has the following drawbacks:
+  - wallet won't recreate token names when recovering from chain
+  - missing denomination information — tokens represent various data, so different tokens should have denomination 
+    adjusted — e.g. a wrapped ETH should have denomination allowing for representing various sums of Ethereum, 
+    while a NFT should have no denomination at all. For this reason wallet UI is advised to not provide any denomination, 
+    but use number formatting to display balances in a way intuitive for humans
+
+Given it is a realistic expectation that information about native tokens balance at the moment is more important than DUST balance, Wallet UI is advised to display the available, pending and total balance for each token type.
+
+## Swapping tokens
+
+TBD.
+
+Basic mechanic is that 2 users prepare 2 imbalanced transactions which, upon merging, produce a balanced transaction. In order to be able to merge the transaction though, an exchange infrastructure of a sort is needed, which requires is a dedicated effort in terms of defining requirements, speccing and scoping.   
+
+
+## Comparison with Cardano and Ethereum
+
+Using https://github.com/IntersectMBO/cardano-ledger/blob/master/doc/explanations/features.rst as a starting point, we can compare Midnight Native Token support to Cardano and ERC–20–like tokens.
+
+One can notice that in many ways Midnight's native token support is very similar to Cardano's. With the biggest difference being party controlling custom token:
+
+|                                                               | Native Tokens                                                  | Native Tokens                                                          | ERC–20                                                                                                    |
+|---------------------------------------------------------------|----------------------------------------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| Blockchain                                                    | Midnight                                                       | Cardano                                                                | Ethereum                                                                                                  |
+| Relationship to the blockchain                                | Not a standard. Most functionality is built into ledger itself | Not a standard. Most functionality is built into ledger itself         | A contract standard, users copy–paste the standard code and modify it or use standard source as a library |
+| Shielded                                                      | Y                                                              | N                                                                      | N                                                                                                         |
+| Controlled by                                                 | A Compact contract                                             | A minting policy script in any scripting language supported by Cardano | A Solidity smart contract                                                                                 |
+| Requires a smart contract to mint/burn?                       | Y                                                              | Y                                                                      | Y                                                                                                         |
+| Requires a smart contract to transfer?                        | N                                                              | N                                                                      | Y                                                                                                         |
+| Can be used by other smart contracts without special support? | Y                                                              | Y                                                                      | N                                                                                                         |
+| Can be transferred alongside other tokens?                    | Y                                                              | Y                                                                      | N (depends on a contract though)                                                                          |
+| Transfer logic provided by                                    | The Midnight Ledger itself                                     | The Cardano ledger itself                                              | ERC–20 template/library or custom implementation                                                          |
+| Transfer logic can be customized                              | N (custom spend logic should address that)                     | N                                                                      | Y                                                                                                         |
+| Requires special fees to transfer                             | N                                                              | N                                                                      | Y                                                                                                         |
+| Requires additional event–handling logic to track transfers   | N                                                              | N                                                                      | Y                                                                                                         |
+| Supports non–fungible tokens                                  | Y                                                              | Y                                                                      | Y (through a dedicated, inherently incompatible standard)                                                 |
+| Readable metadata                                             | _To be defined_, operating contract may provide it             | Provided by the off–chain metadata server                              | Provided by the operating smart contract as part of standard interface                                    |
