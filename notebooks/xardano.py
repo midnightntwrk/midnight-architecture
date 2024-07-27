@@ -10,12 +10,9 @@ from enum import Enum
 from datetime import datetime, timedelta
 from copy import copy, deepcopy
 
-DEBUG = [False]
-def enable_debugging():
-  DEBUG[0] = True
-
+DEBUG = False
 def debug(s):
-  if DEBUG[0]:
+  if DEBUG:
     print(s)
 debug('debugging enabled')
 
@@ -24,37 +21,44 @@ debug('debugging enabled')
 # 
 # It's not practical to model a blockchain without some realy cryptography.  We import some standard libs, define some utilities, and then define a wallet based on these primitives.
 # %%
+# https://cryptography.io/en/latest/
 from cryptography.hazmat.primitives.asymmetric.types import PublicKeyTypes
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_ssh_public_key
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.exceptions import InvalidSignature
 
-# PublicKey to string
-def ser(pk):
-  return pk.public_bytes(encoding=Encoding.OpenSSH, format=PublicFormat.OpenSSH)
-# string to PublicKey
-def des(pk_s):
-  return load_ssh_public_key(pk_s)
-def testserdes():
-  sk = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048)
-  pk = sk.public_key()
-  assert des(ser(pk)) == pk
-testserdes()
-
-def verify(pk: str, sig: bytes, data: bytes):
-  pk_raw = des(pk)
-  try:
-    pk_raw.verify(
-      sig,
-      data,
-      padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
-      hashes.SHA256())
-    return True
-  except InvalidSignature:
-    return False
+class PublicKey():
+  def __init__(self, binary_pk: RSAPublicKey) -> None:
+    self.binary_pk = binary_pk
+    self.repr = PublicKey._make_repr(self.binary_pk)
+  def ser(self):
+    return self.binary_pk.public_bytes(encoding=Encoding.OpenSSH, format=PublicFormat.OpenSSH)
+  @classmethod
+  def des(cls, pk_string):
+    return PublicKey(load_ssh_public_key(pk_string))
+  @classmethod
+  def _make_repr(cls, binary_pk):
+    repr = binary_pk.public_bytes(encoding=Encoding.OpenSSH, format=PublicFormat.OpenSSH)[60:68]
+    return f'pk:{repr!r}'
+  def verify(self, sig: bytes, data: bytes):
+      try:
+        self.binary_pk.verify(
+          sig,
+          data,
+          padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+          hashes.SHA256())
+        return True
+      except InvalidSignature:
+        return False
+  def __getstate__(self) -> object:
+    return self.ser()
+  def __setstate__(self, pk_string):
+    self.binary_pk = load_ssh_public_key(pk_string)
+    self.repr = PublicKey._make_repr(self.binary_pk)
+  def __repr__(self) -> str:
+    return self.repr  
 
 @dataclass
 class SignedMessage:
@@ -62,12 +66,8 @@ class SignedMessage:
   message: bytes
 
 # %%
-import pickle
-
-def hash(obj):
-  digest = hashes.Hash(hashes.SHA256())
-  digest.update(pickle.dumps(obj))
-  return digest.finalize()
+def dumbhash(obj):
+  return bytearray(obj, 'utf-8')
 
 # %%
 class InsufficientFunds(Exception):
@@ -115,7 +115,7 @@ class Wallet:
     self.sk = rsa.generate_private_key(
       public_exponent=65537,
       key_size=2048)
-    self.pk = ser(self.sk.public_key())
+    self.pk = PublicKey(self.sk.public_key())
   def sign(self, message : bytes):
     return self.sk.sign(
       message,
@@ -332,18 +332,18 @@ class Wallet:
 class AbstractUtxo:
   def __init__(self) -> None:
     # sometimes a hash is not a hash, it's a random ID
-    self.hash = os.urandom(32)
-    debug(f'AbstractUtxo {self.hash}')
+    self.hash = os.urandom(32).hex()
+    debug(f'AbstractUtxo {self.hash!r}')
 
 class PlainUtxo(AbstractUtxo):
-  def __init__(self, pk: str, toks: dict):
+  def __init__(self, pk: PublicKey, toks: dict):
     super().__init__()
     self.pk = pk
     self._toks = toks
   def toks(self):
     return self._toks
   def __repr__(self) -> str:
-    return f'PlainUtxo({self.pk[55:77]}, {self.toks()})'
+    return f'PlainUtxo({self.pk}, {self.toks()})'
 
 # Because we use mutable contracts (in the hope that most readers will
 # find them more readable), we need a rollback mechanism for changes.
@@ -371,6 +371,7 @@ class ContractUtxo(AbstractUtxo):
     ensure(not self.rollback, 'cannot prepare_rollback with existing rollback')
     self.rollback = self.letter
     self.letter = deepcopy(self.letter)
+    debug("HERE-------------------------------------------------------------")
   def tx_commit(self):
     self.rollback = None
   def tx_preimage(self):
@@ -389,7 +390,7 @@ class ContractUtxo(AbstractUtxo):
     assert type(contract) != dict
     self.letter.contract = contract
   def __repr__(self) -> str:
-    return f'ContractUtxo({type(self.letter.contract)}, {self.letter.toks})'
+    return f'ContractUtxo({self.letter.contract.__class__.__name__}, {self.letter.toks})'
 
 # %%
 ONE_XADA = 1000000
@@ -412,7 +413,7 @@ class AbstractTx:
     self.inputs = set(inputs)
     self.outputs = set(outputs)
     debug(f'self.outputs {self.outputs}')
-    self.tx_hash = hash(repr((inputs, outputs)))
+    self.tx_hash = dumbhash(repr((inputs, outputs)))
     self.signature = None # filled by signing
     self.input_utxos = None # filled during verification
     self.sum_inputs = None # filled during verification
@@ -435,7 +436,7 @@ class AbstractTx:
     pk = self.input_utxos[0].pk
     for utxo in self.input_utxos:
       ensure(utxo.pk == pk, 'input utxos must be owned by the same key')
-    ensure(verify(pk, self.signature, self.tx_hash),
+    ensure(pk.verify(self.signature, self.tx_hash),
            'input utxos must be owned by the tx signer')
     self.sum_inputs = sum_toks('IN', self.input_utxos + extra_inputs)
     # remove all spent inputs (but not extra inputs)
@@ -603,7 +604,7 @@ class ContractContext:
           raise ValidationException(f'negative balance of token type {cna}')
   def halt(self, retval):
     raise(Halt(retval))
-  def send(self, pk: bytes, toks: dict):
+  def send(self, pk: PublicKey, toks: dict):
     # !!! TODO: charge a fee?
     debug(f'attempt to send {toks} from {self.my_toks()}')
     self.debit_tokens(toks)
