@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-It is important to specify how Midnight keys and addresses can be derived in an HD wallet setting. This not only streamlines work of Wallet Builders in the ecosystem, but also provides reference point to allow migrations between wallet software, as well as hints, how Midnight support can be added to multi-chain wallets. While implicitly assumed, it needs to be stated explicitly, that as much as possible of existing standards like BIP-32, BIP-44, SLIP-0010, etc. should be utilized, so that amount of custom work needed by Wallet Builders is minimized.  
+It is important to specify how Midnight keys and addresses can be derived in an HD (Hierarchical Deterministic) wallet setting - that is where multiple keys are deterministically derived from a single seed. This not only streamlines work of Wallet Builders in the ecosystem, but also provides reference point to allow migrations between wallet software, as well as hints, how Midnight support can be added to multi-chain wallets. While implicitly assumed, it needs to be stated explicitly, that as much as possible of existing standards like BIP-32, BIP-44, SLIP-0010, etc. should be utilized, so that amount of custom work needed by Wallet Builders is minimized.  
 
 ## Proposed Changes
 
@@ -10,7 +10,7 @@ At the moment of writing, there are some unknowns about tokenomics and its impac
 1. to follow BIP-44, with to-be specified coin type and private keys being seed to a unified key derivation for Night, Dust and other credentials
 2. to follow BIP-32 key derivation, with paths similar to CIP-1852, each credential having its separate role assigned
 
-In both cases, an ECDSA private key on secp256k1 would be used as an input to further key derivation. While fundamentally it should not be done, in this particular case, where secp256k1 base field is so close in size to 2^256, it is found that impact on security is small enough to make this shortcut acceptable. 
+In both cases, an ECDSA private key on secp256k1 would be used as an input to further key derivation. Generally treating keys as uniform bitstrings should not be done, though in this particular case, where secp256k1 base field is so close in size to 2^256, it is found that impact on security is negligible, which makes this approach acceptable. 
 
 ### Variant 1 - BIP-44 + all account keys derived from a single seed
 
@@ -27,11 +27,12 @@ This variant is expected to be adopted, if no direct cryptographic relationship 
 
 It assumes following BIP-32 algorithm and CIP-1852-like derivation path, that is: `m / purpose' / midnight_coin_type' / account' / role / index`,
 with possible roles being:
-- `0` - Night token, with generated private key being a private key for a Schnorr signature over secp256k1 (as specified in [ADR-0017](../adrs/0017-signature-scheme.md))
+- `0` - Night token and unshielded native tokens, with generated private key being a private key for a Schnorr signature over secp256k1 (as specified in [ADR-0017](../adrs/0017-signature-scheme.md))
 - `1` - Dust token, with generated private key being an input for Dust key derivation according to wallet specification
 - `2` - zswap shielded tokens, with generated private key being an input for Dust key derivation according to wallet specification (assuming zswap and Dust can have the same key derivation scheme, only purpose being different)
+- `3` - tentatively - token metadata signing, with generated private key being a private key for a Schnorr signature over secp256k1 (as specified in [ADR-0017](../adrs/0017-signature-scheme.md))
 
-Similarly to Cardano, this variant still allows to build compound addresses, if multiple public keys are needed, though a special care should be put into assessing malleability of such addresses and possible impacts.
+Similarly to Cardano, this variant still allows to build compound addresses, if multiple public keys are needed, though a special care should be put into assessing malleability of such addresses and possible impacts. Additionally, it is important to keep in mind that in principle keys derived for a specific role should only be used in that particular context (which is the reason for separating Dust and zswap keys into own roles, despite likely the key format and algorithms being the same, as well as having separate roles for tokens and metadata).
 
 ## More to read
 
