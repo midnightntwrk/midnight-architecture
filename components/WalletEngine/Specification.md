@@ -178,12 +178,12 @@ Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so 
 
 Coin secret key is 32 random bytes, generated as a SHA-256 hash of seed with domain separator "midnight:csk". Through coin commitment calculation in a zero-knowledge proof it is a credential to rights to spend particular coin.
 
-Coin public key is 32 bytes calculated as Poseidon-128 hash of width 3 (2 inputs, one output) over the main curve's (Pluto) scalar field with domain separator `midnight:pk-derive` padded to 32 bytes, that is (in a TS pseudocode):
+Coin public key is 32 bytes calculated as SHA-256 hash of coin secret key suffixed with domain separator `mdn:pk`, that is (in a TS pseudocode):
 
 ```ts
 function coinPublicKey (coinSecretKey: Buffer): Buffer {
-  const DOMAIN_SEPARATOR = Buffer.alloc(32).fill("midnight:pk-derive", 0, 18);
-  return poseidon(DOMAIN_SEPARATOR, coinSecretKey)
+  const DOMAIN_SEPARATOR = Buffer.from("mdn:pk");
+  return sha256(coinSecretKey.concat(DOMAIN_SEPARATOR));
 }
 ```
 
