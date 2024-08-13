@@ -192,7 +192,7 @@ in practice.
 
 We will adopt the second of these options, replacing `Unsigned Integer` with
 `Unsigned`.  Compact doesn't currently use abbreviations in its builtin types,
-so we opted against the second of these.  (Note however, that Compact does
+so we opted against the third of these.  (Note however, that Compact does
 abbreviate the keywords `struct` and `enum`.)
 
 Developers can update their code by changing `Unsigned Integer` to `Unsigned`.
