@@ -16,11 +16,13 @@ describing its effect on the stack, where `c` is the cost of running the
 computation, and any side-effects or interaction with the ledger are modelled by
 the monad `M`.
 
-This model gives a for how to create suitable abstraction barriers between
-specification/formalization of the ledger, on-chain runtime, and smart
-contracts. Since `M` is to be kept abstract, all interaction with the ledger
-proceeds through an abstract interface, where the intended behaviour of these
-interactions is specified in terms of algebraic theories over this interface. A
-formalization of the ledger should _inhabit_ this specification, by giving an
-implementation that conforms to `M`s interface and laws.
+This model provides us with some guidance for how to create suitable abstraction
+barriers between specification/formalization of the ledger, on-chain runtime,
+and smart contracts. Since `M` is to be kept abstract, all interaction with the
+ledger proceeds through an abstract interface, where the intended behaviour of
+these interactions is specified in terms of algebraic theories over this
+interface. A formalization of the ledger should _inhabit_ this specification, by
+giving an implementation that conforms to `M`s interface and laws. Similarly,
+the semantics of smart contracts should be such that their effect on the public
+state is described in terms of `M`.
 
