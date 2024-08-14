@@ -398,24 +398,23 @@ data _─⟪_⟫─→_ : (Ψ : StackTy) → Cost∗ → (Φ : StackTy) → Set 
          ------------------------
        → Ψ ─⟪ (-, 𝓒₁) ∷ 𝓒∗ ⟫─→ Φ′
 
+-- The semantics of executing a sequence of opcodes
+--
+-- Defined by mapping the the (free) monoidal structure of the reflexive
+-- transitive closure onto the monoidal structure of the Kleisli category of `M`
+⟦_⟧ :   Ψ ─⟪ 𝓒∗ ⟫─→ Φ
+        ---------------------
+      → Stack Ψ → M (Stack Φ)
+⟦ stop      ⟧ = η 
+⟦ step x xs ⟧ = ⟦ x ⟧op >=> ⟦ xs ⟧
 
--- -- The semantics of executing a sequence of opcodes
--- --
--- -- Defined by mapping the the (free) monoidal structure of the reflexive
--- -- transitive closure onto the monoidal structure of the Kleisli category of `M`
--- ⟦_⟧ :   Ψ ─⟪ 𝓒∗ ⟫─→ Φ
---         ---------------------
---       → Stack Ψ → M (Stack Φ)
--- ⟦ stop      ⟧ = η 
--- ⟦ step x xs ⟧ = ⟦ x ⟧op >=> ⟦ xs ⟧
+price : Ψ ─⟨ 𝓒 ⟩─→ Φ → Stack Ψ → Cost
+price {𝓒 = 𝓒} op = 𝓒
 
--- price : Ψ ─⟨ 𝓒 ⟩─→ Φ → Stack Ψ → Cost
--- price {𝓒 = 𝓒} op = 𝓒
-
--- price∗ : Ψ ─⟪ 𝓒∗ ⟫─→ Φ → Stack Ψ → M Cost
--- price∗ stop _        = return 0
--- price∗ (step x xs) σ = do
---   σ′ ← ⟦ x ⟧op σ
---   c  ← price∗ xs σ′ 
---   return (price x σ ℕ+ c) 
+price∗ : Ψ ─⟪ 𝓒∗ ⟫─→ Φ → Stack Ψ → M Cost
+price∗ stop _        = return 0
+price∗ (step x xs) σ = do
+  σ′ ← ⟦ x ⟧op σ
+  c  ← price∗ xs σ′ 
+  return (price x σ ℕ+ c) 
 
