@@ -12,7 +12,7 @@ open import Data.Unit
 open import Data.Product
 open import Data.Bool 
 
-open import Relation.Unary using (IUniversal ; _⇒_ ; U)
+open import Relation.Unary using (IUniversal ; Satisfiable ; _⇒_ ; U)
 
 open import Level
 
@@ -25,18 +25,20 @@ module Impact where
 -- Could change this to simulate overflows 
 int64 = ℤ 
 
--- "Aligned values" that can be cast from and to 64 bit integers (represented
--- here as natural numbers)
-data Typeᴬ : Set where 
-  bool int type digest : Typeᴬ
+mutual 
+  -- "Aligned values" that can be cast from and to 64 bit integers (represented
+  -- here as natural numbers)
+  data Typeᴬ : Set where 
+    bool int digest : Typeᴬ  
+    type : Type → Typeᴬ
 
-data Type : Set where
-  null : Type
-  cell : Typeᴬ → Type  
-
-  dict   : Typeᴬ → Type → Type
-  array  : Type → Type
-  bmtree : Type → Type
+  data Type : Set where
+    null : Type
+    cell : Typeᴬ → Type  
+  
+    dict   : Typeᴬ → Type → Type
+    array  : Type → Type
+    bmtree : Type → Type
 
 ⋆ = cell
 
@@ -52,12 +54,12 @@ _∈_ : (τ : Type) → TypeConstraint → Set
 τ ∈ bmtree = ∃ λ τ′ → τ ≡ bmtree τ′
 τ ∈ cell   = ∃ λ t → τ ≡ cell t
 τ ∈ null   = τ ≡ null
-τ ∈ C₁ ∣ C₂ = τ ∈ C₁ ⊎ τ ∈ C₂ 
+τ ∈ C₁ ∣ C₂ = τ ∈ C₁ ⊎ τ ∈ C₂
 
 
 ⟦_⟧ᴬ : Typeᴬ → Set
 ⟦ bool   ⟧ᴬ = Bool
-⟦ type   ⟧ᴬ = Type
+⟦ type τ   ⟧ᴬ = ⊤ 
 ⟦ int    ⟧ᴬ = ℤ
 ⟦ digest ⟧ᴬ = ℤ
 
@@ -70,6 +72,20 @@ _∈_ : (τ : Type) → TypeConstraint → Set
 
 variable t u t₁ t₂ t₃ u₁ u₂ u₃ t′ u′ : Typeᴬ
          τ τ₁ τ₂ τ₃ τ′ : Type 
+
+-- Defines the type of keys in the union of arrays and dictionaries
+_~key_ : ∀ τ → τ ∈ array ∣ dict → Type
+.(array τ)    ~key inj₁ (τ       , refl) = ⋆ int
+.(dict τ₁ τ₂) ~key inj₂ (τ₁ , τ₂ , refl) = ⋆ τ₁
+
+-- Defines the type of values in the union of arrays and dictionaries 
+_~val_ : ∀ τ → τ ∈ array ∣ dict → Type 
+.(array τ)    ~val (inj₁ (τ       , refl)) = τ
+.(dict τ₁ τ₂) ~val (inj₂ (τ₁ , τ₂ , refl)) = τ₂
+
+get : (px : τ ∈ array ∣ dict) → ⟦ τ ⟧ᵀ → ⟦ τ ~key px ⟧ᵀ → ⟦ τ ~val px ⟧ᵀ
+get = {!!} 
+
 
 postulate
   toℤ   : ⟦ t ⟧ᴬ → ℤ
@@ -86,6 +102,11 @@ postulate ∣_∣ : Value τ → ℕ
 StackTy = List Type
 
 variable Ψ Ψ₁ Ψ₂ Ψ₃ Ψ′ : StackTy
+         Φ Φ₁ Φ₂ Φ₃ Φ′ : StackTy 
+
+infix 9 _∈∗_ 
+_∈∗_ : (Ψ : StackTy) → TypeConstraint → Set
+Ψ ∈∗ C = All (_∈ C) Ψ
 
 Cost = ℕ
 
@@ -96,47 +117,66 @@ data Stack : StackTy → Set where
 +[_,_] : (Value τ → Cost) → (Stack Ψ → Cost) → Stack (τ ∷ Ψ) → Cost
 +[ f , g ] (v , σ) = f v ℕ+ g σ
 
-data PathEntry : Set where
-  stack  : Type → PathEntry
-  value  : Type → PathEntry 
+-- The type of well-formed paths. A proof of the form `PathTy τ₁ τ₂‵ proves that
+-- we can retrieve a value of type `τ₁` from a value of type `τ₂` by repeated
+-- indexing into sub-structures.
+--
+-- A path can be constructed in 2 ways.
+--
+-- (1) The empty path 
+--
+-- (2) The "cons" operation, which, given a path to retrieve a `τ` by indexing
+--     into the type of values stored in `τ′`, proves that we can also retrieve
+--     a `τ` by indexing into `τ′` itself. We store a proof that `τ′` is an
+--     "indexable" structure (i.e., `array ∣ dict`), and a flag telling us
+--     wether the corresponding key is to be found in the path or on the stack.
+--
+data PathTy (τ : Type) : Type → Set where
+  ε   : PathTy τ τ
+  [_,_]∷_ : (stack? : Bool) → (px : τ′ ∈ array ∣ dict) → PathTy τ (τ′ ~val px) → PathTy τ τ′ 
 
-entry-elim : ∀ {a}{A : Set a} → (Type → A) → (Type → A) → PathEntry → A
-entry-elim s f (stack τ)  = s τ
-entry-elim s f (value τ) = f τ
+len : PathTy τ₁ τ₂ → ℕ
+len ε              = 0
+len ([ _ , _ ]∷ Π) = ℕ.suc (len Π)
 
-PathTy = List PathEntry   
+variable Π Π₁ Π₂ Π′ : PathTy τ₁ τ₂
 
-variable Π Π₁ Π₂ Π′ : PathTy 
+data Path {τ₁} : ∀ {τ₂} → (Π : PathTy τ₁ τ₂) → Set where
 
-Path : PathTy → Set
-Path = All (entry-elim U Value)
+  []  : Path ε
+
+  -- Stack consing, we don't store the key but rather it's to be stored on the
+  -- stack.
+  _∷s_    : (px : τ₂ ∈ array ∣ dict)
+          → {Π : PathTy τ₁ (τ₂ ~val px) }
+          → Path Π 
+            --------------------------------
+          → Path ([ true , px ]∷ Π)
+
+  -- Value consing, we store the key as part of the path. 
+  [_,]∷v_ : (px : τ₂ ∈ array ∣ dict)
+          → {Π : PathTy τ₁ (τ₂ ~val px)}
+          → Value (τ₂ ~key px)
+          → Path Π
+            ----------------------------
+          → Path ([ false , px ]∷ Π) 
 
 -- Converts a path type to a stack type with types for all occurrences of the
 -- `stack` marker
-stackty : PathTy → StackTy
-stackty [] = []
-stackty (stack τ ∷ Π) = τ ∷ stackty Π
-stackty (value τ ∷ Π) = stackty Π
+⇊s : PathTy τ₁ τ₂ → StackTy
+⇊s           ε                   = []
+⇊s           ([ false , px ]∷ Π) = ⇊s Π
+⇊s {τ₂ = τ₂} ([ true  , px ]∷ Π) = (τ₂ ~key px) ∷ ⇊s Π
 
--- Converts a path type to a stack type containing all types of the path 
-allty : PathTy → StackTy
-allty []            = []
-allty (stack τ ∷ Π) = τ ∷ allty Π
-allty (value τ ∷ Π) = τ ∷ allty Π
- 
--- Calculates the type of the value that a path resolves to 
-resvt : Value τ → Path Π → Stack (stackty Π) → Type
-resvt v [] ε = {!!}
-resvt v (px ∷ π) σ = {!!}
+-- "downgrades" a path type to a stack type containing all types of the path 
+⇊ : PathTy τ₁ τ₂ → StackTy
+⇊           ε               = []
+⇊ {τ₂ = τ₂} ([ _ , px ]∷ Π) = (τ₂ ~key px) ∷ ⇊ Π
 
-resvc : Path Π → Stack (stackty Π) → Cost
-resvc = {!!} 
-
-resolve : (v : Value τ) → (π : Path Π) → (σ : Stack (stackty Π)) → Value (resvt v π σ)
-resolve = {!!} 
-
-variable Φ Φ₁ Φ₂ Φ₃ Φ′ : Stack Ψ → StackTy 
-
+-- 
+-- resolve : (v : Value τ) → (π : Path Π) → (σ : Stack (stackty Π)) → Value (resvt v π)
+-- resolve = {!!} 
+-- 
 pop : Stack (τ ∷ Ψ) → Stack Ψ
 pop (v , σ) = σ
 
@@ -145,6 +185,9 @@ top (v , σ) = v
 
 ‵_ : Cost → Stack Ψ → Cost 
 (‵ c) σ = c
+
+
+
 
 variable 𝓒 𝓒₁ 𝓒₂ 𝓒₃ 𝓒′ : Stack Ψ → Cost  
 
@@ -168,169 +211,211 @@ variable 𝓒 𝓒₁ 𝓒₂ 𝓒₃ 𝓒′ : Stack Ψ → Cost
 --     is executed. For example, the cost of removing an element from a
 --     structure depends on the size of the structure.
 -- 
--- (2) The *shape* of the stack after executing op `op` may depend on the stack
---     before `op` is ececuted. We need this e.g. to type the `NEW` opcode,
---     which leaves an element on the stack whose type depends on the value of
---     the stack before the operation is executed
---
-mutual
-  infixr 2 _κ─⟨_⟩─→_
-  _κ─⟨_⟩─→_ : (Ψ : StackTy) → (Stack Ψ → Cost) → StackTy → Set
-  Ψ₁ κ─⟨ 𝓒 ⟩─→ Ψ₂ = Ψ₁ ─⟨ 𝓒 ⟩─→ λ _ → Ψ₂ 
+infixr 2 _─⟨_⟩─→_
+data _─⟨_⟩─→_ : (Ψ : StackTy) → (𝓒 : Stack Ψ → Cost) → (Φ : StackTy) → Set where
 
-  infixr 2 _─⟨_⟩─→_
-  data _─⟨_⟩─→_ : (Ψ : StackTy) → (𝓒 : Stack Ψ → Cost) → (Stack Ψ → StackTy) → Set where
-
-    NOOP    : (c : Cost)
-              -----------------------
-            → []  κ─⟨ const c ⟩─→  []
+  NOOP    : (c : Cost)
+            ----------------------
+          → []  ─⟨ const c ⟩─→  []
             
 
-    LT      : ------------------------------------------
-              [ ⋆ t , ⋆ t ]  κ─⟨ const 1 ⟩─→  [ ⋆ bool ]
+  LT      : -----------------------------------------
+            [ ⋆ t , ⋆ t ]  ─⟨ const 1 ⟩─→  [ ⋆ bool ]
 
 
-    EQ      : ------------------------------------------
-              [ ⋆ t , ⋆ t ]  κ─⟨ const 1 ⟩─→  [ ⋆ bool ]
+  EQ      : -----------------------------------------
+            [ ⋆ t , ⋆ t ]  ─⟨ const 1 ⟩─→  [ ⋆ bool ]
 
 
-    TYPE    : ----------------------------------
-              [ τ ]  κ─⟨ const 1 ⟩─→  [ ⋆ type ]
+  TYPE    : ---------------------------------
+            [ τ ]  ─⟨ const 1 ⟩─→  [ ⋆ (type τ) ]
 
 
-    SIZE    : ---------------------------------
-              [ τ ]  κ─⟨ const 1 ⟩─→  [ ⋆ int ]
+  SIZE    : --------------------------------
+            [ τ ]  ─⟨ const 1 ⟩─→  [ ⋆ int ]
 
 
-    NEW     : ---------------------------------------------------
-              [ ⋆ type ] ─⟨ const 1 ⟩─→  λ σ → [ top σ .reflect ]
+  NEW     : -----------------------------------
+            [ ⋆ (type τ) ] ─⟨ const 1 ⟩─→ [ τ ]
 
 
-    AND     : ------------------------------------------------
-              [ ⋆ bool , ⋆ bool ]  κ─⟨ const 1 ⟩─→  [ ⋆ bool ]
+  AND     : -----------------------------------------------
+            [ ⋆ bool , ⋆ bool ]  ─⟨ const 1 ⟩─→  [ ⋆ bool ]
 
 
-    OR      : ------------------------------------------------
-              [ ⋆ bool , ⋆ bool ]  κ─⟨ const 1 ⟩─→  [ ⋆ bool ]
+  OR      : -----------------------------------------------
+            [ ⋆ bool , ⋆ bool ]  ─⟨ const 1 ⟩─→  [ ⋆ bool ]
 
 
-    NEG     : ---------------------------------------
-              [ ⋆ bool ]  κ─⟨ const 1 ⟩─→  [ ⋆ bool ]
+  NEG     : --------------------------------------
+            [ ⋆ bool ]  ─⟨ const 1 ⟩─→  [ ⋆ bool ]
 
 
-    LOG     : --------------------------
-              [ τ ]  κ─⟨ const 1 ⟩─→  []
+  LOG     : -------------------------
+            [ τ ]  ─⟨ const 1 ⟩─→  []
 
 
-    ROOT    : -------------------------------------------
-              [ bmtree τ ]  κ─⟨ const 1 ⟩─→  [ ⋆ digest ]  
+  ROOT    : ------------------------------------------
+            [ bmtree τ ]  ─⟨ const 1 ⟩─→  [ ⋆ digest ]  
 
 
-    POP     : --------------------------
-              [ τ ]  κ─⟨ const 1 ⟩─→  []
+  POP     : -------------------------
+            [ τ ]  ─⟨ const 1 ⟩─→  []
 
 
-    POPEQ   : (v : Value τ)
-              -----------------------------
-            → [ τ ]  κ─⟨ const ∣ v ∣ ⟩─→  []
+  POPEQ   : (v : Value τ)
+            ----------------------------
+          → [ τ ]  ─⟨ const ∣ v ∣ ⟩─→  []
 
 
-    -- What's the type of the thing stored on stack? also for sub
-    ADDI    : (v : Value τ)
-              ------------------------------------
-            → [ τ ]  κ─⟨ const ∣ v ∣ ⟩─→  [ ⋆ int ]
+  -- What's the type of the thing stored on stack? also for sub
+  ADDI    : (v : Value τ)
+            -----------------------------------
+          → [ τ ]  ─⟨ const ∣ v ∣ ⟩─→  [ ⋆ int ]
 
 
-    SUBI    : (v : Value τ)
-              ------------------------------------
-            → [ τ ]  κ─⟨ const ∣ v ∣ ⟩─→  [ ⋆ int ]
+  SUBI    : (v : Value τ)
+            -----------------------------------
+          → [ τ ]  ─⟨ const ∣ v ∣ ⟩─→  [ ⋆ int ]
 
 
-    PUSH    : (v : Value τ)
-              -----------------------------
-            → []  κ─⟨ const ∣ v ∣ ⟩─→  [ τ ]
+  PUSH    : (v : Value τ)
+            ----------------------------
+          → []  ─⟨ const ∣ v ∣ ⟩─→  [ τ ]
 
 
-    BRANCH  : (steps : ℕ)
-              ---------------------------
-            → [ τ ]  κ─⟨ const 1  ⟩─→  []
+  BRANCH  : (steps : ℕ)
+            --------------------------
+          → [ τ ]  ─⟨ const 1  ⟩─→  []
 
 
-    JMP     : (steps : ℕ)
-              -----------------------
-            → []  κ─⟨ const 1 ⟩─→  []
+  JMP     : (steps : ℕ)
+            ----------------------
+          → []  ─⟨ const 1 ⟩─→  []
 
 
-    ADD     : --------------------------------------
-              [ ⋆ t , ⋆ t ] κ─⟨ const 1 ⟩─→  [ ⋆ t ]    
+  ADD     : -------------------------------------
+            [ ⋆ t , ⋆ t ] ─⟨ const 1 ⟩─→  [ ⋆ t ]    
 
 
-    SUB     : ---------------------------------------
-              [ ⋆ t , ⋆ t ]  κ─⟨ const 1 ⟩─→  [ ⋆ t ] 
+  SUB     : --------------------------------------
+            [ ⋆ t , ⋆ t ]  ─⟨ const 1 ⟩─→  [ ⋆ t ] 
 
 
-    CONCAT  : (limit : ℕ)
-              ---------------------------------------
-            → [ ⋆ t , ⋆ t ]  κ─⟨ const 1 ⟩─→  [ ⋆ t ] 
+  CONCAT  : (limit : ℕ)
+            --------------------------------------
+          → [ ⋆ t , ⋆ t ]  ─⟨ const 1 ⟩─→  [ ⋆ t ] 
 
 
-    MEMBER  : τ ∈ dict ∣ array
-              -----------------------------------------------
-            → [ ⋆ t , τ ]  κ─⟨ ∣_∣ ∘ top ∘ pop ⟩─→  [ ⋆ bool ]
+  MEMBER  : τ ∈ dict ∣ array
+            ----------------------------------------------
+          → [ ⋆ t , τ ]  ─⟨ ∣_∣ ∘ top ∘ pop ⟩─→  [ ⋆ bool ]
 
 
-    REM     : τ ∈ dict ∣ array
-              ------------------------------------------
-            → [ ⋆ t , τ ]  κ─⟨ ∣_∣ ∘ top ∘ pop ⟩─→  [ τ ] 
+  REM     : τ ∈ dict ∣ array
+            -----------------------------------------
+          → [ ⋆ t , τ ]  ─⟨ ∣_∣ ∘ top ∘ pop ⟩─→  [ τ ] 
 
 
-    DUP     : ------------------------------------------------
-              Ψ ++ [ τ ]  κ─⟨ const 1 ⟩─→  [ τ ] ++ Ψ ++ [ τ ] 
+  DUP     : -----------------------------------------------
+            Ψ ++ [ τ ]  ─⟨ const 1 ⟩─→  [ τ ] ++ Ψ ++ [ τ ] 
 
 
-    SWAP    : -------------------------------------------------------------
-              [ τ₁ ] ++ Ψ ++ [ τ₂ ]  κ─⟨ const 1 ⟩─→  [ τ₂ ] ++ Ψ ++ [ τ₁ ] 
+  SWAP    : ------------------------------------------------------------
+            [ τ₁ ] ++ Ψ ++ [ τ₂ ]  ─⟨ const 1 ⟩─→  [ τ₂ ] ++ Ψ ++ [ τ₁ ] 
 
 
-    IDX     : ∀ (π : Path Π)
-            → τ ∈ dict ∣ array
-              -------------------------------------------------------------------------------
-            → [ τ ] ++ stackty Π  ─⟨ +[ ∣_∣ , resvc π ] ⟩─→  λ σ → [ resvt (top σ) π (pop σ) ] 
+  IDX     : (Π : PathTy τ′ τ)
+          → (π : Path Π)
+          → (px  : τ   ∈  dict ∣ array)
+            ------------------------------------------------
+          → [ τ ] ++ ⇊s Π  ─⟨ (_ℕ+ len Π) ∘ {!!} ⟩─→  [ τ′ ] 
 
-    {- TODO: remaining opcodes -} 
+  {- TODO: remaining opcodes -} 
 
-  
--- variable A B C : Set 
---          c c₁ c₂ : Cost 
 
--- postulate
---   M : Cost → Set → Set
---   η : A → M 0 A
---   μ : M c₁ (M c₂ A) → M (c₁ ℕ+ c₂) A 
---   fmap : (A → B) → M c A → M c B
+variable A B C : Set 
+         c c₁ c₂ : Cost 
 
--- -- The semantics of a stack transitition from Ψ₁ to Ψ₂ with cost function 𝓒 is a
--- -- dependent Kleisli arrow of a cost-graded monad M between stacks with shapes
--- -- given by Ψ and Φ, and grade 𝓒. 
--- execute-op : Ψ ─⟨ 𝓒 ⟩─→ Φ
---              -------------------------------------  
---            → (σ : Stack Ψ) → M (𝓒 σ) (Stack (Φ σ))
--- execute-op σ = {!!} 
+postulate
+  M     : Set → Set
+  η     : A → M A
+  μ     : M (M A) → M A  
+  fmap  : (A → B) → M A → M B
 
--- This used to define the reflexive-transitive closure of stack
--- transformations, but sadly breaks spectacularly once we add an explicit
--- dependency from between the input stack and the type of the output stack
+_>>=_ : M A → (A → M B) → M B
+m >>= f = μ (fmap f m)
+
+_>>_ : M A → M B → M B
+m₁ >> m₂ = m₁ >>= λ _ → m₂
+
+_>=>_ : (A → M B) → (B → M C) → A → M C
+f >=> g = λ x → f x >>= g
+
+return = η 
+
+
+-- The semantics of a stack transitition from Ψ₁ to Ψ₂ with cost function 𝓒 is a
+-- dependent Kleisli arrow of a cost-graded monad M between stacks with shapes
+-- given by Ψ and Φ, and grade 𝓒. 
+⟦_⟧op : Ψ ─⟨ 𝓒 ⟩─→ Φ
+        ---------------------  
+      → Stack Ψ → M (Stack Φ)
+⟦ op ⟧op σ = {!!}
+
+
+
+{-
+      BYTECODE SEQUENCES 
+-} 
+
+-- The free monoid over cost models 
+Cost∗ = List (∃ λ Ψ → Stack Ψ → Cost)
+variable 𝓒∗ : Cost∗ 
+
+-- The reflexive transitive closure of well-formed opcodes. For now, we index
+-- with the free monoid of cost models, because the definition of costs is
+-- deeply semantic: at any point in the sequence the cost of an operation may
+-- depend fully on the semantics of all preceding opcodes.
+--
+-- ### NOTE ###
+--
+-- This enforces *very* strict requirements on the shape of the stack when
+-- constructing bytecode sequences, in the sense that it requires the shape of
+-- input and output stack on the boundary between operations to be an exact
+-- match. Instead, we'd want these to match under more lenient circumstances,
+-- i.e., if there's a common prefix.
 -- 
--- data _─⟪_⟫─→_ : (Φ₁ : Stack Ψ → StackTy) → (Stack Ψ → Cost) → (Stack {!Ψ!} → StackTy) → Set where
--- 
---   stop : ∀ Ψ (Φ : Stack Ψ → StackTy) → Φ ─⟪ const 0 ⟫─→ Φ
--- 
---   step : Ψ ─⟨ 𝓒₁ ⟩─→ Φ₁
---        → {!!} ─⟪ 𝓒₂ ⟫─→ Φ₂
---          --------------------
---        → {!!} ─⟪ {!!} ⟫─→ {!!} 
--- -- 
--- -- execute : Ψ₁ ─⟪ c ⟫─→ Ψ₂ → Stack Ψ₁ → M c (Stack Ψ₂)
--- -- execute stop         σ = η σ
--- -- execute (step op pr) σ = μ (fmap (execute pr) (execute-op op σ))
+-- For example, the sequence `PUSH 1;PUSH 2;PUSH 3;ADD;ADD` should be fine, but
+-- we can't define it using the closure relation below.
+
+data _─⟪_⟫─→_ : (Ψ : StackTy) → Cost∗ → (Φ : StackTy) → Set where
+
+  stop : Ψ ─⟪ [] ⟫─→ Ψ
+
+  step : (o : Ψ ─⟨ 𝓒₁ ⟩─→ Φ)  
+       → Φ ─⟪ 𝓒∗ ⟫─→ Φ′ 
+         ------------------------
+       → Ψ ─⟪ (-, 𝓒₁) ∷ 𝓒∗ ⟫─→ Φ′
+
+
+-- -- The semantics of executing a sequence of opcodes
+-- --
+-- -- Defined by mapping the the (free) monoidal structure of the reflexive
+-- -- transitive closure onto the monoidal structure of the Kleisli category of `M`
+-- ⟦_⟧ :   Ψ ─⟪ 𝓒∗ ⟫─→ Φ
+--         ---------------------
+--       → Stack Ψ → M (Stack Φ)
+-- ⟦ stop      ⟧ = η 
+-- ⟦ step x xs ⟧ = ⟦ x ⟧op >=> ⟦ xs ⟧
+
+-- price : Ψ ─⟨ 𝓒 ⟩─→ Φ → Stack Ψ → Cost
+-- price {𝓒 = 𝓒} op = 𝓒
+
+-- price∗ : Ψ ─⟪ 𝓒∗ ⟫─→ Φ → Stack Ψ → M Cost
+-- price∗ stop _        = return 0
+-- price∗ (step x xs) σ = do
+--   σ′ ← ⟦ x ⟧op σ
+--   c  ← price∗ xs σ′ 
+--   return (price x σ ℕ+ c) 
 
