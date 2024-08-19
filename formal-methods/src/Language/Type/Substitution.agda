@@ -2,25 +2,38 @@ open import Language.Type.Base
 open import Language.Type.Renaming 
 open import Language.Type.Kind 
 
+open import Data.Empty
+open import Data.Sum hiding (map)
 open import Data.List
 open import Data.List.Membership.Propositional 
+open import Data.List.Membership.Propositional.Properties 
+open import Data.List.Relation.Unary.Any hiding (map)
+
 
 open import Relation.Unary using (IUniversal ; _⇒_ ; _⊢_) 
+open import Relation.Binary.PropositionalEquality
 
 open import Function
 
 module Language.Type.Substitution where
 
-record Substitutionᵀ (Δ₁ Δ₂ : TypeContext) : Set where  
-  field
-    apply    : ∀[ tvar ⊢ (_∈ Δ₁) ⇒ (Δ₂ ⊢-ty_) ]  
-    ρ-enum   : enum ∈ Δ₁ → enum ∈ Δ₂
-    ρ-struct : ∀ {ks} → struct ks ∈ Δ₁ → struct ks ∈ Δ₂ 
-   
-open Substitutionᵀ
+Substitutionᵀ : (Ξ : DeclContext) (Δ₁ Δ₂ : TypeContext) → Set
+Substitutionᵀ Ξ Δ₁ Δ₂ = ∀[ (_∈ Δ₁) ⇒ ⟨ Ξ ∣ Δ₂ ⟩⊢ty_ ]
+ 
+mutual
+  substituteᴸ : Substitutionᵀ Ξ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₁ ⟩⊢ld → ⟨ Ξ ∣ Δ₂ ⟩⊢ld
+  
+  substituteᴸ σ Counter                   = Counter
+  substituteᴸ σ (Cell T)                  = Cell (substituteᵀ σ T)
+  substituteᴸ σ (SetT T)                  = SetT (substituteᴸ σ T)
+  substituteᴸ σ (Map Tᴷ Tⱽ)               = Map (substituteᵀ σ Tᴷ) (substituteᴸ σ Tⱽ)
+  substituteᴸ σ (ListT T)                 = ListT (substituteᴸ σ T)
+  substituteᴸ σ (MerkleTree #n T)         = MerkleTree (substituteᵀ σ #n) (substituteᴸ σ T)
+  substituteᴸ σ (HistoricMerkleTree #n T) =
+    HistoricMerkleTree (substituteᵀ σ #n) (substituteᴸ σ T)
 
-mutual 
-  substituteᵀ : Substitutionᵀ Δ₁ Δ₂ → Δ₁ ⊢-ty k → Δ₂ ⊢-ty k
+  substituteᵀ : Substitutionᵀ Ξ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₁ ⟩⊢ty k → ⟨ Ξ ∣ Δ₂ ⟩⊢ty k
+  substituteᵀ σ (· L)                     = · substituteᴸ σ L 
   substituteᵀ σ (# n)                     = # n
   substituteᵀ σ Boolean                   = Boolean
   substituteᵀ σ UInteger[<= T ]           = UInteger[<= substituteᵀ σ T ]
@@ -30,26 +43,16 @@ mutual
   substituteᵀ σ Bytes[ T ]                = Bytes[ substituteᵀ σ T ]
   substituteᵀ σ Vector[ #n , T ]          = Vector[ substituteᵀ σ #n , substituteᵀ σ T ]
   substituteᵀ σ Opaque[ s ]               = Opaque[ s ]
-  substituteᵀ σ (Enum α)                  = Enum (σ .ρ-enum α)
-  substituteᵀ σ (Struct α targs)          = Struct (σ .ρ-struct α) (substituteᵀ σ ∘ targs)
-  substituteᵀ σ Counter                   = Counter
-  substituteᵀ σ (Cell T px)               = Cell (substituteᵀ σ T) (subst-compactT σ px)
-  substituteᵀ σ (SetT T)                  = SetT (substituteᵀ σ T)
-  substituteᵀ σ (Map Tᴷ Tⱽ)               = Map (substituteᵀ σ Tᴷ) (substituteᵀ σ Tⱽ)
-  substituteᵀ σ (ListT T)                 = ListT (substituteᵀ σ T)
-  substituteᵀ σ (MerkleTree #n T)         = MerkleTree (substituteᵀ σ #n) (substituteᵀ σ T)
-  substituteᵀ σ (HistoricMerkleTree #n T) =
-    HistoricMerkleTree (substituteᵀ σ #n) (substituteᵀ σ T)
-  substituteᵀ σ (Var α) = σ .apply α
+  substituteᵀ σ (Enum d)                  = Enum d
+  substituteᵀ σ (Struct d targs)          = Struct d (substituteᵀ σ ∘ targs)
+  substituteᵀ σ (Var α) = σ α
 
-  subst-compactT : (σ : Substitutionᵀ Δ₁ Δ₂) → CompactType T → CompactType (substituteᵀ σ T)
-  subst-compactT σ isBoolean      = isBoolean
-  subst-compactT σ isUInteger₁    = isUInteger₁
-  subst-compactT σ isUInteger₂    = isUInteger₂
-  subst-compactT σ isField        = isField
-  subst-compactT σ isVoid         = isVoid
-  subst-compactT σ isBytes        = isBytes
-  subst-compactT σ isVector       = isVector
-  subst-compactT σ isOpaque       = isOpaque
-  subst-compactT σ (isEnum _)     = isEnum _
-  subst-compactT σ (isStruct _ _) = isStruct _ _
+
+-- Composes substit
+compose-subst : Substitutionᵀ Ξ Δ₂ Δ₃ → Substitutionᵀ Ξ Δ₁ Δ₂ → Substitutionᵀ Ξ Δ₁ Δ₃
+compose-subst σ₁ σ₂ = substituteᵀ σ₁ ∘ σ₂
+
+
+-- prefix substitution
+[_∥_] : ⟨ Ξ ∣ Δ₁ ++ Δ₂ ⟩⊢ty k → Substitutionᵀ Ξ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₂ ⟩⊢ty k
+[ T ∥ σ ] = substituteᵀ ([ σ , Var ] ∘ ∈-++⁻ _) T

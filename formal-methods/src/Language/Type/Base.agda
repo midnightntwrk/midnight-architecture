@@ -6,6 +6,7 @@ open import Data.Bool using (Bool ; true ; false)
 open import Data.Product hiding (map)
 open import Data.Vec using (Vec)
 open import Data.Maybe using (Maybe ; maybe ; just)
+open import Data.Sum 
 
 open import Data.List using (List; []; _∷_; _++_ ; map)
 open import Data.List.Membership.Propositional
@@ -25,135 +26,132 @@ open import Language.Type.Kind
 
 module Language.Type.Base where
 
-data TCEntry : Set where
-  tvar   : (k : Kind) → TCEntry
-  enum   : TCEntry
-  struct : (Ts : List Kind) → TCEntry
+data Decl : Set where
+  enum   : Decl
+  struct : (Ts : List Kind) → Decl
 
-TypeContext = List TCEntry 
+TypeContext = List Kind 
+DeclContext = List Decl
 
-variable Δ Δ₁ Δ₂ Δ₃ Δ′ : TypeContext 
+variable Ξ Ξ₁ Ξ₂ Ξ₃ Ξ′ : DeclContext 
+         Δ Δ₁ Δ₂ Δ₃ Δ′ : TypeContext 
          n n₁ n₂ n₃ n′ : ℕ
          s s₁ s₂ s₃ s′ : String 
 
 mutual
+
+  data ⟨_∣_⟩⊢ld (Ξ : DeclContext) (Δ : TypeContext) : Set where 
+
+    Counter            : ⟨ Ξ ∣ Δ ⟩⊢ld 
+
+    Cell               : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
+                         ---------------------
+                       → ⟨ Ξ ∣ Δ ⟩⊢ld 
+
+    SetT               : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                         -------------------
+                       → ⟨ Ξ ∣ Δ ⟩⊢ld 
+    
+    Map                : (Tᴷ : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
+                       → (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                         --------------------
+                       → ⟨ Ξ ∣ Δ ⟩⊢ld 
+                        
+    ListT              : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                         -------------------
+                       → ⟨ Ξ ∣ Δ ⟩⊢ld
+                       
+    MerkleTree         : (depth : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
+                       → (Tⱽ    : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                         ------------------------
+                       → ⟨ Ξ ∣ Δ ⟩⊢ld 
+                       
+    HistoricMerkleTree : (depth : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
+                       → (Tⱽ    : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                         ------------------------
+                       → ⟨ Ξ ∣ Δ ⟩⊢ld   
+
   infix 7  #_
-  data _⊢-ty_ (Δ : TypeContext) : Kind → Set where
+  data ⟨_∣_⟩⊢ty_ (Ξ : DeclContext) (Δ : TypeContext) : Kind → Set where
+
+    ·_            : (L : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                    ------------------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★ 
 
     #_            : (n : ℕ)
-                    --------
-                  → Δ ⊢-ty ♯ 
+                    --------------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ♯ 
 
-    Boolean       : Δ ⊢-ty ★
+    Boolean       : ⟨ Ξ ∣ Δ ⟩⊢ty ★
     
-    UInteger[<=_] : (n : Δ ⊢-ty ♯)
+    UInteger[<=_] : (n : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
+                    --------------------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★
+    
+    UInteger[_]   : (n : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
+                    --------------------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★ 
+    
+    Field         : ⟨ Ξ ∣ Δ ⟩⊢ty ★
+    
+    Void          : ⟨ Ξ ∣ Δ ⟩⊢ty ★
+    
+    Bytes[_]      : (n : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
                     --------------
-                  → Δ ⊢-ty ★
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★
     
-    UInteger[_]   : (n : Δ ⊢-ty ♯)
-                    --------------
-                  → Δ ⊢-ty ★ 
-    
-    Field         : Δ ⊢-ty ★
-    
-    Void          : Δ ⊢-ty ★
-    
-    Bytes[_]      : (n : Δ ⊢-ty ♯)
-                    --------------
-                  → Δ ⊢-ty ★
-    
-    Vector[_,_]   : (n : Δ ⊢-ty ♯) → (T : Δ ⊢-ty ★)
-                    -------------------------------
-                  → Δ ⊢-ty ★ 
+    Vector[_,_]   : (n : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
+                  → (T : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
+                    --------------------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★ 
 
     Opaque[_]     : (s : String)
                     ------------
-                  → Δ ⊢-ty ★ 
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★ 
     
-    Enum          : (α : enum ∈ Δ)
+    Enum          : (d : enum ∈ Ξ)
                     --------------
-                  → Δ ⊢-ty ★
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★
                   
-    Struct        : {ks    : List Kind}
-                  → (α     : struct ks ∈ Δ)
-                  → (targs : ∀ {k} → (x : k ∈ ks) → Δ ⊢-ty k)
-                    -----------------------------------------
-                  → Δ ⊢-ty ★
+    Struct        : {Δ′    : List Kind}
+                  → (d     : struct Δ′ ∈ Ξ)
+                  → (targs : ∀ {k} → (x : k ∈ Δ′) → ⟨ Ξ ∣ Δ ⟩⊢ty k)
+                    -----------------------------------------------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty ★
+                  
+    Var           : k ∈ Δ 
+                    -----------
+                  → ⟨ Ξ ∣ Δ ⟩⊢ty k 
 
-    -- Ledger types 
-    Counter            : Δ ⊢-ty ★  
-
-    Cell               : (Tⱽ : Δ ⊢-ty ★)
-                       → (px : CompactType Tⱽ)
-                         ---------------------
-                       → Δ ⊢-ty ★ 
-
-    SetT               : (Tⱽ : Δ ⊢-ty ★)
-                         ---------------
-                       → Δ ⊢-ty ★ 
-    
-    Map                : (Tᴷ Tⱽ : Δ ⊢-ty ★)
-                         ------------------
-                       → Δ ⊢-ty ★ 
-                        
-    ListT              : (Tⱽ : Δ ⊢-ty ★)
-                         ---------------
-                       → Δ ⊢-ty ★
-                       
-    MerkleTree         : (depth : Δ ⊢-ty ♯)
-                       → (Tⱽ    : Δ ⊢-ty ★)
-                         ----------------
-                       → Δ ⊢-ty ★ 
-                       
-    HistoricMerkleTree : (depth : Δ ⊢-ty ♯)
-                       → (Tⱽ    : Δ ⊢-ty ★)
-                         ----------------
-                       → Δ ⊢-ty ★   
-
-    -- Type variables can be ledger types and compact types? 
-    Var           : tvar k ∈ Δ → Δ ⊢-ty k 
-
-  variable T₁ T₂ T₃ T T′      : Δ ⊢-ty ★   
-           Ts Ts₁ Ts₂ Ts₃ Ts′ : List (Δ ⊢-ty ★)
-           #n #m #k           : Δ ⊢-ty ♯  
-
-  -- A predicate proving that `T` is a Compact type 
-  data CompactType {Δ} : (T : Δ ⊢-ty ★) → Set where
-    isBoolean   : CompactType Boolean
-    isUInteger₁ : CompactType UInteger[<= #n ] 
-    isUInteger₂ : CompactType UInteger[ #n ]
-    isField     : CompactType Field 
-    isVoid      : CompactType Void
-    isBytes     : CompactType Bytes[ #n ]
-    isVector    : CompactType Vector[ #n , T ]
-    isOpaque    : CompactType Opaque[ s ]
-    isEnum      : ∀ x → CompactType (Enum x)
-    isStruct    :   {ks   : List Kind}
-                  → (x    : struct ks ∈ _)
-                  → (args : {k : Kind} → k ∈ ks → Δ ⊢-ty k)
-                  → CompactType (Struct x args) 
-
--- The ledger types are all those that are not compact types (?)
-LedgerType : (T : Δ ⊢-ty ★) → Set
-LedgerType T = ¬ CompactType T
+  variable T₁ T₂ T₃ T T′      : ⟨ Ξ ∣ Δ ⟩⊢ty ★   
+           Ts Ts₁ Ts₂ Ts₃ Ts′ : List (⟨ Ξ ∣ Δ ⟩⊢ty ★)
+           #n #m #k           : ⟨ Ξ ∣ Δ ⟩⊢ty ♯  
 
 
--- Entries in a type context 
-data Entry (Δ : TypeContext) : Set where
+-- Signatures of callable identifiers in the context 
+record Callable (Ξ : DeclContext) (Δ : TypeContext) : Set where
+  constructor callable 
+  field
+    Δᶜ      : List Kind 
+    T∗      : List (∃ λ k → ⟨ Ξ ∣ Δᶜ ++ Δ ⟩⊢ty k)
+    Tᴿ      : ⟨ Ξ ∣ Δ ⟩⊢ty ★ 
 
-  var     : Δ ⊢-ty ★
-            --------
-          → Entry Δ
+open Callable 
 
-  circuit : (ks      : List Kind)
-          → (T∗      : List (∃ λ k → (map tvar ks ++ Δ) ⊢-ty k)) 
-          → (returns : Δ ⊢-ty ★)
-            -----------------------------------------------------
-          → Entry Δ  
+variable κ κ₁ κ₂ κ₃ κ′ : Callable Ξ Δ
+         𝓌 𝓌₁ 𝓌₂ 𝓌₃ 𝓌′ : Callable Ξ Δ 
 
+Context : DeclContext → TypeContext → Set
+Context Ξ Δ = List ( ⟨ Ξ ∣ Δ ⟩⊢ty ★ )
 
-Context : TypeContext → Set
-Context Δ = List (Entry Δ)
+Circuits : DeclContext → TypeContext → Set
+Circuits Ξ Δ = List (Callable Ξ Δ)
 
-variable Γ₁ Γ₂ Γ₃ Γ Γ′ : Context Δ 
+Witnesses : DeclContext → TypeContext → Set
+Witnesses Ξ Δ = List (Callable Ξ Δ)
+
+_∈′_or_ : Callable Ξ Δ → (_ _ : List (Callable Ξ Δ)) → Set
+κ ∈′ x or y = κ ∈ x ⊎ κ ∈ y 
+
+variable Γ₁ Γ₂ Γ₃ Γ Γ′ : Context Ξ Δ 
 

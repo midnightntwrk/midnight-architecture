@@ -14,35 +14,26 @@ Renamingᵀ : (Δ₁ Δ₂ : TypeContext) → Set
 Renamingᵀ Δ₁ Δ₂ = ∀[ (_∈ Δ₁) ⇒ (_∈ Δ₂) ]
 
 mutual 
-  renameᵀ : Renamingᵀ Δ₁ Δ₂ → Δ₁ ⊢-ty k → Δ₂ ⊢-ty k 
-  renameᵀ ρ (# n)                     = # n
-  renameᵀ ρ Boolean                   = Boolean
-  renameᵀ ρ UInteger[<= T ]           = UInteger[<= renameᵀ ρ T ]
-  renameᵀ ρ UInteger[ T ]             = UInteger[ renameᵀ ρ T ]
-  renameᵀ ρ Field                     = Field
-  renameᵀ ρ Void                      = Void 
-  renameᵀ ρ Bytes[ T ]                = Bytes[ renameᵀ ρ T ]
-  renameᵀ ρ Vector[ #n , T ]          = Vector[ renameᵀ ρ #n , renameᵀ ρ T ]
-  renameᵀ ρ Opaque[ s ]               = Opaque[ s ]
-  renameᵀ ρ (Enum α)                  = Enum (ρ α)
-  renameᵀ ρ (Struct α targs)          = Struct (ρ α) (renameᵀ ρ ∘ targs)
-  renameᵀ ρ Counter                   = Counter
-  renameᵀ ρ (Cell T px)               = Cell (renameᵀ ρ T) (rename-compactT ρ px)
-  renameᵀ ρ (SetT T)                  = SetT (renameᵀ ρ T)
-  renameᵀ ρ (Map Tᴷ Tⱽ)               = Map (renameᵀ ρ Tᴷ) (renameᵀ ρ Tⱽ)
-  renameᵀ ρ (ListT T)                 = ListT (renameᵀ ρ T)
-  renameᵀ ρ (MerkleTree #n T)         = MerkleTree (renameᵀ ρ #n) (renameᵀ ρ T)
-  renameᵀ ρ (HistoricMerkleTree #n T) = HistoricMerkleTree (renameᵀ ρ #n) (renameᵀ ρ T)
-  renameᵀ ρ (Var x)                   = Var (ρ x)
+  renameᴸ : Renamingᵀ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₁ ⟩⊢ld → ⟨ Ξ ∣ Δ₂ ⟩⊢ld 
+  renameᴸ ρ (Cell T)                  = Cell (renameᵀ ρ T)
+  renameᴸ ρ (SetT T)                  = SetT (renameᴸ ρ T)
+  renameᴸ ρ (Map Tᴷ Tⱽ)               = Map (renameᵀ ρ Tᴷ) (renameᴸ ρ Tⱽ)
+  renameᴸ ρ (ListT T)                 = ListT (renameᴸ ρ T)
+  renameᴸ ρ (MerkleTree #n T)         = MerkleTree (renameᵀ ρ #n) (renameᴸ ρ T)
+  renameᴸ ρ (HistoricMerkleTree #n T) = HistoricMerkleTree (renameᵀ ρ #n) (renameᴸ ρ T)
+  renameᴸ ρ Counter                   = Counter
 
-  rename-compactT : (ρ : Renamingᵀ Δ₁ Δ₂) → CompactType T → CompactType (renameᵀ ρ T)
-  rename-compactT ρ isBoolean          = isBoolean
-  rename-compactT ρ isUInteger₁        = isUInteger₁
-  rename-compactT ρ isUInteger₂        = isUInteger₂
-  rename-compactT ρ isField            = isField
-  rename-compactT ρ isVoid             = isVoid
-  rename-compactT ρ isBytes            = isBytes
-  rename-compactT ρ isVector           = isVector
-  rename-compactT ρ isOpaque           = isOpaque
-  rename-compactT ρ (isEnum x)         = isEnum (ρ x)
-  rename-compactT ρ (isStruct x targs) = isStruct (ρ x) (renameᵀ ρ ∘ targs)
+  renameᵀ : Renamingᵀ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₁ ⟩⊢ty k → ⟨ Ξ ∣ Δ₂ ⟩⊢ty k 
+  renameᵀ ρ (· L)            = · renameᴸ ρ L
+  renameᵀ ρ (# n)            = # n
+  renameᵀ ρ Boolean          = Boolean
+  renameᵀ ρ UInteger[<= T ]  = UInteger[<= renameᵀ ρ T ]
+  renameᵀ ρ UInteger[ T ]    = UInteger[ renameᵀ ρ T ]
+  renameᵀ ρ Field            = Field
+  renameᵀ ρ Void             = Void 
+  renameᵀ ρ Bytes[ T ]       = Bytes[ renameᵀ ρ T ]
+  renameᵀ ρ Vector[ #n , T ] = Vector[ renameᵀ ρ #n , renameᵀ ρ T ]
+  renameᵀ ρ Opaque[ s ]      = Opaque[ s ]
+  renameᵀ ρ (Enum α)         = Enum α
+  renameᵀ ρ (Struct α targs) = Struct α (renameᵀ ρ ∘ targs)
+  renameᵀ ρ (Var α)          = Var (ρ α)
