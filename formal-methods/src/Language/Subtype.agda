@@ -10,26 +10,32 @@ open import Data.Sum using (_⊎_) renaming ([_,_] to ⊎[_,_])
 open import Relation.Binary hiding (_⇒_)
 open import Relation.Binary.PropositionalEquality
 
+open import Language.Kind
 open import Language.Type  
 
 module Language.Subtype where 
 
-data _⊑_ {Δ} : (T₁ T₂ : Type Δ) → Set where  
+infix 5 _⊑_
+data _⊑_ {Δ} : {k : Kind} → (T₁ T₂ : Δ ⊢-ty k) → Set where  
 
-  ⊑-refl    : Reflexive _⊑_
+  ⊑-refl    : ∀ {k} → Reflexive (_⊑_ {k = k})
 
-  ⊑-trans   : Transitive _⊑_ 
+  ⊑-trans   : ∀ {k} → Transitive (_⊑_ {k = k}) 
 
-  ⊑-uint    : n₁ ≤ n₂
+  ⊑-size    : n₁ ≤ n₂
+              -----------
+            → # n₁ ⊑ # n₂ 
+
+  ⊑-uint    : #m ⊑ #m 
               -----------------------------------
-            → UInteger[<= n₁ ] ⊑ UInteger[<= n₂ ]
+            → UInteger[<= #n ] ⊑ UInteger[<= #m ]
 
-  ⊑-field   : UInteger[<= n ] ⊑ Field  
+  ⊑-field   : UInteger[<= #n ] ⊑ Field  
 
-  ⊑-vec     : n₁ ≤ n₂
+  ⊑-vec     : #n ⊑ #m
             → T₁ ⊑ T₂
               -------------------------------------
-            → Vector[ n₁ , T₁ ] ⊑ Vector[ n₂ , T₂ ]
+            → Vector[ #n , T₁ ] ⊑ Vector[ #m , T₂ ]
 
 
 -- Characterizes that `A` is a subset of `B`. Subsets are witnessed by a pair of
@@ -75,23 +81,32 @@ postulate
   -- If `B` has default values we can "pad" the vector with. 
   ⊆-vec   : {A B : Set} → n₁ ≤ n₂ → A ⊆ B → Vec A n₁ ⊆ Vec B n₂ 
 
-⟦_⟧⊑ : T₁ ⊑ T₂ → ∀ {δ} → ⟦ T₁ ⟧T δ ⊆ ⟦ T₂ ⟧T δ
-⟦ ⊑-refl      ⟧⊑ = ⊆-refl
-⟦ ⊑-trans x y ⟧⊑ = ⊆-trans ⟦ x ⟧⊑ ⟦ y ⟧⊑
-⟦ ⊑-uint px   ⟧⊑ = ⊆-uint px
-⟦ ⊑-field     ⟧⊑ = ⊆-field
-⟦ ⊑-vec px s  ⟧⊑ = ⊆-vec px ⟦ s ⟧⊑
 
-↑ : T₁ ⊑ T₂ → ∀[ ⟦ T₁ ⟧T ⇒ ⟦ T₂ ⟧T ]
-↑ s = ⟦ s ⟧⊑ .up 
+-- module _ (SetI                : Set → Set)
+--          (MapI                : Set → Set → Set)
+--          (MerkleTreeI         : ℕ → Set → Set)
+--          (HistoricMerkleTreeI : ℕ → Set → Set) where 
 
-↓ : T₁ ⊑ T₂ → ∀[ ⟦ T₂ ⟧T ⇒ Maybe ∘ ⟦ T₁ ⟧T ]
-↓ s = ⟦ s ⟧⊑ .down 
+--   open Types SetI MapI MerkleTreeI HistoricMerkleTreeI 
 
--- Proves that `T` is equal to the maximum of `T₁` and `T₂` 
-record _≈max[_,_] (T T₁ T₂ : Type Δ) : Set where
-  field
-    value   : T ≡ T₁ ⊎ T ≡ T₂
-    subtype : ⊎[ (λ where refl → T₂ ⊑ T₁) , (λ where refl → T₁ ⊑ T₂) ] value  
+--   ⟦_⟧⊑ : T₁ ⊑ T₂ → ∀ {δ} → ⟦ T₁ ⟧T δ ⊆ ⟦ T₂ ⟧T δ
+--   ⟦ ⊑-refl      ⟧⊑ = ⊆-refl
+--   ⟦ ⊑-trans x y ⟧⊑ = ⊆-trans ⟦ x ⟧⊑ ⟦ y ⟧⊑
+--   ⟦ ⊑-uint px   ⟧⊑ = ⊆-uint px
+--   ⟦ ⊑-field     ⟧⊑ = ⊆-field
+--   ⟦ ⊑-vec px s  ⟧⊑ = ⊆-vec px ⟦ s ⟧⊑
 
-open _≈max[_,_]
+--   ↑ : T₁ ⊑ T₂ → ∀[ ⟦ T₁ ⟧T ⇒ ⟦ T₂ ⟧T ]
+--   ↑ s = ⟦ s ⟧⊑ .up 
+  
+--   ↓ : T₁ ⊑ T₂ → ∀[ ⟦ T₂ ⟧T ⇒ Maybe ∘ ⟦ T₁ ⟧T ]
+--   ↓ s = ⟦ s ⟧⊑ .down 
+
+-- -- Proves that `T` is equal to the maximum of `T₁` and `T₂` 
+-- record _≈max[_,_] (T T₁ T₂ : Type Δ) : Set where
+--   field
+--     value   : T ≡ T₁ ⊎ T ≡ T₂
+--     subtype : ⊎[ (λ where refl → T₂ ⊑ T₁) , (λ where refl → T₁ ⊑ T₂) ] value  
+
+-- open _≈max[_,_]
+
