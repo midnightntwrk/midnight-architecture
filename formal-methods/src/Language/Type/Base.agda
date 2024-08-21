@@ -198,3 +198,9 @@ variable Γ₁ Γ₂ Γ₃ Γ′ : Variables Ξ Δ
          Λ₁ Λ₂ Λ₃ Λ′ : LedgerState Ξ Δ 
 
 open Context public 
+
+data Castable {Ξ} {Δ} : (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → Set where
+  field→field : Castable Field Field
+  uint→field  : Castable (UInteger[<= #n ]) Field
+  --- TODO: and more 
+
