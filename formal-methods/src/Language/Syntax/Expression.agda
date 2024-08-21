@@ -241,6 +241,22 @@ mutual
     ---  Map expressions  ---
     -------------------------
 
+    -- NOTE: the typing rules below allow to map/fold over a sequence of _zero_
+    -- vectors. Semantically, this is perfectly fine, if we assume a semantics
+    -- where map/fold operates on zipped vectors, where a vector of `Void`s
+    -- would act as a unit.
+    --
+    -- (1) For `map`, mapping a 0-argument function over 0 vectors evaluates to
+    --     replicating the function's value replicated however many times is
+    --     required by the length of the resulting vector.
+    --
+    -- (2) For `fold`, folding a 1-argument function over some initial value and
+    --     0 vectors evaluates to the function applied to the initial value.
+    --
+    -- This is, of course, a deviation from the typing as described in the
+    -- language ref, since there it's required to have at least one vector
+    -- argument. 
+
     `map      : ( fun   : κ ∈′ 𝓒 .𝒲 or 𝓒 .Ω )
               → ( σ     : Substitutionᵀ Ξ (κ .Δᶜ) Δ )  
               → ( args  : Substitutionᴱ ⌞ σ ⌟ 𝓒 (map Vector[ # n ,_] (κ .T∗)) Γ )
