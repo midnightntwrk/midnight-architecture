@@ -30,8 +30,22 @@ module Language.Syntax.Statement where
 
 infix 4 ⟨_∣_⟩⊢stmt_⊣_
 
-mutual 
+mutual
+  -- Reflexive transitive closure (sequence) of statements 
+  data ⟨_∣_⟩⊢stmt∗_⊣_ (𝓒 : Context Ξ Δ) (Γ : Variables Ξ Δ) (T : ⟨ Ξ ∣ Δ ⟩⊢ty ★) : (Γ′ : Variables Ξ Δ) → Set where
+    
+    ε        : ⟨ 𝓒 ∣ Γ ⟩⊢stmt∗ T ⊣ Γ
+
+    _·_      : ( S₁ : ⟨ 𝓒 ∣ Γ ⟩⊢stmt T ⊣ Γ₁ )
+             → ( S₂ : ⟨ 𝓒 ∣ Γ₁ ⟩⊢stmt∗ T ⊣ Γ₂ )
+               --------------------------------
+             → ⟨ 𝓒 ∣ Γ ⟩⊢stmt∗ T ⊣ Γ₂ 
+
   data ⟨_∣_⟩⊢stmt_⊣_ (𝓒 : Context Ξ Δ) (Γ : Variables Ξ Δ) (T : ⟨ Ξ ∣ Δ ⟩⊢ty ★) : (Γ′ : Variables Ξ Δ) → Set where
+
+    `block   : (S∗ : ⟨ 𝓒 ∣ Γ ⟩⊢stmt∗ T ⊣ Γ′)
+               -----------------------------
+             → ⟨ 𝓒 ∣ Γ ⟩⊢stmt T ⊣ Γ  
 
     `for     : ( n : ℕ)
              → ( S  : ⟨ 𝓒 ∣ UInteger[<= # n ] ∷ Γ ⟩⊢stmt T ⊣ Γ′ )
