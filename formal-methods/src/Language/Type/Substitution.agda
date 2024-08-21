@@ -3,7 +3,8 @@ open import Language.Type.Renaming
 open import Language.Type.Kind 
 
 open import Data.Empty
-open import Data.Sum hiding (map)
+open import Data.Sum hiding (map ) renaming ([_,_] to ⊎[_,_])
+open import Data.Product 
 open import Data.List
 open import Data.List.Membership.Propositional 
 open import Data.List.Membership.Propositional.Properties 
@@ -48,11 +49,9 @@ mutual
   substituteᵀ σ (Var α) = σ α
 
 
--- Composes substit
+-- Composes substitutions
 compose-subst : Substitutionᵀ Ξ Δ₂ Δ₃ → Substitutionᵀ Ξ Δ₁ Δ₂ → Substitutionᵀ Ξ Δ₁ Δ₃
 compose-subst σ₁ σ₂ = substituteᵀ σ₁ ∘ σ₂
 
-
--- prefix substitution
-[_∥_] : ⟨ Ξ ∣ Δ₁ ++ Δ₂ ⟩⊢ty k → Substitutionᵀ Ξ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₂ ⟩⊢ty k
-[ T ∥ σ ] = substituteᵀ ([ σ , Var ] ∘ ∈-++⁻ _) T
+⌞_⌟  : Substitutionᵀ Ξ Δ₁ Δ₂ → Substitutionᵀ Ξ (Δ₁ ++ Δ₂) Δ₂
+⌞ σ ⌟ = ⊎[ σ , Var ] ∘ ∈-++⁻ _

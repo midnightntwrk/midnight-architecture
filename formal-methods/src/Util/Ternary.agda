@@ -20,7 +20,7 @@ _⇔_ : ∀ {a b} {A : Set a} → (P Q : Pred A b) → Pred A b
 Rel₃ : (c ℓ : Level) (Carrier : Set c) → Set (suc ℓ ⊔ c)
 Rel₃ _ ℓ Carrier = (c₁ c₂ c : Carrier) → Set ℓ 
 
-record HasRel₂ {ℓ} {c} (Carrier : Set c) : Set (suc ℓ ⊔ c) where
+record HasRel₂ {c} (Carrier : Set c) ℓ : Set (suc ℓ ⊔ c) where
   field
     _≲_ : Rel Carrier ℓ 
     
@@ -104,5 +104,5 @@ module Relation {ℓ} {c} (Carrier : Set c) ⦃ _ : HasRel₃ Carrier ℓ ⦄ wh
   Pointwise _ = λ c₁ c₂ c → ∀ x → c₁ x ∙ c₂ x ≈ c x
 
   
-instance rel₃⇒rel₂ : ∀ {c ℓ} {Carrier : Set c} → ⦃ HasRel₃ Carrier ℓ ⦄ → HasRel₂ Carrier
+instance rel₃⇒rel₂ : ∀ {c ℓ} {Carrier : Set c} → ⦃ HasRel₃ Carrier ℓ ⦄ → HasRel₂ Carrier (c ⊔ ℓ)
 rel₃⇒rel₂ = record { _≲_ = Relation.Ext _ } 

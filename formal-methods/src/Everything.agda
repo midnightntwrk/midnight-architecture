@@ -9,3 +9,9 @@ open import Runtime.Instruction
 open import Runtime.Semantics 
 open import Runtime.Sequence
 
+
+{- Compact -}
+open import Language.Type
+open import Language.Subtype 
+
+open import Language.Syntax.Expression

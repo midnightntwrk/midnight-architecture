@@ -11,20 +11,23 @@ open import Relation.Binary hiding (_⇒_)
 open import Relation.Binary.PropositionalEquality
 
 open import Language.Type.Kind
-open import Language.Type.Base  
+open import Language.Type.Base
+
+
+open import Util.Ternary
 
 module Language.Type.Subtype where 
 
 infix 5 _⊑_
-data _⊑_ {Ξ} {Δ} : {k : Kind} → (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty k) → Set where  
+data _⊑_ {Ξ} {Δ} : ∀ {k} → (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty k) → Set where  
 
-  ⊑-refl    : ∀ {k} → Reflexive (_⊑_ {k = k})
+  ⊑-refl    : Reflexive (_⊑_ {k = k})
 
-  ⊑-trans   : ∀ {k} → Transitive (_⊑_ {k = k}) 
+  ⊑-trans   : Transitive (_⊑_ {k = k})  
 
   ⊑-size    : n₁ ≤ n₂
               -----------
-            → # n₁ ⊑ # n₂ 
+            → # n₁ ⊑ # n₂  
 
   ⊑-uint    : #m ⊑ #m 
               -----------------------------------
@@ -37,6 +40,8 @@ data _⊑_ {Ξ} {Δ} : {k : Kind} → (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty k) →
               -------------------------------------
             → Vector[ #n , T₁ ] ⊑ Vector[ #m , T₂ ]
 
+instance ≲-type : HasRel₂ (⟨ Ξ ∣ Δ ⟩⊢ty k) _
+HasRel₂._≲_ ≲-type = _⊑_
 
 -- Characterizes that `A` is a subset of `B`. Subsets are witnessed by a pair of
 -- functions that go back and forth, and a proof that these form a
@@ -50,6 +55,9 @@ record _⊆_ (A B : Set) : Set where
     inverse : ∀ x → down (up x) ≡ just x 
 
 open _⊆_
+
+instance ≲-set : HasRel₂ Set _
+HasRel₂._≲_ ≲-set = _⊆_
 
 ⊆-refl : Reflexive _⊆_
 ⊆-refl .up      = λ x → x 

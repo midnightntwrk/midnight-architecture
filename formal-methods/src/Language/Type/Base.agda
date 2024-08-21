@@ -14,7 +14,7 @@ open import Data.List.Relation.Unary.All using (All ; lookup ; [] ; _∷_)
 open import Data.List.Relation.Unary.Any using ()
 
 open import Relation.Nullary.Negation
-open import Relation.Unary using ()
+open import Relation.Unary using (Satisfiable)
 open import Relation.Binary using (Reflexive ; Transitive)
 open import Relation.Binary.PropositionalEquality using (_≡_) 
 
@@ -123,26 +123,41 @@ mutual
                     -----------
                   → ⟨ Ξ ∣ Δ ⟩⊢ty k 
 
-  variable T₁ T₂ T₃ T T′      : ⟨ Ξ ∣ Δ ⟩⊢ty ★   
-           Ts Ts₁ Ts₂ Ts₃ Ts′ : List (⟨ Ξ ∣ Δ ⟩⊢ty ★)
+  variable T₁ T₂ T₃ T T′      : ⟨ Ξ ∣ Δ ⟩⊢ty ★
+           L₁ L₂ L₃ L L′      : ⟨ Ξ ∣ Δ ⟩⊢ld 
            #n #m #k           : ⟨ Ξ ∣ Δ ⟩⊢ty ♯  
 
 
+  -- Existential closure of well-formed types 
+  ⟨_∣_⟩⊢ty· : DeclContext → TypeContext → Set
+  ⟨ Ξ ∣ Δ ⟩⊢ty· = ∃⟨ ⟨ Ξ ∣ Δ ⟩⊢ty_ ⟩
+-- How about unsigned integers w/ fixed precision? 
+data Numeric {Ξ} {Δ} : (T : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → Set where
+  isUinteger : Numeric (UInteger[<= # n ])
+  isFIeld    : Numeric Field 
+
+-- Joins two numeric types 
+_⋈⟨_⟩_ : (T₁ : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → (_∙_ : ℕ → ℕ → ℕ) → (T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → ⦃ Numeric T₁ ⦄ → ⦃ Numeric T₂ ⦄ →  ⟨ Ξ ∣ Δ ⟩⊢ty ★
+UInteger[<= # n ] ⋈⟨ _∙_ ⟩ UInteger[<= # m ] = UInteger[<= # (n ∙ m) ]
+UInteger[<= _   ] ⋈⟨ _∙_ ⟩ Field             = Field
+Field             ⋈⟨ _∙_ ⟩ UInteger[<= _ ]   = Field
+Field             ⋈⟨ _∙_ ⟩ Field             = Field
+ 
 -- Signatures of callable identifiers in the context 
 record Callable (Ξ : DeclContext) (Δ : TypeContext) : Set where
   constructor callable 
   field
     Δᶜ      : List Kind 
-    T∗      : List (∃ λ k → ⟨ Ξ ∣ Δᶜ ++ Δ ⟩⊢ty k)
-    Tᴿ      : ⟨ Ξ ∣ Δ ⟩⊢ty ★ 
+    T∗      : List (⟨ Ξ ∣ Δᶜ ++ Δ ⟩⊢ty ★)
+    Tᴿ      : ⟨ Ξ ∣ Δᶜ ++ Δ ⟩⊢ty ★ 
 
-open Callable 
+open Callable public
 
 variable κ κ₁ κ₂ κ₃ κ′ : Callable Ξ Δ
          𝓌 𝓌₁ 𝓌₂ 𝓌₃ 𝓌′ : Callable Ξ Δ 
 
-Context : DeclContext → TypeContext → Set
-Context Ξ Δ = List ( ⟨ Ξ ∣ Δ ⟩⊢ty ★ )
+Variables : DeclContext → TypeContext → Set
+Variables Ξ Δ = List ( ⟨ Ξ ∣ Δ ⟩⊢ty ★ )
 
 Circuits : DeclContext → TypeContext → Set
 Circuits Ξ Δ = List (Callable Ξ Δ)
@@ -150,8 +165,36 @@ Circuits Ξ Δ = List (Callable Ξ Δ)
 Witnesses : DeclContext → TypeContext → Set
 Witnesses Ξ Δ = List (Callable Ξ Δ)
 
+record LedgerState (Ξ : DeclContext) (Δ : TypeContext) : Set where
+  field
+    members    : List ⟨ Ξ ∣ Δ ⟩⊢ld
+    kernel     : List (Callable Ξ Δ)
+    operations : ⟨ Ξ ∣ Δ ⟩⊢ld → List (Callable Ξ Δ) 
+
+open LedgerState public 
+
+UserTypes : DeclContext → TypeContext → Set
+UserTypes Ξ Δ = All (λ where 
+    enum        → ℕ
+    (struct Δ′) → List ( ⟨ Ξ ∣ Δ′ ++ Δ ⟩⊢ty ★)
+  ) Ξ 
+
 _∈′_or_ : Callable Ξ Δ → (_ _ : List (Callable Ξ Δ)) → Set
-κ ∈′ x or y = κ ∈ x ⊎ κ ∈ y 
+κ ∈′ x or y = κ ∈ x ⊎ κ ∈ y
 
-variable Γ₁ Γ₂ Γ₃ Γ Γ′ : Context Ξ Δ 
 
+record Context (Ξ : DeclContext) (Δ : TypeContext) : Set where
+  constructor _∣_∣_∣_ 
+  field
+    𝒰 : UserTypes Ξ Δ
+    𝒲 : Witnesses Ξ Δ
+    Ω : Circuits Ξ Δ
+    Λ : LedgerState Ξ Δ 
+
+variable Γ₁ Γ₂ Γ₃ Γ′ : Variables Ξ Δ 
+         𝒰₁ 𝒰₂ 𝒰₃ 𝒰′ : UserTypes Ξ Δ
+         𝒲₁ 𝒲₂ 𝒲₃ 𝒲′ : Witnesses Ξ Δ 
+         Ω₁ Ω₂ Ω₃ Ω′ : Circuits Ξ Δ
+         Λ₁ Λ₂ Λ₃ Λ′ : LedgerState Ξ Δ 
+
+open Context public 
