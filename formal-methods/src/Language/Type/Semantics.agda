@@ -10,6 +10,7 @@ open import Data.Unit
 open import Data.String using (String) renaming (_≟_ to _≟String_)
 open import Data.List.Membership.Propositional
 open import Data.Vec renaming (replicate to vreplicate)
+open import Data.Sum renaming ([_,_] to ⊎[_,_])
 
 open import Relation.Nullary.Decidable
 open import Relation.Binary
@@ -56,11 +57,10 @@ module Language.Type.Semantics where
 --      get when giving types a set semantics and defining decidable equality
 --      mutually. 
 -- 
-module Types (SetI                : Set → Set)
-             (MapI                : Set → Set → Set)
-             (MerkleTreeI         : ℕ → Set → Set)
-             (HistoricMerkleTreeI : ℕ → Set → Set) where 
-
+module Types (SetI                : Set+ → Set+)
+             (MapI                : Set+ → Set+ → Set+)
+             (MerkleTreeI         : ℕ → Set+ → Set+)
+             (HistoricMerkleTreeI : ℕ → Set+ → Set+) where 
 
   ⟦_⟧decl : Decl → Set₁
   ⟦ enum     ⟧decl = ⟦ ★ ⟧ᴷ 
@@ -96,40 +96,62 @@ module Types (SetI                : Set → Set)
   zbyte = vreplicate _ false
 
   decvec : {A : Set} → DecidableEquality A → DecidableEquality (Vec A n)
-  decvec = {!!} 
+  decvec dec [] [] = yes refl
+  decvec dec (x ∷ xs) (y ∷ ys) with dec x y | decvec dec xs ys
+  ... | no ¬p    | no ¬q    = no λ where refl → ¬p refl
+  ... | no ¬p    | yes q    = no λ where refl → ¬p refl  
+  ... | yes p    | no ¬q    = no λ where refl → ¬q refl 
+  ... | yes refl | yes refl = yes refl
+
+  declist : {A : Set} → DecidableEquality A → DecidableEquality (List A)
+  declist dec []      []        = yes refl
+  declist dec []      (_ ∷ _)   = no λ()
+  declist dec (_ ∷ _) []        = no λ()
+  declist dec (x ∷ xs) (y ∷ ys) with dec x y | declist dec xs ys
+  ... | no ¬p    | no ¬q    = no λ where refl → ¬p refl
+  ... | no ¬p    | yes q    = no λ where refl → ¬p refl  
+  ... | yes p    | no ¬q    = no λ where refl → ¬q refl 
+  ... | yes refl | yes refl = yes refl
 
   mutual
 
     {- Defines the semantics of Ledger types -} 
     ⟦_⟧ᴸ : ⟨ Ξ ∣ Δ ⟩⊢ld → ⟦ Ξ ⟧dctx → ⟦ Δ ⟧tctx → ⟦ ★ ⟧ᴷ
     
-    ⟦ Counter                    ⟧ᴸ ξ δ
-      = {!!}
+    ⟦ Counter                    ⟧ᴸ ξ δ = record
+      { carrier   = ℕ
+      ; decidable = _≟ℕ_
+      ; default   = 0
+      }
 
     ⟦ Cell Tⱽ                    ⟧ᴸ ξ δ
-      = {!!}
+      = ⟦ Tⱽ ⟧ᵀ ξ δ
 
-    ⟦ SetT L                     ⟧ᴸ ξ δ
-      = {!!}
+    ⟦ SetT T                     ⟧ᴸ ξ δ = SetI (⟦ T ⟧ᵀ ξ δ)
 
-    ⟦ Map Tᴷ L                   ⟧ᴸ ξ δ
-      = {!!}
+    ⟦ Map Tⱽ (inj₁ L) ⟧ᴸ ξ δ
+      = MapI (⟦ Tⱽ ⟧ᵀ ξ δ) (⟦ L ⟧ᴸ ξ δ)
+    ⟦ Map Tⱽ (inj₂ T) ⟧ᴸ ξ δ
+      = MapI (⟦ Tⱽ ⟧ᵀ ξ δ) (⟦ T ⟧ᵀ ξ δ)
 
-    ⟦ ListT L                    ⟧ᴸ ξ δ
-      = {!!}
+    ⟦ ListT T                    ⟧ᴸ ξ δ = record
+      { carrier   = List (⟦ T ⟧ᵀ ξ δ .carrier)
+      ; decidable = declist (⟦ T ⟧ᵀ ξ δ .decidable)
+      ; default   = []
+      }
 
-    ⟦ MerkleTree depth L         ⟧ᴸ ξ δ
-      = {!!}
+    ⟦ MerkleTree depth T         ⟧ᴸ ξ δ
+      = MerkleTreeI (⟦ depth ⟧ᵀ ξ δ .size) (⟦ T ⟧ᵀ ξ δ)
 
-    ⟦ HistoricMerkleTree depth L ⟧ᴸ ξ δ
-      = {!!}
+    ⟦ HistoricMerkleTree depth T ⟧ᴸ ξ δ
+      = HistoricMerkleTreeI (⟦ depth ⟧ᵀ ξ δ .size) (⟦ T ⟧ᵀ ξ δ)
 
-    
+
     {- Defines the semantics of Compact types -} 
-    ⟦_⟧ᵀ : ⟨ Ξ ∣ Δ ⟩⊢ty k → ⟦ Ξ ⟧dctx → ⟦ Δ ⟧tctx → ⟦ k ⟧ᴷ
+    ⟦_⟧ᵀ : ⟨ Ξ ∣ Δ ⟩⊢ty k → ⟦ Ξ ⟧dctx → ⟦ Δ ⟧tctx    → ⟦ k ⟧ᴷ
 
     ⟦ · L              ⟧ᵀ ξ δ
-      = ⟦ L ⟧ᴸ ξ δ
+      = ⟦ L ⟧ᴸ ξ δ -- This defines a pass-by-value semantics. Should be pass-by-reference? 
 
     ⟦ # n              ⟧ᵀ ξ δ
       = record { size = n }
