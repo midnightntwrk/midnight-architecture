@@ -13,6 +13,7 @@ node "PubSub-Indexer" {
   component "Events Source" as events_source
 
   component Indexer {
+    component "Zswap Indexer" as zswap_indexer
     component "Chain Indexer" as chain_indexer
     component "Wallets Indexer" as wallets_indexer
 
@@ -23,9 +24,11 @@ node "PubSub-Indexer" {
     chain_indexer --> events_source_indexer_port
     chain_indexer --> pub_sub_indexer_port
     wallets_indexer --> pub_sub_indexer_port
+    zswap_indexer --> pub_sub_indexer_port
 
     chain_indexer --> persistence_indexer_port
     wallets_indexer --> persistence_indexer_port
+    zswap_indexer --> persistence_indexer_port
 
     pub_sub_indexer_port -[hidden]-- persistence_indexer_port
   }
