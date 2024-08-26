@@ -26,12 +26,13 @@ mutual
   
   substituteᴸ σ Counter                   = Counter
   substituteᴸ σ (Cell T)                  = Cell (substituteᵀ σ T)
-  substituteᴸ σ (SetT T)                  = SetT (substituteᴸ σ T)
-  substituteᴸ σ (Map Tᴷ Tⱽ)               = Map (substituteᵀ σ Tᴷ) (substituteᴸ σ Tⱽ)
-  substituteᴸ σ (ListT T)                 = ListT (substituteᴸ σ T)
-  substituteᴸ σ (MerkleTree #n T)         = MerkleTree (substituteᵀ σ #n) (substituteᴸ σ T)
+  substituteᴸ σ (SetT T)                  = SetT (substituteᵀ σ T)
+  substituteᴸ σ (Map Tᴷ (inj₁ L))         = Map (substituteᵀ σ Tᴷ) (inj₁ (substituteᴸ σ L))
+  substituteᴸ σ (Map Tᴷ (inj₂ T))         = Map (substituteᵀ σ Tᴷ) (inj₂ (substituteᵀ σ T))
+  substituteᴸ σ (ListT T)                 = ListT (substituteᵀ σ T)
+  substituteᴸ σ (MerkleTree #n T)         = MerkleTree (substituteᵀ σ #n) (substituteᵀ σ T)
   substituteᴸ σ (HistoricMerkleTree #n T) =
-    HistoricMerkleTree (substituteᵀ σ #n) (substituteᴸ σ T)
+    HistoricMerkleTree (substituteᵀ σ #n) (substituteᵀ σ T)
 
   substituteᵀ : Substitutionᵀ Ξ Δ₁ Δ₂ → ⟨ Ξ ∣ Δ₁ ⟩⊢ty k → ⟨ Ξ ∣ Δ₂ ⟩⊢ty k
   substituteᵀ σ (· L)                     = · substituteᴸ σ L 

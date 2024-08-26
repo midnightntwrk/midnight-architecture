@@ -5,6 +5,7 @@ open import Language.Type.Kind
 open import Language.Type.Subtype 
 open import Language.Type.Renaming
 open import Language.Type.Substitution
+open import Language.Type.Context
 
 open import Util.Logic
 open import Util.Ternary
@@ -14,14 +15,16 @@ open import Data.Nat using (ℕ ; _≤_ ; _+_ ; _*_)
 open import Data.String using (String)
 open import Data.List
 open import Data.List.Membership.Propositional
+open import Data.List.Membership.Propositional.Properties
 open import Data.List.Relation.Unary.All hiding (map) renaming (lookup to resolve)
+open import Data.List.Relation.Unary.Any hiding (map)
 open import Data.Product hiding (map)
 open import Data.Sum hiding (map) renaming ([_,_] to ⊎[_,_])
 open import Data.Fin using (Fin)
 
 open import Function
 
-open import Relation.Binary.PropositionalEquality using (_≡_)
+open import Relation.Binary.PropositionalEquality using (_≡_ ; refl)
 open import Relation.Unary using (IUniversal ; _⇒_ ; _⊢_ ; Satisfiable)
 
 module Language.Syntax.Expression where
@@ -31,11 +34,16 @@ module Language.Syntax.Expression where
 postulate
   strlen : String → ℕ
 
-Elem : List (⟨ Ξ ∣ Δ ⟩⊢ty ★)  → ⟨ Ξ ∣ Δ ⟩⊢ty ★ → Set 
+Elem : List (⟨ Ξ ∣ Δ ⟩⊢ty ★) → ⟨ Ξ ∣ Δ ⟩⊢ty ★ → Set 
 Elem T∗ T = T ∈ T∗
 
 data Cmp : Set where
   le ge leq geq : Cmp 
+
+fetch : struct Δ′ ∈ Ξ → Usertypes Ξ Δ → Variables Ξ (Δ′ ++ Δ)
+fetch (here refl) (T∗ , 𝒰) = rename there T∗
+fetch (there α)   (T∗ , 𝒰) = rename there (fetch α 𝒰)
+
 
 mutual 
 
@@ -103,8 +111,8 @@ mutual
     
     `new     : ( d    : struct Δ′ ∈ Ξ )
              → ( σ    : Substitutionᵀ Ξ Δ′ Δ )
-             → ( args : Substitutionᴱ ⌞ σ ⌟ 𝓒 (resolve (𝓒 .𝒰) d) Γ)
-               -----------------------------------------------------
+             → ( args : Substitutionᴱ ⌞ σ ⌟ 𝓒 (fetch d (𝓒 .𝒰)) Γ)
+               ---------------------------------------------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr (Struct d σ)
 
 
@@ -164,7 +172,7 @@ mutual
     `field    : ( d     : struct Δ′ ∈ Ξ )
               → ( σ     : Substitutionᵀ Ξ Δ′ Δ)
               → ( E     : ⟨ 𝓒 ∣ Γ ⟩⊢expr (Struct d σ) )
-              → ( mem   : T ∈ (resolve (𝓒 .𝒰) d) )
+              → ( mem   : T ∈ fetch d (𝓒 .𝒰) )
                 ---------------------------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substituteᵀ ⌞ σ ⌟ T)
 

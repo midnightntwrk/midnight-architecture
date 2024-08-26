@@ -48,26 +48,26 @@ mutual
                          ---------------------
                        → ⟨ Ξ ∣ Δ ⟩⊢ld 
 
-    SetT               : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld)
-                         -------------------
+    SetT               : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
+                         ---------------------
                        → ⟨ Ξ ∣ Δ ⟩⊢ld 
     
     Map                : (Tᴷ : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
-                       → (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld)
-                         --------------------
+                       → (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld ⊎ (⟨ Ξ ∣ Δ ⟩⊢ty ★)) 
+                         -------------------------------------
                        → ⟨ Ξ ∣ Δ ⟩⊢ld 
                         
-    ListT              : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ld)
-                         -------------------
+    ListT              : (Tⱽ : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
+                         ---------------------
                        → ⟨ Ξ ∣ Δ ⟩⊢ld
                        
     MerkleTree         : (depth : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
-                       → (Tⱽ    : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                       → (Tⱽ    : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
                          ------------------------
                        → ⟨ Ξ ∣ Δ ⟩⊢ld 
                        
     HistoricMerkleTree : (depth : ⟨ Ξ ∣ Δ ⟩⊢ty ♯)
-                       → (Tⱽ    : ⟨ Ξ ∣ Δ ⟩⊢ld)
+                       → (Tⱽ    : ⟨ Ξ ∣ Δ ⟩⊢ty ★)
                          ------------------------
                        → ⟨ Ξ ∣ Δ ⟩⊢ld   
 
@@ -142,62 +142,6 @@ UInteger[<= # n ] ⋈⟨ _∙_ ⟩ UInteger[<= # m ] = UInteger[<= # (n ∙ m) ]
 UInteger[<= _   ] ⋈⟨ _∙_ ⟩ Field             = Field
 Field             ⋈⟨ _∙_ ⟩ UInteger[<= _ ]   = Field
 Field             ⋈⟨ _∙_ ⟩ Field             = Field
- 
--- Signatures of callable identifiers in the context 
-record Callable (Ξ : DeclContext) (Δ : TypeContext) : Set where
-  constructor callable 
-  field
-    Δᶜ      : List Kind 
-    T∗      : List (⟨ Ξ ∣ Δᶜ ++ Δ ⟩⊢ty ★)
-    Tᴿ      : ⟨ Ξ ∣ Δᶜ ++ Δ ⟩⊢ty ★ 
-
-open Callable public
-
-variable κ κ₁ κ₂ κ₃ κ′ : Callable Ξ Δ
-         𝓌 𝓌₁ 𝓌₂ 𝓌₃ 𝓌′ : Callable Ξ Δ 
-
-Variables : DeclContext → TypeContext → Set
-Variables Ξ Δ = List ( ⟨ Ξ ∣ Δ ⟩⊢ty ★ )
-
-Circuits : DeclContext → TypeContext → Set
-Circuits Ξ Δ = List (Callable Ξ Δ)
-
-Witnesses : DeclContext → TypeContext → Set
-Witnesses Ξ Δ = List (Callable Ξ Δ)
-
-record LedgerState (Ξ : DeclContext) (Δ : TypeContext) : Set where
-  field
-    members    : List ⟨ Ξ ∣ Δ ⟩⊢ld
-    kernel     : List (Callable Ξ Δ)
-    operations : ⟨ Ξ ∣ Δ ⟩⊢ld → List (Callable Ξ Δ) 
-
-open LedgerState public 
-
-UserTypes : DeclContext → TypeContext → Set
-UserTypes Ξ Δ = All (λ where 
-    enum        → ℕ
-    (struct Δ′) → List ( ⟨ Ξ ∣ Δ′ ++ Δ ⟩⊢ty ★)
-  ) Ξ 
-
-_∈′_or_ : Callable Ξ Δ → (_ _ : List (Callable Ξ Δ)) → Set
-κ ∈′ x or y = κ ∈ x ⊎ κ ∈ y
-
-
-record Context (Ξ : DeclContext) (Δ : TypeContext) : Set where
-  constructor _∣_∣_∣_ 
-  field
-    𝒰 : UserTypes Ξ Δ
-    𝒲 : Witnesses Ξ Δ
-    Ω : Circuits Ξ Δ
-    Λ : LedgerState Ξ Δ 
-
-variable Γ₁ Γ₂ Γ₃ Γ′ : Variables Ξ Δ 
-         𝒰₁ 𝒰₂ 𝒰₃ 𝒰′ : UserTypes Ξ Δ
-         𝒲₁ 𝒲₂ 𝒲₃ 𝒲′ : Witnesses Ξ Δ 
-         Ω₁ Ω₂ Ω₃ Ω′ : Circuits Ξ Δ
-         Λ₁ Λ₂ Λ₃ Λ′ : LedgerState Ξ Δ 
-
-open Context public 
 
 data Castable {Ξ} {Δ} : (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → Set where
   field→field : Castable Field Field

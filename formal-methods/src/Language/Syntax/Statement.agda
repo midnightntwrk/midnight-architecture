@@ -5,6 +5,7 @@ open import Language.Type.Kind
 open import Language.Type.Subtype 
 open import Language.Type.Renaming
 open import Language.Type.Substitution
+open import Language.Type.Context 
 
 open import Language.Syntax.Expression 
 
