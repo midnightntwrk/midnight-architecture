@@ -4,7 +4,6 @@ open import Data.Unit
 open import Data.Product hiding (map)
 open import Data.Sum hiding (map) renaming ([_,_] to ⊎[_,_])
 open import Data.List.Membership.Propositional
-open import Data.List.Relation.Unary.Any
 
 open import Language.Type.Base 
 open import Language.Type.Kind 
