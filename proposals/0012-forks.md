@@ -402,6 +402,29 @@ Since wallet software is the gateway to Midnight network, it is connected to all
 
 If contract kernel is introduced, it becomes a more natural target than wallet to provide such functionality.
 
+### Supporting (long-running) state migrations
+
+In order to allow ledger to evolve its state with updates, ledger's version `N+1` needs to export a function to convert state from version `N`. In most cases this function is expected to finish near-instantly, which makes it suitable to run as part of regular on-runtime-upgrade hook - as is the standard practice in Substrate ecosystem.
+
+Making Snark upgrades possible involves potential cases, where very expensive state migrations will be needed, with two cases expected to be quite possible and demanding at the same time:
+- iterating over all contracts to perform state migration
+- re-hashing zswap commitment tree (expected to take around 12h to re-hash a tree containing 1 billion of commitments)
+
+They are meant to be addressed through the means of staged rollout, similarly to how data migrations are performed in web2 systems:
+1. Starting point, ledger version `N` is used exclusively
+2. An upgrade is performed, which includes ledger version `N+0.5`:
+   1. This ledger version executes transaction under rules of version `N`
+   2. This ledger version allows to migrate state to one compatible with version `N+1` in a small, controlled batches
+   3. This ledger version tracks the progress of migration and exposes a queryable API to do so. It is likely that performed transactions would require performing state migrations again (either because of changed contents or need to keep up), tracking progress needs to take that into account, so that there are not leftover pieces of state left at the last block before next upgrade. 
+   4. Runtime can schedule running a single batch migration with every block - so that state migration is effectively performed on-chain, in a manner suitable for both synced nodes, and ones in the process of catching up with the network 
+3. Once migration is found to be completed, another upgrade is performed, which updates ledger to version `N+1`, and can finish off state migration in a cheap way by discarding not-needed data
+
+It is acknowledged, that with this approach, there will be certain data redundancies, but at any point in time - only one copy will the one affected by transactions, thus many possible complications for ledger code are greatly limited and contained only to managing progress and ensuring state consistency at the moment of upgrade to version `N+1`.
+
+Two other approaches were briefly considered, but they raise serious issues, which make them not advised as a general case:
+1. To perform all state migrations in the on-runtime-upgrade hook. In the worst case it would cause a multi-hour network stall, which is not acceptable.
+2. To perform state migrations lazily after upgrade to ledger `N+1`, e.g. as part of regular tx application. There are situations, when this approach may be viable (e.g. for contract state migration), though it is found unfeasible for re-hashing zswap commitment tree. It is also recognized, that such approach might significantly complicate ledger code, to effectively support multiple versions of data at the same time.   
+
 ## Desired Result
 
 As per related [PRD](https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5dTdXsixIu9kXctHFpCneQ/edit?usp=sharing), the desired result is as follows:
