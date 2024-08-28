@@ -2,7 +2,7 @@
 
 node "Node"
 
-node "PubSub-Indexer" {
+node "Indexer deployment" {
   portin "Node API - WS + HTTP" as node_api
   portout "GraphQL API - WS + HTTP" as graphql_api_port
 

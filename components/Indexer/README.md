@@ -1,8 +1,9 @@
 # Indexer
 
-https://github.com/input-output-hk/midnight-pubsub-indexer
+Original, Scala implementation: https://github.com/input-output-hk/midnight-pubsub-indexer
+New, Rust implementation: https://github.com/input-output-hk/midnight-indexer
 
-The PubSub-Indexer is a component meant to optimize the flow of data from the node to the end users'
+The Indexer is a component meant to optimize the flow of data from the node to the end users'
 applications. Because nodes aren't designed to support such clients, they only store the raw blocks
 of transactions and the most updated ledger state, so user applications would have to retrieve the
 whole history of blocks just to find the ones that are of interest.
@@ -16,7 +17,7 @@ they should be aware of.
 
 ## Operating Environment
 
-In principle, PubSub Indexer is meant to run in two kinds of environments:
+In principle, Indexer is meant to run in two kinds of environments:
 - desktops, which require minimum amount of preparation and configuration in order to run the component at all
 - cloud/server deployments, where setup that supports high availability is needed and high load of queries can be handled
 
@@ -27,7 +28,7 @@ Possibly any _desktop_ operating system may be used, with the most popular being
 
 ## Neighbors & API Dependencies
 
-There are at least, but not limited to, 3 types of clients of the PubSub-Indexer:
+There are at least, but not limited to, 3 types of clients of the Indexer:
 
 1. Wallets
 2. dApps
@@ -35,7 +36,7 @@ There are at least, but not limited to, 3 types of clients of the PubSub-Indexer
 
 All depend on Indexer's GraphQL API.
 
-And there is one source from where the PubSub-Indexer pulls the blocks, which is at least
+And there is one source from where the Indexer pulls the blocks, which is at least
 one [node](missing_documentation).
 
 Apart from these - an important API dependency is ZSwap one - to allow indexing wallet data.
@@ -50,7 +51,8 @@ DApps are all about contracts, and so they need to know when a contract's state 
 
 ### Block explorers
 
-A block explorer will typically allow users to find blocks by their hash or height, find transactions by hash, or get a contract state by address. PubSub-Indexer allows for simply doing these kind of queries and getting an immediate response.
+A block explorer will typically allow users to find blocks by their hash or height, find transactions by hash, or get a contract state by address. 
+Indexer allows for simply doing these kind of queries and getting an immediate response.
 
 ### Midnight Node
 
@@ -121,7 +123,7 @@ This component offers clients to issue commands (called _mutations_ in GraphQL j
 
 ## Deployments
 
-As mentioned in the [Operating Environment](#operating-environment) section, PubSub Indexer is meant to be used in 2 environments, which have different needs in terms of amount of configuration needed, failure modes or recovery.
+As mentioned in the [Operating Environment](#operating-environment) section, Indexer is meant to be used in 2 environments, which have different needs in terms of amount of configuration needed, failure modes or recovery.
 
 ### Local
 
@@ -174,7 +176,7 @@ _TODO: Move these to apis and common types with proper descriptions_
 
 #### GraphQL
 
-Defined in https://github.com/input-output-hk/midnight-pubsub-indexer/blob/main/api/src/main/resources/pubsub_indexer_v0.graphql
+Defined in https://github.com/input-output-hk/midnight-pubsub-indexer/blob/main/api/src/main/resources/pubsub_indexer_v1.graphql
 
 It includes 3 major parts:
   - blockchain and state queries &mdash; stateless request&mdash;response API

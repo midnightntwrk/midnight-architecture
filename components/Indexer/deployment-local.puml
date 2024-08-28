@@ -1,7 +1,7 @@
 @startuml
 
 node Node as node
-node "PubSub Indexer\nSingle Process" as pub_sub_indexer {
+node "Indexer\nSingle Process" as pub_sub_indexer {
   port "GraphQL API Port" as graphql_api_port
   portout "Node API Port" as node_api_port
 
