@@ -7,25 +7,60 @@ full details of their workings.
 ## Unshielded tokens, basics
 
 We construct an unshielded UTXO token set, for Night, extensible to other token
-types. Let:
+types. UTXOs, or unspent transaction outputs, are data recording inividual
+transaction outputs, each having a value and an owner. As we are extending
+these with token types, they also have an associated token type in our model.
+
+### Preliminaries
+
+To start with, we define some basic types. Note that Midnight uses SHA-256 as
+its primary hash function. To simplify in this spec, we will assume that all
+data is hashable. We make the hash's output type `Hash<T>` parametric over the
+input type `T`, to capture structurally which data is used to produce which
+outputs. `...` signals that a part goes beyond the scope of this spec.
+
+We then define:
 
 ```rust
-type Hash<T> = [u8; 32];
+type Hash<T> = [u8; 32]; // The SHA-256 output block
 
+// Contract address derivation is beyond the scope of this document, aside from
+// it being a hash.
 type ContractAddress = Hash<...>;
-type TokenType = Hash<(ContractAddress, Hash<()>)>;
 
+// Each contract address can issue multiple token types, each having a 256-bit
+// domain separator
+type TokenType = Hash<(ContractAddress, [u8; 32])>;
+
+// NIGHT is a `TokenType`, but it is *not* a hash output, being defined as zero.
 const NIGHT: TokenType = [0u8; 32];
+```
 
+We also need to assume public key cryptography. We use Schnorr over Secp256k1,
+as specified in [BIP 340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
+
+```rust
 type SigningKey = secp256k1::Scalar;
 type VerifyingKey = secp256k1::Point;
 type Signature = secp256k1::schnorr::Signature;
+```
 
+### Building UTXOs
+
+We define the basic structure of an individual UTXO, define the data for
+creating a new UTXO output, which is just the UTXO itself, and for spending a
+UTXO. The latter acts not just as a standalone transaction part, but
+encompasses other data – this is because a spend comes with conditions on what
+it is used for. Defining the composition of these is beyond this document.
+Finally, the state maintained for UTXOs at any time is simply a set of all
+UTXOs.
+
+```rust
 struct Utxo {
     value: u128,
     owner: Hash<VerifyingKey>,
     type_: TokenType,
-    nonce: Hash<()>,
+    nonce: [u8; 32],
 }
 
 type UtxoOutput = Utxo;
@@ -39,17 +74,44 @@ struct UtxoSpend<T> {
 }
 
 struct UtxoState {
-    utxos: Utxo,
+    utxos: Set<Utxo>,
 }
 ```
 
-Essentially, a transaction would consist of a chain of `UtxoSpend<T>`, where
-`T` would be a fragment containing either more `UtxoSpend`s, or `UtxoOutput`s,
-and contract interactions. This would have to be balanced in that the sum of
-the spends must be greater than or equal to the sum of the outputs. The effect
-would be the removal of each of the spends from the `UtxoState` (which must be
-unique and present), and the insertion of the outputs into the `UtxoState`
-(which must be unique and *not* present).
+A transaction would consist of a chain of `UtxoSpend<T>`, where `T` would be a
+fragment containing either more `UtxoSpend`s, or `UtxoOutput`s, and contract
+interactions. This would have to be balanced in that the sum of the spends must
+be greater than or equal to the sum of the outputs. The effect would be the
+removal of each of the spends from the `UtxoState` (which must be unique and
+present), and the insertion of the outputs into the `UtxoState` (which must be
+unique and *not* present). Note that transactions will be fully defined
+elsewhere.
+
+### Faerie dust, atomic exchange, and replay protection
+
+One thing of note is the presence of the `nonce` field above. Any UTXO system
+needs to disambiguate different UTXOs of the same value, owned by the same
+key. Typically, UTXOs are disambiguated by the originating transaction's hash,
+and the output number in this transaction. Importantly, these are both
+guaranteed to be unique: If the inputs are unique, and can only be spent once,
+the transaction's hash must also be unique. This directly prevents replay
+attacks, as any replayed transaction will attempt to double-spend UTXOs that
+have already been spent, and cannot be re-created. As all transaction must pay
+for fees, and must be balanced, all transactions must have at least one input
+UTXO.
+
+This approach is directly incompatible with intents however, that is,
+transactions which are not necessarily balanced. Crucially, we do envision use
+cases where transactions have no unshielded inputs. While our fee payments
+could be designed to also prevent replays in isolation, we also envision use
+cases where a user does not directly cover their fees, but relies on a
+third-party to do so. It is therefore entirely possible for users to create
+outputs *with no corresponding inputs*, and for this to be legitimate.
+
+As a result, we instead rely on a user-selected nonce, with the caveat that
+this can lead to replay attacks and loops: 
+
+FIXME: on no, can we even prevent the replays?
 
 ## Dust
 
