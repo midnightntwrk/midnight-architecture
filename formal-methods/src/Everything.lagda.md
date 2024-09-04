@@ -7,22 +7,6 @@ contracts.
 module Everything where
 ```
 
-## Impact VM 
-
-The following modules contain a (partial) formalizaiton of the Impact VM, based
-on it's
-[documentation](https://github.com/input-output-hk/midnight-architecture/tree/main/apis-and-common-types/onchain-runtime). 
-
-```agda 
-open import Runtime.Type
-open import Runtime.Stack
-open import Runtime.Path
-open import Runtime.Cost 
-open import Runtime.Instruction
-open import Runtime.Semantics 
-open import Runtime.Sequence
-```
-
 ## Compact Language
 
 The following modules contain a WIP formalization of Compact, based on the
@@ -36,7 +20,7 @@ types, and subtype witnesses.
 ```agda
 open import Language.Type.Kind     -- Kind syntax
 open import Language.Type.Base     -- Well-kinded types
-open import Language.Type.Subtype  -- Subtyping 
+open import Language.Type.Subtype  -- Subtyping
 ```
 
 ### Substitution and Renaming
@@ -87,16 +71,64 @@ type `T`" and "a term with a subtype of `T`".
 We use this to express well-typedness of constructs where sub-terms may
 automatically be casted to a supertype. For example, in the statement `return
 E`, the expression `E` may have any type that is a sub-type of the type returned
-by the current circuit definition.
+by the current circuit definition. 
 
 ```agda
 open import Language.Syntax.Expression
 open import Language.Syntax.Statement
--- open import Language.Syntax.Module
+open import Language.Syntax.Module
 ```
 
 ### Semantics
 
 ```agda
 open import Language.Type.Semantics
+```
+
+## Impact VM 
+
+The following modules contain a (partial) formalizaiton of the Impact VM, based
+on it's
+[documentation](https://github.com/input-output-hk/midnight-architecture/tree/main/apis-and-common-types/onchain-runtime). 
+
+```agda 
+open import Runtime.Type
+open import Runtime.Stack
+open import Runtime.Path
+open import Runtime.Cost 
+open import Runtime.Instruction
+open import Runtime.Semantics 
+open import Runtime.Sequence
+```
+
+## Experiments 
+
+### Mutable references 
+
+The following demonstrates how adding first-class circuits to Compact could
+inadvertently make the language Turing comple by encoding general recursion with
+Landin's knot (back-patching). Even when disallowing dynamic allocation of
+ledger fields.
+
+```agda
+open import Experiment.Ref
+```
+
+The following file contains a (wip) experiment where we stratify the store,
+enforcing a linear structure on the store that disallows store cells containing
+closures to contain references that (indirectly) refer to the closure
+itself. Terms typed w.r.t. a stratified store are strongly normalizing. 
+
+```agda
+open import Experiment.PredicativeRef 
+```
+
+### Compiling to circuits
+
+The following file contains a proof-of-concept for how to compile expressions to
+(typed) circuits, and contains a proof that circuits encode the intended
+semantics. 
+
+```agda 
+open import Experiment.Circuit
 ```
