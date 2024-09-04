@@ -81,9 +81,15 @@ open import Language.Syntax.Module
 
 ### Semantics
 
+Defines a (skeleton of a) semantics for compact types in terms of pointed sets with decidable
+equality. 
+
 ```agda
 open import Language.Type.Semantics
 ```
+
+In this setting, subtyping would be interpreted as section/retraction pairs
+between the interpretation of the sub resp. super type.  
 
 ## Impact VM 
 
@@ -117,7 +123,8 @@ open import Experiment.Ref
 The following file contains a (wip) experiment where we stratify the store,
 enforcing a linear structure on the store that disallows store cells containing
 closures to contain references that (indirectly) refer to the closure
-itself. Terms typed w.r.t. a stratified store are strongly normalizing. 
+itself. Terms typed w.r.t. a stratified store are strongly normalizing
+(conjecture atm, but looks probable). 
 
 ```agda
 open import Experiment.PredicativeRef 
