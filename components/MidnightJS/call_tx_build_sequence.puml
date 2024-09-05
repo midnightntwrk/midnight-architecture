@@ -1,0 +1,69 @@
+@startuml
+skinparam titleFontSize 25
+
+title Midnight.js Call Transaction Creation
+
+actor UI
+
+participant Midnight.js
+participant Indexer
+database PrivateStore as "Private Store"
+participant Impact as "Impact Runtime"
+participant Runtime as "Compact Runtime"
+participant Ledger
+participant ProofServer as "Proof Server"
+participant Wallet
+participant Node
+participant Consensus
+
+
+UI -> Midnight.js: submitCallTx(addr, contract, circuitId, args)
+
+Midnight.js -> Indexer: getPublicState(addr)
+Midnight.js <-- Indexer: publicState
+
+Midnight.js -> PrivateStore: getPrivateState(addr)
+Midnight.js <-- PrivateStore: privateState
+
+Midnight.js -> Impact: createQueryContext(addr, circuitId, publicState)
+Midnight.js <-- Impact: queryContext
+
+Midnight.js -> Runtime: createCircuitContext(addr, circuitId, queryContext, privateState)
+Midnight.js <-- Runtime: circuitContext
+
+Midnight.js -> Midnight.js: circuitResult = contract.circuitId(circuitContext, args)
+
+Midnight.js -> Ledger: createUnprovenTx(circuitResult)
+Midnight.js <-- Ledger: unprovenTx
+
+Midnight.js -> PrivateStore: getZKArtifacts(circuitId)
+Midnight.js <-- PrivateStore: zkArtifacts
+
+Midnight.js -> ProofServer: proveTx(unprovenTx, zkArtifacts)
+Midnight.js <-- ProofServer: provenTx
+
+Midnight.js -> Wallet: balanceTx(provenTx)
+Midnight.js <-- Wallet: balancedTx
+
+Midnight.js -> Wallet: submitTx(balancedTx)
+Midnight.js <-- Wallet: txId
+
+par
+    Wallet -> Node: submitTx(balancedTx)
+    Node -> Node: block = createBlock(balancedTx)
+    Node -> Consensus: submitBlock(block)
+else
+    Node <- Consensus: finalizedBlock
+else
+    Indexer <- Node: finalizedBlock
+else
+    Midnight.js -> Indexer: watchForTx(txId)
+    Midnight.js <-- Indexer: finalizedTx
+end
+
+Midnight.js -> PrivateStore: setPrivateState(circuitResult.nextPrivateState)
+
+UI <-- Midnight.js: finalizedTx
+
+
+@enduml

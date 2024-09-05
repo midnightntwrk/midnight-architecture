@@ -1,0 +1,73 @@
+@startuml
+skinparam titleFontSize 25
+
+title Midnight.js Deployment Diagram
+
+node "Client Device" <<device>> {
+    node Browser <<EE>> {
+        database "Private Store"
+        artifact "Web Page" as WP {
+            artifact Contract
+            artifact Witnesses
+            artifact "UI Components" as UC
+            folder "ZK Artifacts" {
+                folder "Prover Keys"
+                folder "Verifier Keys"
+                folder ZKIR
+            }
+        }
+        artifact MidnightJS {
+            artifact Contracts
+            artifact PublicDataProvider
+            artifact PrivateDataProvider
+            artifact ZKConfigProvider
+            artifact WalletProvider
+            artifact NodeProvider
+            artifact ProofProvider
+        }
+        node Extensions <<EE>> {
+            component "Lace Wallet" as LW {
+                artifact Wallet
+            }
+        }
+        artifact DappConnector
+        artifact Ledger
+        artifact "Compact Runtime" as CR
+        artifact "Impact Runtime" as IR
+    }
+    component "Proof Server" as PS {
+    }
+    artifact compactc {
+    }
+}
+
+node Indexer <<device>>
+node "Substrate Node" <<device>> as SN
+
+
+Contract --> Witnesses
+UC --> Contract
+UC --> MidnightJS
+Contracts -> PublicDataProvider
+Contracts --> PrivateDataProvider
+Contracts --> ZKConfigProvider
+Contracts --> WalletProvider
+Contracts --> NodeProvider
+Contracts --> ProofProvider
+Contracts --> Ledger
+Contracts --> CR
+IR <-u- CR
+LW --> Indexer
+
+Ledger --> IR
+compactc -[dashed]-> Contract: produces
+NodeProvider --> DappConnector
+WalletProvider --> DappConnector
+LW <-u- DappConnector
+PublicDataProvider --> Indexer
+SN <-u- Indexer
+SN --> Ledger
+PrivateDataProvider --> "Private Store"
+ProofProvider -d-> PS
+ZKConfigProvider --> "ZK Artifacts"
+@enduml
