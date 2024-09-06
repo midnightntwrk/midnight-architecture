@@ -150,9 +150,9 @@ module Types (SetI                : Set+ → Set+)
 
 
     {- Defines the semantics of Compact types -} 
-    ⟦_⟧ᵀ : ⟨ Ξ ∣ Δ ⟩⊢ty k → ⟦ Ξ ⟧dctx → ⟦ Δ ⟧tctx    → ⟦ k ⟧ᴷ
+    ⟦_⟧ᵀ : ⟨ Ξ ∣ Δ ⟩⊢ty k → ⟦ Ξ ⟧dctx → ⟦ Δ ⟧tctx → ⟦ k ⟧ᴷ
 
-    ⟦ · L              ⟧ᵀ ξ δ
+    ⟦ · L              ⟧ᵀ ξ δ  
       = ⟦ L ⟧ᴸ ξ δ -- This defines a pass-by-value semantics. Should be pass-by-reference!? 
 
     ⟦ # n              ⟧ᵀ ξ δ

@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-} 
+
 open import Language.Type.Base
 open import Language.Type.Kind
 open import Language.Type.Context
@@ -10,15 +12,25 @@ open import Data.Product hiding (map)
 open import Data.List.Membership.Propositional
 open import Data.Sum hiding (map) renaming ([_,_] to ⊎[_,_])
 open import Data.List.Membership.Propositional.Properties
+open import Data.List.Relation.Unary.All renaming (map to map-all)
 
 open import Function
+open import Level 
 
 module Language.Type.Renaming where
 
-Renaming : ∀ {a} → {A : Set a} → (Δ₁ Δ₂ : List A) → Set a
-Renaming xs ys = ∀[ (_∈ xs) ⇒ (_∈ ys) ]
+record Ctx {ℓ} (K : Set ℓ → Set ℓ) : Set (suc ℓ) where
+  field Mem : ∀ {A} → K A → A → Set ℓ
 
-record Rename {a} {A : Set a} (F : List A → Set) : Set a where
+open Ctx ⦃...⦄ public 
+
+Renaming : ∀ {ℓ K A} → ⦃ Ctx {ℓ} K ⦄ → (Δ₁ Δ₂ : K A) → Set ℓ
+Renaming fx fy = ∀[ Mem fx ⇒ Mem fy ]
+
+instance list-ctx : ∀ {ℓ} → Ctx {ℓ} List
+list-ctx .Mem xs x = x ∈ xs
+
+record Rename {ℓ K A} ⦃ _ : Ctx {ℓ} K ⦄ (F : K A → Set) : Set ℓ where
   field
     rename : ∀ {xs ys} → Renaming xs ys → F xs → F ys 
 
@@ -116,14 +128,27 @@ renameΞ-lstate .rename ρ Λ .members    = map (rename ρ) (Λ .members)
 renameΞ-lstate .rename ρ Λ .kernel     = Λ .kernel
 renameΞ-lstate .rename ρ Λ .operations = Λ .operations 
 
-instance renameΔ-utypes : Rename (Usertypes Ξ)
-renameΔ-utypes {[]}           .rename      ρ tt       = tt
-renameΔ-utypes {enum ∷ _}     .rename {xs} ρ (n , 𝒰)  = n , rename ρ 𝒰
-renameΔ-utypes {struct _ ∷ _} .rename {xs} ρ (T∗ , 𝒰) =
-  map (rename (⊎[ ∈-++⁺ˡ , ∈-++⁺ʳ _ ∘ ρ ] ∘ ∈-++⁻ _)) T∗ , rename ρ 𝒰
+instance renameΔ-utype : Rename (λ Δ → Usertype Ξ Δ d)
+renameΔ-utype {d = enum}      .rename ρ U = U
+renameΔ-utype {d = struct Ts} .rename ρ U = map (rename ρ′) U
+   where
+     ρ′ : Renaming _ _
+     ρ′ = (⊎[ ∈-++⁺ˡ , ∈-++⁺ʳ _ ∘ ρ ] ∘ ∈-++⁻ _)
 
+instance renameΞ-utype : Rename λ Ξ → Usertype Ξ Δ d
+renameΞ-utype {d = enum}      .rename ρ U = U
+renameΞ-utype {d = struct Ts} .rename ρ U = map (rename ρ) U
+
+instance renameΔ-utypes : Rename (Usertypes Ξ)
+renameΔ-utypes .rename ρ = map-all (rename ρ) 
+-- 
+-- instance renameΞ-utypes : Rename (λ Ξ → Usertypes Ξ Δ)
+-- renameΞ-utypes .rename ρ [] = {!!}
+-- renameΞ-utypes .rename ρ (px ∷ x) = {!!}
+-- 
 instance renameΔ-ctx : Rename (Context Ξ)
 renameΔ-ctx .rename ρ 𝓒 .𝒰 = rename ρ (𝓒 .𝒰) 
 renameΔ-ctx .rename ρ 𝓒 .𝒲 = rename ρ (𝓒 .𝒲)
 renameΔ-ctx .rename ρ 𝓒 .Ω = rename ρ (𝓒 .Ω)
 renameΔ-ctx .rename ρ 𝓒 .Λ = rename ρ (𝓒 .Λ) 
+

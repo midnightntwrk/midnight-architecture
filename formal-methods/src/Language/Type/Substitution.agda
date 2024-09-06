@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-} 
+
 open import Language.Type.Base
 open import Language.Type.Renaming 
 open import Language.Type.Kind 
@@ -9,7 +11,6 @@ open import Data.List
 open import Data.List.Membership.Propositional 
 open import Data.List.Membership.Propositional.Properties 
 open import Data.List.Relation.Unary.Any hiding (map)
-
 
 open import Relation.Unary using (IUniversal ; _⇒_ ; _⊢_) 
 open import Relation.Binary.PropositionalEquality

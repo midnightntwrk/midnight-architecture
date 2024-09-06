@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-} 
+
 open import Data.Nat 
 open import Data.Nat.Properties 
 
@@ -29,9 +31,17 @@ data _⊑_ {Ξ} {Δ} : ∀ {k} → (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty k) → Se
               -----------
             → # n₁ ⊑ # n₂  
 
-  ⊑-uint    : #m ⊑ #m 
+  ⊑-uint₁   : #n ⊑ #m 
               -----------------------------------
             → UInteger[<= #n ] ⊑ UInteger[<= #m ]
+
+  ⊑-uint₂   : #n ⊑ #m
+              -------------------------------
+            → UInteger[ #n ] ⊑ UInteger[ #m ] 
+
+  ⊑-bytes   : #n ⊑ #m
+              -------------------------
+            → Bytes[ #n ] ⊑ Bytes[ #m ] 
 
   ⊑-field   : UInteger[<= #n ] ⊑ Field  
 
@@ -39,6 +49,7 @@ data _⊑_ {Ξ} {Δ} : ∀ {k} → (T₁ T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty k) → Se
             → T₁ ⊑ T₂
               -------------------------------------
             → Vector[ #n , T₁ ] ⊑ Vector[ #m , T₂ ]
+
 
 instance ≲-type : HasRel₂ (⟨ Ξ ∣ Δ ⟩⊢ty k) _
 HasRel₂._≲_ ≲-type = _⊑_

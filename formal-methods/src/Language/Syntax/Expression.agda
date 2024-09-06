@@ -1,4 +1,4 @@
-{-# OPTIONS --overlapping-instances #-} 
+{-# OPTIONS --overlapping-instances --safe #-} 
 
 open import Language.Type.Base
 open import Language.Type.Kind
@@ -31,24 +31,19 @@ module Language.Syntax.Expression where
 
 -- Assume we have a way to calculate the length of a string literal, in terms of
 -- the number of bytes of its UTF-8 encoding
-postulate
-  strlen : String → ℕ
+strlen : String → ℕ
+strlen _ = 0 
 
 Elem : List (⟨ Ξ ∣ Δ ⟩⊢ty ★) → ⟨ Ξ ∣ Δ ⟩⊢ty ★ → Set 
 Elem T∗ T = T ∈ T∗
 
 data Cmp : Set where
-  le ge leq geq : Cmp 
-
-fetch : struct Δ′ ∈ Ξ → Usertypes Ξ Δ → Variables Ξ (Δ′ ++ Δ)
-fetch (here refl) (T∗ , 𝒰) = rename there T∗
-fetch (there α)   (T∗ , 𝒰) = rename there (fetch α 𝒰)
-
+  lt gt leq geq : Cmp 
 
 mutual 
 
-  Substitutionᴱ : (σ : Substitution Δ₁ Δ₂) → (𝓒 : Context Ξ Δ₂) → (Γ₁ : Variables Ξ Δ₁) (Γ₂ : Variables Ξ Δ₂) → Set
-  Substitutionᴱ σ 𝓒 Γ₁ Γ₂ = ∀[ Elem Γ₁ ⇒ substitute σ ⊢ ◇ ⟨ 𝓒 ∣ Γ₂ ⟩⊢expr ]
+  Substitutionᴱ : (σ : Substitution Δ₁ Δ₂) → (F : ⟨ Ξ ∣ Δ₂ ⟩⊢ty ★ → ⟨ Ξ ∣ Δ₂ ⟩⊢ty ★) → (𝓒 : Context Ξ Δ₂) → (Γ₁ : Variables Ξ Δ₁) (Γ₂ : Variables Ξ Δ₂) → Set
+  Substitutionᴱ σ F 𝓒 Γ₁ Γ₂ = ∀[ Elem Γ₁ ⇒ substitute σ ⊢ ◇ (F ⊢ ⟨ 𝓒 ∣ Γ₂ ⟩⊢expr) {- ⟨ 𝓒 ∣ Γ₂ ⟩⊢expr -} ]
 
   infix 4 ⟨_∣_⟩⊢expr
   data ⟨_∣_⟩⊢expr (𝓒 : Context Ξ Δ) (Γ : Variables Ξ Δ) : (T : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → Set where
@@ -58,21 +53,21 @@ mutual
     ------------------
 
     `bool    : ( x : Bool )
-               -----------------------
-             → ⟨ 𝓒 ∣ Γ ⟩⊢expr Boolean
+               ----------------------
+             → ⟨ 𝓒 ∣ Γ ⟩⊢expr Boolean  
 
     `num     : ( n : ℕ )
-               ---------------------------------
+               --------------------------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr UInteger[<= # n ]
 
     `str     : ( s : String )
-               -----------------------------------
+               ----------------------------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr Bytes[ # strlen s ]  
 
     `pad     : ( s : String )
              → ( n : ℕ )
              → strlen s ≤ n
-               ----------------------------
+               ---------------------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr Bytes[ # n ] 
 
 
@@ -81,7 +76,7 @@ mutual
     -------------------
 
     `var     : T ∈ Γ
-               -----------------
+               ----------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr T
 
 
@@ -89,9 +84,9 @@ mutual
     ---  Default values  ---
     ------------------------
 
-    `default : ( T/L : ⟨ Ξ ∣ Δ ⟩⊢ty ★ ⊎ ⟨ Ξ ∣ Δ ⟩⊢ld )
-               --------------------------------------
-             → ⟨ 𝓒 ∣ Γ ⟩⊢expr T 
+    `default : ( T : ⟨ Ξ ∣ Δ ⟩⊢ty ★ )
+               ----------------------
+             → ⟨ 𝓒 ∣ Γ ⟩⊢expr T
 
 
     -----------------------------------
@@ -100,7 +95,7 @@ mutual
     
     `call    : ( fun  : κ ∈′ 𝓒 .𝒲 or 𝓒 .Ω )
              → ( σ    : Substitution (κ .Δᶜ) Δ )
-             → ( args : Substitutionᴱ ⌞ σ ⌟ 𝓒 (κ .T∗) Γ)
+             → ( args : Substitutionᴱ ⌞ σ ⌟ id 𝓒 (κ .T∗) Γ)
                ------------------------------------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ (κ .Tᴿ))
 
@@ -111,10 +106,19 @@ mutual
     
     `new     : ( d    : struct Δ′ ∈ Ξ )
              → ( σ    : Substitution Δ′ Δ )
-             → ( args : Substitutionᴱ ⌞ σ ⌟ 𝓒 (fetch d (𝓒 .𝒰)) Γ)
-               ---------------------------------------------------
+             → ( args : Substitutionᴱ ⌞ σ ⌟ id 𝓒 (resolve (𝓒 .𝒰) d) Γ)
+               -----------------------------------------------------
              → ⟨ 𝓒 ∣ Γ ⟩⊢expr (Struct d σ)
 
+
+    -------------------------
+    --- Enum Construction ---
+    -------------------------
+
+    `enum    : ( d : enum ∈ Ξ )
+             → ( _ : Fin (resolve (𝓒 .𝒰) d))
+               ------------------------------
+             → ⟨ 𝓒 ∣ Γ ⟩⊢expr (Enum d) 
 
     -----------------------------
     ---  Vector construction  ---
@@ -144,7 +148,7 @@ mutual
   
     `kernel   : ( op   : κ ∈ 𝓒 .Λ .kernel )
               → ( σ    : Substitution (κ .Δᶜ) Δ )
-              → ( args : Substitutionᴱ ⌞ σ ⌟ 𝓒 (κ .T∗) Γ )
+              → ( args : Substitutionᴱ ⌞ σ ⌟ id 𝓒 (κ .T∗) Γ )
                 ------------------------------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ (κ .Tᴿ))
 
@@ -155,7 +159,7 @@ mutual
     `lcall    : ( E    : ⟨ 𝓒 ∣ Γ ⟩⊢expr (· L) )
               → ( op   : κ ∈ 𝓒 .Λ .operations L ) 
               → ( σ    : Substitution (κ .Δᶜ) Δ )
-              → ( args : Substitutionᴱ ⌞ σ ⌟ 𝓒 (κ .T∗) Γ )
+              → ( args : Substitutionᴱ ⌞ σ ⌟ id 𝓒 (κ .T∗) Γ )
                 ------------------------------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ (κ .Tᴿ))
 
@@ -172,7 +176,7 @@ mutual
     `field    : ( d     : struct Δ′ ∈ Ξ )
               → ( σ     : Substitution Δ′ Δ)
               → ( E     : ⟨ 𝓒 ∣ Γ ⟩⊢expr (Struct d σ) )
-              → ( mem   : T ∈ fetch d (𝓒 .𝒰) )
+              → ( mem   : T ∈ resolve (𝓒 .𝒰) d )
                 ---------------------------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ T)
 
@@ -215,7 +219,7 @@ mutual
     `nequals  : ( E₁ : ⟨ 𝓒 ∣ Γ ⟩⊢expr T₁ )
               → ( E₂ : ⟨ 𝓒 ∣ Γ ⟩⊢expr T₂ )
               → (T₁ ≲ T₂) ⊎ (T₂ ≲ T₁)
-                ---------------------------------------
+                --------------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr Boolean 
 
     -- NOTE: can operands also be typed by uint w/ fixed precision? 
@@ -238,7 +242,7 @@ mutual
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr T 
 
     `ite      : ( E   : ⟨ 𝓒 ∣ Γ ⟩⊢expr Boolean )
-                ( E₁  : ⟨ 𝓒 ∣ Γ ⟩⊢expr T₂ )
+                ( E₁  : ⟨ 𝓒 ∣ Γ ⟩⊢expr T₁ )
                 ( E₂  : ⟨ 𝓒 ∣ Γ ⟩⊢expr T₂ )
                 ( sub : T₁ ≲ T₂ ⊎ T₂ ≲ T₁ )
                 --------------------------------------------
@@ -267,18 +271,16 @@ mutual
 
     `map      : ( fun   : κ ∈′ 𝓒 .𝒲 or 𝓒 .Ω )
               → ( σ     : Substitution (κ .Δᶜ) Δ )  
-              → ( args  : Substitutionᴱ ⌞ σ ⌟ 𝓒 (map Vector[ # n ,_] (κ .T∗)) Γ )
-                -----------------------------------------------------------------
+              → ( args  : Substitutionᴱ ⌞ σ ⌟ Vector[ # n ,_] 𝓒 (κ .T∗) Γ )
+                -----------------------------------------------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr Vector[ # n , substitute ⌞ σ ⌟ (κ .Tᴿ)  ]
 
-    `fold     : ( fun   : κ ∈′ 𝓒 .𝒲 or 𝓒 .Ω )
-              → ( _     : κ .T∗ ≡ κ .Tᴿ ∷ Γ′ )
-              → ( σ     : Substitution (κ .Δᶜ) Δ )
-              → ( init  : ◇ ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ (κ .Tᴿ)) )
-              → ( args  : Substitutionᴱ ⌞ σ ⌟ 𝓒 (map Vector[ # n ,_] Γ′) Γ )
-                ------------------------------------------------------------
-              → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ (κ .Tᴿ)) 
-
+    `fold     : ( fun   : callable Δ′ (T′ ∷ Γ′) T′ ∈′ 𝓒 .𝒲 or 𝓒 .Ω )
+              → ( σ     : Substitution Δ′ Δ )
+              → ( init  : ◇ ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ T′) )
+              → ( args  : Substitutionᴱ ⌞ σ ⌟ Vector[ # n ,_] 𝓒 Γ′ Γ )
+                -------------------------------------------------------
+              → ⟨ 𝓒 ∣ Γ ⟩⊢expr (substitute ⌞ σ ⌟ T′) 
 
     ---------------
     ---  Casts  ---
@@ -288,4 +290,3 @@ mutual
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr T₁
                 ---------------------
               → ⟨ 𝓒 ∣ Γ ⟩⊢expr T₂
-    

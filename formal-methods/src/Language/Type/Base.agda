@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 open import Data.Nat using (ℕ ; _≤_ ; _^_ ; z≤n)
 open import Data.String using (String)
 open import Data.Fin using (Fin)
@@ -37,7 +39,8 @@ variable Ξ Ξ₁ Ξ₂ Ξ₃ Ξ′ : DeclContext
          Δ Δ₁ Δ₂ Δ₃ Δ′ : TypeContext 
          n n₁ n₂ n₃ n′ : ℕ
          s s₁ s₂ s₃ s′ : String 
-
+         d d₁ d₂ d₃ d′ : Decl
+           
 mutual
 
   data ⟨_∣_⟩⊢ld (Ξ : DeclContext) (Δ : TypeContext) : Set where 
@@ -134,7 +137,10 @@ mutual
 -- How about unsigned integers w/ fixed precision? 
 data Numeric {Ξ} {Δ} : (T : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → Set where
   isUinteger : Numeric (UInteger[<= # n ])
-  isFIeld    : Numeric Field 
+  isFIeld    : Numeric Field
+
+instance uint-numeric : Numeric {Ξ} {Δ} (UInteger[<= # n ])
+uint-numeric = isUinteger
 
 -- Joins two numeric types 
 _⋈⟨_⟩_ : (T₁ : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → (_∙_ : ℕ → ℕ → ℕ) → (T₂ : ⟨ Ξ ∣ Δ ⟩⊢ty ★) → ⦃ Numeric T₁ ⦄ → ⦃ Numeric T₂ ⦄ →  ⟨ Ξ ∣ Δ ⟩⊢ty ★

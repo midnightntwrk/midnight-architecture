@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-} 
+
 open import Data.Nat 
 open import Data.Product 
 
@@ -18,7 +20,9 @@ record Size′ : Set₁ where
 
 open Size′ public 
 
--- Sets with dedicable equality and default values 
+-- Sets with dedicable equality and default values
+--
+-- Orestis: name is misleading
 record Set+ : Set₁ where
   field
     carrier   : Set
