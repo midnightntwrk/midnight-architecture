@@ -4,8 +4,7 @@ skinparam titleFontSize 25
 title Midnight.js Deployment Diagram
 
 node "Client Device" <<device>> {
-    component Browser <<EE>> {
-        database "Private Store"
+    node Browser <<EE>> {
         component GUI
         artifact "Web Page" as WP {
             artifact Contract
@@ -17,10 +16,10 @@ node "Client Device" <<device>> {
         }
         artifact MidnightJS {
             artifact Contracts
-            artifact WalletProvider
             artifact PublicDataProvider
             artifact PrivateDataProvider
             artifact ZKConfigProvider
+            artifact WalletProvider
             artifact NodeProvider
             artifact ProofProvider
         }
@@ -28,12 +27,14 @@ node "Client Device" <<device>> {
             component "Lace Wallet" as LW {
                 artifact Wallet
             }
+            component "Private Data Manager" as PDM
         }
         artifact DappConnector
         artifact Ledger
         artifact "Compact Runtime" as CR
         artifact "Impact Runtime" as IR
     }
+    database "File System" as FS
     component "Proof Server" as PS {
     }
     artifact compactc {
@@ -64,13 +65,14 @@ NodeProvider --> DappConnector
 WalletProvider --> DappConnector
 LW <-u- DappConnector
 PublicDataProvider --> Indexer
-SN <-- Indexer
+SN <-d- Indexer
 SN --> Ledger
-PrivateDataProvider --> "Private Store"
 ProofProvider -d-> PS
 ZKConfigProvider --> "Prover Keys"
 ZKConfigProvider --> "Verifier Keys"
 ZKConfigProvider --> "ZKIR"
+PrivateDataProvider --> PDM
+PDM --> FS
 LW --> SN
 GUI --> UC
 @enduml
