@@ -1,3 +1,5 @@
+{-# OPTIONS --allow-unsolved-metas #-} 
+
 open import Data.Unit 
 open import Data.Nat hiding (_^_)
 open import Data.Nat.Properties
