@@ -21,14 +21,18 @@ architectural elements are defined in [definitions](definitions.md).
 * [Components](./components/README.md)
     - [Wallet Engine](./components/WalletEngine/README.md)
     - [Client SDK](./components/ClientSDK)
+    - [Indexer](./components/PubSubIndexer)
     - [Wallet Browser Extension](./components/WalletBrowserExtension/README.md)
     - [Wallet Backend](./components/WalletBackend/README.md)
     - [Transaction Kernel](./components/kernel/README.md)
     - Lares Runtime
         - [Private State Management](./components/lares/private-state-management/README.md)
+* [Specifications](./specification)
+  - [Metadata](./specification/Metadata.md)
 * [API’s and Common Types](./apis-and-common-types/README.org)
   - [Transaction Submission](./apis-and-common-types/transaction-submission/Readme.md)
   - [Event Log](./apis-and-common-types/event-log/Readme.md)
+  - [Metadata](./apis-and-common-types/metadata)
 * Example dApps
     - [Lares Private e-Voting Example](./example-dapps/evoting/README.org)
     - [Private DAO Example](./example-dapps/dao/)

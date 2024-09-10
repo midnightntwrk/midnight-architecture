@@ -38,7 +38,7 @@ All depend on Indexer's GraphQL API.
 And there is one source from where the PubSub-Indexer pulls the blocks, which is at least
 one [node](missing_documentation).
 
-Apart from these - an important API dependency is ZSwap one - to allow indexing wallet data.
+Apart from these - an important API dependency is ZSwap one - to allow indexing wallet data. The query API includes [metadata API](../../apis-and-common-types/metadata/API.graphql)
 
 ### Wallets
 

@@ -1,11 +1,10 @@
-# Off-chain token metadata
+# 15. Off-chain (token) metadata
 
 ## Status
 
 Proposed
 
 ---
-<!-- These are optional elements. Feel free to remove any of them. -->
 | -               | -                                                                               |
 |-----------------|---------------------------------------------------------------------------------|
 | date            | March 2024                                                                      |
@@ -22,9 +21,8 @@ Midnight needs a dedicated space to attach token metadata to. As the name says -
 
 Another issue with metadata is that it is particularly difficult to prove correctness of it. For example - USDC is a widely present stablecoin, which can be brought to chains using different mechanisms - e.g. natively, or through various bridges. How to encode that only token of type "abc" is USDC, while "def" is a completely unrelated token, which just chose USDC name (unaware of name clash or with malicious intents)?
 
-Across the industry, there are multiple approaches to this problem. Ranging from storing the metadata on-chain, as part of the originating contract, to independent off-chain services.
+Across the industry, there are multiple approaches to this problem. Ranging from storing the metadata on-chain, as part of the originating contract, to independent off-chain services. Importantly, while the context is token metadata, this ADR makes a decision over direction for all kinds of metadata in Midnight, which forces to think on how to make token metadata datatypes and ways of work flexible enough to accommodate for e.g. DApps or stake pools.
 
-<!-- This is an optional element. Feel free to remove. -->
 ## Decision Drivers
 
 * Fit into existing architecture
