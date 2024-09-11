@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted
+Superseded by [15. Off-chain (token) metadata](./0015-off-chain-token-metadata.md)
 
 ---
 <!-- These are optional elements. Feel free to remove any of them. -->
