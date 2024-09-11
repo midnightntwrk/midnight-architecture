@@ -52,7 +52,7 @@ TODO: Should one version of metadata for a subject refer to its parent? Why? If 
 ### Metadata canonicalization
 
 1. Remove `signatures` field (so that each signature can be added and verified independently)
-2. Canonicalize remainder according to [RFC8785](https://www.rfc-editor.org/rfc/rfc8785)
+2. Canonicalize remainder according to [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785)
 
 ### Signing metadata
 
@@ -86,34 +86,32 @@ TODO: what are possible trust roots? What would be needed to e.g. employ DIDs or
 
 ### Components
 
-Do in icepanel
-
-- Mn.js metadata utils
+- Midnight.js metadata utilities
 - Run by Indexer:
   - Metadata server
   - Metadata repo synchronizer
-- Repo automation (CI step for uploads, using the mn.js utils)
+- Repo automation (CI step for uploads, using the Midnight.js utilities)
+
+Diagram presenting the relationships is shown here: https://s.icepanel.io/pPfjMq8Xn6cuwn/vF2I
 
 ### Steps
 
-__Cross-linked with icepanel__
-
 #### Authorship
 
-- mn.js has well-formedness checks, exposed both as a function taking POJO as an argument as well as a CLI command taking a path to file to check
+- Midnight.js has well-formedness checks, exposed both as a function taking POJO as an argument as well as a CLI command taking a path to file to check
 
 #### Canonicalization
 
-- mn.js has function to canonicalize metadata object (passed as a POJO)
+- Midnight.js has function to canonicalize metadata object (passed as a POJO)
 
 #### Signing
 
-- mn.js has function to sign canonical metadata object (passed as a POJO) 
-- mn.js has a CLI to sign arbitrary metadata (which performs well-formedness check, canonicalize metadata and then signs them):
+- Midnight.js has function to sign canonical metadata object (passed as a POJO) 
+- Midnight.js has a CLI to sign arbitrary metadata (which performs well-formedness check, canonicalize metadata and then signs them):
   - it takes path to metadata file as an argument
   - it takes argument indicating, where to write the output - either path to file to write signed metadata, to stdout or to overwrite the source file
   - it takes argument indicating source of key material - stdin or file containing raw bytes/bech32 
-- mn.js has function to verify a signature as well as CLI to verify all signatures
+- Midnight.js has function to verify a signature as well as CLI to verify all signatures
 - the function to sign is able to work with a directly-passed keypair or delegate signing to instance of  wallet-api or wallet-dapp-connector, so that more automation/integration
 - Wallet should implement an API to sign data using chosen key (by choosing role only, see the HD-wallet proposal)
 
@@ -121,12 +119,28 @@ TODO: link HD wallet proposal
 
 #### Submission and CI process
 
-- repo layout follows the structure, where each metadata file is present in "data" directory, and filename follows pattern "<subject>.json"
+- repo layout follows the structure, where each metadata file is present in "data" directory, and filename follows pattern "<subject>.json", as presented below
 - each file needs to pass well-formedness check
 - each file name needs to match its subject
 - no metadata file removals are allowed
 - no direct pushes to the main branch are allowed
 - preferably, metadata signers meet contract maintenance authority of contract linked
+
+File structure:
+```
+$ exa -T ./
+.
+└── data
+   ├── 265ba3d6.json
+   ...
+   └── fe95649a.json
+```
+
+Subjects need to match, that is:
+```
+$ cat data/265ba3d6.json | jq .subject -r
+265ba3d6
+```
 
 
 TODO:
@@ -145,7 +159,7 @@ Should a Merkle tree be built out of all metadata, so that server can provide me
 
 #### Querying
 
-- mn.js exposes a simple client similar to existing one to get contract data, which matches the most common queries
+- Midnight.js exposes a simple client similar to existing one to get contract data, which matches the most common queries
 
 ## Security and risks
 
@@ -153,5 +167,6 @@ There is little present to help to build trust in the metadata. In the concrete 
 
 ## Related
 
-CIP-26
-CIP-72
+[CIP 26](https://cips.cardano.org/cip/CIP-0026)
+[CIP 72](https://cips.cardano.org/cip/CIP-0072)
+[RFC 8785](https://www.rfc-editor.org/rfc/rfc8785)
