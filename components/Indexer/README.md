@@ -272,9 +272,11 @@ Requirements above lead to an observation, that clients (both wallets and DApps)
 Compaction itself can easily be performed by replacing Merkle tree nodes with "collapsed" nodes - ones, which do not have children in order to compute their hash, instead they contain only the computed hash value. This allows to replace whole subtrees with single values, which dramatically improves memory efficiency, as neighbour branches to the paths leading to the values of interest can all be collapsed. This process is presented on the diagrams below.
 
 Before compaction, `leaf_4` is the element, whose membership needs to be proven, nodes in yellow are ones to be computed when verifying the proof, nodes in light blue are ones needed in the proof data:
+
 ![](./merkle-tree-before.svg)
 
 After compaction, unnecessary data is removed from the tree:
+
 ![](./merkle-tree-after.svg)
 One can see that nodes in orange are kept. This is because they are still needed to enable insertion of 8th element into the tree. 
 
@@ -296,6 +298,7 @@ There are 2 areas in the API, which involve the Zswap state:
 #### Design
 
 Conceptually, the support for Zswap renders following dependencies between components (in an abstract way, an arrow means a dependency exists, but its nature can vary - it can be just data format, or expectancy to have direct memory access to data and API to operate on it):
+
 ![](./zswap_components.svg)
 
 Major approaches one can take to implement the support depend mostly on 2 dimensions, resulting in 6 possibilities in total:
@@ -307,6 +310,7 @@ Major approaches one can take to implement the support depend mostly on 2 dimens
 Pros:
 - This approach greatly simplifies API side, because all data are stored in DB
 - This approach results in a good expected performance on API side
+
 Cons:
 - Increased complexity on indexers (because zswap and contract indexing need to be orchestrated, access to the Merkle tree needs to be properly synchronized to avoid concurrency issues, which may be hard to do in an efficient manner)
 - Increased computational cost on indexers (because each contract call results in access to the commitments tree and calculation of its collapsed version)
@@ -319,6 +323,7 @@ Pros:
 - Simplified and streamlined indexers
 - Only pointers allowing to produce updates/collapsed trees are needed to be stored
 - Relatively lightweight synchronization is needed, related to ensuring that right version of the tree is being loaded to produce the update
+
 Cons:
 - More work on the API side
 - API side may experience churn of Merkle tree updates, leading to lot of CPU, memory and networking bandwidth spent on constant reloading Merkle tree
@@ -331,6 +336,7 @@ Pros:
 - Efficient usage of storage (because of ability to share of tree nodes and contracts, wallets, etc. being pointed to root nodes of trees prepared for them)
 - This approach greatly simplifies API side, because all data are stored in DB
 - This approach results in a good expected performance on API side 
+
 Cons:
 - Increased complexity on indexers (because of orchestration needed between contract and zswap ones)
 - Increased computational cost on indexers (because each contract call results in access to the commitments tree and calculation of its collapsed version)
@@ -340,6 +346,7 @@ Cons:
 Pros:
 - Efficient usage of storage
 - Simplified and streamlined indexers
+
 Cons:
 - More work on the API side
 - Increased CPU (to calculate updates) and memory (portions of the Merkle tree still need to be loaded) usage on API side
@@ -350,6 +357,7 @@ Cons:
 Pros:
 - Simplified and streamlined indexers
 - work to produce updates is minimized and delayed to the last possible moment
+
 Cons:
 - Even more complexity on the API side
 - need to accommodate for caching in the architecture
