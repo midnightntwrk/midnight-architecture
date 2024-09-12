@@ -138,9 +138,8 @@ like to achieve by applying formal methods.
 We will discuss each of the items in the list above in more detail in the
 remainder of this section. 
 
-\Q{Current resources for formal methods are limited, so we have to choose. Where
-would formal methods have the most impact, and which techniques would be
-suitable there?}
+\Q{Where would formal methods have the most impact, and which techniques would
+be suitable there?}
 
 ## Formal Specifications
 
@@ -172,49 +171,49 @@ parts of Midnight's infrastructure that we could produce a specification for.
 
 * Midnight JS 
 
-\Q{Are there other parts of the platform we should consider?}
-
 These specifications can serve to communicate the intended behavior of parts of
 Midnights infrastructure, both internally and externally, and are a necessary
 prerequisite for further verification of the system. 
 
+\Q{Are there other parts of the platform we should consider?}
+
 ## Language Design 
 
-Help to rule out problems _by construction_. Problematic contracts are ruled out
-upfront because they're invalid programs. First line of defense: make it
-impossible to make certain errors rather than proving after the fact that you
-have not made them. 
-Work on solidity FM suggests this is useful --> fsm dsl [@MavridouLSD19], F*
-translation [@Luu16]
+Compact, and in particular it's type system, are the first line of defense
+against erroneous smart contracts. A well-designed language with a strong and
+sound type system can prevent many problems early on in the development
+process. To illustrate, similar language-based approaches are retroactively
+applied to verify security of Solidity smart contracts. For example
+@MavridouLSD19 propose to specify contracts as _finite state machines_, and
+@Luu16 employ an approach using monadic programs in F$\star$ in that rules out
+certain programming patterns that could make a contract susceptible to reentry
+attacks.
 
-### Type system
+### Type System
 
-* Type-and-effect systems to statically track side-effects (checked
-  exceptions/ledger interactions)
-  
-* Model Non-interference and or information flow
-
-Michael Backes, Hritcu Catalin, and Matteo Maffei. 2014. Union, Intersection
-and Refinement Types and Reasoning About Type Disjointness for Secure Protocol
-Implementations
-
-Jesper Bengtson, Karthikeyan Bhargavan, Cédric Fournet, Andrew D. Gordon,
-and Sergio Maffeis. 2011. Refinement Types for Secure Implementations.
-
-Affine Refinement Types for Secure Distributed Programming
-
-Types for Security Protocols
+By expanding Compact's type system, we can statically track a contracts
+_side-effects_ (i.e, can it fail, how does it interact with the public state,
+etc...), or how information in the private state flows to the public state. By
+enforcing _non-interference_ between secret and public data, we can show at
+compile time that no secret data is leaked to the public. For example, by
+marking the data exposed by a witness (e.g., a private key) as secret, the type
+system automatically rejects any contracts that expose this information to the
+public.
 
 ### Expressivity
 
-Turing completeness: tension between expressivity and safety/determinism. A cost
-model ought to protect against DoS attacks. But, from a usability perspective,
-costs should be as low as possible.
+Another important consideration is _expressivity_ of the contract
+language. Currently, compact is not _Turing complete_. While this means that the
+language has---theoretically---limited expressivity, it also means that the cost
+model is deterministic, allowing for more accurate prediction of transaction
+fees. Making the language Turing complete would make cost prediction
+undecidable, and furthermore have the side-effect of making any denotational
+model of the language much more unwieldy.
 
-Current state of compact: cost should be deterministic if we know the contract's
-input. But what about non-terminating witnesses? Calling a witness is 0 cost (it
-won't show up in the transcript), so for the purpose of the cost model we can
-ignore it and rather treat them as coroutines.
+This is something to keep in mind when extending the language with recursive
+circuits, or even when adding first-class circuits which can inadvertently cause
+the language to be come Turing comple by encoding recursion through
+back-patching.
 
 ## Proofs of Meta-Theoretical Properties
 
@@ -386,28 +385,49 @@ state, it is important that these accurately reflect the semantics of contracts.
 
 All the previous steps capture in some sense "necessary" specification work to
 claim that we have a formal definition of the (intended) semantics of smart
-contracts. From this point there are several things we could do.
+contracts. From this point, there are several directions we could go in. 
 
 ### Verification of infrastructure {-} 
 
-* Conformance testing to check that different parts of the system correctly
-  implement the intended semantics of smart contracts, such as the compiler,
-  Midnight JS, or the ledger.
+Any verification of smart contracts implicitly relies on Midnight's
+infrastructure to correctly implement the semantics of smart contracts. To
+strengthen this claim (or more generally, that our software is working
+correctly), we can apply formal verification. 
 
-* Certified compilation
+The most light-weight approach there would be to perform _conformance testing_
+of the compiler against a formally verified and specified reference
+implementation. If we have a denotational model of smart contracts embedded in
+Agda, this automatically gives us an executable specification that we could use
+for this purpose. We could validate that the compiler preserves the semantics of
+smart contracts, but possibly also that the ledger is a correct implementation
+of the semantics. 
 
-* Formal specificaiton of ledger
+Beyond this, we can think about formally specifying other parts of midnight,
+such as the ledger, using these specifications as a reference and/or connect
+with the (more abstract) semantics of smart contracts. 
 
 ### Making verification of smart contracts available to users {-} 
 
-* Auditing
+Once the semantics of smart contracts is developed to the point where it
+supports reason about correctness of smart contracts, the question is how users
+of Midnight can benefit from this availability.
 
-* Reasoning tools
+* _Auditing_, provided as a service to users by us, or pre-audited library of
+  contracts (e.g. similar to @Openzeppelin24). 
 
-* IDE support
+* _Reasoning tools_, to be used by expert users with knowledge about formal
+  verification. For example, Agda libraries for reasoning about smart contracts,
+  or command line tools.
 
+* _IDE integration_, for non-expert DApp developers, e.g. to highlight potential
+  security issues in a contract's source code. 
 
-  
+# Conclusion 
+
+This document simply highlights---from my perspective---how the Midnight project
+could benefit from formal methods. The idea being that, with your feedback, it
+will be amended with time to make the plans sketched here more concrete and
+aligned with the project's goals and requirements. I look forward to your input!
 
 
 # References 
