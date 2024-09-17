@@ -19,7 +19,21 @@ data is hashable. We make the hash's output type `Hash<T>` parametric over the
 input type `T`, to capture structurally which data is used to produce which
 outputs. `...` signals that a part goes beyond the scope of this spec.
 
-We then define:
+While this document will not go into contracts in detail, a few things are
+necessary to understand:
+- Contract have an address, denoted by the type `ContractAddress`, which is a
+  hash of data that is beyond the scope of this document.
+- Contracts may be able to issue tokens. For this, tokens have an associated
+  `TokenType`. Tokens of different token types are not fungible, and token
+  types are derived in one of two ways:
+  - Built-in tokens, such as Night, are assigned a fixed `TokenType`.
+  - User-defined tokens have a `TokenType` determined by the hash of the
+    issuing contract, and a domain separator. This allows each contract to
+    issue as many types of tokens as it wishes, but due to the collision
+    resistance of hashes, prevents tokens from being issued by any other
+    contract, or built-in tokens from being issued.
+
+We define:
 
 ```rust
 type Hash<T> = [u8; 32]; // The SHA-256 output block
@@ -55,21 +69,28 @@ it is used for. Defining the composition of these is beyond this document.
 Finally, the state maintained for UTXOs at any time is simply a set of all
 UTXOs.
 
+We use the term `value` here to mean 'amount of indivisible units of the given
+token type'.
+
 ```rust
 struct Utxo {
     value: u128,
     owner: Hash<VerifyingKey>,
     type_: TokenType,
-    nonce: [u8; 32],
+    intent_hash: Hash<Intent>,
+    output_no: u32,
 }
 
 type UtxoOutput = Utxo;
 
-struct UtxoSpend<T> {
-    sign_over: T,
+struct UtxoSpend {
     spend: Utxo,
     owner: VerifyingKey,
-    // signature over: (sign_over, spend)
+}
+
+struct UtxoSpendAuthorization {
+    // signature over a larger transaction (sub-)structure including a
+    // `UtxoSpend`.
     signature: Signature,
 }
 
@@ -78,9 +99,9 @@ struct UtxoState {
 }
 ```
 
-A transaction would consist of a chain of `UtxoSpend<T>`, where `T` would be a
-fragment containing either more `UtxoSpend`s, or `UtxoOutput`s, and contract
-interactions. This would have to be balanced in that the sum of the spends must
+A transaction would consist of a collection of `UtxoSpend`s, `UtxoOutput`s, and
+contract calls, followed by a sequence of authorizing signatures of each of the
+`UtxoOutput`s. This would have to be balanced in that the sum of the spends must
 be greater than or equal to the sum of the outputs. The effect would be the
 removal of each of the spends from the `UtxoState` (which must be unique and
 present), and the insertion of the outputs into the `UtxoState` (which must be
@@ -371,3 +392,108 @@ utxo = DustOutput {
 where `t` is the block time, and `value` is `0`, unless the output is a
 cooldown output, in which case it is `-fee`, where `fee` is the (part of) the
 transaction fee this Dust output covers.
+
+
+
+
+
+
+# DESIGN SCRATCH
+
+A transaction consists of a set of intents, a guaranteed Zswap offer, a
+fallible Zswap offer, and binding randomness.
+
+A canonical ordering is imposed on the set of intents, with only this order
+being considered valid.
+
+```rust
+struct Transaction {
+    intents: Vec<Intent>,
+    guaranteed_offer: Option<ZswapOffer>,
+    fallible_offer: Option<ZswapOffer>,
+    binding_randomness: Fr,
+}
+```
+
+An intent consists of guaranteed and fallible *unshielded* offers, a sequence
+of calls, a set of dust payments, a TTL timestampt, and a binding commitment
+with a proof of knowledge of exponent of `g`, to prevent interfering with the
+Zswap value commitments.
+
+A canonical ordering is imposed on the set of dust payments, with only this
+order being considered valid. One offer, call, or dust payment must be present
+for the intent to be valid.
+
+The transaction is only valid if the TTL is a) not in the past, and b) to too
+far in the future (by a ledger parameter `max_ttl`).
+
+```rust
+struct Intent {
+    guaranteed_unshielded_offer: Option<UnshieldedOffer>,
+    fallible_unshielded_offer: Option<UnshieldedOffer>,
+    calls: Vec<ContractAction>,
+    dust_payments: Vec<DustSpend>,
+    ttl: Timestamp,
+    binding_commitment: FiatShamirPedersen,
+}
+```
+
+An unshielded offer consists of a set of inputs and a set of outputs, where
+outputs may be plain UTXOs, or UTXOs with Dust generation information.
+In the latter case, the UTXO *must* have `type_` be equal to `NIGHT`.
+It also contains a sequence of spend authorizing signatures.
+
+A canonical ordering is imposed on the inputs, and outputs sets. The signatures
+must be the same length as inputs, with each signature authorizing the
+corresponding input. It signs the parent intent data, excluding signatures or
+ZK-proofs, and must be valid wrt. the respective input's verifying key.
+
+```rust
+struct UnshieldedOffer {
+    inputs: Vec<UtxoSpend>,
+    outputs: Vec<Either<Utxo, GeneratingUtxoOutput>>,
+    // TODO: What is the signature over?
+    signatures: Vec<UtxoSpendAuthorization>,
+}
+```
+
+Shielded offers remain unchanged:
+
+```rust
+struct ZswapOffer {
+    inputs: Vec<ZswapInput>,
+    outputs: Vec<ZswapOutput>,
+    transients: Vec<ZswapTransient>,
+    deltas: Vec<(TokenType, i128)>,
+}
+```
+
+## Properties
+
+- Balance preservation: A transaction does not create or destroy funds, except to the extent permitted in contract mints.
+- Binding: A made of multiple parts by a single user cannot have only a part of it used by another user.
+- Infragility: A user cannot cause a transaction that would succeed to fail in its fallible section by merging it with something else.
+ >>> Q: Can you shift things into the fallible transcript, or does that break the proof (likely the binding component) if it doesn't, it should!
+ >>> Q: Can you take a guaranteed offer, and without changing anything else, make it a fallible offer? Probably? Is that an issue?
+ >>> FIXME: I think intents violate infragility, as you can always merge with a fallible offer that fails. Currently, this is circumvented by just trying to apply the offer in the fallible section, but allowing multiple call parts means that _all_ of these have to succeed. So, to fail any transaction's fallible section, just merge it with a (paid for) intent that asserts false in a contract.
+ >>> We could fix this by:
+    a) Separating fallible offers per intent (binding randomness won't be enough anymore?)
+    b) Not allowing multiple call sections :shrug:
+    c) ???
+- Causality: A user cannot use the output of a failed contract call to convince a succeeded contract call that this output is correct.
+- Self-determination:
+  a. A user cannot spend the funds of another user.
+  b. A contract can only be modified according to the rules of the contract.
+
+
+## Scratch
+Should we tie UTXOs to Intent Outputs? Probably `IntentHash` and output #? -- Probably yes! But then, that will _require_ an intent to have at least one guaranteed input or dust payment? Hmm.
+
+How about: TTL to prevent replays / ensure output uniqueness?
+ > TTL isn't signed by anything for Intents with just Zswap components?
+ > Could just ban empty intents? -- I think this is it. That limits danger of replays to Zswap, where they are already mitigated.
+
+Contracts owning funds should clearly be part of transcript effects.
+
+Identified issue: It's *technically* fine to just sign the binding commitment... However, this is bad for wallet UX, as it means you're signing opaque data. Better would be to sign the parts of a tx you care about... but this break privacy for atomic swaps.
+ > Well, let's just keep it signing the commitment for zswap, but the rest of an Intent as well.
