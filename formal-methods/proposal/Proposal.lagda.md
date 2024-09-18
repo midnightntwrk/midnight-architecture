@@ -228,41 +228,6 @@ _Proving meta-properties_ about our specification (e.g., preservation of funds
 
 \Q{What are other properties of (parts of) Midnight that we might care about?}
 
-## Verification Tools for Users
-
-SMT-based verification
-Audited smart contracts a la openzeppelin
-IDE support 
-
-
-
-## Conformance Testing
-
-Test implementation against reference (e.g., using property-based testing tools
-like QuickCheck) 
-
-* Compiler 
-
-* Ledger
-
-* Impact 
-
-* Midnight JS
-
-## Analysis
-
-
-
-
-### Static 
-
-### Dynamic 
-
-* Taint analysis 
-* Runtime monitoring
-
-
-
 \newpage
 # Roadmap
 
