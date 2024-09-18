@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --overlapping-instances #-} 
+{-# OPTIONS --without-K --overlapping-instances --safe #-} 
 
 -- Defines a modal separation logic for predicates over effects, based on the
 -- ternary effect separation predicate defined in Effect.Separation 
@@ -12,7 +12,7 @@ open import Function using (_$_ ; _∘_)
 open import Level
 
 open import Util.Container using (_⇿_ ; ⇿-sym)
-open import Util.Extensionality
+--open import Util.Extensionality
 
 open import Util.Ternary
 
@@ -73,10 +73,10 @@ module Util.Logic {ℓ} {Carrier : Set ℓ}   where
     -- The posibility modality. One way to think about posibility is as a unary
     -- version of separating conjunction. 
     record ◇ (P : Pred Carrier ℓ) (x : Carrier) : Set ℓ where
-      constructor ◇⟨_⟩_ 
+      constructor ◇⟨_,_⟩ 
       field
         {x′}    : Carrier
-        i       : x′ ≲ x 
+        ι       : x′ ≲ x 
         px      : P x′ 
     
     open ◇ public 
@@ -117,10 +117,10 @@ module Util.Logic {ℓ} {Carrier : Set ℓ}   where
       {- ◇ is a monad on the category of monotone predicates over the carrier -}
     
       ◇-return : ∀[ P ⇒ ◇ P ]
-      ◇-return px = ◇⟨ ≲.refl ⟩ px
+      ◇-return px = ◇⟨ ≲.refl , px ⟩
     
       ◇-join : ∀[ ◇ (◇ P) ⇒ ◇ P ]
-      ◇-join (◇⟨ i₁ ⟩ (◇⟨ i₂ ⟩ px)) = ◇⟨ ≲.trans i₂ i₁ ⟩ px
+      ◇-join ◇⟨ i₁ , ◇⟨ i₂ , px ⟩ ⟩ = ◇⟨ ≲.trans i₂ i₁ , px ⟩
     
       -- A "Kripke closed monoidal structure" on the category of monotone predicates 
     
@@ -138,10 +138,10 @@ module Util.Logic {ℓ} {Carrier : Set ℓ}   where
     
     -- Box and diamond are adjoint functors on the category of monotone predicates
     cur : ∀[ ◇ P ⇒ Q ] → ∀[ P ⇒ □ Q ]
-    cur f px = necessary (λ i → f $ ◇⟨ i ⟩ px)
+    cur f px = necessary (λ i → f ◇⟨ i , px ⟩)
     
     uncur : ∀[ P ⇒ □ Q ] → ∀[ ◇ P ⇒ Q ]
-    uncur f (◇⟨ i ⟩ px) = □⟨ f px ⟩ i
+    uncur f ◇⟨ i , px ⟩ = □⟨ f px ⟩ i
 
   -- -- Magic wand is right-adjoint to separating conjunction
   -- ✴-curry : ∀[ (P₁ ✴ P₂) ⇒ Q ] → ∀[ P₁ ⇒ (P₂ ─✴ Q) ]
