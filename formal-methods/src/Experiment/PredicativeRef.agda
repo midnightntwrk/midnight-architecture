@@ -65,8 +65,6 @@ Loc = Ctx
 
 variable Γ : Ctx ℓ 
          Λ Λ₁ Λ₂ Λ₃ Λ′ : Loc ℓ
-
-
 instance level-rel₂ : HasRel₂ Level _
 level-rel₂ = record { _≲_ = _≼_ } 
 
@@ -92,13 +90,11 @@ extend : ∀[ List ∘ ◇ Type ⇒ Ctx ⇒ Ctx ]
 extend []        Γ = Γ
 extend (◇t ∷ xs) Γ = extend xs (insert ◇t Γ)
 
-
 ↑ : ℓ₁ ≼ ℓ₂ → Type ℓ₁ → Type ℓ₂
 ↑ px         one       = one
 ↑ px         (ref t)   = ref (↑ px t)
 ↑ ≼-≡        (fun s t) = fun s t
 ↑ (≼-s m px) (fun s t) = fun (↑ (≼-suc _ _ px) s) (↑ (≼-suc _ _ px) t)
-
 
 ⇈ : ℓ₁ ≼ ℓ₂ → Ctx ℓ₁ → Ctx ℓ₂
 ⇈ ≼-≡ Γ = Γ
@@ -124,7 +120,7 @@ open _⊑_
 
 
 instance loc-rel₂ : HasRel₂ (Loc ℓ) _ 
-HasRel₂._≲_ loc-rel₂ = _⊑_ 
+HasRel₂._≲_ loc-rel₂ = _⊑_
 
 -- ⊑-refl : Λ ⊑ Λ 
 -- ⊑-refl = [] , refl
@@ -252,12 +248,12 @@ trim ≼-≡        γ            = γ
 trim (≼-s m px) (level _ γ′) = trim px γ′
 
 trim-store : {Λ : Loc ℓ} → (ι : ℓ′ ≲ ℓ) → Store Λ → Store (restrict ι Λ) 
-trim-store = {!!} 
+trim-store = {!!}
 
 instance val-monotone : Monotone _ _≲_ ⟦ t ⟧ᵀ 
 Monotone.weaken (val-monotone {t = one}) sub v = tt
 Monotone.weaken (val-monotone {t = ref t}) sub x = {!!}
-Monotone.weaken (val-monotone {t = fun t t₁}) sub f = {!!}
+Monotone.weaken (val-monotone {t = fun t t₁}) sub f = necessary (λ ι v → (□⟨ f ⟩ loc-trans {!sub!} ι) v)
 
 instance ◇-weaken : {P : Level → Set} → Monotone _ _≲_ (◇ P)
 Monotone.weaken ◇-weaken ι′ ◇⟨ ι , px ⟩ = ◇⟨ ≼-trans ι ι′ , px ⟩
@@ -266,18 +262,26 @@ replace : (ι : ℓ′ ≲ ℓ) → Loc ℓ′ → Loc ℓ → Loc ℓ
 replace ≼-≡       Λ′ Λ = Λ′
 replace (≼-s m ι) Λ′ Λ = ⟪ Λ .current , (λ where _ refl → replace ι Λ′ (Λ .next _ refl)) ⟫
 
+
+
 -- This witnesses that `extend` is a natural transformation in some sense
 commute-extend : {Λ : Loc ℓ} (Λ′ : Loc ℓ′) → (ι : ℓ′ ≲ ℓ) → (xs : List (◇ Type ℓ′)) → replace ι (extend xs (restrict ι Λ)) Λ ≡ extend (lmap (Monotone.weaken ◇-weaken ι) xs) Λ
 commute-extend Λ′ ≼-≡ xs = {!!}
-commute-extend {Λ = Λ} Λ′ (≼-s m ι) xs =
+commute-extend {Λ = Λ} Λ′ (≼-s m ι) [] =
   begin
-    replace (≼-s m ι) (extend xs (restrict (≼-s m ι) Λ)) Λ
-  ≡⟨ ? ⟩ 
-    ⟪ Λ .current , (λ where _ refl → ?) ⟫ 
-  ≡⟨ {!!} ⟩
-    extend (lmap (Monotone.weaken ◇-weaken (≼-s m ι)) xs) Λ
+    replace (≼-s m ι) (extend [] (restrict (≼-s m ι) Λ)) Λ
+  ≡⟨⟩
+    replace ((≼-s m ι)) (restrict ((≼-s m ι)) Λ) Λ
+  ≡⟨ {!!} ⟩ 
+    Λ 
+  ≡⟨⟩
+    extend [] Λ  
+  ≡⟨⟩ 
+    extend (lmap (Monotone.weaken ◇-weaken (≼-s m ι)) []) Λ
   ∎
-  where open ≡-Reasoning
+  where
+    open ≡-Reasoning
+commute-extend {Λ = Λ} Λ′ (≼-s m ι) (x ∷ xs) = {!!}
 
 update-store : (Λ′ : Loc ℓ′) (Λ : Loc ℓ) (ι : ℓ′ ≲ ℓ) → Store Λ′ → Store Λ → Store (replace ι Λ′ Λ)
 update-store Λ′ Λ ≼-≡       ζ′ ζ        = ζ′
