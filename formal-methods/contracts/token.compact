@@ -1,0 +1,142 @@
+include "std";
+
+ledger {
+  token_name : Cell[Opaque["string"]]; 
+  supply     : Cell[Unsigned Integer[32]]; 
+  balances   : Map[Bytes[32], Unsigned Integer[32]]; 
+  allowed    : Map[Bytes[32], Map[Bytes[32], Unsigned Integer[32]]];
+
+  constructor(name: Opaque["string"] , supply: Unsigned Integer[32]) {
+    ledger.token_name = name;
+    ledger.supply     = supply; 
+
+    // There's a fixed supply of tokens, all of which is associated with the treasury (i.e, the contract)
+    ledger.balances.insert(ledger.self().bytes , supply);  
+    ledger.allowed.insert(ledger.self().bytes , null(Map[Bytes[32], Unsigned Integer[32]]));  
+  }
+}
+
+// Registers a new address 
+//
+// Participation is awarded with 10000 tokens from the treasury!
+export circuit register(address: Bytes[32]): Void {
+  assert !(ledger.balances.member(address))
+    "Provided address already has a registered balance"; 
+
+  assert ledger.balances.lookup(ledger.self().bytes) >= 10000 
+    "Not enough tokens in the treasury to accept new participants";  
+  
+  ledger.balances.insert(address, 0); 
+  ledger.allowed.insert(address, null(Map[Bytes[32], Unsigned Integer[32]])); 
+  transfer(address , 10000); 
+}
+
+// Transfer a given amount of the token between two addresses
+export circuit transfer( 
+  receiver : Bytes[32], 
+  amount   : Unsigned Integer[32]
+  ) : Void { 
+    assert ledger.balances.member(own_public_key().bytes) 
+      "Caller is not a registered participant"; 
+    assert ledger.balances.member(receiver)
+      "Receiver is not a registered participant"; 
+
+    const sender_balance = ledger.balances.lookup(own_public_key().bytes); 
+    const receiver_balance = ledger.balances.lookup(receiver); 
+
+    assert amount <= sender_balance
+      "Insufficient funds"; 
+
+    const new_sender_balance = sender_balance - amount; 
+    const new_receiver_balance = receiver_balance + amount; 
+
+    ledger.balances.insert(own_public_key().bytes, new_sender_balance); 
+
+    // Update the receiver's balance. There's a type mismatch here, since increasing the 
+    // receiver's balance increases the upper bound of their balance with the amount of 
+    // the transaction. From the type checker's perspective, this could push the balance 
+    // for that account beyond the total supply of tokens. In reality, however, this should 
+    // not happen, as no new tokens are created after the initial supply was minted. 
+    ledger.balances.insert(receiver, new_receiver_balance as Unsigned Integer[32]); 
+}
+
+export circuit approve(
+  beneficiary : Bytes[32], 
+  amount      : Unsigned Integer[32]
+) : Void { 
+  // update map with registered allowances
+  ledger.allowed.lookup(own_public_key().bytes).insert(beneficiary , amount); 
+}
+
+export circuit transfer_from(
+  sender   : Bytes[32], 
+  receiver : Bytes[32], 
+  amount   : Unsigned Integer[32]
+) : Void { 
+
+  // Check if the relevant addresses exist, and if the sending address has authorized 
+  // the caller to spend on their behalf. 
+  assert ledger.balances.member(sender) && ledger.balances.member(receiver)
+    "Both the caller and receiver should be registred participants."; 
+  assert ledger.allowed.lookup(sender).member(own_public_key().bytes)
+    "No authorization from sender to caller to transfer funds."; 
+
+  // Retrieve balances and authorized amount 
+  const sender_balance   = ledger.balances.lookup(sender); 
+  const receiver_balance = ledger.balances.lookup(receiver);
+  const allowed_amount   = ledger.allowed.lookup(sender).lookup(receiver); 
+
+  // Check if the authorization is large enough for this transaction, and if the sender 
+  // has enough funds. 
+  assert allowed_amount >= amount 
+    "Caller is not authorized by sender to spend the transaction amount"; 
+  assert sender_balance >= amount 
+    "Insufficient funds"; 
+  
+  // Calculate new balances
+  const new_sender_balance   = sender_balance - amount; 
+  const new_receiver_balance = receiver_balance + amount; 
+  const new_allowance        = allowed_amount - amount; 
+
+  // Update balances 
+  ledger.balances.insert(sender   , new_sender_balance); 
+  ledger.balances.insert(receiver , new_receiver_balance as Unsigned Integer[32]); 
+  ledger.allowed.lookup(sender).insert(own_public_key().bytes , new_allowance); 
+}
+
+export circuit increase_allowance(
+  spender : Bytes[32], 
+  amount  : Unsigned Integer[32]
+): Void {
+
+  assert ledger.allowed.lookup(own_public_key().bytes).member(spender) 
+    "Tried to increase allowance of an adrres 
+     that has not been authorized yet to spend on behalf of the caller"; 
+  
+  // Update the allowance for the spender address
+  // 
+  // NOTE: this cast may fail, as theoretically it's possible to increase the allowance
+  // beyond the total supply.
+  const new_allowance = ( 
+    ledger.allowed.lookup(own_public_key().bytes).lookup(spender) + amount
+    ) as Unsigned Integer[32]; 
+  ledger.allowed.lookup(own_public_key().bytes).insert(spender, new_allowance); 
+}
+
+export circuit decrease_allowance(
+  spender : Bytes[32], 
+  amount  : Unsigned Integer[32]
+): Void { 
+
+  assert ledger.allowed.lookup(own_public_key().bytes).member(spender)
+    "Tried to decrease allowance of an adrres 
+     that has not been authorized yet to spend on behalf of the caller"; 
+
+  const allowance = ledger.allowed.lookup(own_public_key().bytes).lookup(spender); 
+
+  assert allowance >= amount 
+    "Tried to decrease with a larger amount than the current allowance";
+  ledger.allowed.lookup(own_public_key().bytes).insert(spender, allowance - amount);
+
+
+}
