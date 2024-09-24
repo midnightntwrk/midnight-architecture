@@ -25,22 +25,35 @@ Foo { ...foo, d: d, f: f }
 ```
 
 The ellipsis (`...`) is the JavaScript spread (prefix) operator.  We propose to
-allow it in a new "`struct` literal" expression, but not in (yet) other places
-where it might be potentially useful (e.g., vector construction expressions,
-circuit and witness arguments).
+allow it in a new "`struct` literal" expression and in vector construction
+expressions, but not in (yet) other places where it might be potentially useful
+(e.g., circuit and witness arguments).
 
 ## Syntax
 
-We introduce `struct` literal expressions as a _term_ production, at the same
-level in the grammar as structure and vector construction expressions.  The
-elements of the `struct` literal are zero or more comma-separated
-_struct-field_s, which can be named expressions or spread expressions.
+For structure construction, we introduce `struct` literal expressions as a
+_term_ production, at the same level in the grammar as structure and vector
+construction expressions.  The elements of the `struct` literal are an optional
+spread expression and zero or more comma-separated named expressions.
+
+For vector construction, we modify the grammar so that the subparts can include
+spread expressions.
 
 <table>
   <tr>
     <td><em>term</em></td>
 	<td>&rarr;</td>
+	<td><em>tref</em> <b><tt>{</tt></b> <b><tt>...</tt></b> <em>expr</em> {<b><tt>,</tt></b> <em>struct-field</em>} <b><tt>}</b></tt></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>&rarr;</td>
 	<td><em>tref</em> <b><tt>{</tt></b> [<em>struct-field</em> {<b><tt>,</tt></b> <em>struct-field</em>}] <b><tt>}</b></tt></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>&rarr;</td>
+    <td><b><tt>[</tt></b> [<em>vector-element</em> {<b><tt>,</tt></b> <em>vector-element</em>}] <b><tt>]</tt></b></td>
   </tr>
   <tr></tr>
   <tr>
@@ -48,60 +61,88 @@ _struct-field_s, which can be named expressions or spread expressions.
 	<td>&rarr;</td>
 	<td><em>id</em> <b><tt>:</tt></b> <em>expr</em></td>
   </tr>
+  <tr></tr>
   <tr>
-    <td></td>
+    <td><em>vector-element</em></td>
 	<td>&rarr;</td>
 	<td><b><tt>...</tt></b> <em>expr</em>
   </tr>
+  <tr>
+    <td></td>
+	<td>&rarr;</td>
+	<td><em>expr</em></td>
+  </tr>
 </table>
 
-* The name of the `struct` is needed, unlike JavaScript object literals, so that
-  we know the type of the `struct` being constructed.
+* The type of a `struct` literal is needed, unlike JavaScript object literals,
+  so that we know the type of the `struct` being constructed.
   
 * Generic `struct` literals require type arguments.  The grammar for _tref_
   allows optional type arguments.
   
-* **It is a syntax error for a `struct` literal expression to have more than one
-  spread _struct-field_**.  There is no `struct` subtyping in Compact (yet), so
-  a spread subexpression is expected to have exactly the same fields as the
-  struct being constructed.  Therefore, any subsequent spread subexpression
-  would completely hide (or overwrite) the fields of a previous one.  For that
-  reason, it's never necessary to have more than one.
+* **The grammar makes it syntax error for a `struct` literal expression to have
+  more than one spread expression**.  There is no `struct` subtyping in Compact
+  (yet), so a spread subexpression is expected to have exactly the same fields
+  as the struct being constructed.  Therefore, any subsequent spread
+  subexpression would completely hide (or overwrite) the fields of a previous
+  one.  For that reason, it's never necessary to have more than one.
   
-* We allow the spread subexpression to appear anywhere in the list of
-  _struct-field_s.  A programmer is allowed to put it wherever they find most
-  understandable.  This implies that detecting multiple spread subexpressions
-  happens in a pass after parsing.  A possible alternative would be to require
-  it in a designated place like first or last in the list, which is not what we
-  are proposing here.
+* The spread expression must appear first in the `struct` literal.  If it
+  occured in other positions, it would overwrite previous fields.  This renders
+  those previous fields useless and is probably not what the programmer
+  intended.
   
-* We allow the other fields to appear in any order.  Since they are named, there
-  is never any ambiguity about which `struct` field they are.
+* We allow the other fields to appear in any order in a `struct` literal.  Since
+  they are named, there is never any ambiguity about which `struct` field they
+  are.
+  
+* Vector literals can have spread subexpressions.  Here it does make sense to
+  allow multiple spread expressions, because they can be used to construct a
+  larger vector.
 
 ## Static Typing
 
 The static type checking rules are as follows:
 
-* The static type of the spread subexpression must be (exactly) the same type as
-  the type of the struct being constructed.  It is a static type error
-  otherwise.
+* The static type of the spread subexpression in a `struct` literal must be
+  (exactly) the same type as the type of the struct being constructed.  It is a
+  static type error otherwise.
   
 * It is a static type error if a generic `struct` type is constructed without
   fully supplying type arguments.  Additionally, the type arguments have to have
   the correct kind (a type or a size) for the corresponding parameter of the
   corresponding generic `struct` declaration.
   
-* It is a static type error if a field name appears as a name in _id_:_expr_ in
-  the list of _struct-field_s but is not a name of a field in the corresponding
-  `struct` definition.
+* It is a static type error if a field name appears as a name in the list of
+  *struct-field*s but is not a name of a field in the corresponding `struct`
+  definition.
+  
+* It is a static type error if a field name appears more than once as a name in
+  the list of *struct-field*s.
+  
+* If there is no spread subexpression in a `struct` literal, it is a static
+  error if the list of *struct-field*s does not include all the fields in the
+  corresponding `struct` definition.  We rejected an alternative where struct
+  fields were initialized to the default value of their type.  If a programmer
+  desires such initialization, they can achieve it with a spread: `Foo {
+  ...default<Foo>, x: e0, y: e1 }`
   
 * It is a static type error if the type of an expression in _id_:_expr_ in the
   list of _struct-field_s is not a subtype of the corresponding field type in
   the corresponding `struct` definition.  Note that the type of a generic
   `struct` is instantiated to the type arguments (i.e., a non-generic type).
   
-* The type of the entire expression is the `struct` type, instantiated to type
-  arguments if generic.
+* The type of an entire `struct` literal is the `struct` type, instantiated to
+  type arguments if generic.
+  
+* It is a static type error if the spread expressions in a vector literal do not
+  all have vector types.
+  
+* The static type of a vector literal is a vector whose length is the sum of the
+  lengths of all the spread vector types and the number of non-spread elements,
+  and whose element type is the least upper bound of the element types of all
+  the spread vector types and the types of the non-spread elements.  It is a
+  static type error if this least upper bound does not exist or if it is `Void`.
 
 ## Evaluation
 
@@ -130,44 +171,17 @@ spread struct value.
   way in Compact to use a `struct` literal value until after it is fully
   initialized.
   
+Evaluation of a vector literal expression proceeds as follows.  The
+subexpressions are evaluated from left to right.  A value of the appropriate
+vector type is allocated.  The vector elements are initialized in order from
+left to right.  A spread expression will initialize a range of vector elements
+equal in number to the length of the spread vector.  A non-spread subexpression
+will initialize a single vector element.
+  
 ## Possible Further Changes
 
-This syntax is convenient.  It parallels vector (literal) construction
-expressions.  That suggests two other changes we could consider making.
-
-**`struct` literals are allowed to have zero or one spread subexpression.**
-This would allow `struct` literals to construct `struct` values without being
-based on an existing value.
-
-If we allow this, we should require that all the `struct` fields are present in
-the `struct` literal.  This ensures that if a field is added to a struct, there
-will be a compile-time error if one of the construction sites is not updated to
-initialize the new field.
-
-An alternative would be to allow fields to be left out of `struct` literals, and
-instead have them be initialized to the default value of thier type.  We
-rejected that, because the interaction with default field initialization and
-potential future `struct` subtyping seems subtle and error prone.
-
-Developers who want such default initialization can do it explicitly with, for
-example, `Foo { ...default<Foo>, x: e0, y: e1 }` or by defining a pure helper
-circuit to construct a `struct` value that is partially constructed with default
-field values.
-
-If we choose this, we could even remove the `new Foo` structure construction
-syntax, as it is redundant.
-
-**`vector` literals can have spread subexpressions.**  The idea would be that a
-vector (with the same or fewer elements) could be spread into a vector
-construction expression.  Here it would make sense to allow multiple spread
-subexpressions.  For example, `[foo, ...bar, baz]` is like `bar` with two extra
-elements.  `[...foo, ...bar]` is a new vector that is like the concatenation of
-a pair of existing ones.  `[...foo]` is a copy of an existing vector.
-
-## Conclusion
-
-None of these are breaking changes except removing the existing `new` syntax for
-`struct` construction.
+We can remove the `new Foo` structure construction syntax, as it is redundant.
+This is a breaking change.
 
 Spreading a vector or structure value as (some of) the arguments to a circuit or
 witness call is also potentially useful, but it's more subtle.  We don't propose
