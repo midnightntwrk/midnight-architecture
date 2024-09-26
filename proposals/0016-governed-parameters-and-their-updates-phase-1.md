@@ -11,18 +11,18 @@ Phase 1 of Midnight's governance involves running actual governance on Cardano (
 ## Proposed Changes
 
 Following parameters are proposed to be managed under governance:
-- maximum block length - to allow tuning it based on consensus benchmarks or network activity
-- protocol version (together with a hash of the runtime meant to be used) - to manage Midnight protocol updates
-- ledger parameters - to allow fine-tune transaction fees based on new benchmarks and network activity:
+- maximum block length - to allow tuning it based on consensus benchmarks or network activity; Various personas might be interested in adjusting it in relationship to observed usage patterns. It directly affects performance and costs of operating a Midnight node.
+- protocol version (together with a hash of the runtime meant to be used) - to manage Midnight protocol updates. It is crucial one to manage, as not only it decouples protocol upgrades from consensus, but also is the means of possibly changing other parameters
+- ledger parameters - to allow fine-tune transaction fees based on new benchmarks and network activity. Similarly to block length various personas might be interested in adjusting these and the impact on transaction fees and costs of operating a Midnight node is very big:
   - cost model
   - transaction limits
   - ticket cost factor
-- Ariadne parameters - to allow both increase and decrease of decentralization in Midnight consensus, as well as to avoid separate keys to manage consensus:
+- Ariadne parameters - to allow both increase and decrease of decentralization in Midnight consensus, as well as to avoid separate keys to manage consensus. SPOs and compliance officers might be particularly insterested in those. The former mostly because of the number of chances d-parameter allows, the latter because of permissioned keys ownership in context of d-parameter value:
   - permissioned keys
   - d-parameter
   - governance authority
 
-Indirectly, also block weights (substrate configuration parameter) will need to be dynamically adjusted as a result of possible ledger parameters update.
+Indirectly, also block weights (substrate configuration parameter) will need to be dynamically adjusted as a result of ledger parameters update.
 
 4 mechanics are needed to be in place, to effectively allow managing those parameters:
 1. To allow Ariadne parameters being governed by Midnight's governance
@@ -84,7 +84,7 @@ Set of governed parameters and all mechanics needed to update them are identifie
 
 ## Additional notes
 
-Following parameters were taken into consideration for being managed under consensus, but were rejected:
-`MaxAuthorities` - despite being needed internally for configuration, it feels like a parameter, which should be set once to a relatively high, yet safe, value, and not touched until absolutely necessary, in which case in can be done by runtime upgrade
+Following parameters were taken into consideration for being managed under governance, but were rejected:
+`MaxAuthorities` - despite being needed internally for configuration, it feels like a parameter, which should be set once to a relatively high, yet safe, value, and not touched until absolutely necessary, in which case in can be done by runtime upgrade/hard-fork; SPOs might want to increase it, but in such case Midnight might be ready to become a fully decentralized and independent network.
 `SessionLength` and `SlotsPerEpoch` - aura/Partner chains documentation explicitly mentions they should not be changed on a running network (likely to not mess with calculations between timestamp and session/slot number)
-`BlockWeight` - it is enough its value is calculated in relation to ledger cost model
+`BlockWeight` - it is enough its value is calculated in relation to ledger cost model. Managing its value with governance brings complications to calculating its value in relation to ledger cost model and increases likelihood of a mistake made.
