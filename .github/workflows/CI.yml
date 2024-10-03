@@ -17,28 +17,10 @@ jobs:
         with:
           node-version-file: './components/WalletEngine/key-derivation-reference/.nvmrc'
 
-      - name: Dependencies cache restore
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ./components/WalletEngine/key-derivation-reference/node_modules
-          key: npm-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            npm-${{ github.ref_name }}
-            npm-main
-
       - name: Install dependencies
         run: |
           cd ./components/WalletEngine/key-derivation-reference
           npm install
-
-      - name: Dependencies cache save
-        uses: actions/cache/save@v3
-        if: always()
-        with:
-          path: |
-            ./components/WalletEngine/key-derivation-reference
-          key: npm-${{ github.ref_name }}-${{ github.run_id }}
 
       - name: Check test vectors
         run: |
