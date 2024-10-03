@@ -18,7 +18,7 @@ jobs:
           node-version-file: './components/WalletEngine/key-derivation-reference/.nvmrc'
 
       - name: Dependencies cache restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             ./components/WalletEngine/key-derivation-reference/node_modules
@@ -33,7 +33,7 @@ jobs:
           npm install
 
       - name: Dependencies cache save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         if: always()
         with:
           path: |
