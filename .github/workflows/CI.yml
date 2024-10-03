@@ -25,7 +25,7 @@ jobs:
           key: npm-${{ github.ref_name }}-${{ github.run_id }}
           restore-keys: |
             npm-${{ github.ref_name }}
-            npm-master
+            npm-main
 
       - name: Install dependencies
         run: |
