@@ -93,4 +93,135 @@ comparison uncovers any discrepancies. This way, any addition,
 deletion, or modification of Compact's syntax in either place that is
 not propagated properly will be caught automatically. 
 
+
+
+## Example 
+
+As an example, we compare the syntax defintion of Compact types
+between the (1) Nanopass IR, (2) Agda spec, and (3) a JSON object
+generated from the Agda spec.  A similar extraction of JSON objects
+should be developed for the compiler. At the moment, we don't have
+this yet.
+
+Similar definitions exist on both sides (and should be compared) for
+other syntactic sorts in the language, and ultimately other
+intermediate languages used by the compiler.
+
+### Nanopass IR
+
+```scheme 
+(Type (type)
+  tref
+  (tboolean src)                         => (tboolean)
+  (tfield src)                           => (tfield)
+  (tunsigned src tsize)                  => (tunsigned tsize)        ; range from 0 to 2^{tsize}-1
+  (tunsigned src tsize tsize^)           => (tunsigned tsize tsize^) ; range from tsize to tsize^
+  (tbytes src tsize)                     => (tbytes tsize)
+  (topaque src opaque-type)              => (topaque opaque-type)
+  (tvector src tsize type)               => (tvector tsize type)
+  (tvoid src)                            => (tvoid)
+  (tunknown)                             => (tunknown)
+  )
+```
+
+### Agda specification 
+
+```agda 
+  data LsrcType : Set where
+    Tref       : (tref : LsrcTypeRef)                     → LsrcType
+    Tboolean   :                                            LsrcType
+    Tfield     :                                            LsrcType
+    Tunsigned  : (tsize : LsrcTypeSize)                   → LsrcType
+    Tunsigned1 : (tsize tsize^ : LsrcTypeSize)            → LsrcType
+    Tbytes     : (tsize : LsrcTypeSize)                   → LsrcType
+    Topaque    : (opaque-type : Name)                     → LsrcType
+    Tvector    : (tsize : LsrcTypeSize) (type : LsrcType) → LsrcType
+    Tvoid      :                                            LsrcType
+```
+
+### JSON representation 
+
+The JSON representation below is generated automatically from the Agda spec. 
+
+```json 
+  "constructors":[
+     {
+        "args":[
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcTypeRef"
+           }
+        ],
+        "consname":"Tref"
+     },
+     {
+        "args":[
+           
+        ],
+        "consname":"Tboolean"
+     },
+     {
+        "args":[
+           
+        ],
+        "consname":"Tfield"
+     },
+     {
+        "args":[
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcTypeSize"
+           }
+        ],
+        "consname":"Tunsigned"
+     },
+     {
+        "args":[
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcTypeSize"
+           },
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcTypeSize"
+           }
+        ],
+        "consname":"Tunsigned1"
+     },
+     {
+        "args":[
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcTypeSize"
+           }
+        ],
+        "consname":"Tbytes"
+     },
+     {
+        "args":[
+           {
+              "sort":"Language.Syntax.Lsrc.Name"
+           }
+        ],
+        "consname":"Topaque"
+     },
+     {
+        "args":[
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcTypeSize"
+           },
+           {
+              "sort":"Language.Syntax.Lsrc.LsrcType"
+           }
+        ],
+        "consname":"Tvector"
+     },
+     {
+        "args":[
+           
+        ],
+        "consname":"Tvoid"
+     }
+  ],
+  "name":"Language.Syntax.Lsrc.LsrcType"
+}
+```
+
 # References 
+
+
