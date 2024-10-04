@@ -1,10 +1,10 @@
 ---
 monofont: DejaVuSansMono
-title: "Formal Methods for Midnight"
+title: "Integrating Compact's Compiler and Language Specification"
 author:
   - Cas van der Rest
 date:
-  - September 9, 2024
+  - October 4, 2024
 output: pdf_document
 bibliography: references.bib
 fontfamily: merriweather
@@ -66,7 +66,7 @@ language would be to update this shared definition, which would prompt
 both the compiler as well as the specification to be updated.  This
 approach, however, would require significant effort, both to develop a
 suitable shared representation that includes all non-shared
-information that is specific to internal representations of the
+information that is specific to internal representations of th
 compiler/spec, as well as re-engineering of the compiler to use this
 shared representation instead of the current internal definitions of
 intermediate representations.
@@ -93,3 +93,4 @@ comparison uncovers any discrepancies. This way, any addition,
 deletion, or modification of Compact's syntax in either place that is
 not propagated properly will be caught automatically. 
 
+# References 
