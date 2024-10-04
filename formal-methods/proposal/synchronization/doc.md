@@ -93,7 +93,25 @@ comparison uncovers any discrepancies. This way, any addition,
 deletion, or modification of Compact's syntax in either place that is
 not propagated properly will be caught automatically. 
 
+## Next Steps
 
+The next steps are to: 
+
+1. develop JSON extraction from Nanopass IRs, 
+
+2. unify naming (and other) discrepancies in the emitted JSON
+   representations, 
+   
+3. design a mechanism for comparing representations, 
+
+4. tie the existing static semantics spec to the `Lsrc` IR used in
+   `compacc`, 
+
+5. integrate synchronization and specification checking into the
+   compiler's build pipeline and/or Github CI, and 
+   
+6. define a procedure for language updates that affect syntax shared
+   by the compiler and specification.
 
 ## Example 
 
