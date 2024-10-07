@@ -1,7 +1,8 @@
-# Proposal 0002: Error Handling in TS for good quality and good developer experience
+# Proposal 0002: Error Handling in TypeScript
+## for good quality and a good developer experience
 
-Status: proposed, temporarily this proposal is freezed and development is moving forward with Option #3
-Jira ticker: https://input-output.atlassian.net/browse/PM-3878
+Status: proposed, temporarily this proposal is frozen and development is moving forward with Option #3.
+Jira ticket: https://input-output.atlassian.net/browse/PM-3878
 
 # Problem Statement
 We want a common, consistent approach to raise and handle error across different components, so that overall experience exposed to DApp developers and other Midnight developers does not cause surprises. It is important to provide a way to exhaustively handle all of the expected errors coming from a given API so that one can be sure about not leaving things to pure luck (and, for example, learning about specific error only after dapp is deployed) or the happy path.
