@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --overlapping-instances --safe #-} 
+{-# OPTIONS --without-K --backtracking-instance-search --safe #-} 
 
 -- Defines a modal separation logic for predicates over effects, based on the
 -- ternary effect separation predicate defined in Effect.Separation 

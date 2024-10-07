@@ -1,4 +1,4 @@
-{-# OPTIONS --overlapping-instances --safe #-} 
+{-# OPTIONS --backtracking-instance-search --safe #-} 
 
 open import Language.Type.Base
 open import Language.Type.Kind

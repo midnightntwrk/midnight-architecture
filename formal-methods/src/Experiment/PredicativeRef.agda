@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas --overlapping-instances #-} 
+{-# OPTIONS --allow-unsolved-metas --backtracking-instance-search #-} 
 
 open import Data.Unit 
 open import Data.Nat hiding (_^_)
@@ -196,12 +196,13 @@ data _▹_⊢_ : ∀ ℓ → (Γ : Ctx ℓ) (t : Type ℓ) → Set where
            → ℓ′ ▹ restrict px Γ ⊢ t
 
   abs    : ∀ {s : Type ℓ′}
-           → (px : ℓ′ ≲ ℓ) 
-           → ℓ ▹ insert ◇⟨ px , s ⟩ (Γ .next ℓ refl) ⊢ t
+           → (ι : ℓ′ ≲ ℓ) 
+           → ℓ ▹ insert ◇⟨ ι , s ⟩ (Γ .next ℓ refl) ⊢ t
              -------------------------------------------
-           → suc ℓ ▹ Γ ⊢ fun (↑ px s) t
+           → suc ℓ ▹ Γ ⊢ fun (↑ ι s) t
    
-  app    :   suc ℓ ▹ Γ ⊢ fun s t → ℓ ▹ Γ .next _ refl ⊢ s
+  app    :   (ι : ℓ′ ≼ suc ℓ)
+           →  suc ℓ ▹ Γ ⊢ fun {!!} {!!} → ℓ′ ▹ {!!}  ⊢ s
              --------------------------------------------
            → suc ℓ ▹ Γ ⊢ ↑ˢ t
 
@@ -267,25 +268,29 @@ replace (≼-s m ι) Λ′ Λ = ⟪ Λ .current , (λ where _ refl → replace �
 -- This witnesses that `extend` is a natural transformation in some sense
 commute-extend : {Λ : Loc ℓ} (Λ′ : Loc ℓ′) → (ι : ℓ′ ≲ ℓ) → (xs : List (◇ Type ℓ′)) → replace ι (extend xs (restrict ι Λ)) Λ ≡ extend (lmap (Monotone.weaken ◇-weaken ι) xs) Λ
 commute-extend Λ′ ≼-≡ xs = {!!}
-commute-extend {Λ = Λ} Λ′ (≼-s m ι) [] =
+commute-extend {Λ = Λ} Λ′ (≼-s m ι) xs =
   begin
-    replace (≼-s m ι) (extend [] (restrict (≼-s m ι) Λ)) Λ
+    replace (≼-s m ι) (extend xs (restrict (≼-s m ι) Λ)) Λ
   ≡⟨⟩
-    replace ((≼-s m ι)) (restrict ((≼-s m ι)) Λ) Λ
-  ≡⟨ {!!} ⟩ 
-    Λ 
-  ≡⟨⟩
-    extend [] Λ  
-  ≡⟨⟩ 
-    extend (lmap (Monotone.weaken ◇-weaken (≼-s m ι)) []) Λ
-  ∎
-  where
-    open ≡-Reasoning
-commute-extend {Λ = Λ} Λ′ (≼-s m ι) (x ∷ xs) = {!!}
+    replace (≼-s m ι) (extend xs (restrict ι (Λ .next _ refl))) Λ
+  ≡⟨ cong ⟪ Λ .current ,_⟫ {!!} ⟩
+    ⟪ Λ .current , (λ where _ refl → replace ι Λ′ (extend {!!} (replace ι Λ′ (Λ .next _ refl)))) ⟫
+  ≡⟨ {!!}  ⟩
+    extend (lmap (weaken (≼-s m ι)) xs) Λ
+  ∎ 
+  where open ≡-Reasoning 
 
-update-store : (Λ′ : Loc ℓ′) (Λ : Loc ℓ) (ι : ℓ′ ≲ ℓ) → Store Λ′ → Store Λ → Store (replace ι Λ′ Λ)
-update-store Λ′ Λ ≼-≡       ζ′ ζ        = ζ′
-update-store Λ′ Λ (≼-s m ι) ζ′ (vs , ζ) = amap (weaken {!!}) vs , update-store Λ′ (Λ .next _ refl) ι ζ′ ζ
+⊑-lemma : (Λ′ : Loc ℓ′) (Λ : Loc ℓ) (ι : ℓ′ ≲ ℓ) → restrict ι Λ ⊑ Λ′ → Λ ⊑ replace ι Λ′ Λ
+⊑-lemma Λ′ Λ ≼-≡ sub = sub
+⊑-lemma Λ′ Λ (≼-s m ι) sub = {!!} 
+
+update-store : (Λ′ : Loc ℓ′) (Λ : Loc ℓ) (ι : ℓ′ ≲ ℓ) → restrict ι Λ ⊑ Λ′ → Store Λ′ → Store Λ → Store (replace ι Λ′ Λ)
+update-store Λ′ Λ ≼-≡       sub ζ′ ζ        = ζ′
+update-store Λ′ Λ (≼-s m ι) sub ζ′ (vs , ζ)
+  = amap
+    ( λ {t} →
+        val-monotone {t = t} .Monotone.weaken (⊑-lemma Λ′ Λ (≼-s m ι) sub)
+    ) vs , update-store Λ′ (Λ .next _ refl) ι sub ζ′ ζ
 
 restrict-replace : ∀ (P : Loc ℓ′ → Set) Λ Λ′ → (ι : ℓ′ ≼ ℓ) → P Λ′ → P (restrict ι (replace ι Λ′ Λ)) 
 restrict-replace P Λ Λ′ ≼-≡       px = px
@@ -293,61 +298,61 @@ restrict-replace P Λ Λ′ (≼-s m ι) px = restrict-replace P (Λ .next m ref
 
 embed : ∀ P Λ → (ι : ℓ′ ≲ ℓ) → T ℓ′ P (restrict ι Λ) → T ℓ (restrict ι ⊢ P) Λ
 embed P Λ ι m ζ with m (trim-store ι ζ)
-... | Λ′ , ζ′ , px , ⊑⟨ xs , refl ⟩
+... | Λ′ , ζ′ , px , sub@(⊑⟨ xs , refl ⟩)
   = replace ι Λ′ Λ
-  , update-store Λ′ Λ ι ζ′ ζ
+  , update-store Λ′ Λ ι sub ζ′ ζ
   , restrict-replace P Λ Λ′ ι px
   , ⊑⟨ lmap (weaken ι) xs , commute-extend Λ′ ι xs ⟩
 
 
--- postulate instance env-monotone : Monotone _ _≲_ (Env ℓ Γ)
+postulate instance env-monotone : Monotone _ _≲_ (Env ℓ Γ)
 
--- ⟦_⟧ : ℓ ▹ Γ ⊢ t → ∀[ Env ℓ Γ ⇒ T ℓ ⟦ t ⟧ᵀ ]
+⟦_⟧ : ℓ ▹ Γ ⊢ t → ∀[ Env ℓ Γ ⇒ T ℓ ⟦ t ⟧ᵀ ]
 
--- ⟦ u     ⟧ γ = return tt
+⟦ u     ⟧ γ = return tt
 
--- ⟦ var x ⟧ γ = return (resolve x γ)
+⟦ var x ⟧ γ = return (resolve x γ)
 
--- ⟦ abs px M ⟧ (level _ γ) = return (necessary λ ι v → ⟦ M ⟧ (extend-env {!!} {!v!} (weaken ι γ)))
+⟦ abs ι M ⟧ (level _ γ) = return (necessary λ sub v → ⟦ M ⟧ (extend-env ι {!v!} (weaken sub γ)))
 
--- ⟦ app M N ⟧ γ = do
---   (f , γ′) ← ⟦ M ⟧ γ ^ γ
---   v ← ((⟦ N ⟧ (trim (≼-s _ ≼-≡) γ′) ^ f) >>= λ (v , f′) → (□⟨ f′ ⟩ ([] , refl)) v) ‼
---   {!!} 
+⟦ app ι M N ⟧ γ = do
+  (f , γ′) ← ⟦ M ⟧ γ ^ γ
+  embed _ _ {!!} {!!} -- v ← ((⟦ N ⟧ (trim (≼-s _ ≼-≡) γ′) ^ f) >>= λ (v , f′) → (□⟨ f′ ⟩ ([] , refl)) v) ‼
+  {!!} 
 
--- ⟦ ref M ⟧ γ = do
---   v ← ⟦ M ⟧ γ
---   {!!}
+⟦ ref M ⟧ γ = do
+  v ← ⟦ M ⟧ γ
+  {!!}
 
--- ⟦ deref M ⟧ γ = {!!}
+⟦ deref M ⟧ γ = {!!}
 
--- ⟦ update M N ⟧ γ = {!!}
+⟦ update M N ⟧ γ = {!!}
 
--- ⟦ letin M N ⟧ γ = do
---   (v₁ , γ′) ← ⟦ M ⟧ γ ^ γ
---   ⟦ N ⟧ (extend-env ≼-refl v₁ γ′)
+⟦ letin M N ⟧ γ = do
+  (v₁ , γ′) ← ⟦ M ⟧ γ ^ γ
+  ⟦ N ⟧ (extend-env ≼-refl v₁ γ′)
 
--- -- -- (λ x . x) u : unit 
--- -- term₁ : suc ℓ ▹ ∅ᶜ ⊢ unit
--- -- term₁ = app ≼-≡ (abs ≼-≡ (var (∈-current (here refl)))) u
+-- -- (λ x . x) u : unit 
+-- term₁ : suc ℓ ▹ ∅ᶜ ⊢ unit
+-- term₁ = app ≼-≡ (abs ≼-≡ (var (∈-current (here refl)))) u
 
--- -- -- let r = ~(λ x . x) in !r u : unit  
--- -- term₂ : suc ℓ ▹ ∅ᶜ ⊢ unit
--- -- term₂ = letin (ref (abs ≼-≡ (var (∈-current (here refl))))) (app {!!} (deref (var (∈-current (here refl)))) u)
+-- -- let r = ~(λ x . x) in !r u : unit  
+-- term₂ : suc ℓ ▹ ∅ᶜ ⊢ unit
+-- term₂ = letin (ref (abs ≼-≡ (var (∈-current (here refl))))) (app {!!} (deref (var (∈-current (here refl)))) u)
 
 
--- -- -- let r = ~(λ x . x) in r := (λ x . {- ?? -} ) ; r u
--- -- --
--- -- -- Impossible to construct, because:
--- -- --
--- -- -- 1. when constructing a closure, in the body we can only refer to variables
--- -- --    that are typed at a lower store level than the closure itself.
--- -- --
--- -- -- 2. When updating the reference r, the closure we intend to put there has a
--- -- --    body that is typed at a lower level than r itself. 
--- -- --
--- -- -- 3. Therefore, r is out of scope in the body, and we cannot construct Landin's
--- -- --    knot.
--- -- -- 
--- -- term₃ : suc ℓ ▹ ∅ᶜ ⊢ unit
--- -- term₃ {ℓ = ℓ} = letin (ref (abs {ℓ = ℓ} {s = unit} ≼-≡ (var (∈-current (here refl))))) (letin (update (var (∈-current (here refl))) (abs ≼-≡ {!!})) (app {!!} (deref {!!}) u)) 
+-- -- let r = ~(λ x . x) in r := (λ x . {- ?? -} ) ; r u
+-- --
+-- -- Impossible to construct, because:
+-- --
+-- -- 1. when constructing a closure, in the body we can only refer to variables
+-- --    that are typed at a lower store level than the closure itself.
+-- --
+-- -- 2. When updating the reference r, the closure we intend to put there has a
+-- --    body that is typed at a lower level than r itself. 
+-- --
+-- -- 3. Therefore, r is out of scope in the body, and we cannot construct Landin's
+-- --    knot.
+-- -- 
+-- term₃ : suc ℓ ▹ ∅ᶜ ⊢ unit
+-- term₃ {ℓ = ℓ} = letin (ref (abs {ℓ = ℓ} {s = unit} ≼-≡ (var (∈-current (here refl))))) (letin (update (var (∈-current (here refl))) (abs ≼-≡ {!!})) (app {!!} (deref {!!}) u)) 
