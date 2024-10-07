@@ -18,7 +18,7 @@ proposed
 Compact is marketed as "TypeScript-inspired" or "TypeScript-based".  There are
 several good reasons to make the language like TypeScript:
 
-* Developers who are used to reading TypeScript will find it easy to read
+* Developers who are used to reading TypeScript will find it easier to read
   Compact code.
 
 * Developers who write both Compact and TypeScript code will find low friction
@@ -27,7 +27,7 @@ several good reasons to make the language like TypeScript:
 * As the language designers, it gives us a guide for syntactic decisions that
   are somewhat arbitrary.
 
-The current Compact language (version 0.8.1) has some differences from
+The current Compact language (version 0.10.1) has some differences from
 TypeScript and some features that don't feel very "TypeScripty", which we've
 decided to change.  We list all those features here, rather than making them
 into separate ADRs.
@@ -37,9 +37,12 @@ into separate ADRs.
 Here is a quick summary of the changes we will make:
 
 * `Foo[Bar, Baz]` becomes `Foo<Bar, Baz>`
+* Generic size parameters (natural numbers) are prefixed with `#` in definitions
+* Bounded unsigned integers have both a lower (currently always `0`) and upper
+  bound, `[<= N]` becomes `<0..N>`
 * `null(Foo)` becomes `default<Foo>`
 * `map add over v0 over v1` becomes `map(add, v0, v1)`
-* `Unsigned Integer[32]` becomes `Unsigned<32>`
+* `Unsigned Integer` becomes `Uint`
 
 ## Generics
 
@@ -83,8 +86,11 @@ something else.  There are several reasons to distinguish these:
 We've chosen to use TypeScript-style angle brackets everywhere.
 
 Developers can update their code by replacing the square brackets on generic
-definitions and instantiations to use angle brackets.  This change could be
-automated.
+definitions and instantiations to use angle brackets.
+
+We could provide a tool to automate this change.  Note that it requires
+distinguishing square brackets used for generics from square brackets used for
+vector literals and vector indexing.
 
 We've decided to make two additional changes to generics:
 
@@ -102,6 +108,11 @@ We've decided to make two additional changes to generics:
   bounds.  Currently, lower bounds are always zero.  So the developer will
   instead write `Unsigned Integer<0..99>` to mean an unsigned integer with lower
   bound 0 and upper bound 99, both inclusive.
+  
+We could provide a tool to automate both of these changes.  Prefixing natural
+number generic parameters with `#` requires parameter kind inference.  For
+unused parameters, we cannot necessarily infer whether it is a natural number or
+a type.
   
 ## Default values
 
@@ -128,6 +139,7 @@ C#) instead of `null`.  We will also change them to look like a generic
 instantiation by using angle brackets.
 
 Developers can update their code by changing `null(Foo)` to `default<Foo>`.
+
 This change could be automated.
 
 ## `map` and `fold`
@@ -170,9 +182,12 @@ Developers can update their code by changing `map f over v` to `map(f, v)` and
 likewise for multiple vector arguments.  They can change `fold f i over v` to
 `fold(f, i, v)`.
 
+We could provide a tool to automate this change.  Indentation will be
+potentially disturbed by replacing the `over` keywords with commas.
+
 ## Unsigned integer types
 
-Compact writes `Unsigned Integer[32]` for a sized unsigned integer type (holding
+Compact uses `Unsigned Integer[32]` for a sized unsigned integer type (holding
 values that can fit in 32 bits in this case) and `Unsigned Integer[<= 99]` for a
 bounded unsigned integer type (holding values in the closed interval [0, 99]).
 
@@ -186,16 +201,14 @@ in practice.
 
 * No change to Compact
 * Use just `Unsigned` instead of `Unsigned Integer`
-* Use the abbreviation `UInt`
+* Use the abbreviation `UInt` or `Uint`
 
 ### Decision Outcome
 
-We will adopt the second of these options, replacing `Unsigned Integer` with
-`Unsigned`.  Compact doesn't currently use abbreviations in its builtin types,
-so we opted against the third of these.  (Note however, that Compact does
-abbreviate the keywords `struct` and `enum`.)
+We will adopt the third of these options, replacing `Unsigned Integer` with
+`Uint`.
 
-Developers can update their code by changing `Unsigned Integer` to `Unsigned`.
+This change could be automated.
 
 ## Validation
 
