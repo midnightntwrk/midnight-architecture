@@ -131,10 +131,7 @@ tab, space, `I`, tab" to complete the type name.
 So we think it's desirable to use a shorter name for this type, and to make it a
 single keyword.
 
-> **We propose to use the keyword `UInt` for the unsigned integer type.**
-
-We are following the convention that types are capitalized, even builtin ones.
-They use CamelCase, and `U` and `Int` are "obvious" abbreviations in this case.
+> **We propose to use the keyword `Uint` for the unsigned integer type.**
 
 There was an earlier proposal to keep the longer names, but to introduce type
 aliases to the language so that programmers could define their own short alias
@@ -167,7 +164,10 @@ arrays), the equivalents would be `v0.map(add, v1)` (though, note,
 `Array.prototype.map` only works for single argument functions) and
 `v0.reduce(add, 0)`.
 
-Here are three possible proposals to consider:
+Instead, we will make `map` and `fold` look like functions.  The examples above
+will be written `map(add, v0, v1)` and `fold(add, 0, v1)`.
+
+Here are three possible proposals we discussed and ultimately rejected:
 
 #### `map` and `fold` are prefix operators
 
@@ -217,19 +217,3 @@ Advantages are: (1) it's not completely surprising to TypeScript developers, (2)
 it removes `map` and `fold` as keywords, and (3) the "curried" version `add.map`
 is practically useful (if we ever allowed it) as a circuit that takes a pair of
 vectors and maps the fixed circuit `add` over them.
-
-## Proposed Rollout Plan
-
-[TODO: Describe how we plan to communicate these changes to developers, and how
-we will roll them out.  We need to reach developers, and clearly explain why we
-are making these changes and asking them to change their code.  Though these are
-breaking changes, we might choose to just change the syntax rather than (1)
-deprecate the old one and introduce the new onen and then (2) later remove the
-old one.  Note also that we have to update documentation, example DApps, and
-tests at the same time.  These changes (along with the ledger syntax changes,
-which possibly needs identifier renaming) could be performed by an automated
-tool that we could build and distribute.]
-
-## Desired Result
-[TODO: Finally, describe what you hope to achieve and how you can evaluate that you
-have achieved it.]
