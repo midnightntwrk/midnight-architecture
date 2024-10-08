@@ -88,7 +88,7 @@ struct ZswapOutput {
     commitment: CoinCommitment,
     contract: Option<ContractAddress>,
     value_commitment: curve::embedded::Affine,
-    ciphertext: Ciphertext,
+    ciphertext: Option<Ciphertext>,
     proof: Proof,
 }
 ```
@@ -162,6 +162,24 @@ input that is *bound* to, that is, that the proof will verify only if this
 input matches exactly. This is used to bind to the ciphertext for
 `ZswapOutput`, but is currently unused for `ZswapInput`.
 
+Explicitly, proof verification is performed as:
+
+```rust
+impl ZswapInput {
+    fn verify(self, segment: u16) -> Result<()> {
+        assert!(zk_verify(input_valid, (self, segment), None, self.proof));
+    }
+}
+
+impl ZswapOutput {
+    fn verify(self, segment: u16) -> Result<()> {
+        assert!(zk_verify(output_valid, (self, segment), Some(ciphertext), self.proof));
+        // Can't have ciphertexts for contracts.
+        assert!(self.contract.is_none() || self.ciphertext.is_none());
+    }
+}
+```
+
 ## Effects of inputs and outputs
 
 Inputs and outputs can be applied against the current state. This application
@@ -229,6 +247,43 @@ struct ZswapTransient {
     proof_input: Proof,
     proof_output: Proof,
 }
+
+impl ZswapTransient {
+    fn as_input(self) -> ZswapInput {
+        ZswapInput {
+            merkle_tree_root: MerkleTree::new().insert(0, self.commitment).root(),
+            nullifier: self.nullifier,
+            contract: self.contract,
+            value_commitment: self.value_commitment_input,
+            proof: self.proof_input
+        }
+    }
+    fn as_output(self) -> ZswapOutput {
+        ZswapOutput {
+            commitment: self.commitment,
+            contract: self.contract,
+            value_commitment: self.value_commitment_output,
+            ciphertext: None,
+            proof: self.proof_output
+        }
+    }
+    fn verify(self, segment: u126) -> Result<()> {
+        self.as_input().verify()?;
+        self.as_output().verify()?;
+    }
+}
+
+impl ZswapState {
+    fn apply_transient(self, trans: ZswapTransient) -> Result<Self> {
+        assert!(!self.commitment_set.contains(trans.commitment));
+        assert!(!self.nullifiers.contains(trans.nullifier));
+        self.commitment_set = self.commitment_set.insert(trans.commitment);
+        self.commitment_tree = self.commitment_tree.insert(self.commitment_tree_first_free, trans.commitment);
+        self.commitment_tree_first_free = self.commitment_tree_first_free + 1;
+        self.nullifiers = self.nullifiers.insert(trans.nullifier);
+        return self;
+    }
+}
 ```
 
 ## Offers
@@ -244,6 +299,23 @@ struct ZswapOffer {
     outputs: Set<ZswapOutput>,
     transients: Set<ZswapTransient>,
     deltas: Map<TokenType, i128>,
+}
+
+impl ZswapOffer {
+    fn verify(self, segment: u126) -> Result<()> {
+        inputs.all(|inp| inp.verify(segment))?;
+        outputs.all(|out| out.verify(segment))?;
+        transients.all(|trans| trans.verify(segment))?;
+    }
+}
+
+impl ZswapState {
+    fn apply(mut self, offer: ZswapOffer) -> Result<Self> {
+        self = offer.inputs.fold(self, ZswapState::apply_input)?;
+        self = offer.outputs.fold(self, ZswapState::apply_output)?;
+        self = offer.transients.fold(self, ZswapState::apply_transient)?;
+        return self;
+    }
 }
 ```
 
@@ -279,3 +351,19 @@ This value commitment must then be demonstrated to be equal to
 `ZswapOffer`s may be *merged* if they are disjoint, by taking the set unions,
 and computing the sum of the deltas. Note that any entry with value `0` in
 deltas should be omitted, as this does not affect the binding calculations.
+
+```rust
+impl ZswapOffer {
+    fn merge(self, other: ZswapOffer) -> Result<Self> {
+        assert!(self.inputs.disjoint(other.inputs));
+        assert!(self.outputs.disjoint(other.outputs));
+        assert!(self.transients.disjoint(other.transients));
+        ZswapOffer {
+            inputs: self.inputs + other.inputs,
+            outputs: self.outputs + other.outputs,
+            transients: self.transients + other.transients,
+            deltas: self.deltas + other.deltas,
+        }
+    }
+}
+```
