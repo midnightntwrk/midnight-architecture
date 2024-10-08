@@ -408,9 +408,9 @@ being considered valid.
 
 ```rust
 struct Transaction {
-    intents: Vec<Intent>,
+    intents: Map<u16, Intent>,
     guaranteed_offer: Option<ZswapOffer>,
-    fallible_offer: Option<ZswapOffer>,
+    fallible_offer: Map<u16, ZswapOffer>,
     binding_randomness: Fr,
 }
 ```
@@ -473,13 +473,6 @@ struct ZswapOffer {
 - Balance preservation: A transaction does not create or destroy funds, except to the extent permitted in contract mints.
 - Binding: A made of multiple parts by a single user cannot have only a part of it used by another user.
 - Infragility: A user cannot cause a transaction that would succeed to fail in its fallible section by merging it with something else.
- >>> Q: Can you shift things into the fallible transcript, or does that break the proof (likely the binding component) if it doesn't, it should!
- >>> Q: Can you take a guaranteed offer, and without changing anything else, make it a fallible offer? Probably? Is that an issue?
- >>> FIXME: I think intents violate infragility, as you can always merge with a fallible offer that fails. Currently, this is circumvented by just trying to apply the offer in the fallible section, but allowing multiple call parts means that _all_ of these have to succeed. So, to fail any transaction's fallible section, just merge it with a (paid for) intent that asserts false in a contract.
- >>> We could fix this by:
-    a) Separating fallible offers per intent (binding randomness won't be enough anymore?)
-    b) Not allowing multiple call sections :shrug:
-    c) ???
 - Causality: A user cannot use the output of a failed contract call to convince a succeeded contract call that this output is correct.
 - Self-determination:
   a. A user cannot spend the funds of another user.
