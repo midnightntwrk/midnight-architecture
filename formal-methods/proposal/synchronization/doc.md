@@ -240,6 +240,60 @@ The JSON representation below is generated automatically from the Agda spec.
 }
 ```
 
+The following JSON representation is generated from the nanpass IR in the compiler 
+
+```
+[
+   "Type",
+   [
+      "type"
+   ],
+   "tref",
+   [
+      "tboolean",
+      "src"
+   ],
+   [
+      "tfield",
+      "src"
+   ],
+   [
+      "tunsigned",
+      "src",
+      "tsize"
+   ],
+   [
+      "tunsigned",
+      "src",
+      "tsize",
+      "tsize^"
+   ],
+   [
+      "tbytes",
+      "src",
+      "tsize"
+   ],
+   [
+      "topaque",
+      "src",
+      "opaque-type"
+   ],
+   [
+      "tvector",
+      "src",
+      "tsize",
+      "type"
+   ],
+   [
+      "tvoid",
+      "src"
+   ],
+   [
+      "tunknown"
+   ]
+]
+```
+
 # References 
 
 
