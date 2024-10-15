@@ -1,0 +1,86 @@
+# Night and other unshielded tokens
+
+We construct an unshielded UTXO token set, for Night, extensible to other token
+types. UTXOs, or unspent transaction outputs, are data recording inividual
+transaction outputs, each having a value and an owner. As we are extending
+these with token types, they also have an associated token type in our model.
+
+## Building UTXOs
+
+We define the basic structure of an individual UTXO, define the data for
+creating a new UTXO output, which is just the UTXO itself, and for spending a
+UTXO. The latter acts not just as a standalone transaction part, but
+encompasses other data – this is because a spend comes with conditions on what
+it is used for. Defining the composition of these is beyond this document.
+Finally, the state maintained for UTXOs at any time is simply a set of all
+UTXOs.
+
+We use the term `value` here to mean 'amount of indivisible units of the given
+token type'.
+
+```rust
+struct Utxo {
+    value: u128,
+    owner: Hash<VerifyingKey>,
+    type_: TokenType,
+    intent_hash: Hash<Intent>,
+    output_no: u32,
+}
+
+struct UtxoOutput {
+    value: u128,
+    owner: Hash<VerifyingKey>,
+    type_: TokenType,
+}
+
+struct UtxoSpend {
+    value: u128,
+    owner: VerifyingKey,
+    type_: TokenType,
+    intent_hash: Hash<Intent>,
+    output_no: u32,
+}
+```
+
+The state associated with the UTXO subsystem is simply the set of UTXOs:
+
+```rust
+struct UtxoState {
+    utxos: Set<Utxo>,
+}
+```
+
+Building this into transaction will be through out [intent
+system](./intents-transactions.md), where the component here is an *unbalanced
+and unshielded offer*. The word offer here implies a collection of UTXO inputs
+and outputs, that is *not* necessarily balanced by itself. This collection must
+have a set of signatures, which each sign the containing
+[`Intent`](./intents-transactions.md) object. Taken literally, this means that
+signatures must sign themselves, so we instead expose a variant without
+signatures, by adding a type parameter `S`, which may be instantiated either
+with the unit type `()`, or the type `Signature<Intent<(), ()>>`. (Therefore, the
+full type for `Intent` is `Intent<Signature<Intent<(), ()>>, Proof>`)
+
+Due to the technicalities of [dust generation](./dust.md), a variant of
+`UtxoOutput`, `GeneratingUtxoOutput` also exists, which can appear in the place
+of outputs here.
+
+```rust
+struct UnshieldedOffer<S> {
+    inputs: Vec<UtxoSpend>,
+    output: Vec<Either<UtxoOutput, GeneratingUtxoOutput>>,
+    signatures: Vec<Signature<Intent<()>>>,
+}
+```
+
+A canonical ordering is imposed on the inputs, and outputs sets. The signatures
+must be the same length as inputs, with each signature authorizing the
+corresponding input. It signs the parent intent data, excluding signatures or
+ZK-proofs, and must be valid wrt. the respective input's verifying key.
+
+The effect of an offer is the removal of each of the spends from the
+`UtxoState` (which must be unique and present), and the insertion of the
+outputs into the `UtxoState` (which must be unique and *not* present). Note
+that transactions are fully defined in [the relevant
+section](./intents-transactions.md), and that offers must be balanced to be
+applied.
