@@ -5,11 +5,9 @@
 import {
   coinKeys,
   encryptionSecretKey,
-  Field,
   fromScalar,
-  JubJubScalar,
-  ErisScalar,
-} from "./reference.js";
+  ErisScalar, dustSecretKey, PlutoScalar,
+} from './reference.js';
 import { program, Option } from "commander";
 import * as fs from "node:fs";
 import * as jestDiff from "jest-diff";
@@ -47,16 +45,22 @@ const seeds = [
   ),
 ];
 
-function generateTestVectors(seeds: Buffer[], field: Field) {
+function generateTestVectors(seeds: Buffer[]) {
   return seeds.map((seed) => {
-    const { key, intermediateBytes } = encryptionSecretKey(seed, field);
+    const esk = encryptionSecretKey(seed);
+    const dsk = dustSecretKey(seed);
     const coinKeyPair = coinKeys(seed);
     return {
       seed: seed.toString("hex"),
       encryption: {
-        secretKeyRepr: fromScalar(key, field).toString("hex"),
-        secretKeyDecimal: key.toString(10),
-        secretKeyIntermediateBytes: intermediateBytes.toString("hex"),
+        secretKeyRepr: fromScalar(esk.key, ErisScalar).toString("hex"),
+        secretKeyDecimal: esk.key.toString(10),
+        secretKeyIntermediateBytes: esk.intermediateBytes.toString("hex"),
+      },
+      dust: {
+        secretKeyRepr: fromScalar(dsk.key, PlutoScalar).toString("hex"),
+        secretKeyDecimal: dsk.key.toString(10),
+        secretKeyIntermediateBytes: dsk.intermediateBytes.toString("hex"),
       },
       coin: {
         secretKey: coinKeyPair.secretKey.toString("hex"),
@@ -65,15 +69,6 @@ function generateTestVectors(seeds: Buffer[], field: Field) {
     };
   });
 }
-
-const fields = {
-  JubJubScalar: JubJubScalar,
-  ErisScalar: ErisScalar,
-};
-
-const fieldsOption = new Option("--field <field>", "What field to target")
-  .choices(Object.keys(fields))
-  .default("ErisScalar");
 
 program
   .description("Generate&test test vectors for key derivation")
@@ -87,10 +82,8 @@ program
     "Generate test vectors and print them, optionally saving to a file",
   )
   .option("--file <file>", "If and where to output generated vectors")
-  .addOption(fieldsOption)
   .action((options) => {
-    const field = fields[options.field];
-    const values = generateTestVectors(seeds, field);
+    const values = generateTestVectors(seeds);
     const toPrint = JSON.stringify(values, null, 2);
     process.stdout.write(toPrint);
     process.stdout.write("\n");
@@ -103,10 +96,8 @@ program
   .command("test")
   .description("Test provided file against implementation")
   .requiredOption("--file <file>", "Where to look for vectors to test")
-  .addOption(fieldsOption)
   .action((options) => {
-    const field = fields[options.field];
-    const values = generateTestVectors(seeds, field);
+    const values = generateTestVectors(seeds);
     const fromFile = JSON.parse(fs.readFileSync(options.file, "utf-8"));
 
     if (isEqual(values, fromFile)) {
