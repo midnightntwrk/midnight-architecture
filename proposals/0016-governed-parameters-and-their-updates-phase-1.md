@@ -17,7 +17,7 @@ Following parameters are proposed to be managed under governance:
   - cost model
   - transaction limits
   - ticket cost factor
-- Ariadne parameters - to allow both increase and decrease of decentralization in Midnight consensus, as well as to avoid separate keys to manage consensus. SPOs and compliance officers might be particularly insterested in those. The former mostly because of the number of chances d-parameter allows, the latter because of permissioned keys ownership in context of d-parameter value:
+- Ariadne parameters - to allow both increase and decrease of decentralization in Midnight consensus, as well as to avoid separate keys to manage consensus. SPOs might be particularly interested in those, and personas looking at Midnight through compliance angle (like DApp Commissioner). Mostly because of the number of chances d-parameter allows, and its impact on system decentralization:
   - permissioned keys
   - d-parameter
   - governance authority
@@ -41,18 +41,13 @@ It is proposed to be done by turning some internals of the main chain follower i
 enum Height {
   EpochStart(EpochNumber),
   EpochEnd(EpochNumber),
-  LastBlock,
-  SpecificBlock(BlockNumber)
+  Block(BlockNumber)
 }
 
 
 trait MainChainDataSource {
-  
-  /// Optional, though preferred to have, as it should make it much easier to express 
-  /// relationships like "data from end of previous epoch" etc.
-  /// An alternative in form of `BlockDataSource::get_latest_stable_block_for` should 
-  /// serve Midnight needs too
   fn resolve_epoch(&self, reference_timestamp: Timestamp) -> Result<EpochNumber, DataSourceError>; 
+  fn resolve_stable_block(&self, reference_timestamp: Timestamp) -> Result<BlockNumber, DataSourceError>;
   fn get_utxos(&self, height: Height, address: Address) -> Result<Vec<Utxo>, DataSourceError>;
 }
 
@@ -63,7 +58,7 @@ Such interface seems to serve the purpose well:
 - it is easy to imagine using it for other cases than governance, both in Midnight and outside of Midnight
 - it is not a data source-specific API, so it does not bind Midnight code to db-sync
 
-Note - this kind of interface is used internally by main chain follower already to observe current Ariadne parameters (d-parameter, permissioned keys and permissionless candidates). 
+Note - this kind of interface is used internally by main chain follower already to observe current Ariadne parameters (d-parameter, permissioned keys and permissionless candidates). Exposing this kind of API will also require exposing functions to parse datums.
 
 ### Updating parameters in Midnight based on observed changes
 
