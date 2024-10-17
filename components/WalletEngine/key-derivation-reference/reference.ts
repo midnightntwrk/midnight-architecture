@@ -4,12 +4,6 @@ export type Field = {
   bytes: number;
   modulus: bigint;
 };
-export const JubJubScalar: Field = {
-  bytes: 32,
-  modulus: BigInt(
-    "0x0e7db4ea6533afa906673b0101343b00a6682093ccc81082d0970e5ed6f72cb7",
-  ),
-};
 
 export const ErisScalar: Field = {
   bytes: 56,
@@ -17,6 +11,11 @@ export const ErisScalar: Field = {
     "0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001",
   ),
 };
+
+export const PlutoScalar: Field = {
+  bytes: 56,
+  modulus: BigInt("0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001")
+}
 
 // Take little endian bytes representation and convert to a bigint
 function toScalar(bytes: Buffer): bigint {
@@ -51,17 +50,27 @@ function sampleBytes(
   return result;
 }
 
-export function encryptionSecretKey(
-  seed: Buffer,
-  field: Field,
-): { intermediateBytes: Buffer; key: bigint } {
-  const domainSeparator = Buffer.from("midnight:esk", "utf-8");
-  // Generating 8 bytes more is important to get a better distribution of keys
-  const sampledBytes = sampleBytes(field.bytes + 8, domainSeparator, seed);
+export function sampleKey(seed: Buffer, margin: number, domainSeparator: Buffer, field: Field): { intermediateBytes: Buffer; key: bigint } {
+  // Generating some more bytes is important to get a better distribution of keys
+  const sampledBytes = sampleBytes(field.bytes + margin, domainSeparator, seed);
   return {
     key: BigInt(toScalar(sampledBytes) % field.modulus),
     intermediateBytes: sampledBytes,
   };
+}
+
+export function encryptionSecretKey(
+  seed: Buffer,
+): { intermediateBytes: Buffer; key: bigint } {
+  const field = ErisScalar;
+  const domainSeparator = Buffer.from("midnight:esk", "utf-8");
+  return sampleKey(seed, 8, domainSeparator, field);
+}
+
+export function dustSecretKey(seed: Buffer): { intermediateBytes: Buffer; key: bigint } {
+  const field = PlutoScalar;
+  const domainSeparator = Buffer.from("midnight:dsk", "utf-8");
+  return sampleKey(seed, 8, domainSeparator, field);
 }
 
 export function coinKeys(seed: Buffer): {
