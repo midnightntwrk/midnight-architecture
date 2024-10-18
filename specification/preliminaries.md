@@ -52,3 +52,58 @@ type VerifyingKey = secp256k1::Point;
 // Where `M` is the data being signed
 type Signature<M> = secp256k1::schnorr::Signature;
 ```
+
+---
+
+Midnight makes heavy use of zero-knowledge proofs, and in some cases this means
+making use of native data structures and operations that are efficient to use
+in these proofs. In particular, for data types, these are:
+
+```rust
+// The type of the arithmetic circuit's modular field
+type Fr;
+
+mod embedded {
+    // The type of the embedded curve's points
+    type CurvePoint;
+    // The type of the embedded curve's scalar field
+    type Scalar;
+}
+```
+
+Beyond the standard arithmetic operations on these types, we assume some
+proof-system friendly hash functions, one hashing to `Fr`, and one hashing to
+`embedded::CurvePoint`.
+
+```rust
+mod field {
+    type Hash<T> = Fr;
+    // In practice, this is Poseidon
+    fn hash<T>(value: T) -> Hash<T>;
+}
+mod embedded {
+    type Hash<T> = CurvePoint;
+    fn hash<T>(value: T) -> Hash<T>;
+}
+```
+
+---
+
+We assume a notion of time, provided by consensus at a block-level. For this,
+we assume a timestamp type, which corresponds to milliseconds elapsed since the
+1st of January 1970, at Midnight UTC (the UNIX epoch).
+
+```rust
+type Timestamp = u64;
+type Duration = u64;
+```
+
+We will occasionally refer to `now: Timestamp` as a pseudo-constant, in
+practice this is the reported timestamp of the most recent block, that is
+constrained by consensus to a small validity window.
+
+We will also refer to `Timestamp::MAX` with the assumption that this time is
+clearly unreachable, and assume the existence of a ledger parameter
+`global_ttl: Duration` defining a global validity window for time-to-live
+values, counting between `now` and `now + global_ttl`. This can be taken to be
+on the order of weeks.

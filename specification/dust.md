@@ -1,19 +1,19 @@
 # Dust and fee payments
 
+Midnight's fees are payed with the *Dust* token. This token is generated over
+time by Night, but also decays over time to compensate. Dust is unique in the
+Midnight system, and is not transferable.
+
 Dust is designed to be *resettable*. That is, the entire Dust subsystem state
 can be deleted without significant impact on users. Note that some impact is
 likely unavoidable, but this is considered an acceptable cost.
 
-Due to this, Dust makes heavy use of SNARK friendly cryptography, and the
-current proof system's base curve `C`.
-
+Due to this, Dust makes heavy use of SNARK friendly cryptography;
 Dust public keys are a (snark-friendly) hash of dust secret keys:
 
 ```rust
-type DustSecretKey = C::Scalar;
-// Nb. C::Hash<T> = C::Scalar. The hash function is assumed to be Poseidon
-// over C
-type DustPublicKey = C::Hash<DustSecretKey>;
+type DustSecretKey = Fr;
+type DustPublicKey = field::Hash<DustSecretKey>;
 ```
 
 A dust output consists of its value, owner, nonce, and creation time. Note
@@ -22,22 +22,23 @@ redirection of dust generation for free, by effectively incurring a debt. In
 all other cases, created outputs must have a positive value.
 
 ```rust
+type InitialNonce = Hash<(Hash<Intent>, u32)>;
+
 struct DustOutput {
     value: i128,
     owner: DustPublicKey,
-    nonce: C::Hash<(Hash<()>, u32, C::Scalar)>,
+    nonce: field::Hash<(InitialNonce, u32, Fr)>,
     seq: u32,
     ctime: Timestamp,
 }
 ```
 
-The nonce is defined as `nonce = C::hash((night_utxo.nonce, n, key))`, where
-`night_utxo` is the corresponding Night UTXO that created this Dust output, and
-`n` is the sequence number `seq` in this Dust evolution (0 at the initial
-creation), and `key` is the owner's public key if `n = 0`, and the owner's
-*secret* key otherwise. This ensures that the `DustOutput` is publicly
-computable if and only if it is the initially created one, and is only
-computable by the owner otherwise.
+The nonce is defined as `nonce = field::hash((initial_nonce, n, key))`, `initial_nonce = hash(night_utxo.intent_hash, night_utxo.output_no)` where `night_utxo` is the corresponding Night
+UTXO that created this Dust output, and `n` is the sequence number `seq` in
+this Dust evolution (0 at the initial creation), and `key` is the owner's
+public key if `n = 0`, and the owner's *secret* key otherwise. This ensures
+that the `DustOutput` is publicly computable if and only if it is the initially
+created one, and is only computable by the owner otherwise.
 
 ### Dust generation
 
@@ -52,7 +53,7 @@ been spent*.
 struct DustGenerationInfo {
     value: u128,
     owner: DustPublicKey,
-    nonce: Hash<()>,
+    nonce: InitialNonce,
     dtime: Timestamp,
 }
 ```
@@ -65,7 +66,7 @@ faerie-gold-like attack.
 struct DustGenerationUniquenessInfo {
     value: u128,
     owner: DustPublicKey,
-    nonce: Hash<()>,
+    nonce: InitialNonce,
 }
 
 struct DustGenerationState {
@@ -87,7 +88,7 @@ updated with the correct `dtime` when the corresponding Night utxo is spent.
 
 Dust will follow Zerocash commitment/nullifier structure. Each `DustOutput` has
 two projections, a `DustCommitment` and a `DustNullifier`, both produced using
-the `C::hash`. The nullifier set is a set of the former, and the commitment set
+the `field::hash`. The nullifier set is a set of the former, and the commitment set
 a Merkle tree of the latter. As the dust *genreation* set has faerie-gold
 attack mitigation, no mitigation is needed for Dust itself.
 
@@ -95,12 +96,12 @@ attack mitigation, no mitigation is needed for Dust itself.
 struct DustPreProjection<T> {
     value: i128,
     owner: T,
-    nonce: C::Hash<(Hash<()>, u32, C::Scalar)>,
+    nonce: field::Hash<(InitialNonce, u32, C::Scalar)>,
     ctime: Timestamp,
 }
 
-type DustCommitment = C::Hash<DustPreProjection<DustPublicKey>>;
-type DustNullifier = C::Hash<DustPreProjection<DustSecretKey>>;
+type DustCommitment = field::Hash<DustPreProjection<DustPublicKey>>;
+type DustNullifier = field::Hash<DustPreProjection<DustSecretKey>>;
 ```
 
 A Dust transaction will always be a 1-to-1 transfer, consuming one `DustOutput`
