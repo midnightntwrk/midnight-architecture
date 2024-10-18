@@ -9,10 +9,11 @@ vector creation expression `[...v0, ...v1]`.
 
 However, by itself, it does not give a convenient way for functional update of
 vector elements.  If a developer wants to update element `m` in a vector of
-length `n` (where `m` < `n`) there is no way to describe the vector up to but
-not including `m`, and the vector from just after `m` to the end.
+length `n` (where `m` < `n`) there is no way to describe the vector from the
+beginning to just before index `m`, and the vector from just after index `m` to
+the end.
 
-We introduce "vector slicing" expressions.  They look syntactically like
+We introduce *vector slicing* expressions.  They look syntactically like
 indexing a vector with a range of indexes, and they allow extracting a
 (potentially) smaller vector from a vector.
 
@@ -48,18 +49,18 @@ introducing a breaking change to unsigned integer types).  That way the indexes
 used in slices will always be valid indexes into the vector.
 
 Note that in many programming languages, including JavaScript with
-`Array.prototype.slice`, slicing is inclusive on the left and exclusive on the
-right.  This is convenient with zero-based indexing and where the length is
-known to be `N` because you can write `0..N` instead of `0..N-1`.  However, in
-this case, we felt that it was easier for programmers.  Suppose they have `v:
-Vector<10, T>` and they want the effect of `v[5] = e`.  With our proposal they
-can write:
+`Array.prototype.slice`, slicing is exclusive on the right (and inclusive on the
+left).  This is convenient with zero-based indexing and where the length is
+known to be `N` because developers can write `0..N` instead of using arithmetic
+in `0..N-1`.  However, in this case, we felt that it was easier for developers
+if the slice was inclusive on both ends.  Suppose we have `v: Vector<10, T>` and
+we want the effect of `v[5] = e`.  With our proposal we can write:
 
 ```
 [...v[0..4], e, ...v[6..9]]
 ```
 
-compare to, with right exclusive slicing:
+compared to the same effect with right-exclusive slicing:
 
 ```
 [...v[0..5], e, ...v[6..10]]
@@ -115,7 +116,7 @@ they have no side effects).
 The result is a vector with length 1 + `n` - `m` with all the elements of the
 original vector between `v[m]` and `v[n]` (both inclusive) in order.  (TODO: do
 we need to specify copying the vector, like if they are mutable from
-TypeScript/JavaScript?)
+TypeScript/JavaScript.)
 
 ## Possible Further Changes
 
