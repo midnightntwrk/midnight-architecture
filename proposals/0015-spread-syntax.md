@@ -1,4 +1,4 @@
-# Proposal 0014: Functional Structure Update Syntax
+# Proposal 0015: Functional Structure Update Syntax
 
 ## Problem Statement
 
@@ -55,7 +55,7 @@ spread expressions.
   <tr>
     <td></td>
     <td>&rarr;</td>
-    <td><b><tt>[</tt></b> [<em>vector-element</em> {<b><tt>,</tt></b> <em>vector-element</em>}] <b><tt>]</tt></b></td>
+    <td><b><tt>[</tt></b> [<em>vector-elements</em> {<b><tt>,</tt></b> <em>vector-elements</em>}] <b><tt>]</tt></b></td>
   </tr>
   <tr></tr>
   <tr>
@@ -65,7 +65,7 @@ spread expressions.
   </tr>
   <tr></tr>
   <tr>
-    <td><em>vector-element</em></td>
+    <td><em>vector-elements</em></td>
 	<td>&rarr;</td>
 	<td><b><tt>...</tt></b> <em>expr</em>
   </tr>
@@ -142,11 +142,16 @@ The static type checking rules are as follows:
 * It is a static type error if the spread expressions in a vector creation do
   not all have vector types.
   
-* The static type of a vector literal is a vector whose length is the sum of the
-  lengths of all the spread vector types and the number of non-spread elements,
-  and whose element type is the least upper bound of the element types of all
-  the spread vector types and the types of the non-spread elements.  It is a
-  static type error if this least upper bound does not exist or if it is `Void`.
+* The static type of a vector creation is a vector whose length is the sum of
+  the lengths of all the spread vector types and the number of non-spread
+  elements, and whose element type is the least upper bound of the element types
+  of all the spread vector types and the types of the non-spread elements.  It
+  is a static type error if this least upper bound does not exist or if it is
+  `Void`.
+
+* Note that it is not generally possible to have a generic-sized vector type
+  spread into a vector creation (unless it is the only *vector-elements*)
+  because the type system does not allow arithmetic on generic sizes.
 
 ## Evaluation
 

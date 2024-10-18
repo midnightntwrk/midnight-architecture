@@ -23,3 +23,4 @@ File names should use `kebab-case` without any non-ASCII characters.
 - [0012: Upgrades with Forks](./0012-forks.md) for upgrading the Midnight chain
 - [0013: Midnight HD Wallet](./0013-hd-wallet-options.md) HD (Hierarchical Deterministic) wallets for Midnight
 - [0014: Compact Syntax Changes](./0014-compact-syntax-changes.md) for a batch of changes to Compact's syntax
+- [0015: Functional Structure Update Syntax](./0015-spread-syntax-md) spread syntax for `struct` and vector creation
