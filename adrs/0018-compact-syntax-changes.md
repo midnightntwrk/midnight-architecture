@@ -90,7 +90,7 @@ definitions and instantiations to use angle brackets.
 
 We could provide a tool to automate this change.  Note that it requires
 distinguishing square brackets used for generics from square brackets used for
-vector literals and vector indexing.
+vector creation and vector indexing.
 
 We've decided to make two additional changes to generics:
 
