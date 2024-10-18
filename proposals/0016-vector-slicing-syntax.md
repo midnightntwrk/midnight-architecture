@@ -27,10 +27,11 @@ natural number literals and `m` is required to be less than or equal to `n`.
 index `m` to index `n`, both inclusive.  Note that `v[i..i]` is a single element
 vector consisting of the element `v[i]`.
 
-A developer can use this, for instance, to get the first half of `v: Vector<8, T>`
-by writing `v[0..3]` (truncating the vector) and the second half by writing
+A developer can use this, for instance, to get the first half of `v: Vector<8,
+T>` by writing `v[0..3]` (truncating the vector) and the second half by writing
 `v[4..7]`.  The same vector could be copied by writing `v[0..7]`.  (Note that
-the vector can also be copied with `[...v]`, and that vectors are immutable.)
+the vector can also be copied with `[...v]`, and that vectors are immutable from
+Compact but not from TypeScript/JavaScript.)
 
 The problem described above, functional update of a vector element, can be
 solved by slicing and spreading elements of the vector.  Specifically, for a
@@ -113,10 +114,10 @@ In the vector slicing expression `v[m..n]`, the subexpressions `v`, `m`, and `n`
 are evaluated from left to right (`m` and `n` are natural number literals and so
 they have no side effects).
 
-The result is a vector with length 1 + `n` - `m` with all the elements of the
-original vector between `v[m]` and `v[n]` (both inclusive) in order.  (TODO: do
-we need to specify copying the vector, like if they are mutable from
-TypeScript/JavaScript.)
+The result is a fresh vector with length 1 + `n` - `m` with all the elements of
+the original vector between `v[m]` and `v[n]` (both inclusive) in order.  This
+vector is fresh, rather than aliasing the sliced vector in some way, because
+Compact vectors are mutable from TypeScript/JavaScript.
 
 ## Possible Further Changes
 
