@@ -1,4 +1,4 @@
-# Proposal 0004: Micro ADT language
+# Proposal 0004: Micro ADT Language
 
 This proposal suggests a language to adopt for public oracle states and queries
 for the 2022 workshop. This should be treated as a minimum viable language,

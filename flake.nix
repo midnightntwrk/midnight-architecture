@@ -2,7 +2,7 @@
   description = "Flake for the midnight-architecture";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -80,6 +80,10 @@
             {
               package = pkgs.alejandra;
               category = "formatter";
+            }
+            {
+              package = pkgs.nodejs_20;
+              category = "runtime";
             }
             {
               package = plantuml-pdf;

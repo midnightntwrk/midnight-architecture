@@ -1,0 +1,22 @@
+@startuml
+
+interface "Blockchain data source" as blockchain_data_source
+component "Chain indexer" as chain_indexer
+component "Zswap indexer" as zswap_indexer
+component "Commitments Merkle tree" as merkle_tree
+component "Wallet indexer" as wallet_indexer
+component "Contract API" as contract_api
+component "Wallet API" as wallet_api
+actor "Client" as client
+
+chain_indexer --> blockchain_data_source : pulls data from
+zswap_indexer --> chain_indexer : receives data from
+zswap_indexer --> merkle_tree : provides updates to
+contract_api --> merkle_tree : prepares collapsed zswap state with
+wallet_api --> merkle_tree : serves updates with
+wallet_indexer --> merkle_tree : computes updates with
+wallet_api --> wallet_indexer : serves updates prepared by
+client --> wallet_api : queries wallet data from
+client --> contract_api : queries contract data from
+
+@enduml

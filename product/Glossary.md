@@ -44,3 +44,8 @@ Soft-fork
 : An update to protocol, which makes previously valid events, invalid. Such kind of update requires (significant majority of) block producers to upgrade, but other clients not necessarily.
 See: https://en.bitcoin.it/wiki/Softfork
 
+Commitment scheme 
+: Cryptographic primitive, which allows to commit to a (potentially secret) value without necessarily revealing it. The data shared to commit to the value are called _commitment_. Commitment scheme has to guarantee 2 properties:
+1. hiding property - it is not possible to recover value from the commitment
+2. biding property - commitment verification can only pass with the same value that was committed to
+More: https://en.wikipedia.org/wiki/Commitment_scheme

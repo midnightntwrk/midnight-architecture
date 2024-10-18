@@ -1,0 +1,77 @@
+@startuml
+
+object leaf_1 {
+  height = 0
+}
+object leaf_2 {
+  height = 0
+}
+object leaf_3 #aqua {
+  height = 0
+}
+object leaf_4 #yellow {
+  height = 0
+}
+object leaf_5 {
+  height = 0
+}
+object leaf_6 {
+  height = 0
+}
+object leaf_7 #orange {
+  height = 0
+}
+object empty {
+}
+
+object node_1_2 #aqua {
+  height = 1
+}
+object node_3_4 #yellow {
+  height = 1
+}
+object node_5_6 {
+  height = 1
+}
+object node_7_8 #orange {
+  height = 1
+}
+
+object node_1_2_3_4 #yellow {
+  height = 2
+}
+object node_5_6_7_8 #aqua {
+  height = 2
+}
+
+object node_1_2_3_4_5_6_7_8 #yellow {
+  height = 3
+}
+
+object root {
+  first_free = 8
+}
+
+root -- node_1_2_3_4_5_6_7_8
+
+node_1_2_3_4_5_6_7_8 o-- node_1_2_3_4 : left
+node_1_2_3_4_5_6_7_8 o-- node_5_6_7_8 : right
+
+node_1_2_3_4 o-- node_1_2 : left
+node_1_2_3_4 o-- node_3_4 : right
+
+node_5_6_7_8 o-- node_5_6 : left
+node_5_6_7_8 o-- node_7_8 : right
+
+node_1_2 o-- leaf_1 : left
+node_1_2 o-- leaf_2 : right
+
+node_3_4 o-- leaf_3 : left
+node_3_4 o-- leaf_4 : right
+
+node_5_6 o-- leaf_5 : left
+node_5_6 o-- leaf_6 : right
+
+node_7_8 o-- leaf_7 : left
+node_7_8 o-- empty : right
+@enduml

@@ -1,4 +1,4 @@
-# Proposal 0000: Template for Midnight Architecture Proposals
+# Proposal 0001: Template for Midnight Architecture Proposals
 This is a template for writing new Midnight Architecture Proposals.  We want
 this template to be lightweight, so that it does not impede the process of
 capturing the proposals, and we to evolve this template over the time, as we

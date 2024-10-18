@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="629px" preserveAspectRatio="none" style="width:619px;height:629px;background:#FFFFFF;" version="1.1" viewBox="0 0 619 629" width="619px" zoomAndPan="magnify"><defs/><g><g id="pending"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="76" x="186.5" y="143"/><line style="stroke:#181818;stroke-width:0.5;" x1="186.5" x2="262.5" y1="169.4883" y2="169.4883"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="56" x="196.5" y="161.5352">Pending</text></g><g id="failed"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="61" x="7" y="549"/><line style="stroke:#181818;stroke-width:0.5;" x1="7" x2="68" y1="575.4883" y2="575.4883"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="17" y="567.5352">Failed</text></g><ellipse cx="349.5" cy="16" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><rect fill="#F1F1F1" height="98.4883" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="435" x="177" y="310"/><rect fill="#FFFFFF" height="70" rx="12.5" ry="12.5" style="stroke:#FFFFFF;stroke-width:1.0;" width="433" x="178" y="337.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="177" x2="612" y1="336.4883" y2="336.4883"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73" x="358" y="328.5352">Confirmed</text><g id="confirmed.succeededEntirely"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="148" x="189" y="348.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="189" x2="337" y1="374.9766" y2="374.9766"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="199" y="367.0234">Succeeded Entirely</text></g><g id="confirmed.failFallible"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="114" x="355" y="348.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="355" x2="469" y1="374.9766" y2="374.9766"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="94" x="365" y="367.0234">Fallible Failed</text></g><g id="confirmed.failEntirely"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="116" x="487" y="348.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="487" x2="603" y1="374.9766" y2="374.9766"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96" x="497" y="367.0234">Failed Entirely</text></g><rect fill="#F1F1F1" height="98.4883" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="435" x="177" y="525"/><rect fill="#FFFFFF" height="70" rx="12.5" ry="12.5" style="stroke:#FFFFFF;stroke-width:1.0;" width="433" x="178" y="552.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="177" x2="612" y1="551.4883" y2="551.4883"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="33" x="378" y="543.5352">Final</text><g id="final.succeededEntirelyF"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="148" x="189" y="563.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="189" x2="337" y1="589.9766" y2="589.9766"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="199" y="582.0234">Succeeded Entirely</text></g><g id="final.failFallibleF"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="114" x="355" y="563.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="355" x2="469" y1="589.9766" y2="589.9766"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="94" x="365" y="582.0234">Fallible Failed</text></g><g id="final.failEntirelyF"><rect fill="#F1F1F1" height="50" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="116" x="487" y="563.4883"/><line style="stroke:#181818;stroke-width:0.5;" x1="487" x2="603" y1="589.9766" y2="589.9766"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="96" x="497" y="582.0234">Failed Entirely</text></g><!--MD5=[1938bc6a853a11b9ef2efe3ae926af70]
+link *start to pending--><g id="link_*start_pending"><path d="M341.58,22.08 C327.43,31.45 297.42,52.63 277.5,76 C261.7,94.54 247.99,118.42 238.48,137.07 " fill="none" id="*start-to-pending" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="236.34,141.33,243.9665,135.0981,238.5932,136.8665,236.8249,131.4931,236.34,141.33" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="113" x="278.5" y="89.5684">spend | watch_for</text></g><!--MD5=[2f510e666f67c9c7db9cedbb83d33df7]
+link *start to confirmed--><g id="link_*start_confirmed"><path d="M358.23,21.77 C372.93,30.36 402.1,49.98 413.5,76 C445.82,149.76 428.89,244.84 412.58,303.6 " fill="none" id="*start-to-confirmed" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="411.31,308.06,417.6227,300.5002,412.6798,303.2513,409.9287,298.3085,411.31,308.06" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="432.5" y="173.0684">apply</text></g><!--MD5=[ebcf6dbfe2a2f920bd60ed608d75eebb]
+link pending to confirmed--><g id="link_pending_confirmed"><path d="M207.47,193.27 C196.26,212.5 185.8,239.45 198.5,260 C210.02,278.64 226.27,293.85 244.55,306.23 " fill="none" id="pending-to-confirmed" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="248.49,308.82,243.1546,300.5415,244.3079,306.0795,238.7699,307.2328,248.49,308.82" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="34" x="199.5" y="256.5684">apply</text></g><!--MD5=[84a6e6579109df2776c5b9ea88122c19]
+link confirmed to pending--><g id="link_confirmed_pending"><path d="M351.15,309.8 C319.37,274.47 277.27,227.67 250.53,197.94 " fill="none" id="confirmed-to-pending" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="247.39,194.45,250.4375,203.8155,250.7348,198.1665,256.3839,198.4638,247.39,194.45" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="51" x="304.5" y="256.5684">rollback</text></g><!--MD5=[08c40ba825df0a82f4fa6bc0b125ff1a]
+link confirmed to final--><g id="link_confirmed_final"><path d="M394.5,408.33 C394.5,441.15 394.5,484.59 394.5,518.62 " fill="none" id="confirmed-to-final" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="394.5,523.34,398.5,514.34,394.5,518.34,390.5,514.34,394.5,523.34" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="46" x="395.5" y="471.5684">finalize</text></g><!--MD5=[429205cb9cae259107c53dca96386237]
+link pending to failed--><g id="link_pending_failed"><path d="M187.97,193.44 C153.75,218.46 104.15,260.58 78.5,310 C38.79,386.5 35.18,491.14 36.15,542.31 " fill="none" id="pending-to-failed" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="36.26,547.06,40.0533,537.9709,36.1457,542.0613,32.0554,538.1538,36.26,547.06" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="46" x="79.5" y="364.0684">discard</text></g><!--MD5=[ce932b8a8c7ee8a7f124175b523bca00]
+link confirmed to failed--><g id="link_confirmed_failed"><path d="M313.49,408.33 C238.31,453.19 129.84,517.9 73.91,551.28 " fill="none" id="confirmed-to-failed" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="69.64,553.83,79.42,552.6678,73.9375,551.2743,75.331,545.7918,69.64,553.83" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="46" x="227.5" y="471.5684">discard</text></g><!--MD5=[a025eccf48dfc813844ebe7c72d3c33e]
+@startuml
+
+'skinparam linetype polyline
+skinparam nodesep 100
+skinparam ranksep 100
+
+state confirmed as "Confirmed" {
+  state succeededEntirely as "Succeeded Entirely"
+  state failFallible as "Fallible Failed"
+  state failEntirely as "Failed Entirely"
+}
+state pending as "Pending"
+
+state final as "Final" {
+  state succeededEntirelyF as "Succeeded Entirely"
+  state failFallibleF as "Fallible Failed"
+  state failEntirelyF as "Failed Entirely"
+}
+
+state failed as "Failed"
+
+[*] - -> pending : spend | watch_for
+[*] - -> confirmed : apply
+pending - -> confirmed : apply
+confirmed - -> final : finalize
+confirmed - -> pending : rollback
+pending - - -> failed : discard
+confirmed - -> failed : discard
+
+@enduml
+
+@startuml
+
+skinparam nodesep 100
+skinparam ranksep 100
+
+state confirmed as "Confirmed" {
+  state succeededEntirely as "Succeeded Entirely"
+  state failFallible as "Fallible Failed"
+  state failEntirely as "Failed Entirely"
+}
+state pending as "Pending"
+
+state final as "Final" {
+  state succeededEntirelyF as "Succeeded Entirely"
+  state failFallibleF as "Fallible Failed"
+  state failEntirelyF as "Failed Entirely"
+}
+
+state failed as "Failed"
+
+[*] - -> pending : spend | watch_for
+[*] - -> confirmed : apply
+pending - -> confirmed : apply
+confirmed - -> final : finalize
+confirmed - -> pending : rollback
+pending - - -> failed : discard
+confirmed - -> failed : discard
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 18:10:57 CEST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: PL
+--></g></svg>
