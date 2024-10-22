@@ -24,3 +24,4 @@ File names should use `kebab-case` without any non-ASCII characters.
 - [0013: Midnight HD Wallet](./0013-hd-wallet-options.md) HD (Hierarchical Deterministic) wallets for Midnight
 - [0014: Compact Syntax Changes](./0014-compact-syntax-changes.md) for a batch of changes to Compact's syntax
 - [0015: Functional Structure Update Syntax](./0015-spread-syntax-md) spread syntax for `struct` and vector creation
+- [0016: Governed parameters and their update mechanics: Phase 1](./0016-governed-parameters-and-their-updates-phase-1.md) for mechanics of enacting governed parameters updates
