@@ -12,6 +12,7 @@ Phase 1 of Midnight's governance involves running actual governance on Cardano (
 
 Following parameters are proposed to be managed under governance:
 - maximum block length - to allow tuning it based on consensus benchmarks or network activity; Various personas might be interested in adjusting it in relationship to observed usage patterns. It directly affects performance and costs of operating a Midnight node.
+- maximum block weight - to allow tuning it based on ledger benchmarks or network activity; Various personas might be interested in adjusting it in relationship to observed usage patterns. It directly affects performance and costs of operating a Midnight node. 
 - protocol version (together with a hash of the runtime meant to be used) - to manage Midnight protocol updates. It is crucial one to manage, as not only it decouples protocol upgrades from consensus, but also is the means of possibly changing other parameters
 - ledger parameters - to allow fine-tune transaction fees based on new benchmarks and network activity. Similarly to block length various personas might be interested in adjusting these and the impact on transaction fees and costs of operating a Midnight node is very big:
   - cost model
@@ -82,4 +83,3 @@ Set of governed parameters and all mechanics needed to update them are identifie
 Following parameters were taken into consideration for being managed under governance, but were rejected:
 `MaxAuthorities` - despite being needed internally for configuration, it feels like a parameter, which should be set once to a relatively high, yet safe, value, and not touched until absolutely necessary, in which case in can be done by runtime upgrade/hard-fork; SPOs might want to increase it, but in such case Midnight might be ready to become a fully decentralized and independent network.
 `SessionLength` and `SlotsPerEpoch` - aura/Partner chains documentation explicitly mentions they should not be changed on a running network (likely to not mess with calculations between timestamp and session/slot number)
-`BlockWeight` - it is enough its value is calculated in relation to ledger cost model. Managing its value with governance brings complications to calculating its value in relation to ledger cost model and increases likelihood of a mistake made.
