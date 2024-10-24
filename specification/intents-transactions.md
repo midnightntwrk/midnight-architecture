@@ -3,14 +3,15 @@
 A transaction consists of a set of intents, a guaranteed Zswap offer, a
 fallible Zswap offer, and binding randomness.
 
-A canonical ordering is imposed on the set of intents, with only this order
-being considered valid.
+Intents and fallible offers carry a `segment_id: u16`. This must not be 0
+(which is reserved for the guaranteed section), and groups parts that apply
+atomically together.
 
 ```rust
-struct Transaction {
-    intents: Map<u16, Intent>,
-    guaranteed_offer: Option<ZswapOffer>,
-    fallible_offer: Map<u16, ZswapOffer>,
+struct Transaction<S, P> {
+    intents: Map<u16, Intent<S, P>>,
+    guaranteed_offer: Option<ZswapOffer<P>>,
+    fallible_offer: Map<u16, ZswapOffer<P>>,
     binding_randomness: Fr,
 }
 ```
@@ -25,23 +26,46 @@ order being considered valid. One offer, call, or dust payment must be present
 for the intent to be valid.
 
 The transaction is only valid if the TTL is a) not in the past, and b) to too
-far in the future (by a ledger parameter `max_ttl`).
+far in the future (by the ledger parameter `global_ttl`).
 
 ```rust
 struct Intent<S, P> {
     guaranteed_unshielded_offer: Option<UnshieldedOffer<S>>,
     fallible_unshielded_offer: Option<UnshieldedOffer<S>>,
     calls: Vec<ContractAction<P>>,
-    dust_payments: Vec<DustSpend>,
+    dust_payments: Vec<DustSpend<P>>,
     ttl: Timestamp,
     binding_commitment: FiatShamirPedersen<P>,
 }
 ```
 
-An unshielded offer consists of a set of inputs and a set of outputs, where
-outputs may be plain UTXOs, or UTXOs with Dust generation information.
-In the latter case, the UTXO *must* have `type_` be equal to `NIGHT`.
-It also contains a sequence of spend authorizing signatures.
+## Sequencing
+
+To execute a transaction, an ordering for the component `Intent`s must first be
+established. The guaranteed section always executes first, and the rest of the
+transaction executes by segment ID. This has the added benefit that it prevents
+malicious 'frontrunning', as a user can simply use segment ID 1 to avoid being
+frontrun. This does make co-incidental merges less likely as many transactions
+are likely to use the same segment IDs.
+
+There is the additional question of how to sequence calls to the same contract
+from different segments. If two segments, with IDs `a < b` are executed, and
+each call the same contract `c`, how are the transcripts sequenced?
+
+This is an issue because the contract call *may* contain both guaranteed and
+fallible transcripts, but the guaranteed part of `b` must run *before* the
+fallible part of `a`. This would violate an assumption that the fallible part
+of `a` applies *immediately after* the guaranteed part.
+
+To resolve this, a constraint is placed on merged transactions: If two segments
+`a < b` call the same contract, then one of the following must be true:
+- `a` does not have a fallible transcript for this call
+- `b` does not have a guaranteed transcript for this call
+
+For a longer sequence, this means there must be at most one segment with both a
+guaranteed and fallible transcript, and any segment prior to this must have
+only guaranteed transcript, and any segment after must have only fallible
+transcripts.
 
 ## Replay Protection
 

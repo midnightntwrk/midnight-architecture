@@ -26,8 +26,8 @@ data.
 type ZswapCoinSecretKey = [u8; 32];
 type ZswapCoinPublicKey = Hash<ZswapCoinSecretKey>;
 
-type ZswapEncryptionSecretKey = curve::embedded::Fr;
-type ZswapEncryptionPublicKey = curve::embedded::Affine;
+type ZswapEncryptionSecretKey = Fr;
+type ZswapEncryptionPublicKey = embedded::CurvePoint;
 ```
 
 Zswap is UTXO-like, in that the state conceptually consists of a set of unspent
@@ -80,14 +80,14 @@ struct ZswapInput {
     merkle_tree_root: MerkleTreeRoot,
     nullifier: CoinNullifier,
     contract: Option<ContractAddress>,
-    value_commitment: curve::embedded::Affine,
+    value_commitment: embedded::CurvePoint,
     proof: Proof,
 }
 
 struct ZswapOutput {
     commitment: CoinCommitment,
     contract: Option<ContractAddress>,
-    value_commitment: curve::embedded::Affine,
+    value_commitment: embedded::CurvePoint,
     ciphertext: Option<Ciphertext>,
     proof: Proof,
 }
@@ -114,7 +114,7 @@ fn input_valid(
     sk: Private<Either<ZswapCoinSecretKey, ContractAddress>>,
     merkle_tree: Private<MerkleTree<CoinCommitment>>,
     coin: Private<CoinInfo>,
-    rc: Private<curve::embedded::Fr>,
+    rc: Private<embedded::Scalar>,
 ) -> bool {
     assert!(input.merkle_tree_root == merkle_tree.root());
     assert!(merkle_tree.contains(coin.commitment(sk.public_key())));
@@ -132,7 +132,7 @@ fn output_valid(
     segment: Public<u16>,
     pk: Private<Either<ZswapCoinPublicKey, ContractAddress>>,
     coin: Private<CoinInfo>,
-    rc: Private<curve::embedded::Fr>,
+    rc: Private<embedded::Scalar>,
 ) -> bool {
     assert!(output.commitment = coin.commitment(pk));
     assert!(output.contract == match pk {
@@ -242,8 +242,8 @@ struct ZswapTransient {
     nullifier: CoinNullifier,
     commitment: CoinCommitment,
     contract: Option<ContractAddress>,
-    value_commitment_input: curve::embedded::Affine,
-    value_commitment_output: curve::embedded::Affine,
+    value_commitment_input: embedded::CurvePoint,
+    value_commitment_output: embedded::CurvePoint,
     proof_input: Proof,
     proof_output: Proof,
 }
