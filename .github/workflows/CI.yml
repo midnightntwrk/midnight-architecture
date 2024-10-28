@@ -15,15 +15,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: './components/WalletEngine/key-derivation-reference/.nvmrc'
+          node-version-file: './components/WalletEngine/reference/.nvmrc'
 
       - name: Install dependencies
         run: |
-          cd ./components/WalletEngine/key-derivation-reference
+          cd ./components/WalletEngine/reference
           npm install
 
       - name: Check test vectors
         run: |
-          cd ./components/WalletEngine/key-derivation-reference/
+          cd ./components/WalletEngine/reference/
           npm run test-vectors
           npm run test-addr
