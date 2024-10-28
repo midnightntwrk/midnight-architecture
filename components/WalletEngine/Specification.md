@@ -10,11 +10,12 @@ Midnight features a unique set of features, which influence the way wallet softw
 This document comprises a couple of sections:
 1. **[Introduction](#introduction)** - which explains, how addressing goals stated for the protocol leads to differences mentioned above
 2. **[Key management](#key-management)** - where the details of key structure, address format and relationship with existing standards are provided
-3. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
-4. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
-5. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
-6. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
-7. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
+3. **[Address format](#address-format)** - where addresses are described, as well as their formatting
+4. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
+5. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
+6. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
+7. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
+8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
 <!-- TOC -->
 * [Midnight Wallet Specification](#midnight-wallet-specification)
@@ -35,6 +36,11 @@ This document comprises a couple of sections:
       * [Address](#address)
     * [Metadata keys](#metadata-keys)
     * [Scalar sampling](#scalar-sampling)
+  * [Address format](#address-format)
+    * [Unshielded Payment address](#unshielded-payment-address)
+    * [Shielded Payment address](#shielded-payment-address)
+    * [Shielded Coin public key](#shielded-coin-public-key)
+    * [Shielded Encryption secret key](#shielded-encryption-secret-key)
   * [Transaction structure and statuses](#transaction-structure-and-statuses)
   * [State management](#state-management)
     * [Balances](#balances)
