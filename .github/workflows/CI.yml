@@ -26,4 +26,8 @@ jobs:
         run: |
           cd ./components/WalletEngine/reference/
           npm run test-vectors
+
+      - name: Test reference implementation
+        run: |
+          cd ./components/WalletEngine/reference/
           npm run test-addr
