@@ -267,7 +267,11 @@ Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.med
 The human-readable part should consist of 3 parts, separated by underscore:
 - constant `mn` indicating it is a Midnight address
 - type of credential encoded, like `addr` for payment address or `saddr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
-- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present.
+- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present. Following approach should be used to map ledger's `NetworkId` enum into network identifier:
+  - mainnet - no prefix
+  - testnet - "test"
+  - devnet - "dev"
+  - undeployed - "undeployed" 
 
 ### Unshielded Payment address
 
