@@ -4,7 +4,7 @@ This section includes definitions and assumptions that other sections draw
 upon. It is intended less as prerequisite reading, and more as a reference to
 resolve ambiguities.
 
----
+## Hashing
 
 To start with, we define some basic types. Note that Midnight uses SHA-256 as
 its primary hash function. To simplify in this spec, we will assume that all
@@ -43,6 +43,8 @@ type TokenType = Hash<(ContractAddress, [u8; 32])>;
 const NIGHT: TokenType = [0u8; 32];
 ```
 
+## Signatures
+
 We also need to assume public key cryptography. We use Schnorr over Secp256k1,
 as specified in [BIP 340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
 
@@ -53,7 +55,7 @@ type VerifyingKey = secp256k1::Point;
 type Signature<M> = secp256k1::schnorr::Signature;
 ```
 
----
+## zk-Friendly Primitives
 
 Midnight makes heavy use of zero-knowledge proofs, and in some cases this means
 making use of native data structures and operations that are efficient to use
@@ -87,7 +89,52 @@ mod embedded {
 }
 ```
 
----
+## Fiat-Shamir'd and Multi-Base Pedersen
+
+Midnight makes heavy use of Pedersen commitments, in the embedded elliptic
+curve `embedded::CurvePoint`. These are used both to ensure balancing, as
+Pedersen commitments are additively homomorphic, and to ensure binding between
+different transaction parts.
+
+At its simplest, the Pedersen commitment requires to group generators `g, h:
+embedded::CurvePoint`, and commits to a value `v: embedded::Scalar` with
+randomness `r: embedded::Scalar`. The commitment is `c = g * r + h * v`, and is
+opened by revealing `v` and `r`. Two commitments `c1` and `c2` can be added,
+and opened to the sums `v1 + v2` and `r1 + r2`.
+
+A multi-base Pedersen commitment uses a different value for `h` in different
+situations. In Midnight we pick `h = hash_to_curve(coin.type, segment)`, and `v
+= coin.value`, for [Zswap](./zswap.md) coins. This ensures that commitments in
+different coin types and segments do not interfere with each other, as it is
+cryptographically hard to find two `coin` and `segment` values that produce the
+same (or a complimentary) commitment.
+
+In Midnight, the randomness values from each Pedersen commitment are summed
+across the transaction to provide binding: As only the creator of the
+transaction knows the individual randomness components, it's cryptographically
+hard to separate out any of the individual Pedersen commitments, ensuring that
+the transaction must appear together. This binding is also used for
+[`Intent`s](./intents-transactions.md), which do not carry a (Zswap) value.
+Instead, we only include the randomizing portion of `g^r` for Intents.
+As Intents do not carry intrinsic zero-knowledge proofs, where the shape of the
+Pedersen commitment can be proven, we instead use a simple Fiat-Shamir proof to
+ensure that the commitment *only* commits to a randomness value, and *not* to a
+value that can be used for balancing.
+
+We do this with a knowledge-of-exponent proof, consisting of:
+- The commitment itself, `g * rc`
+- A 'target' point, `g * s` for a random `s: embedded::Scalar`
+- (implied) the challenge scalar `c: embedded::Scalar`, defined as the hash of:
+    - The containing `Intent<(), ()>` hash
+    - The commitment
+    - The target point
+- The 'reply' scalar `r = s - c * rc`
+
+The Fiat-Shamir Pedersen is considered valid if `g * s == g * r + (g * rc) *
+c`. Note that technically this is not a Pedersen commitment, but it is used as
+a re-randomization of Pedersen commitments, so we're lumping them together.
+
+## Time
 
 We assume a notion of time, provided by consensus at a block-level. For this,
 we assume a timestamp type, which corresponds to milliseconds elapsed since the

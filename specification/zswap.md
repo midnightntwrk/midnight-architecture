@@ -76,20 +76,20 @@ The primary components of Zswap transactions are *inputs* and *outputs*, as
 with other UTXO schemes. Their basic structure is as follows:
 
 ```rust
-struct ZswapInput {
+struct ZswapInput<P> {
     merkle_tree_root: MerkleTreeRoot,
     nullifier: CoinNullifier,
     contract: Option<ContractAddress>,
     value_commitment: embedded::CurvePoint,
-    proof: Proof,
+    proof: P::Proof,
 }
 
-struct ZswapOutput {
+struct ZswapOutput<P> {
     commitment: CoinCommitment,
     contract: Option<ContractAddress>,
     value_commitment: embedded::CurvePoint,
     ciphertext: Option<Ciphertext>,
-    proof: Proof,
+    proof: P::Proof,
 }
 ```
 
@@ -108,8 +108,8 @@ The zero-knowledge proofs for inputs and outputs are presented here in
 rust-like pseudocode, with the inputs necessary for them.
 
 ```rust
-fn input_valid(
-    input: Public<ZswapInput>,
+fn input_valid<P>(
+    input: Public<ZswapInput<P>>,
     segment: Public<u16>,
     sk: Private<Either<ZswapCoinSecretKey, ContractAddress>>,
     merkle_tree: Private<MerkleTree<CoinCommitment>>,
@@ -165,13 +165,13 @@ input matches exactly. This is used to bind to the ciphertext for
 Explicitly, proof verification is performed as:
 
 ```rust
-impl ZswapInput {
+impl ZswapInput<Proof> {
     fn verify(self, segment: u16) -> Result<()> {
         assert!(zk_verify(input_valid, (self, segment), None, self.proof));
     }
 }
 
-impl ZswapOutput {
+impl ZswapOutput<Proof> {
     fn verify(self, segment: u16) -> Result<()> {
         assert!(zk_verify(output_valid, (self, segment), Some(ciphertext), self.proof));
         // Can't have ciphertexts for contracts.
@@ -193,14 +193,14 @@ Formally:
 
 ```rust
 impl ZswapState {
-    fn apply_input(mut self, inp: ZswapInput) -> Result<Self> {
+    fn apply_input<P>(mut self, inp: ZswapInput<P>) -> Result<Self> {
         assert!(self.commitment_tree_history.contains(inp.merkle_tree_root));
         assert!(!self.nullifiers.contains(inp.nullifier));
         self.nullifiers = self.nullifiers.insert(inp.nullifier);
         return self;
     }
 
-    fn apply_output(mut self, out: ZswapOutput) -> Result<Self> {
+    fn apply_output<P>(mut self, out: ZswapOutput<P>) -> Result<Self> {
         assert!(!self.commitment_set.contains(out.commitment));
         self.commitment_set = self.commitment_set.insert(out.commitment);
         self.commitment_tree = self.commitment_tree.insert(self.commitment_tree_first_free, out.commitment);
@@ -238,18 +238,18 @@ duplicates, although some apparent duplicates (such as `value_commitment` and
 function.
 
 ```rust
-struct ZswapTransient {
+struct ZswapTransient<P> {
     nullifier: CoinNullifier,
     commitment: CoinCommitment,
     contract: Option<ContractAddress>,
     value_commitment_input: embedded::CurvePoint,
     value_commitment_output: embedded::CurvePoint,
-    proof_input: Proof,
-    proof_output: Proof,
+    proof_input: P::Proof,
+    proof_output: P::Proof,
 }
 
-impl ZswapTransient {
-    fn as_input(self) -> ZswapInput {
+impl<P> ZswapTransient<P> {
+    fn as_input(self) -> ZswapInput<P> {
         ZswapInput {
             merkle_tree_root: MerkleTree::new().insert(0, self.commitment).root(),
             nullifier: self.nullifier,
@@ -258,7 +258,7 @@ impl ZswapTransient {
             proof: self.proof_input
         }
     }
-    fn as_output(self) -> ZswapOutput {
+    fn as_output(self) -> ZswapOutput<P> {
         ZswapOutput {
             commitment: self.commitment,
             contract: self.contract,
@@ -274,7 +274,7 @@ impl ZswapTransient {
 }
 
 impl ZswapState {
-    fn apply_transient(self, trans: ZswapTransient) -> Result<Self> {
+    fn apply_transient<P>(self, trans: ZswapTransient<P>) -> Result<Self> {
         assert!(!self.commitment_set.contains(trans.commitment));
         assert!(!self.nullifiers.contains(trans.nullifier));
         self.commitment_set = self.commitment_set.insert(trans.commitment);
@@ -294,14 +294,14 @@ imbalance of the offer, in the shape of a mapping from token types to *signed*
 integers.
 
 ```rust
-struct ZswapOffer {
-    inputs: Set<ZswapInput>,
-    outputs: Set<ZswapOutput>,
-    transients: Set<ZswapTransient>,
+struct ZswapOffer<P> {
+    inputs: Set<ZswapInput<P>>,
+    outputs: Set<ZswapOutput<P>>,
+    transients: Set<ZswapTransient<P>>,
     deltas: Map<TokenType, i128>,
 }
 
-impl ZswapOffer {
+impl<P> ZswapOffer<P> {
     fn verify(self, segment: u126) -> Result<()> {
         inputs.all(|inp| inp.verify(segment))?;
         outputs.all(|out| out.verify(segment))?;
@@ -310,7 +310,7 @@ impl ZswapOffer {
 }
 
 impl ZswapState {
-    fn apply(mut self, offer: ZswapOffer) -> Result<Self> {
+    fn apply<P>(mut self, offer: ZswapOffer<P>) -> Result<Self> {
         self = offer.inputs.fold(self, ZswapState::apply_input)?;
         self = offer.outputs.fold(self, ZswapState::apply_output)?;
         self = offer.transients.fold(self, ZswapState::apply_transient)?;
@@ -353,8 +353,8 @@ and computing the sum of the deltas. Note that any entry with value `0` in
 deltas should be omitted, as this does not affect the binding calculations.
 
 ```rust
-impl ZswapOffer {
-    fn merge(self, other: ZswapOffer) -> Result<Self> {
+impl<P> ZswapOffer<P> {
+    fn merge(self, other: ZswapOffer<P>) -> Result<Self> {
         assert!(self.inputs.disjoint(other.inputs));
         assert!(self.outputs.disjoint(other.outputs));
         assert!(self.transients.disjoint(other.transients));
