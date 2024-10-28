@@ -1,34 +1,5 @@
 import * as crypto from "node:crypto";
-
-export type Field = {
-  bytes: number;
-  modulus: bigint;
-};
-
-export const ErisScalar: Field = {
-  bytes: 56,
-  modulus: BigInt(
-    "0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001",
-  ),
-};
-
-export const PlutoScalar: Field = {
-  bytes: 56,
-  modulus: BigInt("0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001")
-}
-
-// Take little endian bytes representation and convert to a bigint
-function toScalar(bytes: Buffer): bigint {
-  return BigInt(`0x${Buffer.from(bytes).reverse().toString("hex")}`);
-}
-
-// A little-endian bytes representation of a field element
-export function fromScalar(scalar: bigint, field: Field): Buffer {
-  return Buffer.from(
-    scalar.toString(16).padStart(field.bytes * 2, "0"),
-    "hex",
-  ).reverse();
-}
+import { ErisScalar, Field, PlutoScalar, toScalar } from "./field.js";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
   return crypto.createHash("sha-256").update(a).update(b).digest();
@@ -50,7 +21,12 @@ function sampleBytes(
   return result;
 }
 
-export function sampleKey(seed: Buffer, margin: number, domainSeparator: Buffer, field: Field): { intermediateBytes: Buffer; key: bigint } {
+export function sampleKey(
+  seed: Buffer,
+  margin: number,
+  domainSeparator: Buffer,
+  field: Field,
+): { intermediateBytes: Buffer; key: bigint } {
   // Generating some more bytes is important to get a better distribution of keys
   const sampledBytes = sampleBytes(field.bytes + margin, domainSeparator, seed);
   return {
@@ -59,15 +35,19 @@ export function sampleKey(seed: Buffer, margin: number, domainSeparator: Buffer,
   };
 }
 
-export function encryptionSecretKey(
-  seed: Buffer,
-): { intermediateBytes: Buffer; key: bigint } {
+export function encryptionSecretKey(seed: Buffer): {
+  intermediateBytes: Buffer;
+  key: bigint;
+} {
   const field = ErisScalar;
   const domainSeparator = Buffer.from("midnight:esk", "utf-8");
   return sampleKey(seed, 8, domainSeparator, field);
 }
 
-export function dustSecretKey(seed: Buffer): { intermediateBytes: Buffer; key: bigint } {
+export function dustSecretKey(seed: Buffer): {
+  intermediateBytes: Buffer;
+  key: bigint;
+} {
   const field = PlutoScalar;
   const domainSeparator = Buffer.from("midnight:dsk", "utf-8");
   return sampleKey(seed, 8, domainSeparator, field);

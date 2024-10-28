@@ -143,7 +143,7 @@ In order to support operations mentioned in the [introduction](#introduction), w
 
 ### HD Wallet structure
 
-To allow deterministic derivation of keys for different features, Midnight follows structure being a mix of [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) and [CIP-1852](https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/README.md). Specifically, derivation path for a key pair is used:
+To allow deterministic derivation of keys for different features, Midnight follows algorithms and structure being a mix of [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) and [CIP-1852](https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/README.md). Specifically, derivation follows BIP-32, and following path for a key pair is used:
 ```
 m / purpose' / coin_type' / account' / role / index
 ```
@@ -253,6 +253,51 @@ function sampledSecretKey(seed: Buffer, domainSeparator: string, bytesMargin: nu
     return toScalar(sampledBytes) % field.prime;
 }
 ```
+
+## Address format
+
+Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) as an address format.
+
+The human-readable part should consist of 3 parts, separated by underscore:
+- constant `mn` indicating it is a Midnight address
+- type of credential encoded, like `addr` for payment address or `saddr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
+- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present.
+
+### Unshielded Payment address
+
+Currently undefined, it is designated as a primary payment address in the network. It allows to receive Night and other unshielded tokens.
+
+Its credential type is `addr`
+
+Example human-readable parts:
+- for the mainnet: `mn_addr`
+- for the testnet: `mn_addr_test`
+- for a testing environment: `mn_addr_testing-env`
+- for local development environment: `mn_addr_dev`
+
+### Shielded Payment address
+
+It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption public key (59 bytes).
+
+NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
+
+Its credential type is `saddr`.
+
+Example human-readable parts:
+- for the mainnet: `mn_saddr`
+- for the testnet: `mn_saddr_test`
+- for a testing environment: `mn_saddr_testing-env`
+- for local development environment: `mn_saddr_dev`
+
+### Shielded Coin public key
+
+32 bytes of the public key.
+Credential type is `scpk`.
+
+### Shielded Encryption secret key
+
+Ledger-serialized encryption secret key: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes, ) 
+Credential type is `sesk`
 
 ## Transaction structure and statuses
 

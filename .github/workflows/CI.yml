@@ -25,4 +25,5 @@ jobs:
       - name: Check test vectors
         run: |
           cd ./components/WalletEngine/key-derivation-reference/
-          npm run test
+          npm run test-vectors
+          npm run test-addr
