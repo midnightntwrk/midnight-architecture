@@ -37,10 +37,17 @@ type ContractAddress = Hash<...>;
 
 // Each contract address can issue multiple token types, each having a 256-bit
 // domain separator
-type TokenType = Hash<(ContractAddress, [u8; 32])>;
+type RawTokenType = Hash<(ContractAddress, [u8; 32])>;
+
+// There are shielded, and unshielded token types, and DUST.
+enum TokenType {
+    Shielded(RawTokenType),
+    Unshielded(RawTokenType),
+    Dust,
+}
 
 // NIGHT is a `TokenType`, but it is *not* a hash output, being defined as zero.
-const NIGHT: TokenType = [0u8; 32];
+const NIGHT: TokenType = TokenType::Unshielded([0u8; 32]);
 ```
 
 ## Signatures
@@ -54,6 +61,47 @@ type VerifyingKey = secp256k1::Point;
 // Where `M` is the data being signed
 type Signature<M> = secp256k1::schnorr::Signature;
 ```
+
+We support signature erasure by parameterising some data structures with a type
+parameter `S`, where `S::Signature<M> = Signature<M>` for `S = Signature` (a
+unit type), and `S::Signature<M> = ()` for `S = ()`. 
+
+We provide signature verification with
+
+```rust
+fn signature_verify<M, S>(msg: M, key: VerifyingKey, signature: S::Signature<M>) -> Result<()>;
+```
+
+## Zero-knowledge Proofs
+
+When specifying zero-knowledge proofs in this document, we substitute the
+abstraction of a function for the circuit. In particular, we write along the
+lines of:
+
+```rust
+fn foo(bar: Public<Bar>, baz: Private<Baz>) -> bool {
+    // ...
+}
+```
+
+Where `Public` and `Private` act merely as marker wrappers for which input is
+public, and which is not.
+
+We parameterise data structures with the proof representation used `P`, where
+`P::Proof` is this proof representation. This can be instantiated with `P =
+()`, for proof-erasure, which is used in some hash computation to prevent
+self-dependency in hashes, and `P = Proof` for the real proof system.
+
+We assume the zk verification primitive:
+```rust
+fn zk_verify<PI, BI, P>(f: fn(...) -> bool, public_input: PI, binding_input: BI, proof: P::Proof) -> Result<()>;
+```
+
+Where `PI` is a tuple of all `Public<...>` arguments to `f`, and `BI` is
+arbitrary data that the proof 'binds' to. Note that this is clearly not a direct
+rust construct, but helps express proofs didactically.
+
+For `P = ()`, `zk_verify` may be taken to be the constant function `Ok(())`.
 
 ## zk-Friendly Primitives
 

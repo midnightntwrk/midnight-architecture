@@ -22,23 +22,35 @@ token type'.
 struct Utxo {
     value: u128,
     owner: Hash<VerifyingKey>,
-    type_: TokenType,
-    intent_hash: Hash<Intent>,
+    type_: RawTokenType,
+    intent_hash: Hash<Intent<(), ()>>,
     output_no: u32,
 }
 
 struct UtxoOutput {
     value: u128,
     owner: Hash<VerifyingKey>,
-    type_: TokenType,
+    type_: RawTokenType,
 }
 
 struct UtxoSpend {
     value: u128,
     owner: VerifyingKey,
-    type_: TokenType,
-    intent_hash: Hash<Intent>,
+    type_: RawTokenType,
+    intent_hash: Hash<Intent<(), ()>>,
     output_no: u32,
+}
+
+impl From<UtxoSpend> for Utxo {
+    fn from(UtxoSpend { value, owner, type_, intent_hash, output_no }: UtxoSpend) -> Utxo {
+        Utxo {
+            value,
+            owner: hash(owner),
+            type_,
+            intent_hash,
+            output_no,
+        }
+    }
 }
 ```
 
@@ -63,13 +75,16 @@ full type for `Intent` is `Intent<Signature<Intent<(), ()>>, Proof>`)
 
 Due to the technicalities of [dust generation](./dust.md), a variant of
 `UtxoOutput`, `GeneratingUtxoOutput` also exists, which can appear in the place
-of outputs here.
+of outputs here, once Dust is enabled.
 
 ```rust
 struct UnshieldedOffer<S> {
     inputs: Vec<UtxoSpend>,
-    output: Vec<Either<UtxoOutput, GeneratingUtxoOutput>>,
-    signatures: Vec<Signature<Intent<()>>>,
+    // This will soon become the following with the introduction of Dust
+    // tokenomics:
+    // outputs: Vec<Either<UtxoOutput, GeneratingUtxoOutput>>,
+    outputs: Vec<UtxoOutput>,
+    signatures: Vec<S::Signature<Intent<(), ()>>>,
 }
 ```
 
@@ -78,9 +93,63 @@ must be the same length as inputs, with each signature authorizing the
 corresponding input. It signs the parent intent data, excluding signatures or
 ZK-proofs, and must be valid wrt. the respective input's verifying key.
 
+```rust
+impl<S> UnshieldedOffer<S> {
+    fn well_formed(self, parent: Intent<(), ()>) -> Result<()> {
+        assert!(self.inputs.is_sorted());
+        assert!(self.outputs.is_sorted());
+        assert!(self.inputs.len() == self.outputs.len());
+        assert!(self.inputs.no_duplicates());
+        for (inp, sig) in self.inputs.iter().zip(self.signatures.iter()) {
+            signature_verify(parent, inp.owner, sig)?;
+        }
+    }
+
+    fn balance(self) -> Result<Map<RawTokenType, i128>> {
+        let mut map = Map::empty();
+        for inp in self.inputs {
+            let entry = map.get_mut_or_default(inp.type_);
+            *entry = *entry.checked_add(inp.value)?;
+        }
+        for out in self.inputs {
+            let entry = map.get_mut_or_default(out.type_);
+            *entry = *entry.checked_sub(out.value)?;
+        }
+        Ok(map)
+    }
+}
+```
+
 The effect of an offer is the removal of each of the spends from the
 `UtxoState` (which must be unique and present), and the insertion of the
 outputs into the `UtxoState` (which must be unique and *not* present). Note
 that transactions are fully defined in [the relevant
 section](./intents-transactions.md), and that offers must be balanced to be
 applied.
+
+```rust
+impl UtxoState {
+    fn apply_offer<S>(mut self, offer: UnshieldedOffer<S>, parent: Intent<(), ()>) -> Result<UtxoState> {
+        let inputs = offer.inputs.iter().map(Utxo::from).collect();
+        assert!(self.utxos.hasSubset(inputs));
+        self.utxos -= inputs;
+        let intent_hash = hash(parent);
+        let outputs = offer.outputs.iter().enumerate().map(|(output_no, output)| Utxo {
+            value: output.value,
+            owner: output.owner,
+            type_: output.type_,
+            intent_hash,
+            output_no,
+        }).collect();
+        // The below is *not* needed, due to the uniqueness of outputs.
+        // assert!(self.utxo.intersection(outputs).is_empty());
+        self.utxos += outputs;
+        Ok(self)
+    }
+}
+```
+
+See [the replay protection
+section](./intents-transactions.md#replay-protection) for a justification on
+the uniqueness of outputs, as the semantics presented here are not sufficient
+to guarantee this.

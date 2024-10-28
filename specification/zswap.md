@@ -41,7 +41,7 @@ set, however this difference isn't computable.
 ```rust
 struct CoinInfo {
     value: u128,
-    type: TokenType,
+    type: RawTokenType,
     nonce: [0u8; 32],
 }
 ```
@@ -165,14 +165,14 @@ input matches exactly. This is used to bind to the ciphertext for
 Explicitly, proof verification is performed as:
 
 ```rust
-impl ZswapInput<Proof> {
-    fn verify(self, segment: u16) -> Result<()> {
+impl<P> ZswapInput<P> {
+    fn well_formed(self, segment: u16) -> Result<()> {
         assert!(zk_verify(input_valid, (self, segment), None, self.proof));
     }
 }
 
-impl ZswapOutput<Proof> {
-    fn verify(self, segment: u16) -> Result<()> {
+impl<P> ZswapOutput<P> {
+    fn well_formed(self, segment: u16) -> Result<()> {
         assert!(zk_verify(output_valid, (self, segment), Some(ciphertext), self.proof));
         // Can't have ciphertexts for contracts.
         assert!(self.contract.is_none() || self.ciphertext.is_none());
@@ -216,9 +216,9 @@ of processing a block, and cleaning up entries outside of a TTL parameter.
 
 ```rust
 impl ZswapState {
-    fn post_block_update(mut self, time: Timestamp) -> Self {
-        self.commitment_tree_history = self.commitment_tree_history.insert(time, self.commitment_tree.root());
-        self.commitment_tree_history = self.commitment_tree_history.filter(|(t, _)| t >= time - GLOBAL_TTL);
+    fn post_block_update(mut self, tblock: Timestamp) -> Self {
+        self.commitment_tree_history = self.commitment_tree_history.insert(tblock, self.commitment_tree.root());
+        self.commitment_tree_history = self.commitment_tree_history.filter(|(t, _)| t >= tblock - global_ttl);
     }
 }
 ```
@@ -267,7 +267,7 @@ impl<P> ZswapTransient<P> {
             proof: self.proof_output
         }
     }
-    fn verify(self, segment: u126) -> Result<()> {
+    fn well_formed(self, segment: u126) -> Result<()> {
         self.as_input().verify()?;
         self.as_output().verify()?;
     }
@@ -298,14 +298,14 @@ struct ZswapOffer<P> {
     inputs: Set<ZswapInput<P>>,
     outputs: Set<ZswapOutput<P>>,
     transients: Set<ZswapTransient<P>>,
-    deltas: Map<TokenType, i128>,
+    deltas: Map<RawTokenType, i128>,
 }
 
 impl<P> ZswapOffer<P> {
-    fn verify(self, segment: u126) -> Result<()> {
-        inputs.all(|inp| inp.verify(segment))?;
-        outputs.all(|out| out.verify(segment))?;
-        transients.all(|trans| trans.verify(segment))?;
+    fn well_formed(self, segment: u126) -> Result<()> {
+        inputs.all(|inp| inp.well_formed(segment))?;
+        outputs.all(|out| out.well_formed(segment))?;
+        transients.all(|trans| trans.well_formed(segment))?;
     }
 }
 

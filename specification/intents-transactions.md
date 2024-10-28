@@ -33,7 +33,8 @@ struct Intent<S, P> {
     guaranteed_unshielded_offer: Option<UnshieldedOffer<S>>,
     fallible_unshielded_offer: Option<UnshieldedOffer<S>>,
     calls: Vec<ContractAction<P>>,
-    dust_payments: Vec<DustSpend<P>>,
+    // Dust payments will be enabled once dust tokenomics is fully settled.
+    // dust_payments: Vec<DustSpend<P>>,
     ttl: Timestamp,
     binding_commitment: FiatShamirPedersen<P>,
 }
@@ -69,7 +70,35 @@ transcripts.
 
 ## Replay Protection
 
-- Use TTL for replay protection
-- Zswap has it's own replay protection
-- Intents are protected by keeping all intent hashes in time window of valid
-  TTLs stored in state, and rejecting intents that are already present.
+To prevent the replay of transactions, all of the intent hashes are kept
+in a history of seen intents. If an intent hash is encountered again, it is
+rejected.
+
+```rust
+struct ReplayProtectionState {
+    intent_history: Map<Timestamp, Hash<Intent<(), ()>>>,
+}
+
+impl ReplayProtectionState {
+    fn apply_intent<S, P>(mut self, intent: Intent<S, P>, tblock: Timestamp) -> Result<Self> {
+        let hash = hash(intent.erase_proofs());
+        assert!(!self.intent_history.contains_value(hash));
+        assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
+        self.intent_history = self.intent_history.insert(intent.ttl, hash);
+        Ok(self)
+    }
+
+    fn apply_tx<S, P>(mut self, tx: Transaction<S, P>, tblock: Timestamp) -> Result<Self> {
+        tx.intents.values().fold(|st, intent| (st?).apply_intent(intent, tblock), Ok(self))
+    }
+
+    fn post_block_update(mut self, tblock: Timestamp) -> Self {
+        self.intent_history = self.intent_history.filter(|(t, _)| t > tblock + global_ttl);
+        self
+    }
+}
+```
+
+Note that no additional replay protection is added for Zswap, as Zswap provides
+its own replay protection. This comes at the cost of linear growth, which is a
+known bound of the Zswap solution.
