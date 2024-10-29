@@ -25,6 +25,7 @@ While it is simple approach, with easy to predict values and serialization, it l
 The proposal is to:
 - change network id to be an arbitrary string of alphanumeric characters: small and big letters, numbers, and a hyphen 
 - remove network id from ledger serialization format entirely (alternatively keep it optional to use only with specific datatypes, like contract state serialization)
+- make network id part of ledger state and genesis block data
 - make network id part of transactions or intents, so that they need to match ledger's one as well as each other upon merging
 - extend APIs of node, indexer and wallet, so that they advertise network id they are configured with, and can learn it, and validate data received against provided network id
 
