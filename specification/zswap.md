@@ -41,7 +41,7 @@ set, however this difference isn't computable.
 ```rust
 struct CoinInfo {
     value: u128,
-    type: RawTokenType,
+    type_: RawTokenType,
     nonce: [0u8; 32],
 }
 ```
@@ -123,7 +123,7 @@ fn input_valid<P>(
         Left(_) => None,
         Right(contract) => Some(contract),
     });
-    let value_commitment = hash_to_curve(coin.type, segment) * coin.value + curve::embedded::GENERATOR * rc;
+    let value_commitment = hash_to_curve(coin.type_, segment) * coin.value + curve::embedded::GENERATOR * rc;
     assert!(input.value_commitment == value_commitment);
 }
 
@@ -139,7 +139,7 @@ fn output_valid(
         Left(_) => None,
         Right(contract) => Some(contract),
     });
-    let value_commitment = hash_to_curve(coin.type, segment) * coin.value + curve::embedded::GENERATOR * rc;
+    let value_commitment = hash_to_curve(coin.type_, segment) * coin.value + curve::embedded::GENERATOR * rc;
     assert!(output.value_commitment == value_commitment);
 }
 ```
@@ -151,7 +151,7 @@ computed. The value `rc` is the Pedersen commitment's randomness, and is used
 later in the aggregate `Offer` structure to combine multiple inputs and
 outputs.
 
-Crucially, `segment`, as well as `coin.type`, are preimages to the multi-base
+Crucially, `segment`, as well as `coin.type_`, are preimages to the multi-base
 part of this commitment, ensuring that a change to either is not homomorphic,
 and effectively unmixable with each other. This not only ensures that coins of
 different types cannot be exchanged with each other, but that a transaction can

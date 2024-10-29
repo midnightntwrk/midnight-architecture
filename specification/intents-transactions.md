@@ -38,6 +38,8 @@ struct Intent<S, P> {
     ttl: Timestamp,
     binding_commitment: FiatShamirPedersen<P>,
 }
+
+type IntentHash = Hash<(u16, Intent<(), ()>)>;
 ```
 
 ## Sequencing
@@ -76,7 +78,7 @@ rejected.
 
 ```rust
 struct ReplayProtectionState {
-    intent_history: Map<Timestamp, Hash<Intent<(), ()>>>,
+    intent_history: Map<Timestamp, IntentHash>,
 }
 
 impl ReplayProtectionState {
@@ -102,3 +104,184 @@ impl ReplayProtectionState {
 Note that no additional replay protection is added for Zswap, as Zswap provides
 its own replay protection. This comes at the cost of linear growth, which is a
 known bound of the Zswap solution.
+
+## Well-Formedness (and Balancing)
+
+Partly, a transactions well-formedness is just the sum of its parts, however
+there are additional checks to perform to ensure a holistic correctness. Those
+are:
+
+- Check that the different offers' inputs (and for Zswap, outputs) are disjoint
+- Check the [sequencing restrictions](#sequencing) laid out earlier.
+- TODO: Cross-check token-contract constraints, and contract call constraints
+- Ensure that the transaction is balanced
+
+Balancing is done on a per-segment-id basis, where segment ID `0` encompasses
+the guaranteed section. Balancing also includes fee payments, which are
+denominated in `DUST`. The fee payment required is subtracted from the Dust
+balance of segment 0.
+
+It's also during this time that contract interactions, both with tokens and
+with other contracts are enforced. These are enforced as static 1-to-1
+existence constraints, where specific interactions also mandate the existence
+of another part in a contract.
+
+```rust
+impl<S, P> Intent<S, P> {
+    fn well_formed(self, segment_id: u16) -> Result<()> {
+        let erased = self.erase_proofs();
+        self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
+        self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
+        // TODO: needs contract spec. This is inaccurate, as a reference
+        // state is now required.
+        self.calls.iter().all(|action| action.well_formed(erased)).collect()?;
+    }
+}
+
+impl<S, P> Transaction<S, P> {
+    fn well_formed(self) -> Result<()> {
+        self.guaranteed_offer.map(|offer| offer.well_formed(0)).transpose()?;
+        for (segment, offer) in self.fallible_offer {
+            assert!(segment != 0);
+            offer.well_formed(segment)?;
+        }
+        for (segment, intent) in self.intents {
+            assert!(segment != 0);
+            intent.well_formed(segment)?;
+        }
+        self.disjoint_check()?;
+        self.sequencing_check()?;
+        self.balancing_check()?;
+        self.pedersen_check()?;
+        // TODO: TTL should probably be checked here, rather than at first
+        // application.
+    }
+
+    fn disjoint_check(self) -> Result<()> {
+        let mut shielded_inputs = Set::new();
+        let mut shielded_outputs = Set::new();
+        let mut unshielded_inputs = Set::new();
+        let shielded_offers = self.guaranteed_offer.iter().chain(self.fallible_offer.values());
+        for offer in shielded_offers {
+            let inputs = offer.inputs.iter()
+                .chain(offer.transients.iter().map(ZswapTransient::as_input))
+                .collect();
+            let outputs = offer.outputs.iter()
+                .chain(offer.transients.iter().map(ZswapTransient::as_output))
+                .collect();
+            assert!(shielded_inputs.disjoint(inputs));
+            assert!(shielded_outputs.disjoint(outputs));
+            shielded_inputs += inputs;
+            shielded_outputs += outputs;
+        }
+        let unshielded_offers = self.intents.values()
+            .flat_map(|intent| [
+                intent.guaranteed_unshielded_offer,
+                intent.fallible_unshielded_offer,
+            ].into_iter());
+        for offer in unshielded_offers {
+            assert!(unshielded_inputs.disjoint(inputs));
+            unshielded_inputs += inputs;
+        }
+        Ok(())
+    }
+
+    fn sequencing_check(self) -> Result<()> {
+        // TODO
+    }
+
+    fn balance(self) -> Map<(TokenType, u16), i128> {
+        let mut res = Map::new();
+        for (segment, intent) in self.intents {
+            for (segment, offer) in [
+                (0, intent.guaranteed_unshielded_offer),
+                (segment, intent. fallible_unshielded_offer),
+            ] {
+                for inp in offer.inputs {
+                    // Checked addition, fail on overflow
+                    res.get_mut_or_default((TokenType::Unshielded(inp.type_), segment)) += inp.value;
+                }
+                for out in offer.outputs {
+                    // Checked subtraction, fail on overflow
+                    res.get_mut_or_default((TokenType::Unshielded(out.type_), segment)) -= out.value;
+                }
+            }
+        }
+        for (segment, offer) in self.fallible_offer.iter()
+            .chain(self.guaranteed_offer.iter().map(|o| (0, o)))
+        {
+            for (tt, val) in offer.deltas {
+                res.set((TokenType::Shielded(tt), segment), val);
+            }
+        }
+        res
+    }
+
+    fn balancing_check(self) -> Result<()> {
+        // TODO
+    }
+
+    fn pedersen_check(self) -> Result<()> {
+        let comm_parts =
+            self.intents.values()
+                .map(|intent| intent.binding_commitment.commitment)
+                .chain(
+                    self.guaranteed_offer.iter()
+                        .chain(self.fallible_offer.values())
+                        .flat_map(|offer|
+                            offer.inputs.iter()
+                                .map(|inp| inp.value_commitment)
+                                .chain(offer.outputs.iter()
+                                    .map(|out| -out.value_commitment))
+                                .chain(offer.transients.iter()
+                                    .map(|trans| trans.value_commitment_input))
+                                .chain(offer.transients.iter()
+                                    .map(|trans| -trans.value_commitment_output))));
+        let comm = comm_parts.fold(|a, b| a + b, embedded::CurvePoint::identity);
+        let expected = self.balance().filter_map(|((tt, segment), value)| match tt {
+            TokenType::Shielded(tt) => Some(hash_to_curve(tt, segment) * value),
+            _ => None,
+        }).fold(
+            |a, b| a + b,
+            embedded::CurvePoint::GENERATOR * self.binding_randomness,
+        );
+        assert!(comm == expected);
+        Ok(())
+    }
+}
+```
+
+## Transaction application
+
+Transaction application roughly follows the following procedure:
+1. Apply the guaranteed section of all intents, and the guaranteed offer.
+2. Check if each fallible Zswap offer is applicable in isolation. That is:
+(that is: are the Merkle trees valid and the nullifiers unspent?).
+3. In order of sequence IDs, apply the fallible sections of contracts, and the
+   fallible offers (both Zswap and unshielded).
+
+If any one sequence in 3. fails, this sequence, and this sequence only, is
+rolled back. If any part of 1. or 2. fails, the transaction fails in its
+entirety. To represent this, the transaction returns a success state which is
+one of:
+- `SucceedEntirely` (all passed with no failures)
+- `FailEntirely` (failure in 1. or 2.)
+- `SucceedPartially`, annotated with which segment IDs succeeded, and which
+  failed.
+
+```rust
+enum TransactionResult {
+    SucceedEntirely,
+    FailEntirely,
+    SucceedPartially {
+        // Must include (0, true).
+        segment_success: Map<u16, bool>,
+    }
+}
+
+impl LedgerState {
+    fn apply<S, P>(self, Transaction<S, P>) -> (Self, TransactionResult) {
+        // TODO
+    }
+}
+```

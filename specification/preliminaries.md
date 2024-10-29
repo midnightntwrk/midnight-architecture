@@ -48,6 +48,12 @@ enum TokenType {
 
 // NIGHT is a `TokenType`, but it is *not* a hash output, being defined as zero.
 const NIGHT: TokenType = TokenType::Unshielded([0u8; 32]);
+
+// DUST is a `TokenType` for fees. For testnet, this is the shielded
+// token defined as zero. In the future, this will be the special
+// TokenType::Dust token
+const DUST: TokenType = TokenType::Shielded([0u8; 32]);
+// const DUST: TokenType = TokenType::Dust;
 ```
 
 ## Signatures

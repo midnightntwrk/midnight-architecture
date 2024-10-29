@@ -23,7 +23,7 @@ struct Utxo {
     value: u128,
     owner: Hash<VerifyingKey>,
     type_: RawTokenType,
-    intent_hash: Hash<Intent<(), ()>>,
+    intent_hash: IntentHash,
     output_no: u32,
 }
 
@@ -37,7 +37,7 @@ struct UtxoSpend {
     value: u128,
     owner: VerifyingKey,
     type_: RawTokenType,
-    intent_hash: Hash<Intent<(), ()>>,
+    intent_hash: IntentHash,
     output_no: u32,
 }
 
@@ -70,8 +70,8 @@ have a set of signatures, which each sign the containing
 [`Intent`](./intents-transactions.md) object. Taken literally, this means that
 signatures must sign themselves, so we instead expose a variant without
 signatures, by adding a type parameter `S`, which may be instantiated either
-with the unit type `()`, or the type `Signature<Intent<(), ()>>`. (Therefore, the
-full type for `Intent` is `Intent<Signature<Intent<(), ()>>, Proof>`)
+with the unit type `()`, or the type `Signature`. (Therefore, the
+full type for `Intent` is `Intent<Signature, Proof>`)
 
 Due to the technicalities of [dust generation](./dust.md), a variant of
 `UtxoOutput`, `GeneratingUtxoOutput` also exists, which can appear in the place
@@ -84,7 +84,9 @@ struct UnshieldedOffer<S> {
     // tokenomics:
     // outputs: Vec<Either<UtxoOutput, GeneratingUtxoOutput>>,
     outputs: Vec<UtxoOutput>,
-    signatures: Vec<S::Signature<Intent<(), ()>>>,
+    // Note that for S = (), this has a fixed point of ().
+    // This signs the intent, and the segment ID
+    signatures: Vec<S::Signature<(u16, Intent<(), ()>>>,
 }
 ```
 
