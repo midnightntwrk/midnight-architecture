@@ -27,8 +27,8 @@ This document is a summary reference of kind of cryptography used as well as the
 | SS58        | Polkadot's adjustment of Base58Check with network discriminator                               | [Polkadot-accounts]    | Same as for Base58, has some notion of human-readable part, native to Polkadot | Same as for Base58Check, bar the human-readable-part                                                                                                                                                                                           |
 
 
-Why use hash of public key? 
-: As a protection against quantum computers recovering secret keys
+> ![NOTE]
+> Some chains use a (truncated) hash of public key as their addresses. It is thought as a protection against quantum computers recovering secret keys (where problems like finding discrete logarithm might be possible to solve efficiently), because of their (seemingly) inherent quantum resistance.
 
 [ED25519-BIP32]: https://github.com/input-output-hk/adrestia/raw/bdf00e4e7791d610d273d227be877bc6dd0dbcfb/user-guide/static/Ed25519_BIP.pdf
 [BIP-0032]: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki

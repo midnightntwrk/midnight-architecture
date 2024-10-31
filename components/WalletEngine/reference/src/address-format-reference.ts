@@ -46,11 +46,7 @@ export class MidnightBech32m {
 
   toString(): string {
     const networkSegment = this.network == null ? "" : `_${this.network}`;
-    return bech32m.encode(
-      `${MidnightBech32m.prefix}_${this.type}${networkSegment}`,
-      bech32m.toWords(this.data),
-      false,
-    );
+    return bech32m.encode(`${MidnightBech32m.prefix}_${this.type}${networkSegment}`, bech32m.toWords(this.data), false);
   }
 }
 
@@ -70,9 +66,7 @@ export class Bech32mCodec<T> {
       throw new Error(`Expected type ${this.type}, got ${repr.type}`);
     }
     if (context.networkId != repr.network) {
-      throw new Error(
-        `Expected ${context.networkId ?? "mainnet"} address, got ${repr.network ?? "mainnet"} one`,
-      );
+      throw new Error(`Expected ${context.networkId ?? "mainnet"} address, got ${repr.network ?? "mainnet"} one`);
     }
     return this.dataFromBytes(repr.data);
   }
@@ -80,12 +74,10 @@ export class Bech32mCodec<T> {
 
 export class ShieldedAddress {
   static codec = new Bech32mCodec<ShieldedAddress>(
-    "saddr",
+    "shield-addr",
     (addr) => Buffer.concat([addr.coinPublicKey.data, addr.encryptionPublicKey]),
     (bytes) => {
-      const coinPublicKey = new ShieldedCoinPublicKey(
-        bytes.subarray(0, ShieldedCoinPublicKey.length),
-      );
+      const coinPublicKey = new ShieldedCoinPublicKey(bytes.subarray(0, ShieldedCoinPublicKey.length));
       const encryptionPublicKey = bytes.subarray(ShieldedCoinPublicKey.length);
       return new ShieldedAddress(coinPublicKey, encryptionPublicKey);
     },
@@ -101,19 +93,11 @@ export class ShieldedAddress {
 
 export class ShieldedEncryptionSecretKey {
   static codec = new Bech32mCodec<ShieldedEncryptionSecretKey>(
-    "sesk",
-    (esk) =>
-      Buffer.from(
-        esk.zswap
-          .yesIKnowTheSecurityImplicationsOfThis_serialize(zswap.NetworkId.Undeployed)
-          .subarray(1),
-      ),
+    "shield-esk",
+    (esk) => Buffer.from(esk.zswap.yesIKnowTheSecurityImplicationsOfThis_serialize(zswap.NetworkId.Undeployed).subarray(1)),
     (repr) =>
       new ShieldedEncryptionSecretKey(
-        zswap.EncryptionSecretKey.deserialize(
-          Buffer.concat([Buffer.of(0), repr]),
-          zswap.NetworkId.Undeployed,
-        ),
+        zswap.EncryptionSecretKey.deserialize(Buffer.concat([Buffer.of(0), repr]), zswap.NetworkId.Undeployed),
       ),
   );
 
@@ -128,7 +112,7 @@ export class ShieldedCoinPublicKey {
   static readonly length = 32;
 
   static codec: Bech32mCodec<ShieldedCoinPublicKey> = new Bech32mCodec(
-    "scpk",
+    "shield-cpk",
     (cpk) => cpk.data,
     (repr) => new ShieldedCoinPublicKey(repr),
   );

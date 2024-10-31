@@ -266,7 +266,7 @@ Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.med
 
 The human-readable part should consist of 3 parts, separated by underscore:
 - constant `mn` indicating it is a Midnight address
-- type of credential encoded, like `addr` for payment address or `saddr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
+- type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
 - network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present. Following approach should be used to map ledger's `NetworkId` enum into network identifier:
   - mainnet - no prefix
   - testnet - "test"
@@ -277,7 +277,7 @@ The human-readable part should consist of 3 parts, separated by underscore:
 
 Currently undefined, it is designated as a primary payment address in the network. It allows to receive Night and other unshielded tokens.
 
-Its credential type is `addr`
+Its credential type is `addr`.
 
 Example human-readable parts:
 - for the mainnet: `mn_addr`
@@ -285,29 +285,35 @@ Example human-readable parts:
 - for a testing environment: `mn_addr_testing-env`
 - for local development environment: `mn_addr_dev`
 
+### Dust address
+
+Currently undefined (very likely to be Dust's public key). It will allow to represent recipient of Dust generation.
+
+Its credential type is `dust-addr`.
+
 ### Shielded Payment address
 
 It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption public key (59 bytes).
 
 NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
 
-Its credential type is `saddr`.
+Its credential type is `shield-addr`.
 
 Example human-readable parts:
-- for the mainnet: `mn_saddr`
-- for the testnet: `mn_saddr_test`
-- for a testing environment: `mn_saddr_testing-env`
-- for local development environment: `mn_saddr_dev`
+- for the mainnet: `mn_shield-addr`
+- for the testnet: `mn_shield-addr_test`
+- for a testing environment: `mn_shield-addr_testing-env`
+- for local development environment: `mn_shield-addr_dev`
 
 ### Shielded Coin public key
 
 32 bytes of the public key.
-Credential type is `scpk`.
+Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
 Ledger-serialized encryption secret key: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes, ) 
-Credential type is `sesk`
+Credential type is `shield-esk`
 
 ## Transaction structure and statuses
 

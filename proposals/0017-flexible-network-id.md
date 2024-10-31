@@ -29,6 +29,12 @@ The proposal is to:
 - make network id part of transactions or intents, so that they need to match ledger's one as well as each other upon merging
 - extend APIs of node, indexer and wallet, so that they advertise network id they are configured with, and can learn it, and validate data received against provided network id
 
+Since there are existing networks, which are expected to be long-running, maintaining compatibility is a concern here. There are two possible approaches to introduce these changes. Both cases assume introducing them in hard-forks. In such a hard-fork ledger would need to have its state converted, to introduce new data (network id). Network id is already part of node storage, so performing a ledger state migration is entirely possible, with a mapping of NetworkId enum into a string.
+
+One approach to introduce those changes would be to perform a hard-fork, requiring new rules to be obeyed, at a cost of all clients needing to upgrade too. In such case it would be good to bundle it with different, more important changes to transaction format.
+
+The other approach would make it possible to gradually introduce changes - first introduce network id as an optional data in a transaction. At this stage transaction processing code (both in ledger and outside it) would need to accept existing transactions as well as ones with network id present. In the latter case - presence of network id enables its validation. At a next (optional) stage, transactions without network id present would be rejected. This approach has the advantage of providing client applications a window, where they can update their code in place.
+
 ## Desired Result
 
 - addresses can clearly indicate what specific network they are created for
