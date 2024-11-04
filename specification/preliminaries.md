@@ -100,12 +100,14 @@ self-dependency in hashes, and `P = Proof` for the real proof system.
 
 We assume the zk verification primitive:
 ```rust
-fn zk_verify<PI, BI, P>(f: fn(...) -> bool, public_input: PI, binding_input: BI, proof: P::Proof) -> Result<()>;
+fn zk_verify<PI, BI, P>(f: Zk<fn(...) -> bool>, public_input: PI, binding_input: BI, proof: P::Proof) -> Result<()>;
 ```
 
 Where `PI` is a tuple of all `Public<...>` arguments to `f`, and `BI` is
 arbitrary data that the proof 'binds' to. Note that this is clearly not a direct
-rust construct, but helps express proofs didactically.
+rust construct, but helps express proofs didactically. We use the `Zk`
+annotation to effectively denote the verifier key, to help us capture where
+these appear in contract states.
 
 For `P = ()`, `zk_verify` may be taken to be the constant function `Ok(())`.
 

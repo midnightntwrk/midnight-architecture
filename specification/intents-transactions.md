@@ -139,7 +139,7 @@ impl<S, P> Intent<S, P> {
 }
 
 impl<S, P> Transaction<S, P> {
-    fn well_formed(self) -> Result<()> {
+    fn well_formed(self, tblock: Timestamp) -> Result<()> {
         self.guaranteed_offer.map(|offer| offer.well_formed(0)).transpose()?;
         for (segment, offer) in self.fallible_offer {
             assert!(segment != 0);
@@ -153,8 +153,13 @@ impl<S, P> Transaction<S, P> {
         self.sequencing_check()?;
         self.balancing_check()?;
         self.pedersen_check()?;
-        // TODO: TTL should probably be checked here, rather than at first
-        // application.
+        self.ttl_check_weak(tblock)?;
+    }
+
+    fn ttl_check_weak(self, tblock: Timestamp) -> Result<()> {
+        for (_, intent) in self.intents {
+            assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
+        }
     }
 
     fn disjoint_check(self) -> Result<()> {
@@ -183,11 +188,14 @@ impl<S, P> Transaction<S, P> {
             assert!(unshielded_inputs.disjoint(inputs));
             unshielded_inputs += inputs;
         }
-        Ok(())
     }
 
     fn sequencing_check(self) -> Result<()> {
         // TODO
+    }
+
+    fn fees(self) -> Result<u128> {
+        // Out of scope of this spec
     }
 
     fn balance(self) -> Map<(TokenType, u16), i128> {
@@ -218,7 +226,9 @@ impl<S, P> Transaction<S, P> {
     }
 
     fn balancing_check(self) -> Result<()> {
-        // TODO
+        for bal in self.balance().map(|(_, bal)| bal) {
+            assert!(bal >= 0);
+        }
     }
 
     fn pedersen_check(self) -> Result<()> {
