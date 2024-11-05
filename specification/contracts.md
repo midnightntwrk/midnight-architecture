@@ -172,6 +172,7 @@ struct CallContext {
     seconds_since_epoch_err: Duration,
     block_hash: Hash<Block>,
     caller: Option<Either<Hash<VerifyingKey>, ContractAddress>>,
+    balance: Map<TokenType, u128>,
 }
 ```
 
@@ -192,7 +193,7 @@ struct BlockContext {
 }
 
 impl ContractCall {
-    fn context(self, block: BlockContext, intent: Intent<(), ()>) -> CallContext {
+    fn context(self, block: BlockContext, intent: Intent<(), ()>, state: ContractState) -> CallContext {
         let caller = intent.calls.iter()
             .find_map(|action| match action {
                 ContractAction::Call(caller) if caller.calls(self) => Some(Right(caller.address)),
@@ -215,6 +216,7 @@ impl ContractCall {
             seconds_since_epoch_err: block.seconds_since_epoch_err,
             block_hash: block.block_hash,
             caller,
+            balance: state.balance,
         }
     }
 

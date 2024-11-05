@@ -1,7 +1,7 @@
 # Night and other unshielded tokens
 
 We construct an unshielded UTXO token set, for Night, extensible to other token
-types. UTXOs, or unspent transaction outputs, are data recording inividual
+types. UTXOs, or unspent transaction outputs, are data recording individual
 transaction outputs, each having a value and an owner. As we are extending
 these with token types, they also have an associated token type in our model.
 

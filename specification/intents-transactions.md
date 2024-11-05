@@ -17,7 +17,7 @@ struct Transaction<S, P> {
 ```
 
 An intent consists of guaranteed and fallible *unshielded* offers, a sequence
-of calls, a set of dust payments, a TTL timestampt, and a binding commitment
+of contract actions, a set of dust payments, a TTL timestampt, and a binding commitment
 with a proof of knowledge of exponent of `g`, to prevent interfering with the
 Zswap value commitments.
 
@@ -32,7 +32,7 @@ far in the future (by the ledger parameter `global_ttl`).
 struct Intent<S, P> {
     guaranteed_unshielded_offer: Option<UnshieldedOffer<S>>,
     fallible_unshielded_offer: Option<UnshieldedOffer<S>>,
-    calls: Vec<ContractAction<P>>,
+    actions: Vec<ContractAction<P>>,
     // Dust payments will be enabled once dust tokenomics is fully settled.
     // dust_payments: Vec<DustSpend<P>>,
     ttl: Timestamp,
@@ -122,7 +122,7 @@ are:
 - Check the [sequencing restrictions](#sequencing) laid out earlier.
 - TODO: Cross-check token-contract constraints, and contract call constraints
   \[all `Effects` constaints\]
-- Ensure that the transaction is--custom 2560 1440 balanced
+- Ensure that the transaction is balanced
 
 Balancing is done on a per-segment-id basis, where segment ID `0` encompasses
 the guaranteed section. Balancing also includes fee payments, which are
@@ -140,7 +140,7 @@ impl<S, P> Intent<S, P> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
         self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
-        self.calls.iter().all(|action| action.well_formed(ref_state, hash(erased))).collect()?;
+        self.actions.iter().all(|action| action.well_formed(ref_state, hash(erased))).collect()?;
     }
 }
 
@@ -218,7 +218,41 @@ The sequencing check enforces the 'causal precedence' partial order above:
 ```rust
 impl<S, P> Transaction<S, P> {
     fn sequencing_check(self) -> Result<()> {
-        // TODO
+        // NOTE: this is implemented highly inefficiently, and should be
+        // optimised for the actual implementation to run sub-quadratically.
+        let mut causal_precs = Set::new();
+        // Assuming in-order iteration
+        for ((sid1, intent1), (sid2, intent2)) in self.intents.iter().product(self.intents.iter()) {
+            if sid1 > sid2 {
+                continue;
+            }
+            for ((cid1, call1), (cid2, call2)) in intent1.actions.iter().product(intent2.actions.iter()) {
+                let (call1, call2) = match (call1, call2) {
+                    (ContractAction::Call(c1), ContractAction::Call(c2)) => (c1, c2),
+                    _ => continue,
+                };
+                if sid1 == sid2 && cid1 == cid2 {
+                    continue;
+                }
+                if (sid1 == sid2 && call1.calls(call2)) || (sid1 != sid2 && call1.address == call2.address) {
+                    causal_precs = causal_precs.insert(((sid1, cid1, call1), (sid2, cid2, call2)));
+                }
+            }
+        }
+        // Build transitive closure
+        let mut prev = Vec::new();
+        while causal_precs != prev {
+            prev = causal_precs;
+            for ((a, b), (c, d)) in prev.iter().zip(prev.iter()) {
+                if b == c && !prev.contains((a, d)) {
+                    causal_precs = causal_precs.insert((a, d));
+                }
+            }
+        }
+        // Enforce causality requirements
+        for ((_, _, a), (_, _, b)) in causal_precs.iter() {
+            assert!(a.fallible_transcript.is_none() || b.guaranteed_transcript.is_none());
+        }
     }
 }
 ```
@@ -399,12 +433,55 @@ impl LedgerState {
         tx: Transaction<S, P>,
         segment: u16,
         block_context: BlockContext,
-    ) -> (Self, TransactionResult) {
+    ) -> Result<Self> {
         if segment == 0 {
-            todo!()
+            // Apply replay protection
+            self.replay_protection = self.replay_protection.apply_tx(
+                tx,
+                block_context.seconds_since_epoch,
+            )?;
+            if let Some(offer) = tx.guaranteed_offer {
+                self.zswap = self.zswap.apply(offer)?;
+            }
+            // Make sure all fallible offers *can* be applied
+            assert!(tx.fallible_offer.values()
+                .fold(Ok(self.zswap), |st, offer| st?.apply(offer))
+                .is_ok());
+            // Apply all guaranteed intent parts
+            for intent in tx.intents.values() {
+                let erased = intent.erase_proofs();
+                if let Some(offer) = intent.guaranteed_unshielded_offer {
+                    self.utxo = self.utxo.apply_offer(offer, erased)?;
+                }
+                for action in intent.actions.iter() {
+                    self.contract = self.contract.apply_action(
+                        action,
+                        true,
+                        block_context,
+                        erased,
+                    )?;
+                }
+            }
         } else {
-            todo!()
+            if let Some(intent) = tx.intents.get(segment) {
+                let erased = intent.erase_proofs();
+                if let Some(offer) = intent.fallible_unshielded_offer {
+                    self.utxo = self.utxo.apply_offer(offer, erased)?;
+                }
+                for action in intent.actions.iter() {
+                    self.contract = self.contract.apply_action(
+                        action,
+                        false,
+                        block_context,
+                        erased,
+                    )?;
+                }
+            }
+            if let Some(offer) = tx.fallible_offer.get(segment) {
+                self.zswap = self.zswap.apply(offer)?;
+            }
         }
+        Ok(self)
     }
 }
 ```
