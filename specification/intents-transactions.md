@@ -64,11 +64,18 @@ To resolve this, a constraint is placed on merged transactions: If two segments
 `a < b` call the same contract, then one of the following must be true:
 - `a` does not have a fallible transcript for this call
 - `b` does not have a guaranteed transcript for this call
+We will refer to this relation as `a` *causally precedes* `b`.
 
 For a longer sequence, this means there must be at most one segment with both a
 guaranteed and fallible transcript, and any segment prior to this must have
 only guaranteed transcript, and any segment after must have only fallible
 transcripts.
+
+Causal precedence is also extended to contract-to-contract calls within a
+single intent: If `a` calls `b`, then `a` must causally precede `b`. Finally,
+causal precedence is extended to be transitive: If `a` causally precedes `b`,
+and `b` causally precedes `c`, then `a` must causally precede `c`. Note that
+this *isn't* direct, and must be enforced.
 
 ## Replay Protection
 
@@ -114,7 +121,8 @@ are:
 - Check that the different offers' inputs (and for Zswap, outputs) are disjoint
 - Check the [sequencing restrictions](#sequencing) laid out earlier.
 - TODO: Cross-check token-contract constraints, and contract call constraints
-- Ensure that the transaction is balanced
+  \[all `Effects` constaints\]
+- Ensure that the transaction is--custom 2560 1440 balanced
 
 Balancing is done on a per-segment-id basis, where segment ID `0` encompasses
 the guaranteed section. Balancing also includes fee payments, which are
@@ -128,26 +136,26 @@ of another part in a contract.
 
 ```rust
 impl<S, P> Intent<S, P> {
-    fn well_formed(self, segment_id: u16) -> Result<()> {
+    fn well_formed(self, segment_id: u16, ref_state: LedgerContractState) -> Result<()> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
         self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
-        // TODO: needs contract spec. This is inaccurate, as a reference
-        // state is now required.
-        self.calls.iter().all(|action| action.well_formed(erased)).collect()?;
+        self.calls.iter().all(|action| action.well_formed(ref_state, hash(erased))).collect()?;
     }
 }
 
+const SEGMENT_GUARANTEED: u16 = 0;
+
 impl<S, P> Transaction<S, P> {
-    fn well_formed(self, tblock: Timestamp) -> Result<()> {
+    fn well_formed(self, tblock: Timestamp, ref_state: LedgerContractState) -> Result<()> {
         self.guaranteed_offer.map(|offer| offer.well_formed(0)).transpose()?;
         for (segment, offer) in self.fallible_offer {
-            assert!(segment != 0);
+            assert!(segment != SEGMENT_GUARANTEED);
             offer.well_formed(segment)?;
         }
         for (segment, intent) in self.intents {
-            assert!(segment != 0);
-            intent.well_formed(segment)?;
+            assert!(segment != SEGMENT_GUARANTEED);
+            intent.well_formed(segment, ref_state)?;
         }
         self.disjoint_check()?;
         self.sequencing_check()?;
@@ -155,13 +163,26 @@ impl<S, P> Transaction<S, P> {
         self.pedersen_check()?;
         self.ttl_check_weak(tblock)?;
     }
+}
+```
 
+The weak TTL check simply checks if the transaction is in the expected time window:
+
+```rust
+impl<S, P> Transaction<S, P> {
     fn ttl_check_weak(self, tblock: Timestamp) -> Result<()> {
         for (_, intent) in self.intents {
             assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
         }
     }
+}
+```
 
+The disjoint check ensures that no inputs or outputs in the different parts
+overlap:
+
+```rust
+impl<S, P> Transaction<S, P> {
     fn disjoint_check(self) -> Result<()> {
         let mut shielded_inputs = Set::new();
         let mut shielded_outputs = Set::new();
@@ -189,11 +210,24 @@ impl<S, P> Transaction<S, P> {
             unshielded_inputs += inputs;
         }
     }
+}
+```
 
+The sequencing check enforces the 'causal precedence' partial order above:
+
+```rust
+impl<S, P> Transaction<S, P> {
     fn sequencing_check(self) -> Result<()> {
         // TODO
     }
+}
+```
 
+The balance check depends on fee calculations (out of scope), and the overall
+balance of the transaction, which is per token type, per segment ID:
+
+```rust
+impl<S, P> Transaction<S, P> {
     fn fees(self) -> Result<u128> {
         // Out of scope of this spec
     }
@@ -230,7 +264,14 @@ impl<S, P> Transaction<S, P> {
             assert!(bal >= 0);
         }
     }
+}
+```
 
+The Pedersen check ensures that the Pedersen commitments are openable to the
+declared balances:
+
+```rust
+impl<S, P> Transaction<S, P> {
     fn pedersen_check(self) -> Result<()> {
         let comm_parts =
             self.intents.values()
@@ -289,9 +330,81 @@ enum TransactionResult {
     }
 }
 
+impl<S, P> Transaction<S, P> {
+    fn segments(self) -> Vec<u16> {
+        let mut segments = vec![0];
+        let mut intent_segments = self.intents.iter().map(|(s, _)| s).peekable();
+        let mut offer_segments = self.fallible_offer.iter().map(|(s, _)| s).peekable();
+        loop {
+            let next_intent = intents.peek();
+            let next_offer = offers.peek();
+            let choice = match (intents.peek(), offers.peek()) {
+                (Some(i), Some(o)) => Some(i.cmp(o)),
+                (Some(_), None) => Some(Ordering::Less),
+                (None, Some(_)) => Some(Ordering::Greater),
+                (None, None) => None,
+            };
+            match choice {
+                Some(Ordering::Less) => segments.push_first(intents.next().unwrap()),
+                Some(Ordering::Equal) => segments.push_first(intents.next().unwrap()),
+                Some(Ordering::Greater) => segments.push_first(offers.next().unwrap()),
+                None => break,
+            }
+        }
+        segments
+    }
+}
+
+struct LedgerState {
+    utxo: UtxoState,
+    zswap: ZswapState,
+    contract: LedgerContractState,
+    replay_protection: ReplayProtectionState,
+}
+
 impl LedgerState {
-    fn apply<S, P>(self, Transaction<S, P>) -> (Self, TransactionResult) {
-        // TODO
+    fn apply<S, P>(
+        mut self,
+        tx: Transaction<S, P>,
+        block_context: BlockContext,
+    ) -> (Self, TransactionResult) {
+        let segments = tx.segments();
+        let mut segment_success = Map::new();
+        let mut total_success = true;
+        for segment in segments.iter() {
+            match self.apply_segment(tx, segment, block_context) {
+                Ok(state) => {
+                    self = state;
+                    segment_success = segment_success.insert(segment, true);
+                }
+                Err(e) => if segment == 0 {
+                    return (self, TransactionResult::FailEntirely);
+                } else {
+                    segment_success = segment_success.insert(segment, false);
+                    total_success = false;
+                },
+            }
+        }
+        (self, if total_success {
+            TransactionResult::SucceedEntirely
+        } else {
+            TransactionResult::SucceedPartially {
+                segment_success,
+            }
+        })
+    }
+
+    fn apply_segment<S, P>(
+        mut self,
+        tx: Transaction<S, P>,
+        segment: u16,
+        block_context: BlockContext,
+    ) -> (Self, TransactionResult) {
+        if segment == 0 {
+            todo!()
+        } else {
+            todo!()
+        }
     }
 }
 ```

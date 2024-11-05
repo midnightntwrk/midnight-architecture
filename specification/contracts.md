@@ -118,7 +118,7 @@ struct Transcript {
     gas: u64,
     effects: Effects,
     // Model type, not actual
-    program: fn(StateValue, CallContext) -> Option<StateValue>,
+    program: fn(StateValue, CallContext) -> Option<(Effects, StateValue)>,
 }
 ```
 
@@ -176,7 +176,13 @@ struct CallContext {
 ```
 
 The call context is in part derived from a block context, given at application
-time, and in part from the containing `Intent`:
+time, and in part from the containing `Intent`. In particular, the `caller`
+value comes from the intent and is determined as (in order):
+
+- The calling contract's address, if applicable
+- If there is at least one UTXO input, and all UTXO inputs share their `owner`
+  field, then the value of this field
+- Otherwise, the call is treated as having no caller
 
 ```rust
 struct BlockContext {
@@ -184,9 +190,45 @@ struct BlockContext {
     seconds_since_epoch_err: Duration,
     block_hash: Hash<Block>,
 }
-```
 
-TODO: document how to derive `CallContext`
+impl ContractCall {
+    fn context(self, block: BlockContext, intent: Intent<(), ()>) -> CallContext {
+        let caller = intent.calls.iter()
+            .find_map(|action| match action {
+                ContractAction::Call(caller) if caller.calls(self) => Some(Right(caller.address)),
+                _ => None,
+            })
+            .or_else(|| {
+                let owners = intent.guaranteed_offer.iter()
+                    .chain(intent.fallible_offer.iter())
+                    .flat_map(|o| o.inputs.iter())
+                    .map(|i| hash(i.owner));
+                let owner = owners.next()?;
+                if owners.all(|owner2| owner == owner2) {
+                    Some(Left(owner))
+                } else {
+                    None
+                }
+            });
+        CallContext {
+            seconds_since_epoch: block.seconds_since_epoch,
+            seconds_since_epoch_err: block.seconds_since_epoch_err,
+            block_hash: block.block_hash,
+            caller,
+        }
+    }
+
+    fn calls(self, callee: ContractCall) -> bool {
+        let calls = self.guaranteed_transcript.iter()
+            .chain(self.fallible_transcript.iter())
+            .flat_map(|t| t.claimed_contract_calls.iter());
+        calls.any(|(_, addr, ep, cc)|
+            addr == callee.address &&
+            ep == hash(callee.entry_point) &&
+            cc == callee.communication_commitment)
+    }
+}
+```
 
 ### Call well-formedness
 
@@ -207,6 +249,89 @@ impl ContractCall {
             parent_hash.into(),
             self.proof,
         )?;
+    }
+}
+```
+
+### Call application
+
+Calls are applied in two steps, first the guaranteed step, then the fallible
+step. These are applied specifically during intent application.
+
+```rust
+impl LedgerContractState {
+    fn apply_call(
+        mut self,
+        call: ContractCall,
+        guaranteed: bool,
+        block_context: BlockContext,
+        parent_intent: Intent<(), ()>,
+    ) -> Result<Self> {
+        let transcript = if guaranteed {
+            call.guaranteed_transcript
+        } else {
+            call.fallible_transcript
+        };
+        let transcript = match transcript {
+            Some(t) => t,
+            None => return Ok(self),
+        };
+        let mut state = self.contract.get(call.address)?;
+        let context = call.context(block_context, parent_intent);
+        let (effects, data) = transcript.program(state.data, context)?;
+        assert!(effects == transcript.effects);
+        state.data = data;
+        self.contract = self.contract.insert(call.address, state);
+        Ok(self)
+    }
+}
+```
+
+## Contract Actions
+
+A contract action is simply a disjoint union of the above types:
+
+```rust
+enum ContractAction {
+    Deploy(ContractDeploy),
+    Call(ContractCall),
+    Maintain(MaintenanceUpdate),
+}
+```
+
+As calls are the most complex sub-type to apply and check well-formedness,
+applying an acction inherits from this. Deploys and maintenance updates are
+applied as fallible parts of the transaction, as they can involve costly writes
+to state.
+
+```rust
+impl ContractAction {
+    fn well_formed(self, ref_state: LedgerContractState, parent_hash: IntentHash) -> Result<()> {
+        match self {
+            ContractAction::Deploy(deploy) => deploy.well_formed(),
+            ContractAction::Maintain(upd) => upd.well_formed(),
+            ContractAction::Call(call) => call.well_formed(ref_state, parent_hash),
+        }
+    }
+}
+
+impl LedgerContractState {
+    fn apply_action(
+        mut self,
+        action: ContractAction,
+        guaranteed: bool,
+        block_context: BlockContext,
+        parent_intent: Intent<(), ()>,
+    ) -> Result<Self> {
+        match action {
+            ContractAction::Deploy(deploy) if !guaranteed =>
+                self.apply_deploy(deploy),
+            ContractAction::Maintain(upd) if !guarnateed =>
+                self.apply_maintenance_update(upd),
+            ContractAction::Call(call) =>
+                self.apply_call(call, guaranteed, block_context, parent_intent),
+            _ => Ok(()),
+        }
     }
 }
 ```
