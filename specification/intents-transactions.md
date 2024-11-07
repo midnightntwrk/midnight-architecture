@@ -122,6 +122,18 @@ are:
 - Check the [sequencing restrictions](#sequencing) laid out earlier.
 - TODO: Cross-check token-contract constraints, and contract call constraints
   \[all `Effects` constaints\]
+  - For each contract claim in `Effects`, there is one matching call in the
+    same segment, and the mapping is bidirectional
+  - For each claimed nullifier in `Effects`, there is one matching nullifier in
+    the same segment, and the mapping is bidirectional
+  - For each claimed shielded spend in `Effects`, there is one matching coin
+    commitment in the same segment, and the mapping is bidirectional
+  - For each claimed shielded receive in `Effects`, there is one matching
+    commitment in the same segment, and the mapping is bidirectional (but may
+    overlap with the spend mapping)
+  - For each unshielded spend in `Effects`, there is one matching unshielded
+    UTXO output or contract input (in `Effects::unshielded_inputs`) in the same
+    segment, and the mapping is bidirectional.
 - Ensure that the transaction is balanced
 
 Balancing is done on a per-segment-id basis, where segment ID `0` encompasses
@@ -280,6 +292,36 @@ impl<S, P> Transaction<S, P> {
                 for out in offer.outputs {
                     // Checked subtraction, fail on overflow
                     res.get_mut_or_default((TokenType::Unshielded(out.type_), segment)) -= out.value;
+                }
+            }
+
+            for call in self.actions.iter().filter_map(|action| match action {
+                ContractAction::Call(call) => Some(call),
+                _ => None,
+            }) {
+                let effects = call.guaranteed_transcript.iter()
+                    .map(|t| (0, t))
+                    .chain(call.fallible_transcript.iter()
+                        .map(|t| (segment, t)));
+                for (segment, transcript) in transcripts {
+                    for (pre_token, val) in transcript.effects.shielded_mints {
+                        let tt = TokenType::Shielded(hash((transcript.address, pre_token)));
+                        res.get_mut_or_default((tt, segment)) += val;
+                    }
+                    for (pre_token, val) in transcript.effects.unshielded_mints {
+                        let tt = TokenType::Unshielded(hash((transcript.address, pre_token)));
+                        res.get_mut_or_default((tt, segment)) += val;
+                    }
+                    for (tt, val) in transcript.effects.unshielded_inputs {
+                        // NOTE: This is an input *to* the contract, so an
+                        // output of the transaction.
+                        res.get_mut_or_default((tt, segment)) -= val;
+                    }
+                    for (tt, val) in transcript.effects.unshielded_outputs {
+                        // NOTE: This is an output *from* the contract, so an
+                        // input to the transaction.
+                        res.get_mut_or_default((tt, segment)) += val;
+                    }
                 }
             }
         }

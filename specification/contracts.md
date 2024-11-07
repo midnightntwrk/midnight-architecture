@@ -283,6 +283,14 @@ impl LedgerContractState {
         let (effects, data) = transcript.program(state.data, context)?;
         assert!(effects == transcript.effects);
         state.data = data;
+        for (tt, val) in transcript.effects.unshielded_inputs {
+            state.balance.get_mut_or_default(tt) += val;
+        }
+        for (tt, val) in transcript.effects.unshielded_outputs {
+            let mut bal = state.balance.get_mut_or_default(tt);
+            assert!(*bal >= val);
+            *bal -= val;
+        }
         self.contract = self.contract.insert(call.address, state);
         Ok(self)
     }
