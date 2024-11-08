@@ -156,7 +156,7 @@ struct Effects {
     unshielded_mints: Map<[u8; 32], u64>,
     unshielded_inputs: Map<TokenType, u128>,
     unshielded_outputs: Map<TokenType, u128>,
-    unshielded_spends: Map<(TokenType, Either<Hash<VerifyingKey>, ContractAddress>), u128>,
+    claimed_unshielded_spends: Map<(TokenType, Either<Hash<VerifyingKey>, ContractAddress>), u128>,
 }
 ```
 

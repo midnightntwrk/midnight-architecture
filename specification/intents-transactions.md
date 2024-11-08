@@ -148,7 +148,11 @@ of another part in a contract.
 
 ```rust
 impl<S, P> Intent<S, P> {
-    fn well_formed(self, segment_id: u16, ref_state: LedgerContractState) -> Result<()> {
+    fn well_formed(
+        self,
+        segment_id: u16,
+        ref_state: LedgerContractState,
+    ) -> Result<()> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
         self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
@@ -173,6 +177,7 @@ impl<S, P> Transaction<S, P> {
         self.sequencing_check()?;
         self.balancing_check()?;
         self.pedersen_check()?;
+        self.effects_check()?;
         self.ttl_check_weak(tblock)?;
     }
 }
@@ -374,6 +379,145 @@ impl<S, P> Transaction<S, P> {
         );
         assert!(comm == expected);
         Ok(())
+    }
+}
+```
+
+The effects check ensures that the requirements of each `ContractCall`s
+`Effects` section are fulfilled.
+
+```rust
+impl<S, P> Transaction<S, P> {
+    fn effects_check(self) -> Result<()> {
+        // We have multisets for the following:
+        // - Claimed nullifiers (per segment ID)
+        // - Claimed contract calls (per segment ID)
+        // - Claimed shielded spends (per segment ID)
+        // - Claimed shielded receives (per segment ID)
+        // - Claimed unshielded spends (per segment ID)
+        
+        // transcripts associate with both the their intent segment, and their
+        // logical segment (0 for guarnateed transcripts), as the matching uses
+        // the former for calls, and the latter for zswap.
+        let calls = self.intents.iter()
+            .flat_map(|(segment, intent)|
+                intent.actions.iter().filter_map(|action| match action {
+                    ContractAction::Call(call) => Some((segment, call)),
+                    _ => None,
+                }))
+            .collect();
+        let transcripts = calls.iter()
+            .flat_map(|(segment, call)|
+                call.guaranteed_transcript.iter()
+                    .map(|t| (segment, 0, t))
+                    .chain(call.fallible_transcript.iter()
+                        .map(|t| (segment, segment, t, call.address)))))
+            .collect();
+        let offers = self.guaranteed_offer.iter()
+            .map(|o| (0, o))
+            .chain(self.fallible_offer.iter())
+            .collect();
+        let commitments: MultiSet<(u16, CoinCommitment, ContractAddress)> =
+            offers.iter().flat_map(|(segment, offer)|
+                offer.outputs.iter()
+                    .filter_map(|o| o.contract.map(|addr| (o.commitment, addr)))
+                    .chain(offer.transients.iter()
+                        .filter_map(|t| t.contract.map(|addr| (t.commitment, addr))))
+                    .map(|(com, addr)| (segment, com, addr)))
+                .collect();
+        let nullifiers: MultiSet<(u16, CoinNullifier, ContractAddress)> =
+            offers.iter().flat_map(|(segment, offer)|
+                offer.inputs.iter()
+                    .flat_map(|i| i.contract.map(|addr| (i.nullifier, addr)))
+                    .chain(offer.transients.iter()
+                        .flat_map(|t| t.contract.map(|addr| (t.nullifier, addr))))
+                    .map(|n| (segment, n)))
+                .collect();
+        let claimed_nullifiers: MultiSet<(u16, CoinNullifier, ContractAddress)> =
+            transcripts.iter()
+                .flat_map(|(_, segment, t, addr)|
+                    t.effects.claimed_nullifiers.iter()
+                        .map(|n| (segment, n, addr)))
+                .collect();
+        // All contract-associated nullifiers must be claimed by exactly one 
+        // instance of the same contract in the same segment.
+        assert!(nullifiers == claimed_nullifiers);
+        let claimed_shielded_receives: MultiSet<(u16, CoinCommitment, ContractAddress)> =
+            transcripts.iter()
+                .flat_map(|(_, segment, t, addr)|
+                    t.effects.claimed_shielded_receives.iter()
+                        .map(|c| (segment, c, addr)))
+                .collect();
+        // All contract-associated commitments must be claimed by exactly one
+        // instance of the same contract in the same segment.
+        assert!(commitments == claimed_shielded_receives);
+        let claimed_shielded_spends: MultiSet<(u16, CoinCommitment)> =
+            transcripts.iter()
+                .flat_map(|(_, segment, t)|
+                    t.effects.claimed_shielded_spends.iter()
+                        .map(|c| (segment, c)))
+                .collect();
+        assert!(claimed_shielded_spends.iter_count().all(|(_, count)| count <= 1));
+        let all_commitments: MultiSet<(u16, CoinCommitment)> =
+            offers.iter().flat_map(|(segment, offer)|
+                offer.outputs.iter().map(|o| o.commitment)
+                    .chain(offer.transients.iter().map(|t| t.commitment))
+                    .map(|c| (segment, c)))
+                .collect();
+        // Any claimed shielded outputs must exist, and may not be claimed by
+        // another contract.
+        assert!(all_commitments.has_subset(claimed_shielded_spends));
+        let claimed_calls: MultiSet<(u16, (ContractAddress, Hash<Bytes>, Fr))> =
+            transcripts.iter()
+                .flat_map(|(segment, _, t)|
+                    t.effects.claimed_contract_calls.iter()
+                        .map(|c| (segment, c)))
+                .collect();
+        assert!(claimed_contract_calls.iter_count().all(|(_, count)| count <= 1));
+        let real_calls: MultiSet<(u16, (ContractAddress, Hash<Bytes>, Fr))> =
+            calls.iter().map(|(segment, call)| (
+                segment,
+                (
+                    call.address,
+                    hash(call.entry_point),
+                    call.communication_commitment,
+                )
+            )).collect();
+        // Any claimed call must also exist within the same segment
+        assert!(real_calls.has_subset(claimed_contract_calls));
+        // FIXME: Not just does it need to exist, but the claimed calls must
+        // appear in the order they appear in the transcript (as given by their
+        // sequence number)
+        let claimed_unshielded_spends: MultiSet<(
+            (u16, bool),
+            ((TokenType, Either<Hash<VerifyingKey>, ContractAddress>), u128)
+        )> = transcripts.iter()
+                .flat_map(|(intent_seg, logical_seg, t, _)|
+                    t.effects.claimed_unshielded_spends.iter()
+                        .map(|spend| ((intent_seg, logical_seg == 0), spend))
+                .collect();
+        let real_unshielded_spends: MultiSet<(
+            (u16, bool),
+            ((TokenType, Either<Hash<VerifyingKey>, ContractAddress>), u128)
+        )> = transcripts.iter()
+                .flat_map(|(intent_seg, logical_seg, t, addr)|
+                    t.effects.unshielded_inputs.map(|(tt, val)|
+                        (
+                            (intent_seg, logical_seg == 0),
+                            ((tt, Right(addr)), val),
+                        )))
+                .chain(self.intents.iter()
+                    .flat_map(|(segment, intent)|
+                        intent.guaranteed_unshielded_offer.outputs.iter()
+                            .map(|o| (true, o))
+                            .chain(intent.fallible_unshielded_offer.outputs.iter()
+                                .map(|o| (false, o)))
+                            .map(|(guaranteed, output)| (
+                                (segment, guarnateed),
+                                ((TokenType::Unshielded(output.type_), Left(output.owner)), output.value),
+                            ))))
+                .collect();
+        assert!(real_unshielded_spend.has_subset(claimed_unshielded_spends));
     }
 }
 ```
