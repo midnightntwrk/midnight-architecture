@@ -243,6 +243,8 @@ impl<S, P> Transaction<S, P> {
             if sid1 > sid2 {
                 continue;
             }
+            // If a calls b, a causally precedes b.
+            // Also, if a contract is in two intents, the prior precedes the latter
             for ((cid1, call1), (cid2, call2)) in intent1.actions.iter().product(intent2.actions.iter()) {
                 let (call1, call2) = match (call1, call2) {
                     (ContractAction::Call(c1), ContractAction::Call(c2)) => (c1, c2),
@@ -253,6 +255,20 @@ impl<S, P> Transaction<S, P> {
                 }
                 if (sid1 == sid2 && call1.calls(call2)) || (sid1 != sid2 && call1.address == call2.address) {
                     causal_precs = causal_precs.insert(((sid1, cid1, call1), (sid2, cid2, call2)));
+                }
+            }
+        }
+        // Finally, if a call b and c, and the sequence ID of b precedes
+        // that of c, then b must precede c in the intent.
+        for (_, intent) in self.intents.iter() {
+            for ((cid1, call1), (cid2, call2), (cid3, call3)) in intent.actions.iter()
+                .product(intent.actions.iter())
+                .product(intent.actions.iter())
+            {
+                if let (Some(s1), Some(s2)) = (call1.calls_with_seq(call2), call1.calls_with_seq(call3)) {
+                    assert!(cid1 < cid2);
+                    assert!(cid1 < cid3);
+                    assert!(s1 < s2 == cid2 < cid3);
                 }
             }
         }
@@ -485,9 +501,6 @@ impl<S, P> Transaction<S, P> {
             )).collect();
         // Any claimed call must also exist within the same segment
         assert!(real_calls.has_subset(claimed_contract_calls));
-        // FIXME: Not just does it need to exist, but the claimed calls must
-        // appear in the order they appear in the transcript (as given by their
-        // sequence number)
         let claimed_unshielded_spends: MultiSet<(
             (u16, bool),
             ((TokenType, Either<Hash<VerifyingKey>, ContractAddress>), u128)
