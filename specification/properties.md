@@ -45,7 +45,7 @@ incorrectly at any point. This is provided by the following enforced checks:
     the hardness of discrete logarithm.
   - The impossibility to interfere with the `Intent` Pedersen commitment is
     given by the Fiat-Shamir transform, guaranteeing the use of the generator,
-    and the hardness of discrete logarith.
+    and the hardness of discrete logarithm.
 
 ## Binding
 
@@ -53,6 +53,40 @@ incorrectly at any point. This is provided by the following enforced checks:
 > be disassembled by the user that first assembled it. No part of the
 > transaction can be meaningfully used in another transaction, without
 > including all other parts with it.
+
+*Security Argument.* Transaction binding is primarily provided by the
+binding randomness and Pedersen commitments. This works in combination with the
+binding properties of signatures and of zero-knowledge proofs to ensure that
+the transaction as a whole is binding.
+
+- Each intent, and Zswap input/output, has an associated Pedersen commitment
+- The transaction overall reveals the sum of all their binding randomnesses.
+- Due to the hardness of the discrete logarithm problem, if each Pedersen
+  randomness is uniformly randomly distributed, there is no feasible way to
+  recover the randomness from any intent or input/output given this
+  transaction.
+- Therefore, the transaction is binding on a macro-level: For any given part,
+  given by a Pedersen commitment, this part cannot be isolated
+- For intents, the Pedersen commitment is binding over the intent, due to the
+  Fiat-Shamir transform taking the intent hash as part of the challenge string,
+  and therefore the proof of knowledge of exponent not being able to be applied
+  to a different intent.
+  - It also cannot be recomputed without the knowledge of the individual
+    randomness, which was ruled out above.
+- For zswap inputs and outputs, the zero-knowledge proof is binding over the
+  input and output (including the Pedersen commitment), and without knowledge of
+  the Pedersen randomness, cannot be recreated for a different input or output.
+- For transients, there is a direct malleability that the transient can be
+  decomposed into its input and output constituents.
+  - While this is possible, the decomposed input will not be valid, as it is
+    proven against a Merkle tree containing only itself, which will not be a
+    valid Merkle tree.
+    - A corner case is if Midnight ever had a single shielded UTXO in its
+      state. This case will be mitigated by initializing the shielded set with
+      a single unspendable UTXO at genesis.
+- For the deltas provided in the Zswap offers, note that these are fully
+  determined by the Pedersen commitments, as only one valid assignment can be
+  used to open the summed commitment.
 
 ## Infragility
 
@@ -69,10 +103,45 @@ the intents in `t` count from `1`; that is, for some natural `n`, all intents
 'frontrunning' any of the intents in `t`, preventing a class of relatively
 acceptable failures.
 
+*Security Argument.* The general idea here is that a transaction falls into one
+of three cases:
+1. The merged transaction fails during the execution of the guaranteed phase,
+   in which case `t` either would fail during the guaranteed phase as well, or
+   the transaction has no effect, so `t` itself is still valid.
+2. The merged transaction fails during one of the segments originally in `t`.
+   If it fails due to new additions in the merge, these could be:
+   - Additions to the zswap offer, which get checked during the guaranteed
+     phase (actually falling into case 1.).
+   - Additions fund transfers added to the guaranteed phase. These cannot
+     conflict with spends by the honest user, as the adversary cannot spend their
+     funds (Theorem 5), and contract transfers fall under the more general case
+     of a contract call (below).
+   - Additional contract calls. If these affect the execution of the intents in
+     `t`, they must be to the same contract as the conflict in `t`.
+     - The adversarial call `A` has a guaranteed section by assumption.
+     - The original call `C` has a fallible section by assumption that it can
+       conflict in the fallible segment.
+     - Therefore, for these to satisfy the causal precedence check, `C`
+       *cannot* have a guaranteed section.
+     - However, if this is the case, `A` can be extracted from the transaction
+       into an earlier transaction.
+3. The merged transaction fails during a segment not originally in `t`. In this
+   case, `t` itself has effectively succeeded, as all effects it wanted to
+   execute against the state have been executed.
+
 ## Causality
 
 > **Theorem 4 (Causality).** If a transaction includes a contract call from `A`
 > to `B`, then `A` succeeding must imply `B` succeeding.
+
+*Security Argument.* Note that for a call from `A` to `B` to be considered
+valid (under the effects check for contract calls), `A` and `B` must be in the
+same `Intent`, and adds a causal precedence check that `A` precedes `B`.
+
+> [!CAUTION]
+> I don't think this is actually sufficient. `A` preceding `B` is not the
+> notion we want, rather I believe we want that `B` doesn't exceed the scope of
+> `A`. Fix!
 
 ## Self-determination
 
@@ -80,3 +149,11 @@ acceptable failures.
 > 1. A user cannot spend the funds of another user. No contract can spend funds
 >    of a user.
 > 2. A contract can only be modified according to the rules of the contract.
+
+*Security Argument.* 1. is given by spending user funds requiring a signature
+with this users secret key. 2. is given by limits on semantics:
+- Only `ContractAction`s affect contract states
+- `ContractDeploy`s do not affect already existing contracts
+- `MaintenanceUpdate`s are signed with keys explicitly authorized by the contract
+- `ContractCall`s must satisfy one of the verifier keys explicitly set by the
+  contract, and change the state according to this verifier key's restrictions.
