@@ -245,11 +245,10 @@ impl<S, P> Transaction<S, P> {
             }
             // If a calls b, a causally precedes b.
             // Also, if a contract is in two intents, the prior precedes the latter
-            for ((cid1, call1), (cid2, call2)) in intent1.actions.iter().product(intent2.actions.iter()) {
-                let (call1, call2) = match (call1, call2) {
-                    (ContractAction::Call(c1), ContractAction::Call(c2)) => (c1, c2),
-                    _ => continue,
-                };
+            for ((cid1, call1), (cid2, call2)) in intent1.actions.iter()
+                .filter_map(ContractAction::as_call)
+                .product(intent2.actions.iter().filter_map(ContractAction::as_call))
+            {
                 if sid1 == sid2 && cid1 == cid2 {
                     continue;
                 }
@@ -258,17 +257,39 @@ impl<S, P> Transaction<S, P> {
                 }
             }
         }
-        // Finally, if a call b and c, and the sequence ID of b precedes
+        // If a calls b and c, and the sequence ID of b precedes
         // that of c, then b must precede c in the intent.
         for (_, intent) in self.intents.iter() {
             for ((cid1, call1), (cid2, call2), (cid3, call3)) in intent.actions.iter()
-                .product(intent.actions.iter())
-                .product(intent.actions.iter())
+                .filter_map(ContractAction::as_call)
+                .product(intent.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent.actions.iter().filter_map(ContractAction::as_call))
             {
-                if let (Some(s1), Some(s2)) = (call1.calls_with_seq(call2), call1.calls_with_seq(call3)) {
+                if let (Some((_, s1)), Some((_, s2))) = (call1.calls_with_seq(call2), call1.calls_with_seq(call3)) {
                     assert!(cid1 < cid2);
                     assert!(cid1 < cid3);
                     assert!(s1 < s2 == cid2 < cid3);
+                }
+            }
+        }
+        // If a calls `b`, `b` must be contained within the 'lifetime' of the
+        // call instruction in `a`.
+        // Concretely, this means that:
+        // - If the call to `b` in in `a`'s guaranteed section, it *must*
+        //   contain only a guaranteed section.
+        // - If the call to `b` in in `a`'s fallible section, it *must*
+        //   contain only a fallible section.
+        for (_, intent) in self.intents.iter() {
+            for ((cid1, call1), (cid2, call2)) in intent.actions.iter()
+                .filter_map(ContractAction::as_call)
+                .product(intent.actions.iter().filter_map(ContractAction::as_call))
+            {
+                if let Some((segment, _)) = call1.calls_with_seq(call2) {
+                    if segment {
+                        assert!(call2.fallible_transcript.is_none());
+                    } else {
+                        assert!(call2.guaranteed_transcript.is_none());
+                    }
                 }
             }
         }
@@ -411,7 +432,7 @@ impl<S, P> Transaction<S, P> {
         // - Claimed shielded spends (per segment ID)
         // - Claimed shielded receives (per segment ID)
         // - Claimed unshielded spends (per segment ID)
-        
+
         // transcripts associate with both the their intent segment, and their
         // logical segment (0 for guarnateed transcripts), as the matching uses
         // the former for calls, and the latter for zswap.
@@ -455,7 +476,7 @@ impl<S, P> Transaction<S, P> {
                     t.effects.claimed_nullifiers.iter()
                         .map(|n| (segment, n, addr)))
                 .collect();
-        // All contract-associated nullifiers must be claimed by exactly one 
+        // All contract-associated nullifiers must be claimed by exactly one
         // instance of the same contract in the same segment.
         assert!(nullifiers == claimed_nullifiers);
         let claimed_shielded_receives: MultiSet<(u16, CoinCommitment, ContractAddress)> =

@@ -136,12 +136,9 @@ of three cases:
 
 *Security Argument.* Note that for a call from `A` to `B` to be considered
 valid (under the effects check for contract calls), `A` and `B` must be in the
-same `Intent`, and adds a causal precedence check that `A` precedes `B`.
-
-> [!CAUTION]
-> I don't think this is actually sufficient. `A` preceding `B` is not the
-> notion we want, rather I believe we want that `B` doesn't exceed the scope of
-> `A`. Fix!
+same `Intent`, and adds a 'lifetime' check that ensures that `B` is confined to
+the section that enforces the call to it in `A`. As a result, the contract `A`
+sees `B` as having been called if and only if it has.
 
 ## Self-determination
 

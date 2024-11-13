@@ -224,7 +224,7 @@ impl ContractCall {
         self.calls_with_seq(callee).is_some()
     }
 
-    fn calls_with_seq(self, callee: ContractCall) -> Option<u64> {
+    fn calls_with_seq(self, callee: ContractCall) -> Option<(bool, u64)> {
         let calls = self.guaranteed_transcript.iter()
             .chain(self.fallible_transcript.iter())
             .flat_map(|t| t.claimed_contract_calls.iter());
@@ -331,6 +331,9 @@ impl ContractAction {
             ContractAction::Maintain(upd) => upd.well_formed(),
             ContractAction::Call(call) => call.well_formed(ref_state, parent_hash),
         }
+    }
+
+    fn as_call(self) -> Option<ContractCall> {
     }
 }
 
