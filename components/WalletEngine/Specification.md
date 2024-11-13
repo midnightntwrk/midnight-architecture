@@ -10,11 +10,12 @@ Midnight features a unique set of features, which influence the way wallet softw
 This document comprises a couple of sections:
 1. **[Introduction](#introduction)** - which explains, how addressing goals stated for the protocol leads to differences mentioned above
 2. **[Key management](#key-management)** - where the details of key structure, address format and relationship with existing standards are provided
-3. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
-4. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
-5. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
-6. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
-7. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
+3. **[Address format](#address-format)** - where addresses are described, as well as their formatting
+4. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
+5. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
+6. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
+7. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
+8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
 <!-- TOC -->
 * [Midnight Wallet Specification](#midnight-wallet-specification)
@@ -35,6 +36,11 @@ This document comprises a couple of sections:
       * [Address](#address)
     * [Metadata keys](#metadata-keys)
     * [Scalar sampling](#scalar-sampling)
+  * [Address format](#address-format)
+    * [Unshielded Payment address](#unshielded-payment-address)
+    * [Shielded Payment address](#shielded-payment-address)
+    * [Shielded Coin public key](#shielded-coin-public-key)
+    * [Shielded Encryption secret key](#shielded-encryption-secret-key)
   * [Transaction structure and statuses](#transaction-structure-and-statuses)
   * [State management](#state-management)
     * [Balances](#balances)
@@ -143,7 +149,7 @@ In order to support operations mentioned in the [introduction](#introduction), w
 
 ### HD Wallet structure
 
-To allow deterministic derivation of keys for different features, Midnight follows structure being a mix of [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) and [CIP-1852](https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/README.md). Specifically, derivation path for a key pair is used:
+To allow deterministic derivation of keys for different features, Midnight follows algorithms and structure being a mix of [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) and [CIP-1852](https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/README.md). Specifically, derivation follows BIP-32, and following path for a key pair is used:
 ```
 m / purpose' / coin_type' / account' / role / index
 ```
@@ -253,6 +259,61 @@ function sampledSecretKey(seed: Buffer, domainSeparator: string, bytesMargin: nu
     return toScalar(sampledBytes) % field.prime;
 }
 ```
+
+## Address format
+
+Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) as an address format.
+
+The human-readable part should consist of 3 parts, separated by underscore:
+- constant `mn` indicating it is a Midnight address
+- type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
+- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present. Following approach should be used to map ledger's `NetworkId` enum into network identifier:
+  - mainnet - no prefix
+  - testnet - "test"
+  - devnet - "dev"
+  - undeployed - "undeployed" 
+
+### Unshielded Payment address
+
+Currently undefined, it is designated as a primary payment address in the network. It allows to receive Night and other unshielded tokens.
+
+Its credential type is `addr`.
+
+Example human-readable parts:
+- for the mainnet: `mn_addr`
+- for the testnet: `mn_addr_test`
+- for a testing environment: `mn_addr_testing-env`
+- for local development environment: `mn_addr_dev`
+
+### Dust address
+
+Currently undefined (very likely to be Dust's public key). It will allow to represent recipient of Dust generation.
+
+Its credential type is `dust-addr`.
+
+### Shielded Payment address
+
+It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption public key (59 bytes).
+
+NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
+
+Its credential type is `shield-addr`.
+
+Example human-readable parts:
+- for the mainnet: `mn_shield-addr`
+- for the testnet: `mn_shield-addr_test`
+- for a testing environment: `mn_shield-addr_testing-env`
+- for local development environment: `mn_shield-addr_dev`
+
+### Shielded Coin public key
+
+32 bytes of the public key.
+Credential type is `shield-cpk`.
+
+### Shielded Encryption secret key
+
+Ledger-serialized encryption secret key: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes, ) 
+Credential type is `shield-esk`
 
 ## Transaction structure and statuses
 
