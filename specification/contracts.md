@@ -17,7 +17,7 @@ type StateValue;
 
 A contract's state consists of:
 - It's current `StateValue`
-- Maintenance information, in the for of a contract maintenance authority
+- Maintenance information, in the form of a contract maintenance authority
 - A mapping from entry point names to verifier keys
 - A token balance mapping for this contract
 
@@ -44,8 +44,10 @@ impl LedgerContractState {
 
 ## Deploying a contract
 
-A contract is deployed simply by providing its initial state and a nonce. For
-the deployment to be valid, this initial state must have zero balance.
+A contract is deployed simply by providing its initial state and a nonce.
+The latter is used to ensure that the same contract can be deployed multiple
+times, as different instances of the same contract. For the deployment to be
+valid, this initial state must have zero balance.
 
 ```rust
 struct ContractDeploy {
@@ -67,8 +69,9 @@ struct LedgerContractState {
 
 impl LedgerContractState {
     fn apply_deploy(mut self, deploy: ContractDeploy) -> Result<Self> {
-        assert!(!self.contract.contains(hash(deploy)));
-        self.contract = self.contract.insert(hash(deploy), deploy);
+        let contract_address = hash(deploy);
+        assert!(!self.contract.contains(contract_address));
+        self.contract = self.contract.insert(contract_address, deploy);
         Ok(self)
     }
 }
@@ -156,7 +159,12 @@ struct Effects {
     unshielded_mints: Map<[u8; 32], u64>,
     unshielded_inputs: Map<TokenType, u128>,
     unshielded_outputs: Map<TokenType, u128>,
-    claimed_unshielded_spends: Map<(TokenType, Either<Hash<VerifyingKey>, ContractAddress>), u128>,
+    claimed_unshielded_spends: Map<(TokenType, PublicAddress), u128>,
+}
+
+enum PublicAddress {
+    User(Hash<VerifyingKey>),
+    Contract(ContractAddress),
 }
 ```
 
@@ -171,7 +179,7 @@ struct CallContext {
     seconds_since_epoch: Timestamp,
     seconds_since_epoch_err: Duration,
     block_hash: Hash<Block>,
-    caller: Option<Either<Hash<VerifyingKey>, ContractAddress>>,
+    caller: Option<PublicAddress>,
     balance: Map<TokenType, u128>,
 }
 ```
@@ -196,7 +204,8 @@ impl ContractCall {
     fn context(self, block: BlockContext, intent: Intent<(), ()>, state: ContractState) -> CallContext {
         let caller = intent.calls.iter()
             .find_map(|action| match action {
-                ContractAction::Call(caller) if caller.calls(self) => Some(Right(caller.address)),
+                ContractAction::Call(caller) if caller.calls(self) =>
+                    Some(PublicAddress::Contract(caller.address)),
                 _ => None,
             })
             .or_else(|| {
@@ -206,7 +215,7 @@ impl ContractCall {
                     .map(|i| hash(i.owner));
                 let owner = owners.next()?;
                 if owners.all(|owner2| owner == owner2) {
-                    Some(Left(owner))
+                    Some(PublicAddress::User(owner))
                 } else {
                     None
                 }
@@ -283,10 +292,7 @@ impl LedgerContractState {
         } else {
             call.fallible_transcript
         };
-        let transcript = match transcript {
-            Some(t) => t,
-            None => return Ok(self),
-        };
+        let Some(transcript) = transcript else return Ok(self);
         let mut state = self.contract.get(call.address)?;
         let context = call.context(block_context, parent_intent);
         let (effects, data) = transcript.program(state.data, context)?;
@@ -319,7 +325,7 @@ enum ContractAction {
 ```
 
 As calls are the most complex sub-type to apply and check well-formedness,
-applying an acction inherits from this. Deploys and maintenance updates are
+applying an action inherits from this. Deploys and maintenance updates are
 applied as fallible parts of the transaction, as they can involve costly writes
 to state.
 
