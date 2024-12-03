@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@scure/base": "^1.1.9",
-    "@types/node": "^20.14.10",
+    "@types/node": "^22.0.0",
     "@types/lodash-es": "^4.17.12",
     "commander": "^12.1.0",
     "jest-diff": "^29.7.0",
