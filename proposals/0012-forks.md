@@ -479,6 +479,7 @@ After a discussion it was observed, that the emergency updates would likely be a
 
 There are ecosystems, where such approach is (relatively) common, as it allows for gradual upgrades between, otherwise completely incompatible, versions. Some examples of packages following this approach:
 - A lot of packages in nix is annotated with version in name to allow their co-existence: https://search.nixos.org/packages?channel=24.05&from=0&size=50&sort=relevance&type=packages&query=nodejs
+- sttp (a popular http client implementation in Scala ecosystem) builds its major versions in separate packages to allow their co-existence and gradual upgrades: https://github.com/softwaremill/sttp
 - Payment provider SDK: https://packagist.org/packages/cloudipsp/php-sdk-v2 is an iteration over https://packagist.org/packages/kosatyi/ipsp-php
 - Many clients of versioned APIs provide packages for specific version of API only (usually using the opportunity to implement the client in a different way):
   - https://packagist.org/packages/toin0u/digitalocean and https://packagist.org/packages/toin0u/digitalocean-v2
