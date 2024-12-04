@@ -1,0 +1,62 @@
+scalar ByteString #hex-encoded bytes of arbitrary length
+scalar ByteString32 #hex-encoded 32 bytes
+scalar PositiveInt32 # 32-bit integer with only positive values allowed
+scalar UInt32 # 32-bit integer with non-negative values allowed
+scalar ContractAddress # ledger-serialized contract address
+scalar URI # a URI, allowed to use https:, data: or ipfs: schemes
+scalar PublicKey # Schnorr Public Key, expected to be in Bech32 format, as https://github.com/input-output-hk/midnight-architecture/pull/76 indicates
+scalar JSON # Arbitrary JSON, used as an escape hatch for some data not known at the time of writing this spec
+scalar Subject # Bech32 or hex-encoded bytes, depending on type of subject
+
+enum MetadataType {
+    token
+}
+
+interface CommonMetadata {
+    type: MetadataType! # enum variant indicating type of the metadata
+    subject: Subject! # subject of the metadata entry
+    version: PositiveInt32! # a sequence number, increased with each update; registry should only accept updates which increase this number (except for adding a signature)
+    signatures: [Signature]! # array of signatures, it always needs to hold at least a single element, and be reset to array holding updater signature only whenever an update is made, adding own signature to the array is the only update, which does not require updating version field
+}
+
+type Signature {
+    signature: ByteString! # signature itself
+    public_key: PublicKey! # signer's public key for identification and verification purposes
+}
+
+scalar TokenExtensionType # Needs to be turned into an enum once extensions appear
+interface TokenExtension {
+    type: TokenExtensionType!
+    data: JSON!
+}
+
+type TokenMetadata implements CommonMetadata {
+    type: MetadataType!  # "token" variant, constant indicating that rest of the data is token metadata
+    subject: Subject! # ledger-serialized token type, it is the default identifier of token and its metadata
+    version: PositiveInt32! # a sequence number, increased with each update; registry should only accept updates which increase this number (except for adding a signature)
+    signatures: [Signature]! # array of signatures, it always needs to hold at least a single element, and be reset to array holding updater signature only whenever an update is made, adding own signature to the array is the only update, which does not require updating version field
+    contract_address: ContractAddress! # ledger-serialized contract address
+    domain_separator: ByteString32! # domain separator as passed to `mint_token` standard library function
+    shielded: Boolean! # flag, whether the token is a shielded one or not
+    ticker: String! # short name of a token, often used as a human-friendly identifier, should be globally unique
+    name: String! # human-friendly name of a token, as should be displayed in e.g. wallet software
+    description: String # description of the token, it's very common, so should be present in many cases, though there are standards, which do not require description, so it would be impossible to be converted automatically
+    image: URI # an URI of an image representing the token, it is also very common, but many existing tokens do not have the image attached
+    decimals: UInt32 # how many decimals are allowed to split token "units", e.g. for decimals value `3`, a coin with value `1`, would be `0.001` of a token "unit"
+    supply: UInt32 # how many token units were minted / are allowed to be minted
+    extensions: [TokenExtension] # additional types given token implements
+}
+
+union Metadata = TokenMetadata
+
+type ArbitraryMetadata {
+    type: String!
+    subject: Subject!
+    signatures: [Signature]!
+    data: JSON!
+}
+
+type Query {
+    metadata(subject: ByteString, type: MetadataType): [ArbitraryMetadata] # Generic query for metadata
+    token_metadata(subject: ByteString, signers: [PublicKey], contract_address: ContractAddress, domain_separators: [ByteString32], shielded: Boolean, ticker: String, extension_types: [TokenExtensionType]): [TokenMetadata] # Specific query for token metadata
+}
