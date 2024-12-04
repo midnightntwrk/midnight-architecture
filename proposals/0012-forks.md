@@ -475,9 +475,26 @@ In case of network incidents, a policy which would allow to update immediately w
 
 After a discussion it was observed, that the emergency updates would likely be a weak link in terms of security. For that reason idea of separate track for emergency upgrades outside governance was rejected.
 
-### The mechanics are very likely to require separate packages for major versions/eras of underlying components
+### The mechanics are very likely to require separate packages for major versions/eras of different libraries/components
 
-There are ecosystems, where such approach is common, as it allows for gradual upgrades between, otherwise completely incompatible, versions.
+There are ecosystems, where such approach is (relatively) common, as it allows for gradual upgrades between, otherwise completely incompatible, versions. Some examples of packages following this approach:
+- A lot of packages in nix is annotated with version in name to allow their co-existence: https://search.nixos.org/packages?channel=24.05&from=0&size=50&sort=relevance&type=packages&query=nodejs
+- sttp (a popular http client implementation in Scala ecosystem) builds its major versions in separate JVM packages to allow their co-existence and gradual upgrades: https://github.com/softwaremill/sttp
+- Payment provider SDK: https://packagist.org/packages/cloudipsp/php-sdk-v2 is an iteration over https://packagist.org/packages/kosatyi/ipsp-php
+- Many clients of versioned APIs provide packages for specific version of API only (usually using the opportunity to implement the client in a different way):
+  - https://packagist.org/packages/toin0u/digitalocean and https://packagist.org/packages/toin0u/digitalocean-v2
+  - Mangopay: https://github.com/orgs/Mangopay/repositories, like https://github.com/Mangopay/mangopay2-nodejs-sdk and https://github.com/Mangopay/cardregistration-js-kit
+  - Belgian government environmental information: https://mvnrepository.com/artifact/be.milieuinfo.vkbo.v2 and https://mvnrepository.com/artifact/be.milieuinfo.vkbo
+  - Google APIs: https://mvnrepository.com/artifact/com.google.api.grpc
+  - Scala.js facade types for node.js include name of line of node.js they target: https://mvnrepository.com/artifact/net.exoego
+- Idealingua RPC framework is already future-proofed: https://github.com/7mind/idealingua-v1
+- Swagger packages are published with both versions in names as well as maintaining "current" one: https://mvnrepository.com/artifact/io.swagger?p=1
+- Scala standard library is a separate package for v3, It allowed grace period of using Scala 3 syntax with Scala 2.13.x standard library and extending the standard library for Scala 3 without affecting users switching from one version to another: https://docs.scala-lang.org/scala3/guides/migration/compatibility-classpath.html#the-standard-library and https://mvnrepository.com/artifact/org.scala-lang/scala3-library, https://mvnrepository.com/artifact/org.scala-lang/scala-library
+- Concord workflow server has separate packages for V1 and V2: https://mvnrepository.com/artifact/com.walmartlabs.concord.runtime
+- Uniswap (seemingly, many other contracts too) provide their SDK on a per-version basis - https://www.npmjs.com/package/@uniswap/v3-sdk and https://www.npmjs.com/package/@uniswap/v2-sdk
+
+An approach of keeping package name, but encapsulating different APIs under different namespaces is also met, especially in JVM. For example Akka typed and Akka untyped have their APIs separated this way to let them coexist. This approach does not have impact on package name, but assumes that either different versions of same package can be loaded and accessed simultaneously (which is not possible in JS ecosystem without aliases), or a single version implements multiple APIs (which also is against requirements here).
+
 
 Also - there is an interesting idea of having even separate thin client, which could manage running actual clients on a per-era/implementation basis. In this way very significant changes could be implemented with little impact on the code of particular era.
 
