@@ -419,7 +419,7 @@ They are meant to be addressed through the means of staged rollout, similarly to
    4. Runtime can schedule running a single batch migration with every block - so that state migration is effectively performed on-chain, in a manner suitable for both synced nodes, and ones in the process of catching up with the network 
 3. Once migration is found to be completed, another upgrade is performed, which updates ledger to version `N+1`, and can finish off state migration in a cheap way by discarding not-needed data
 
-It is acknowledged, that with this approach, there will be certain data redundancies, but at any point in time - only one copy will the one affected by transactions, thus many possible complications for ledger code are greatly limited and contained only to managing progress and ensuring state consistency at the moment of upgrade to version `N+1`.
+It is acknowledged, that with this approach, there will be certain data redundancies, but at any point in time - only one copy will be the one affected by transactions, thus many possible complications for ledger code are greatly limited and contained only to managing progress and ensuring state consistency at the moment of upgrade to version `N+1`.
 
 Two other approaches were briefly considered, but they raise serious issues, which make them not advised as a general case:
 1. To perform all state migrations in the on-runtime-upgrade hook. In the worst case it would cause a multi-hour network stall, which is not acceptable.
@@ -434,15 +434,87 @@ As per related [PRD](https://docs.google.com/document/d/1z5zlYtHcJlMXK0_IPKfzs5d
 - Provide a mechanism to execute snark upgrades.
 - Provide a framework for managing rules changes both server-side (node, indexer) and client-side (DApps, wallets)
 - It is possible to execute protocol backward-incompatible changes, without affecting past block validity.
-- Various kinds of forecasted upgrades can be deployed with a confidence and network stability:
-  - Transaction format upgrade - Introduce a capability that affects transaction format without affecting previous transactions. Showcase example: adding a signature (e.g. to support unshielded tokens). Such kind of change would affect Ledger first, then indexer and wallets. It alone would likely be an opaque change for the node, Compact compiler, runtime and Midnight.js.
-  - Runtime upgrade (or Compact language change involving changes in runtime) - upgrade/change the way contracts are executed or validated on-chain(very likely to affect off-chain components as well). Example: providing new on-chain vm operations, introduction of first-class ledger ADTs, allowing contracts to interact with unshielded tokens. Such change would require update to runtime first, affecting ledger, Compact compiler, Midnight.js and in some cases - VS Code Compact plugin. Components like wallets or indexer might be affected but don't have to (depends on the kind of change), node itself would most likely be unaffected, or only in a minor way to provide new APIs for indexer.  
-  - Zswap protocol upgrade - upgrade/change coin management and validation in the protocol. Example: adding encrypted memos. Such change would ideally affect only wallets and ledger, though node, indexer and Midnight.js would need to be instructed there is a transaction format change.
-  - Zswap cryptography upgrade - Alter/upgrade  the cryptography that is used for coin management . example: by affecting key derivation, introducing viewing keys or diversified addresses. Such change would likely affect almost all components present: Ledger, wallets, node, Compact standard library, Midnight.js and indexer. The components which should not receive updates in such case would be Compact compiler and its runtime
-  - Backward incompatible Changes: Provide a way to validate historical transactions in case of an Upgrade/Change the are backward incompatible. Example: removing some capability or data - deprecating one way of executing contracts. Components affected by such change will vary a lot depending on its specifics.
-  - Ledger emergency Upgrade: Provide a way to persist ledger state in case of a hard fork due to an emergency bugfix affecting ledger execution or state, like usage of persistent storage or serialization/deserialization code. Scope of changes would depend on the character of a change, but in many cases only Ledger and node would require update at first, with rest of components required to update at convenient time
-  - Consensus Upgrade??
 - API Updates guidelines - various kinds of upgrades to the ledger code requiring hard-fork are very likely to affect APIs of all Midnight components. It is important to have at least guidelines to evolve the APIs in responses to hard forks
+- Various kinds of forecasted upgrades (listed below) can be deployed with a confidence and network stability
+  
+
+### Expected changes and their impact
+
+It is observed, that many changes might be introduced in a way, which only requires nodes to upgrade, while maintaining some notion of transaction and state compatibility with pre-existing components. In such case, the only component, which needs to update is the Node. The rest - like Indexer, Wallet or DApps may choose to not do so, or to upgrade in a later time. The intent is to introduce only this kind of changes. It is known though, that it won't always be possible, with the flagship examples being SNARK upgrades and possible Compact runtime changes.
+
+Regardless of kind of change - Node always is affected in a way, that it needs to upgrade to a new ledger version. While in some cases the Ledger might introduce changes with a backward-compatible API, allowing Node to perform the upgrade very easily, there might be some cases, where further adjustments are needed to properly integrate new change. 
+
+#### Transaction format upgrade
+
+Introduce a capability that affects transaction format.
+
+Showcase example: adding a signature (e.g. to support unshielded tokens) or additional verification data (like chain id, other malleability protection, or enabling lightweight payment verification). 
+
+Components affected: Ledger first, then Node, Indexer and Wallets. It alone would likely be an opaque change for Midnight.js (if introduced in a backward-compatible way). Compact compiler and its runtime should not be affected in most cases.
+
+#### Runtime upgrade (or Compact language change involving changes in runtime)
+
+Upgrade/change the way contracts are executed or validated. 
+
+Example: providing new Impact VM operations, introduction of first-class ledger ADTs, allowing contracts to interact with unshielded tokens
+
+Such change would require update to runtime first, affecting Ledger, Node, Compact compiler, Midnight.js and in some cases - VS Code Compact plugin. Components like Wallets or Indexer might be affected but don't have to (depends on the kind of change).
+
+> [!WARNING]
+> This is one of the kinds of changes, which may affect existing dApps. It is identified, that some instances of this change might not be feasible to be performed in a backwards-compatible way, which might affect existing dApps and force them to perform an upgrade.
+
+#### Zswap protocol upgrade
+Upgrade/change coin management and validation in the protocol.
+
+Example: adding encrypted memos. 
+
+Such change would ideally affect only Wallet and Ledger, with Node to updating at least to accommodate for new Ledger. Indexer and Midnight.js might need to be instructed there is a transaction format change.
+
+#### Zswap cryptography upgrade
+
+Alter/upgrade the cryptography that is used for coin management. 
+
+Example: by affecting key derivation (coin key derivation is part of proof generation), introducing viewing keys, diversified addresses, or performing coin encryption within circuit.  
+
+Such change would likely affect almost all components present: Ledger, wallets, node, Compact standard library, Midnight.js and indexer. The components which should not receive updates in such case would be Compact compiler and its runtime.
+
+In many cases such change can be introduced maintaining some sort of backwards compatibility (see ZCash), but that would come at a cost of additional complexity in Ledger and/or transition periods.
+
+#### Extend token system (introduce a new way of managing tokens)
+
+If Night, Dust and tokenomics are implemented gradually on testnet, then introducing Night and unshielded tokens would be such change. 
+
+The biggest impact it would have on Ledger, Node, Indexer, Wallet, Compact runtime and Midnight.js because of need to accommodate for the new tokens and likely changed transaction format. Existing dApps might continue working, but semantics of tokens might force them to migrate to a new contract.
+
+#### Change token system (remove/replace way of managing tokens)
+
+If Night, Dust and tokenomics are implemented gradually on testnet, then switching from Zswap Dust to Night-generated Dust would be such change. 
+
+The biggest impact it would have on Ledger, Node, Indexer, Wallet, Compact runtime and Midnight.js because of need to accommodate for the new tokens and likely changed transaction format. Existing dApps might continue working, but semantics of tokens might force them to migrate to a new contract.
+
+#### Other backward incompatible Changes
+
+There are other possible changes not mentioned here. They might affect backwards compatibility in various ways. 
+
+Example: removing some capability or data - deprecating one way of executing contracts. 
+
+Components affected by will vary a lot depending on specifics of particular change.
+
+
+#### Ledger emergency upgrade
+
+Provide a way to execute an emergency bugfix affecting ledger execution or state, like usage of persistent storage or serialization/deserialization code, or addressing a vulnerability. Scope of changes would depend on the character of a change, but in many cases only Ledger and Node would require update at first, with rest of components required to update at convenient time.
+
+#### Snark upgrade
+
+Such kind of change affects all components, with Indexer being the only one moderately touched, because of no direct involvement with proof system.
+
+> [!WARNING]
+> This is one of the kinds of changes, which will affect existing dApps. While some instances of this change might be feasible to be performed in a staged way, currently it is not possible to perform them in a backwards-compatible way, and thus - this kind of upgrade forces dApps to be prepared for the change.
+
+#### Consensus Upgrade
+
+Current plans are that Midnight will eventually migrate to use Minotaur consensus. It will require migrating consensus algorithm. No component other than Node should be affected in such case, but for Node itself it will be a big change. 
 
 ## Open questions/uncertainties
 
