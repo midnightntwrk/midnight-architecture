@@ -3,11 +3,10 @@
   "nix": {
     "enabled": true
   },
-  "extends": ["config:recommended", "schedule:weekly", ":disableRateLimiting"],
+  "extends": ["config:best-practices", "schedule:weekly", ":disableRateLimiting"],
   "dependencyDashboard": true,
   "semanticCommits": "enabled",
   "rebaseWhen": "conflicted",
-  "enabled": true,
   "hostRules": [
     {
       "hostType": "npm",
@@ -19,13 +18,6 @@
     {
       "matchManagers": ["npm"],
       "enabled": true
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "commitMessageTopic": "github action {{depName}}",
-      "commitMessageExtra": "to {{#if isSingleVersion}}v{{{newVersion}}}{{else}}{{{newValue}}}{{/if}}",
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "addLabels": ["gha"]
     },
     {
       "groupName": "Midnight libraries",
