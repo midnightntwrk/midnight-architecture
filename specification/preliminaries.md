@@ -14,7 +14,7 @@ outputs. `...` signals that a part goes beyond the scope of this spec.
 
 While this document will not go into contracts in detail, a few things are
 necessary to understand:
-- Contract have an address, denoted by the type `ContractAddress`, which is a
+- Contracts have an address, denoted by the type `ContractAddress`, which is a
   hash of data that is beyond the scope of this document.
 - Contracts may be able to issue tokens. For this, tokens have an associated
   `TokenType`. Tokens of different token types are not fungible, and token
@@ -104,7 +104,10 @@ fn zk_verify<PI, BI, P>(f: Zk<fn(...) -> bool>, public_input: PI, binding_input:
 ```
 
 Where `PI` is a tuple of all `Public<...>` arguments to `f`, and `BI` is
-arbitrary data that the proof 'binds' to. Note that this is clearly not a direct
+arbitrary data that the proof 'binds' to (specifically: the proof will fail
+validation if passed different data here. This allows passing a hash of other
+parts of the transaction, effectively 'signing' these with the proof). Note
+that this is clearly not a direct
 rust construct, but helps express proofs didactically. We use the `Zk`
 annotation to effectively denote the verifier key, to help us capture where
 these appear in contract states.
@@ -160,7 +163,7 @@ and opened to the sums `v1 + v2` and `r1 + r2`.
 
 A multi-base Pedersen commitment uses a different value for `h` in different
 situations. In Midnight we pick `h = hash_to_curve(coin.type, segment)`, and `v
-= coin.value`, for [Zswap](./zswap.md) coins. This ensures that commitments in
+= coin.value`, for [Zswap](./zswap.md) (see link for definitions) coins. This ensures that commitments in
 different coin types and segments do not interfere with each other, as it is
 cryptographically hard to find two `coin` and `segment` values that produce the
 same (or a complimentary) commitment.
@@ -171,22 +174,22 @@ transaction knows the individual randomness components, it's cryptographically
 hard to separate out any of the individual Pedersen commitments, ensuring that
 the transaction must appear together. This binding is also used for
 [`Intent`s](./intents-transactions.md), which do not carry a (Zswap) value.
-Instead, we only include the randomizing portion of `g^r` for Intents.
+Instead, we only include the randomizing portion of `g * r` for Intents.
 As Intents do not carry intrinsic zero-knowledge proofs, where the shape of the
 Pedersen commitment can be proven, we instead use a simple Fiat-Shamir proof to
 ensure that the commitment *only* commits to a randomness value, and *not* to a
 value that can be used for balancing.
 
 We do this with a knowledge-of-exponent proof, consisting of:
-- The commitment itself, `g * rc`
+- The commitment itself, `g * r`
 - A 'target' point, `g * s` for a random `s: embedded::Scalar`
 - (implied) the challenge scalar `c: embedded::Scalar`, defined as the hash of:
-    - The containing `Intent<(), ()>` hash
+    - The containing `Intent<(), ()>` hash (see [Intents & Transactions](./intents-transactions.md) for details)
     - The commitment
     - The target point
-- The 'reply' scalar `r = s - c * rc`
+- The 'reply' scalar `R = s - c * r`
 
-The Fiat-Shamir Pedersen is considered valid if `g * s == g * r + (g * rc) *
+The Fiat-Shamir Pedersen is considered valid if `g * s == g * R + (g * r) *
 c`. Note that technically this is not a Pedersen commitment, but it is used as
 a re-randomization of Pedersen commitments, so we're lumping them together.
 

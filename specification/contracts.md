@@ -104,13 +104,26 @@ struct ContractCall<P> {
 
 Conceptually, first the guaranteed transcript is applied, then the fallible
 transcript, with any failure during the fallible transcript application
-reverting to the state after the guaranteed transcript was applied.
+reverting to the state after the guaranteed transcript was applied. This has
+the benefit of allowing execution of the guaranteed transcript _prior_ to
+taking fee payments for processing the transaction, at the cost of severely
+limiting the execution budget provided for it. The fallible transcript by
+contrast can have a higher budget, but fees paying for it must always be taken,
+even if the transcript does not succeed. This process is transparent for users,
+with transaction construction machinery simply trying to place as much of the
+call as possible into the guaranteed transcript.
 
 In practice, the `Transcript` is *not* just a partial function over
 `StateValue`, but crucially also contains an `Effects` object, which describes
 how this contract call interacts with the rest of the system. It also contains
 a `gas` bound on the execution costs of the transcript program, but the details
 for this are not covered in this spec.
+
+`Effects` are _contained in_ `Transcript`, even though they are computable by
+running `program`, as it is assumed that the latter is an expensive operation,
+while checking that `Effects` is consistent with the rest of the transaction is
+assumed to be a fast check. Essentially, `Effects` declares up front what a
+contract _will_ do, and then the longer check that this is correct is deferred.
 
 Similarly, the input to the partial function is not just a `StateValue`, but it
 also includes a `CallContext`, which can provide additional information to the

@@ -87,9 +87,9 @@ updated with the correct `dtime` when the corresponding Night utxo is spent.
 ### Spending Dust
 
 Dust will follow Zerocash commitment/nullifier structure. Each `DustOutput` has
-two projections, a `DustCommitment` and a `DustNullifier`, both produced using
+two projections, a `DustNullifier` and a `DustCommitment`, both produced using
 the `field::hash`. The nullifier set is a set of the former, and the commitment set
-a Merkle tree of the latter. As the dust *genreation* set has faerie-gold
+a Merkle tree of the latter. As the dust *generation* set has faerie-gold
 attack mitigation, no mitigation is needed for Dust itself.
 
 ```rust
@@ -127,7 +127,10 @@ out = DustOutput {
 ```
 
 The public state of Dust is simply a commitment Merkle tree, a nullifier set,
-and the historic roots & first free. To simplify the fee payment transaction
+and the historic roots & first free (Note that this needs to be tracked
+separately, as in our implementation the tree itself has no policy on order of
+insertions for flexibility. In practice we insert in order). To simplify the
+fee payment transaction
 fragment, the timestamps used in the Dust historic roots, and the generation
 historic roots should be the same.
 

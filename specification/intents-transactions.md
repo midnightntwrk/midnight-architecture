@@ -5,7 +5,8 @@ fallible Zswap offer, and binding randomness.
 
 Intents and fallible offers carry a `segment_id: u16`. This must not be 0
 (which is reserved for the guaranteed section), and groups parts that apply
-atomically together.
+atomically together. These are important for [sequencing](#sequencing) the
+order in which parts of the transaction are applied.
 
 ```rust
 struct Transaction<S, P> {
@@ -156,7 +157,7 @@ impl<S, P> Intent<S, P> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
         self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
-        self.actions.iter().all(|action| action.well_formed(ref_state, hash(erased))).collect()?;
+        self.actions.iter().all(|action| action.well_formed(ref_state, hash((segment_id, erased)))).collect()?;
     }
 }
 

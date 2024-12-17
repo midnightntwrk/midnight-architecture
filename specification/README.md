@@ -15,6 +15,9 @@ The parts of this specification are:
 - [Night](./night.md), describing Night and other unshielded tokens on Midnight
 - [Dust](./dust.md), describing Dust payments and generation. This part of the
   spec is still in progress, although the key format may be treated as fixed.
+- [Contracts](./contracts.md), abstractly describing contract states and
+  interactions in transactions, without specifying the details of the structure
+  of proofs and the onchain VM.
 - [Intents & Transactions](./intents-transactions.md), describing Midnight's
   composite transaction format, and intents on Midnight.
 - [Properties](./properties.md), describing the security and correctness

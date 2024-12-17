@@ -19,9 +19,11 @@ We use the term `value` here to mean 'amount of indivisible units of the given
 token type'.
 
 ```rust
+type NightAddress = Hash<VerifyingKey>;
+
 struct Utxo {
     value: u128,
-    owner: Hash<VerifyingKey>,
+    owner: NightAddress,
     type_: RawTokenType,
     intent_hash: IntentHash,
     output_no: u32,
@@ -29,7 +31,7 @@ struct Utxo {
 
 struct UtxoOutput {
     value: u128,
-    owner: Hash<VerifyingKey>,
+    owner: NightAddress,
     type_: RawTokenType,
 }
 
@@ -62,7 +64,7 @@ struct UtxoState {
 }
 ```
 
-Building this into transaction will be through out [intent
+Building this into a transaction will be throughout [intent
 system](./intents-transactions.md), where the component here is an *unbalanced
 and unshielded offer*. The word offer here implies a collection of UTXO inputs
 and outputs, that is *not* necessarily balanced by itself. This collection must
@@ -100,7 +102,7 @@ impl<S> UnshieldedOffer<S> {
     fn well_formed(self, parent: Intent<(), ()>) -> Result<()> {
         assert!(self.inputs.is_sorted());
         assert!(self.outputs.is_sorted());
-        assert!(self.inputs.len() == self.outputs.len());
+        assert!(self.inputs.len() == self.signatures.len());
         assert!(self.inputs.no_duplicates());
         for (inp, sig) in self.inputs.iter().zip(self.signatures.iter()) {
             signature_verify(parent, inp.owner, sig)?;

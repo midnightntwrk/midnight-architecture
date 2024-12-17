@@ -14,7 +14,7 @@ Zswap heavily relies on hashes and commitments for security. In both cases, the
 SHA-256 hash function is the primarily used one. Zswap is based on
 zero-knowledge proofs, which affords signature-like behaviour by proving the
 execution of a one-way function. For this reason, we use random 256-bit keys
-are secret keys, and their SHA-256 hash as public keys in Zswap.
+as secret keys, and their SHA-256 hash as public keys in Zswap.
 
 Zswap also requires a public-key encryption mechanism to send secrets from the
 sender of a token to its receiver. For this, we use a non-interactive
@@ -52,7 +52,7 @@ type CoinNullifier = Hash<(CoinInfo, ZswapCoinSecretKey)>;
 ```
 
 In the ledger's state, the set of these commitments and nullifiers are stored.
-While this is the end of the story for commitments, nullifiers are stored in
+While this is the end of the story for nullifiers, commitments are stored in
 different representations:
 - A plain set, for preventing the creation of duplicate coins
 - A Merkle tree, for proving inclusion in the set of coins
@@ -93,8 +93,11 @@ struct ZswapOutput<P> {
 }
 ```
 
-In each case, the proof contains the relevant `CoinInfo`, alonside some other
-information, that ensure that the input or output are authorized, and correct.
+In each case, the proof contains the relevant `CoinInfo`, alongside some other
+information, that ensure that the input or output are authorized (for
+user-owned funds, the prover knows the secret keys controlling them), and
+correct (the commitments, nullifiers, and value commitments are correctly
+computed, and the declaration of owning contract matches that of the coin).
 The `value_commitment` field of both is a homomorphic Pedersen commitment, that
 can be used to ensure a collection of multiple inputs and outputs are valid by
 combining them together. This commitment has a corresponding *randomness*, that
@@ -105,7 +108,10 @@ Midnight's transaction structure.
 ---
 
 The zero-knowledge proofs for inputs and outputs are presented here in
-rust-like pseudocode, with the inputs necessary for them.
+rust-like pseudocode, with the inputs necessary for them. These are separate
+largely for modularity: It should be possible to turn a `ZswapOutput` into a
+`ZswapTransient`, even if it has already been proven, to allow extending a
+transaction with operations that spend it.
 
 ```rust
 fn input_valid<P>(
@@ -153,7 +159,9 @@ outputs.
 
 Crucially, `segment`, as well as `coin.type_`, are preimages to the multi-base
 part of this commitment, ensuring that a change to either is not homomorphic,
-and effectively unmixable with each other. This not only ensures that coins of
+and effectively unmixable with each other (that is, a coin in Segment 1 will
+not mix with one in Segment 2, nor with one of a different type). This not only
+ensures that coins of
 different types cannot be exchanged with each other, but that a transaction can
 be divided into independent segments, that are each balanced independently.
 
@@ -267,7 +275,7 @@ impl<P> ZswapTransient<P> {
             proof: self.proof_output
         }
     }
-    fn well_formed(self, segment: u126) -> Result<()> {
+    fn well_formed(self, segment: u16) -> Result<()> {
         self.as_input().verify()?;
         self.as_output().verify()?;
     }
@@ -302,7 +310,7 @@ struct ZswapOffer<P> {
 }
 
 impl<P> ZswapOffer<P> {
-    fn well_formed(self, segment: u126) -> Result<()> {
+    fn well_formed(self, segment: u16) -> Result<()> {
         inputs.all(|inp| inp.well_formed(segment))?;
         outputs.all(|out| out.well_formed(segment))?;
         transients.all(|trans| trans.well_formed(segment))?;
