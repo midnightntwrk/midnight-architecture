@@ -320,7 +320,7 @@ impl<S, P> Transaction<S, P> {
         // Out of scope of this spec
     }
 
-    fn balance(self) -> Map<(TokenType, u16), i128> {
+    fn balance(self) -> Result<Map<(TokenType, u16), i128>> {
         let mut res = Map::new();
         for (segment, intent) in self.intents {
             for (segment, offer) in [
@@ -328,12 +328,12 @@ impl<S, P> Transaction<S, P> {
                 (segment, intent. fallible_unshielded_offer),
             ] {
                 for inp in offer.inputs {
-                    // Checked addition, fail on overflow
-                    res.get_mut_or_default((TokenType::Unshielded(inp.type_), segment)) += inp.value;
+                    let bal = res.get_mut_or_default((TokenType::Unshielded(inp.type_), segment));
+                    *bal = (*bal).checked_add(inp.value)?;
                 }
                 for out in offer.outputs {
-                    // Checked subtraction, fail on overflow
-                    res.get_mut_or_default((TokenType::Unshielded(out.type_), segment)) -= out.value;
+                    let bal = res.get_mut_or_default((TokenType::Unshielded(out.type_), segment));
+                    *bal = (*bal).checked_sub(out.value)?;
                 }
             }
 
@@ -348,21 +348,25 @@ impl<S, P> Transaction<S, P> {
                 for (segment, transcript) in transcripts {
                     for (pre_token, val) in transcript.effects.shielded_mints {
                         let tt = TokenType::Shielded(hash((transcript.address, pre_token)));
-                        res.get_mut_or_default((tt, segment)) += val;
+                        let bal = res.get_mut_or_default((tt, segment));
+                        *bal = (*bal).checked_add(val)?;
                     }
                     for (pre_token, val) in transcript.effects.unshielded_mints {
                         let tt = TokenType::Unshielded(hash((transcript.address, pre_token)));
-                        res.get_mut_or_default((tt, segment)) += val;
+                        let bal = res.get_mut_or_default((tt, segment));
+                        *bal = (*bal).checked_add(val)?;
                     }
                     for (tt, val) in transcript.effects.unshielded_inputs {
                         // NOTE: This is an input *to* the contract, so an
                         // output of the transaction.
-                        res.get_mut_or_default((tt, segment)) -= val;
+                        let bal = res.get_mut_or_default((tt, segment));
+                        *bal = (*bal).checked_sub(val)?;
                     }
                     for (tt, val) in transcript.effects.unshielded_outputs {
                         // NOTE: This is an output *from* the contract, so an
                         // input to the transaction.
-                        res.get_mut_or_default((tt, segment)) += val;
+                        let bal = res.get_mut_or_default((tt, segment));
+                        *bal = (*bal).checked_add(val)?;
                     }
                 }
             }
@@ -374,11 +378,11 @@ impl<S, P> Transaction<S, P> {
                 res.set((TokenType::Shielded(tt), segment), val);
             }
         }
-        res
+        Ok(res)
     }
 
     fn balancing_check(self) -> Result<()> {
-        for bal in self.balance().map(|(_, bal)| bal) {
+        for bal in self.balance()?.map(|(_, bal)| bal) {
             assert!(bal >= 0);
         }
     }
@@ -407,7 +411,7 @@ impl<S, P> Transaction<S, P> {
                                 .chain(offer.transients.iter()
                                     .map(|trans| -trans.value_commitment_output))));
         let comm = comm_parts.fold(|a, b| a + b, embedded::CurvePoint::identity);
-        let expected = self.balance().filter_map(|((tt, segment), value)| match tt {
+        let expected = self.balance()?.filter_map(|((tt, segment), value)| match tt {
             TokenType::Shielded(tt) => Some(hash_to_curve(tt, segment) * value),
             _ => None,
         }).fold(

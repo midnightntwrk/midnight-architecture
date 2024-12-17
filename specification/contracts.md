@@ -299,12 +299,13 @@ impl LedgerContractState {
         assert!(effects == transcript.effects);
         state.data = data;
         for (tt, val) in transcript.effects.unshielded_inputs {
-            state.balance.get_mut_or_default(tt) += val;
+            let bal = state.balance.get_mut_or_default(tt);
+            *bal = (*bal).checked_add(val)?;
         }
         for (tt, val) in transcript.effects.unshielded_outputs {
             let mut bal = state.balance.get_mut_or_default(tt);
             assert!(*bal >= val);
-            *bal -= val;
+            *bal = (*bal).checked_sub(val)?;
         }
         self.contract = self.contract.insert(call.address, state);
         Ok(self)
