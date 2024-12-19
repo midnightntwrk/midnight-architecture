@@ -21,7 +21,7 @@ import {
   ShieldedCoinPublicKey,
   ShieldedEncryptionSecretKey,
 } from "./address-format-reference.js";
-import { ErisScalar, fromScalar, PlutoScalar } from "./field.js";
+import { BlsScalar, fromScalar, JubjubScalar } from "./field.js";
 import { coinKeys, dustSecretKey, encryptionSecretKey } from "./key-derivation-reference.js";
 
 const networkIds = [null, "my-private-net", "dev", "test", "my-private-net-5"]; //null stands for mainnet
@@ -58,12 +58,12 @@ function generateKeyDerivationTestVectors(seeds: Buffer[]) {
     return {
       seed: seed.toString("hex"),
       encryption: {
-        secretKeyRepr: fromScalar(esk.key, ErisScalar).toString("hex"),
+        secretKeyRepr: fromScalar(esk.key, BlsScalar).toString("hex"),
         secretKeyDecimal: esk.key.toString(10),
         secretKeyIntermediateBytes: esk.intermediateBytes.toString("hex"),
       },
       dust: {
-        secretKeyRepr: fromScalar(dsk.key, PlutoScalar).toString("hex"),
+        secretKeyRepr: fromScalar(dsk.key, JubjubScalar).toString("hex"),
         secretKeyDecimal: dsk.key.toString(10),
         secretKeyIntermediateBytes: dsk.intermediateBytes.toString("hex"),
       },

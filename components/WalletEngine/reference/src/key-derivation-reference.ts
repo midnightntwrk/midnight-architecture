@@ -1,5 +1,5 @@
 import * as crypto from "node:crypto";
-import { ErisScalar, Field, PlutoScalar, toScalar } from "./field.js";
+import { BlsScalar, Field, JubjubScalar, toScalar } from "./field.js";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
   return crypto.createHash("sha-256").update(a).update(b).digest();
@@ -39,18 +39,18 @@ export function encryptionSecretKey(seed: Buffer): {
   intermediateBytes: Buffer;
   key: bigint;
 } {
-  const field = ErisScalar;
+  const field = JubjubScalar;
   const domainSeparator = Buffer.from("midnight:esk", "utf-8");
-  return sampleKey(seed, 8, domainSeparator, field);
+  return sampleKey(seed, 32, domainSeparator, field);
 }
 
 export function dustSecretKey(seed: Buffer): {
   intermediateBytes: Buffer;
   key: bigint;
 } {
-  const field = PlutoScalar;
+  const field = BlsScalar;
   const domainSeparator = Buffer.from("midnight:dsk", "utf-8");
-  return sampleKey(seed, 8, domainSeparator, field);
+  return sampleKey(seed, 32, domainSeparator, field);
 }
 
 export function coinKeys(seed: Buffer): {
