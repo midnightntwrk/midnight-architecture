@@ -69,11 +69,14 @@ system](./intents-transactions.md), where the component here is an *unbalanced
 and unshielded offer*. The word offer here implies a collection of UTXO inputs
 and outputs, that is *not* necessarily balanced by itself. This collection must
 have a set of signatures, which each sign the containing
-[`Intent`](./intents-transactions.md) object. Taken literally, this means that
-signatures must sign themselves, so we instead expose a variant without
-signatures, by adding a type parameter `S`, which may be instantiated either
-with the unit type `()`, or the type `Signature`. (Therefore, the
-full type for `Intent` is `Intent<Signature, Proof>`)
+[`Intent`](./intents-transactions.md) object. Taken at face value, this would
+be self-referential, as the `Intent` contains the signatures. To avoid this, we
+sign a *variant* of the `Intent` *without* signatures. In practice, this is
+achieved with a type parameter `S`, which may be instantiated either
+with the unit type `()`, or the type `Signature`. Therefore, the
+full type for `Intent` is `Intent<Signature, Proof>`, and it signs `Intent<(),
+()>`, as zero-knowledge proofs are similarly handled. This process is called
+*signature-* or *proof-erasure*.
 
 Due to the technicalities of [dust generation](./dust.md), a variant of
 `UtxoOutput`, `GeneratingUtxoOutput` also exists, which can appear in the place

@@ -9,9 +9,14 @@ be true.
 
 > **Theorem 1 (Balance Preservation).** A transaction does not modify the total
 > amount of funds in the system, with the following exceptions:
-> - Contract *mint* operations create a corresponding amount of funds in a
->   token type specific to that contract.
-> - Dust balances are *not* preserved.
+> - Contract *mint* operations (as witnessed by contained `Effects` in
+>   transcripts in each executed segment) create the recorded amount of
+>   funds in a token type specific to the issuing contract.
+> - Dust balances are *not* preserved, but rather, for a specific address:
+>   - Monotonically approach a target value, proportional to the amount of
+>     Night generating Dust for this address, within a fixed time window
+>   - Decrease when spent to cover transaction fees, for which the total spent
+>     Dust must cover at least the fees.
 > - Transactions with a net positive balance will be paid into the treasury.
 
 Importantly, the total in balance preservation is between the utxo sets, and

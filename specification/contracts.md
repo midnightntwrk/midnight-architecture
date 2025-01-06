@@ -191,7 +191,7 @@ key hash.
 struct CallContext {
     seconds_since_epoch: Timestamp,
     seconds_since_epoch_err: Duration,
-    block_hash: Hash<Block>,
+    parent_block_hash: Hash<Block>,
     caller: Option<PublicAddress>,
     balance: Map<TokenType, u128>,
 }
@@ -210,7 +210,7 @@ value comes from the intent and is determined as (in order):
 struct BlockContext {
     seconds_since_epoch: Timestamp,
     seconds_since_epoch_err: Duration,
-    block_hash: Hash<Block>,
+    parent_block_hash: Hash<Block>,
 }
 
 impl ContractCall {
@@ -236,7 +236,7 @@ impl ContractCall {
         CallContext {
             seconds_since_epoch: block.seconds_since_epoch,
             seconds_since_epoch_err: block.seconds_since_epoch_err,
-            block_hash: block.block_hash,
+            parent_block_hash: block.parent_block_hash,
             caller,
             balance: state.balance,
         }
