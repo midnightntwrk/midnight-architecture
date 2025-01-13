@@ -98,19 +98,35 @@ We parameterise data structures with the proof representation used `P`, where
 ()`, for proof-erasure, which is used in some hash computation to prevent
 self-dependency in hashes, and `P = Proof` for the real proof system.
 
-We assume the zk verification primitive:
+We assume that each circuit `foo` has a corresponding prover and verifier key, which we
+may write as `prover_key(foo)` and `verifier_key(foo)` respectively. These have the opaque types:
+
 ```rust
-fn zk_verify<PI, BI, P>(f: Zk<fn(...) -> bool>, public_input: PI, binding_input: BI, proof: P::Proof) -> Result<()>;
+type ZkProverKey;
+type ZkVerifierKey;
 ```
 
-Where `PI` is a tuple of all `Public<...>` arguments to `f`, and `BI` is
+We also assume the zk proving and verifying primitives:
+```rust
+fn zk_prove<PI, W, BI, P>(pk: ZkProverKey, public_input: PI, witness: W, binding_input: BI) -> Result<P::Proof>;
+fn zk_verify<PI, BI, P>(vk: ZkVerifierKey, public_input: PI, binding_input: BI, proof: P::Proof) -> Result<()>;
+```
+
+Where `PI` is the type of all `Public<...>` arguments to `f`, and `BI` is
 arbitrary data that the proof 'binds' to (specifically: the proof will fail
 validation if passed different data here. This allows passing a hash of other
-parts of the transaction, effectively 'signing' these with the proof). Note
-that this is clearly not a direct
-rust construct, but helps express proofs didactically. We use the `Zk`
-annotation to effectively denote the verifier key, to help us capture where
-these appear in contract states.
+parts of the transaction, effectively 'signing' these with the proof), and `W`
+is the type of all `Private<...>` arguments to `f`. Note that this is clearly
+not a direct rust construct, but helps express proofs didactically. We use the
+`Zk` annotation to effectively denote the verifier key, to help us capture
+where these appear in contract states.
+
+Conceptually, `zk_prove(pk, x, w, bi)` produces a valid proof if and only if
+there exists an `f` such that `pk = prover_key(f)` and `f(x, w) == true`.
+`zk_verify(vk, x, bi, pi)` will output `Ok(())` for any proofs correctly
+produced by `zk_prove` (for the same `f`), and _must not_ output `Ok(())` for
+values of `x` if there does _not_ exist an `f` and `w` for which `vk =
+verifier_key(f)` and `f(x, w) == true`.
 
 For `P = ()`, `zk_verify` may be taken to be the constant function `Ok(())`.
 

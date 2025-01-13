@@ -24,7 +24,7 @@ A contract's state consists of:
 ```rust
 struct ContractState {
     data: StateValue,
-    operations: Map<Bytes, Zk<fn(...) -> bool>>,
+    operations: Map<Bytes, ZkVerifierKey>,
     maintenance_authority: ContractMaintenanceAuthority,
     balance: Map<TokenType, u128>,
 }
