@@ -118,7 +118,7 @@ impl<S> UnshieldedOffer<S> {
             let entry = map.get_mut_or_default(inp.type_);
             *entry = *entry.checked_add(inp.value)?;
         }
-        for out in self.inputs {
+        for out in self.outputs {
             let entry = map.get_mut_or_default(out.type_);
             *entry = *entry.checked_sub(out.value)?;
         }
