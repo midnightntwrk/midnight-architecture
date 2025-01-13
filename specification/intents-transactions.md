@@ -18,7 +18,7 @@ struct Transaction<S, P> {
 ```
 
 An intent consists of guaranteed and fallible *unshielded* offers, a sequence
-of contract actions, a set of dust payments, a TTL timestampt, and a binding commitment
+of contract actions, a set of dust payments, a TTL timestamp, and a binding commitment
 with a proof of knowledge of exponent of `g`, to prevent interfering with the
 Zswap value commitments.
 
