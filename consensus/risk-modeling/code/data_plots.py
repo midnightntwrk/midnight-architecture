@@ -192,48 +192,7 @@ def plot_whale_probability_facet(output_path: str, figsize=(16, 10)):
     g = sns.FacetGrid(
         melted_data,
         col="Group_Size",
-        col_wrap=5,
-        height=2,
-        aspect=1.5,
-    )
-    g.set_titles("Group_Size_{col_name}")
-    g.set_axis_labels("Whale Real Stake (R_w)", "Probability")
-    g.add_legend()
-
-    # Show the plot
-    plt.show()
-
-
-def plot_whale_probability_facet(output_path: str, figsize=(16, 10)):
-    """Plots the probability of whale emergence vs. Whale Real Stake (R_w)
-    for different group sizes using facets.
-
-    Args:
-        output_path (str): The path to the CSV file containing the simulation results.
-        figsize (tuple, optional): plot figure size. Defaults to (16, 12).
-    """
-    # Load the CSV file
-    data = pd.read_csv(output_path)
-
-    # Set the Whale Real Stake (R_w) as the index
-    data.set_index("R_w", inplace=True)
-
-    # Melt the data for seaborn
-    melted_data = pd.melt(
-        data.reset_index(),
-        id_vars=["R_w"],
-        var_name="Group_Size",
-        value_name="Probability",
-    )
-
-    # Set the aesthetic style of the plots
-    sns.set_theme(style="whitegrid")
-
-    # Using seaborn's FacetGrid to create multiple plots
-    g = sns.FacetGrid(
-        melted_data,
-        col="Group_Size",
-        col_wrap=5,
+        col_wrap=3,
         height=2,
         aspect=1.5,
         palette=color_palette,
