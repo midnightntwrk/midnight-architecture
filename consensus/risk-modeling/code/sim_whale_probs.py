@@ -40,7 +40,7 @@ complete and the results have been saved. This script efficiently leverages
 parallel processing to handle potentially large and computationally intensive
 simulations.
 """
-# %%
+
 import logging
 import json
 import pandas as pd
@@ -50,10 +50,9 @@ import seaborn as sns
 from pathlib import Path
 from itertools import product
 from multiprocessing import Pool
+from config_loader import load_config
 
 
-# %%
-# Load SPO data
 def load_data(file_path: str):
     """
     Load and normalize SPO data from a CSV file.
@@ -73,8 +72,6 @@ def load_data(file_path: str):
     return df
 
 
-# %%
-# Simulation function
 def simulate_whale_probability(args):
     """
     Simulate whale emergence probability for a specific R_w and group size.
@@ -106,8 +103,6 @@ def simulate_whale_probability(args):
     return {"R_w": R_w, "Group_Size": group_size, "Probability": probability}
 
 
-# %%
-# Main simulation function
 def main(
     file_path: str,
     output_path: str,
@@ -167,22 +162,24 @@ def main(
 
 
 if __name__ == "__main__":
-    # Load configuration from JSON file
-    with open("config.json", "r") as config_file:
-        config = json.load(config_file)
 
-    # Set file paths
-    ROOT_PATH = Path(config["root_path"])
-    DATA_PATH = ROOT_PATH / config["data_path"]
+    # Load configuration
+    config = load_config("config.json")
+
+    # Access parameters
+    ROOT_PATH = config["root_path"]
+    DATA_PATH = config["data_path"]
     FILE_NAME = config["file_name"]
-    OUTP_NAME = FILE_NAME.replace(".csv", "-whale-probs.csv")
-    FILE_PATH = DATA_PATH / FILE_NAME
-    OUTP_PATH = DATA_PATH / OUTP_NAME
-
-    # Simulation parameters
+    OUTP_NAME = config["outp_name"]
+    FILE_PATH = config["file_path"]
+    OUTP_PATH = config["outp_path"]
     NUM_TRIALS = config["num_trials"]
     GROUP_SIZES = config["group_sizes"]
     R_WS = config["r_ws"]
+
+    # Now you can use these parameters in your script
+    print("Group Sizes:", GROUP_SIZES)
+    print("R_ws:", R_WS)
 
     # Run simulation
     main(

@@ -1,47 +1,29 @@
 {
-    "root_path": "/Users/rjones/Desktop/Midnight",
+    "root_path": "/Users/rjones/Desktop/Midnight/midnight-architecture/consensus/risk-modeling",
     "data_path": "data",
     "file_name": "pooltool-cleaned.csv",
     "num_trials": 10000,
-    "group_sizes": [
-        10,
-        20,
-        30,
-        40,
-        50,
-        60,
-        70,
-        80,
-        90,
-        100,
-        110,
-        120,
-        130,
-        140,
-        150,
-        160,
-        170,
-        180,
-        190,
-        200
-    ],
-    "r_ws": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        10,
-        15,
-        20,
-        25,
-        33,
-        40,
-        51,
-        66,
-        75,
-        80,
-        90,
-        100
-    ]
+    "group_sizes": {
+        "range": [
+            10,
+            200,
+            10
+        ]
+    },
+    "r_ws": {
+        "range": [
+            1,
+            40,
+            5
+        ],
+        "list": [
+            33,
+            40,
+            51,
+            66,
+            75,
+            80,
+            90
+        ]
+    }
 }

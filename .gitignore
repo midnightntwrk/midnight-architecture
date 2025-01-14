@@ -16,3 +16,11 @@ README.html
 .idea/
 *.DS_Store
 node_modules/
+*.pyc
+*.png
+*.pdf
+*.jpg
+*.jpeg
+*.svg
+*.eps
+*.gif

@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
-
+from config_loader import load_config
 from sim_whale_probs import load_data
 
 
@@ -204,9 +204,6 @@ def plot_whale_probability_facet(output_path: str, figsize=(16, 10)):
     plt.show()
 
 
-# %%
-
-
 def plot_whale_probability_facet(output_path: str, figsize=(16, 10)):
     """Plots the probability of whale emergence vs. Whale Real Stake (R_w)
     for different group sizes using facets.
@@ -258,30 +255,32 @@ def plot_whale_probability_facet(output_path: str, figsize=(16, 10)):
     # Show the plot
     plt.show()
 
+# %%
+if __name__ == "__main__":
+    # Load configuration
+    config = load_config("config.json")
 
-# %%
-# Load configuration from JSON file
-with open("config.json", "r") as config_file:
-    config = json.load(config_file)
+    # Access parameters
+    ROOT_PATH = config["root_path"]
+    DATA_PATH = config["data_path"]
+    FILE_NAME = config["file_name"]
+    OUTP_NAME = config["outp_name"]
+    FILE_PATH = config["file_path"]
+    OUTP_PATH = config["outp_path"]
+    NUM_TRIALS = config["num_trials"]
+    GROUP_SIZES = config["group_sizes"]
+    R_WS = config["r_ws"]
 
-# Set file paths
-ROOT_PATH = Path(config["root_path"])
-DATA_PATH = ROOT_PATH / config["data_path"]
-FILE_NAME = config["file_name"]
-OUTP_NAME = FILE_NAME.replace(".csv", "-whale-probs.csv")
-FILE_PATH = DATA_PATH / FILE_NAME
-OUTP_PATH = DATA_PATH / OUTP_NAME
+    # Now you can use these parameters in your script
+    print("Group Sizes:", GROUP_SIZES)
+    print("R_ws:", R_WS)
 
-# Simulation parameters
-GROUP_SIZES = config["group_sizes"]
-R_WS = config["r_ws"]
-
-# %%
-plot_histograms_of_data(str(FILE_PATH))
-# %%
-plot_joint_plots(str(FILE_PATH))
-# %%
-plot_whale_probability(str(OUTP_PATH))
-# %%
-plot_whale_probability_facet(str(OUTP_PATH))
-# %%
+    # %%
+    plot_histograms_of_data(str(FILE_PATH))
+    # %%
+    plot_joint_plots(str(FILE_PATH))
+    # %%
+    plot_whale_probability(str(OUTP_PATH))
+    # %%
+    plot_whale_probability_facet(str(OUTP_PATH))
+    # %%
