@@ -1,21 +1,22 @@
 # Midnight Wallet Specification
 
-This document is meant to be a reference for wallet implementors: explaining the differences between other well-known blockchain protocols, providing details on data needed to successfully create and submit transactions, as well as provide practical insights. There are some aspects of cryptography and algorithms used, which are unique to wallet, and thus - are explained in more detail, while others, more ubiquitous across the stack - are meant to be a target of separate documents.  
+This document is meant to be a reference for wallet implementors. It explains the differences between other well-known blockchain protocols, provides details on data needed to successfully create and submit transactions, and provide practical insights.
+There are certain aspects of cryptography and the algorithms used that are unique to the wallet, and thus, are explained in more detail in this document. Other aspects are more ubiquitous across the stack, and are the subject of separate documents.
 
-Midnight features a unique set of features, which influence the way wallet software can operate significantly. In particular, in comparison to many other blockchain protocols:
-- transactions are not sealed with signatures
-- usage of zero-knowledge technology requires users to generate proofs, which takes relatively a lot of resources: time, CPU and memory
-- knowing wallet balance requires iterating over every single transaction present
+Midnight has a unique set of features, which significantly influence the way wallet software can operate. In particular, in comparison to many other blockchain protocols:
+- Transactions are not sealed with signatures.
+- The usage of zero-knowledge technology requires users to generate proofs, which takes a significant amount of resources (time, CPU and memory).
+- Knowing the wallet balance requires iterating over every single transaction present in the blockchain.
 
-This document comprises a couple of sections:
-1. **[Introduction](#introduction)** - which explains, how addressing goals stated for the protocol leads to differences mentioned above
-2. **[Key management](#key-management)** - where the details of key structure, address format and relationship with existing standards are provided
-3. **[Address format](#address-format)** - where addresses are described, as well as their formatting
-4. **[Transaction structure](#transaction-structure-and-statuses)** - which explains, what data are present in transactions
-5. **[State management](#state-management)** - where state needed to build transactions is defined, together with operations necessary to manipulate it
-6. **[Synchronization process](#synchronization-process)**, explaining application mechanics available to obtain wallet state synchronized with the chain
-7. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
-8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
+This document is organized into the following sections:
+1. **[Introduction](#introduction)** - which explains how addressing the goals stated for the Midnight protocol leads to the differences mentioned above.
+2. **[Key management](#key-management)** - which provides the details of key structure, address format, and the relationship with existing standards.
+3. **[Address format](#address-format)** - which describe addresses and their formatting.
+4. **[Transaction structure](#transaction-structure-and-statuses)** - which explains what data are present in transactions.
+5. **[State management](#state-management)** - which defines the state needed to build transactions, together with operations necessary to manipulate said state.
+6. **[Synchronization process](#synchronization-process)** - which explains how the wallet state is synchronized with the chain.
+7. **[Transaction building](#building-transactions)** - which details the steps required to build transaction.
+8. **[Transaction submission](#transaction-submission)** - which describes the process of submitting a transaction, including the possible impact on the wallet state.
 
 <!-- TOC -->
 * [Midnight Wallet Specification](#midnight-wallet-specification)
@@ -72,84 +73,93 @@ This document comprises a couple of sections:
 
 ## Introduction
 
-Wallet is an important component in a whole network - it stores and protects user's secret keys and allows to use them in order to create or confirm transactions.
+The wallet is an important component in a blockchain network - it stores and protects user's secret keys and allows to use them to create or confirm transactions.
 
-It is often the case, that for user's convenience, wallets also collect all the data necessary for issuing simple operations on tokens. Midnight Wallet is no exception in this regard, one could even say, that in case of Midnight, that data management is a particularly important task because the data needed to create transaction is not only sensitive, but also computationally expensive to obtain. This is a common property to many, if not all implementations of protocols based on [Zerocash](http://zerocash-project.org/media/pdf/zerocash-extended-20140518.pdf) and [CryptoNote](https://bytecoin.org/old/whitepaper.pdf) protocols of privacy-preserving tokens, and Midnight shielded tokens protocol belongs to this family, as it is based on [Zswap](https://iohk.io/en/research/library/papers/zswap-zk-snark-based-non-interactive-multi-asset-swaps/), which is related to an evolution of Zerocash protocol.
+Often, for user's convenience, wallets also collect all the data necessary for issuing simple operations on tokens. The Midnight Wallet is no exception in this regard. In Midnight's case, one could even say that data management is a particularly important task because the data needed to create a transaction is not only sensitive, but also computationally expensive to obtain. This is a common property to many, if not all, implementations of protocols based on [Zerocash](http://zerocash-project.org/media/pdf/zerocash-extended-20140518.pdf) and [CryptoNote](https://bytecoin.org/old/whitepaper.pdf), which feature privacy-preserving tokens. Midnight shielded tokens protocol belongs to this family, as it is based on [Zswap](https://iohk.io/en/research/library/papers/zswap-zk-snark-based-non-interactive-multi-asset-swaps/), which is an evolution of the Zerocash protocol.
 
 Zswap, as a protocol for privacy-preserving tokens, has 3 major goals:
 1. Maintain privacy of transfers, so that it is impossible to tell:
-   - who the input provider (sender) is, unless one is the provider themself
-   - who the output recipient is, unless one created that output or is the recipient
-   - what amounts were moved, unless one is sender or receiver of particular output
-   - what kinds of tokens were moved, unless one is sender or receiver of the token
-2. Allow to maintain privacy, while using a non-interactive protocol. That is - to not need interact with the network or other parties after transaction was submitted.
-3. Allow to make swap transactions
+   - Who the input provider (sender) is, unless one is the provider themselves.
+   - Who the output recipient is, unless one created that output or is the recipient.
+   - What amounts were moved, unless one is sender or receiver of particular output.
+   - What kinds of tokens were moved, unless one is sender or receiver of the token
+2. Maintain privacy while using a non-interactive protocol. That is, do not require interaction with the network or other parties after a transaction was submitted.
+3. Allow to make swap transactions.
 
-It appears, these 3 goals combined, motivate usage of specific tools and data structures, that have significant impact on the wallet. Let's see what they are, and how they are used thorough the lifecycle of a coin.
+These 3 goals combined motivate the use of specific tools and data structures, which have significant impact on the wallet. Below we describe what they are, and how they are used thorough the lifecycle of a coin.
 
 ### Non-interactive zero knowledge proofs of knowledge (NIZK)
 
-They provide one, but crucial capability - prove certain computation was performed according to predefined rules, without revealing private data inputs. This means that eventually transaction can contain only the zero-knowledge proof about all the data (including private one) used to build the transaction and some additional data, which has to be public in order to properly evolve the ledger state and allow it to verify future transactions. And that after transaction is submitted - there is no need for additional interaction in order to verify transaction validity.
+They provide a single but crucial capability - prove that a certain computation was performed according to predefined rules, without revealing any private data inputs and without the need for additional interaction to verify the transaction validity. This means that eventually a transaction can contain only the zero-knowledge proof about all the data (including private data) used to build the transaction and some additional data, which must be public to properly evolve the ledger state and allow the verification of future transactions.
 
 The predefined rules encoded in the proofs are:
-- sender has the right to spend coins provided as inputs
-- the transaction contains only specific inputs and outputs
-- auxiliary data for preventing unbalanced spends (see [Coin nullifiers and commitments](#coin-nullifiers-and-commitments))
+- The sender has the right to spend the coins provided as inputs.
+- The transaction contains only specific inputs and outputs.
+- auxiliary data for preventing unbalanced spends (see [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)) [TODO: is bullet a rule?]
 
 ### Coin nullifiers and commitments
 
-Inputs and outputs of a transaction can be thought as exchanging banknotes - each has its (secret) serial number (nonce), currency (type) and value. But the goal is to exchange them while maintaining privacy, so nonce, type, and value should not be publicly available, and at the same time - ledger needs to be assured no tokens are created out of thin air. 
+The inputs and outputs of a transaction can be thought of as exchanging banknotes - each has its (secret) serial number (nonce), currency (type) and value. But the goal is to exchange them while maintaining privacy, so the nonce, type, and value should not be publicly available. At the same time, the ledger needs to ensure that no tokens are created out of thin air.
 
-The zero-knowledge proof can assure ledger that no new tokens are created in a transaction - that for each token type the value in inputs covers the value in outputs up to a certain, publicly known imbalance, which is the difference between value from outputs and value from inputs. Having this assertion in place, what is left, is to ensure that:
-- no coin is ever used twice (double spend)
-- coin was indeed created in an earlier transaction
+The zero-knowledge proof ensures the ledger that:
+- No new tokens are created in a transaction.
+- For each token type, the value in the inputs covers the value in the outputs up to a certain, publicly known imbalance, which is the difference between value from outputs and value from inputs.
 
-Preventing double spends is achieved using _nullifiers_ - these are hashes, which take as input: coin (value, type and nonce) and sender secret key. Involvement of sender secret key allows only sender to calculate nullifier that will match the one encoded in a proof, while the whole coin makes each nullifier unique for that coin. Ledger keeps track of nullifiers in a set data structure, so that whenever an input provides a nullifier, which already is known to ledger - it means the transaction should be rejected, because a double spend attempt is taking place.
+If the conditions above are met, the ledger still needs to ensure that:
+- No coin is ever used twice (double spend).
+- Any spent coin was created in an earlier transaction.
 
-Ensuring that coin was earlier created as an output is slightly more involved. Firstly, it requires a function to calculate value called coin commitment. This function takes coin as an input, together with receiver address. This allows both sender and receiver to calculate the same value, but no one else (because coin nonce is secret). Each output to the transaction has the commitment publicly readable, and ledger tracks them in a data structure called Merkle tree, which allows to generate a succinct proof that a value is stored in the tree. Such proof needs to be provided when spending a coin. If the proof leads to a tree root, which ledger did not register - it means the coin being spent was not created in a transaction known to the ledger.
+Preventing double spending is achieved using _nullifiers_. A nullifier is a hash, which take as input the coin (value, type and nonce) and sender secret key. The sender secret key allows only the sender to calculate the nullifier that will match the one encoded in a proof, while the whole coin makes each nullifier unique for that coin. The ledger keeps track of the nullifiers in a set. Whenever an input provides a nullifier already is known to ledger, the transaction should be rejected, because a double spend attempt is taking place.
+
+Ensuring that a coin was created as an output at some early point in time is slightly more involved. Firstly, it requires a function to calculate a value called coin commitment. This function takes a coin as an input, together with the receiver address. This allows both the sender and the receiver to calculate the same value, but no one else (because the coin nonce is secret). Each output to the transaction has the commitment publicly readable, and ledger tracks them in a Merkle tree, which allows to generate a succinct proof that a value is stored in the tree. Such a proof needs to be provided when spending a coin. If the proof leads to a tree root that the ledger did not register - it means the coin being spent was not created in a transaction known to the ledger.
 
 ### Binding randomness
 
-Many other protocols make use of signature schemes to prevent transaction malleability and prove credentials to issue transaction. To enable atomic swaps, ultimately needed are (at least) 2 parties, which create matching offers, which eventually are combined into a single transaction or executed within a single transaction. The approach Zswap is taking to enable atomic swaps is by allowing controlled malleability - namely merging transactions. But this means known signature schemes can not be used as they prevent malleability completely. It is already not needed to prove credentials to issue transaction - each input and output has relevant zero-knowledge proof attached. 
+Many other protocols make use of signature schemes to prevent transaction malleability and verify the credentials used to issue a transaction. To enable atomic swaps, we ultimately need (at least) 2 parties, which create matching offers, which eventually are combined into a single transaction or executed within a single transaction. The approach Zswap takes to enable atomic swaps is to allow for _controlled malleability_, which essentially entails the ability to merge transactions. However, this implies that known signature schemes cannot be used, as they completely prevent malleability.
+Note that in the Zwap scheme, it not necessary to provide credentials to issue a transaction since each input and output has relevant zero-knowledge proofs attached.
 
-It is enabled by a construction called _sparse homomorphic commitment_, which is built from 3 functions:
-1. for calculating a value commitment for a set consisting of pairs of coin type and value, and additional random element called randomness
-2. for combining the value commitments
-3. for combining the randomnesses
+Controlled malleability is enabled by a construction called _sparse homomorphic commitment_, which is built from 3 functions:
+1. A function for calculating a value commitment for a set of pairs of the form `((t, v), r)`, representing the coin type, value, and additional random element called randomness, respectively.
+2. A function for combining the value commitments.
+3. A functions for combining the randomness.
 
-These functions are carefully selected so that together they provide a really nice properties:
-- combining commitments is equal to calculating a commitment for a set being a sum of sets provided to combined commitments and randomnesses combined too, that is: $commitment(s1, r1) \oplus commitment(s2, r2) = commitment(s1 \cup s2, r1 \circ r2)$
-- commitment for a coin when value is equal 0 is equal to a commitment of an empty set: $commitment((0, x), r) = commitment(\emptyset, r)$
+These functions are carefully selected so that together they provide useful properties for the _controlled malleability_ goal:
+- Given a set of commitments $s1$ and $s2$, and randomness $r1$ and $r2$, the commitment for $(s1 cup s2 , r1 circ r2)$ can be calculated by combining the commitment for $(s1 , r1)$ and the commitment for $(s2 , r2)$, that is: $commitment(s1, r1) \oplus commitment(s2, r2) = commitment(s1 \cup s2, r1 \circ r2)$
+- The commitment for a coin with value 0 is equal to a commitment of an empty set: $commitment((0, x), r) = commitment(\emptyset, r)$
+[TODO: what's the type of $commitment$?, shouldn't the first argument be a set?]
 
-With such scheme in place one can do the following: 
-- attach the commitment to each input and output as well as calculate it in its proof (so that proof binds the input or output it is attached to)
-- combine randomnesses of all inputs and outputs and attach it to the transaction
-- attach to transaction imbalances of each token type
+With such scheme in place one can do the following:
+- Attach the commitment to each input and output as well as calculate it in its proof (so that proof binds the input or output it is attached to).
+- Combine the randomness of all inputs and outputs and attach it to the transaction.
+- Attach [TODO: what?] to transaction imbalances of each token type.
 
-This allows to ensure that transaction was not tampered with, because resulting combination of commitments of all inputs, outputs and imbalances needs to be equal to commitment of an empty set with transaction randomness, if they differ - it means transaction was tampered with. And, because it is known how to combine both commitments and randomnesses, it is possible to merge two transactions into one and still make this check pass. 
+This ensures that a transaction was not tampered with, because the resulting combination of commitments of all inputs, outputs and imbalances needs to be equal to commitment of an empty set with the transaction randomness, if they differ - it means that the transaction was tampered with. And, because we have a way to combine commitments and randomness, it is possible to merge two transactions into one and still make this check pass.
 
 ### Output encryption and blockchain scanning
 
-With just zero-knowledge proof no additional interaction is needed to verify transaction, but there is no way for the receiver to know, that there exists a transaction, which contains a coin meant for them. Attaching any identifier would end up with not meeting privacy goal, for that reason outputs can have attached coin details, encrypted with receiver's public key. So that in a pursuit in lack of interaction, one can scan a blockchain transaction outputs for ones that decrypt successfully with own private key.
+With just a zero-knowledge proof no additional interaction is needed to verify a transaction. However, the receiver cannot know that there is a transaction that contains a coin which belongs to them. Attaching any identifier to the coin would violate the privacy requirement, for that reason outputs can have attached coin details, encrypted with receiver's public key. [TODO: how are the two things in the following sentence related?: "So that in a pursuit in lack of interaction, one can scan a blockchain transaction outputs for ones that decrypt successfully with own private key."]
 
 ### Summary
 
-Zswap reaches its goals of maintaining privacy using a non-interactive protocol and allowing swaps through a combination of zero-knowledge technology, coin nullifiers and Merkle tree of coin commitments tracked by ledger, sparse homomorphic commitments and output encryption. This indicates high level goals of wallet software for Midnight, which need to be met in order to be able to create a transaction, that will be accepted by Midnight's ledger:
-- generate proper zero-knowledge proofs
-- track coin lifecycle to prevent double spends
-- keep access to an up-to-date view on the Merkle tree of coin commitments, which allows to generate inclusion proofs for coins owned by particular wallet instance
-- derive relevant keys
-- calculate nullifiers, coin commitments, value commitments as well as combine them accordingly
-- encrypt and decrypt outputs
-- scan blockchain transactions for own outputs
+Zswap reaches its goals of maintaining privacy using a non-interactive protocol and allowing swaps through a combination of zero-knowledge technology, a Merkle tree of coin nullifiers and commitments tracked by the ledger, sparse homomorphic commitments, and output encryption.
+
+These are the high-level goals of any wallet software for Midnight, which need to be met in order to be able to create a transaction that will be accepted by Midnight's ledger:
+- Generate proper zero-knowledge proofs.
+- Track the coin lifecycle to prevent double spending.
+- Keep access to an up-to-date view of the Merkle tree of coin commitments, which allows to generate inclusion proofs for coins owned by particular wallet instance.
+- Derive relevant keys.
+- Calculate nullifiers, coin commitments, value commitments as well as combine them accordingly.
+- Encrypt and decrypt outputs.
+- Scan blockchain transactions for outputs that are owned by the keys controlled by the wallet.
 
 ## Key management
 
-In order to support operations mentioned in the [introduction](#introduction), wallet needs to generate and maintain number of keys. Additionally, there are existing standards related to key management, which wallets tends to follow for maintaining consistent user experience and portability of keys. Depending on exact feature - different cryptographic algorithms are used, which rises need to use a different type of key, as well as a different way of generating the key, to be used only for that feature.
+To support the operations mentioned in the [introduction](#introduction), the wallet needs to generate and maintain a number of keys. Additionally, there are existing standards for key management, which wallets tend to follow for maintaining a consistent user experience and enabling the portability of keys. Depending on the exact feature, different cryptographic algorithms are used, which requires the use of a different type of keys, as well as a different way of generating the these keys, to be used only for that feature.
+[TODO: should we give some examples of what these features are?]
 
 ### HD Wallet structure
 
-To allow deterministic derivation of keys for different features, Midnight follows algorithms and structure being a mix of [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) and [CIP-1852](https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/README.md). Specifically, derivation follows BIP-32, and following path for a key pair is used:
+To allow deterministic derivation of keys for different features, Midnight uses algorithms and data structures taken from [BIP-32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki), [BIP-44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) and [CIP-1852](https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/README.md). Specifically, the key derivation follows BIP-32, and the following path for a key pair is used:
 ```
 m / purpose' / coin_type' / account' / role / index
 ```
@@ -171,19 +181,20 @@ Where:
 
 
 > [!NOTE]
-> `role` and `index` path levels use public derivation for BIP-44 compatibility. For many keys it will not be possible to meaningfully perform public parent key -> public child key derivation. In many cases it is only the secret key at certain path used to further derive keys specific for particular purpose.
-> 
-> Generally treating keys as uniform bitstrings should not be done, though in this particular case, where secp256k1 base field is so close in size to 2^256, it is found that impact on security is negligible, which makes this approach acceptable.
+> `role` and `index` path levels use public derivation for BIP-44 compatibility. For many keys it will not be possible to meaningfully perform public parent key -> public child key derivation. In many cases, only the secret key at certain path is used derive additional keys, which are specific for a particular purpose.
+>
+> In general, treating keys as uniform bitstrings should not be done, though in this particular case, where `secp256k1` base field is so close in size to `2^256`, the impact on security is negligible, which makes this approach acceptable.
 
 ### Night keys
 
-Night uses Schnorr signature over secp256k1 curve.
+Night uses Schnorr signature over the `secp256k1` curve.
 
 That makes a private key derived at certain path, the private key for Night. The public key being derived accordingly, e.g. as specified in [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)
 
 ### Dust keys
 
-Dust uses SNARK-friendly cryptography, where the secret key is an element of the main curve's (Pluto) scalar field, and public key a Poseidon hash of the secret key (so it is also an element of the scalar field). A Dust secret key is derived using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 8, and domain separator being `midnight:dsk`. That is:
+Dust uses SNARK-friendly cryptography, where the secret key is an element of the main curve's (Pluto) scalar field, and the public key is a Poseidon hash of the secret key (so it is also an element of the scalar field). A Dust secret key is derived using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal to 8, and the domain separator being `midnight:dsk`. That is:
+
 ```ts
 function dustSecretKey(seed: Buffer): BigInt {
     return sampledSecretKey(seed, "midnight:dsk", 8, PlutoScalar);
@@ -196,24 +207,24 @@ function dustSecretKey(seed: Buffer): BigInt {
 
 #### Zswap seed
 
-A secret 32 bytes, which allow to generate all the other Zswap keys. Rest of key generation is outlined below. In HD structure, Zswap seed is obtained as a secret key derived at certain path.
+The Zswap seed is 32 bytes long. It allows to generate all the other Zswap keys. The rest of the key generation procedure is outlined below. In the HD structure, the Zswap seed is obtained as a secret key derived at certain path.
 
 #### Output encryption keys
 
-Encryption secret key is an element of the embedded curve's (Eris) scalar field, generated using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 8, and domain separator being `midnight:esk`. That is:
+Encryption secret key is an element of the embedded curve's (Eris) scalar field, generated using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal to 8, and the domain separator being `midnight:esk`. That is:
 ```ts
 function encryptionSecretKey(seed: Buffer): BigInt {
     return sampledSecretKey(seed, "midnight:esk", 8, ErisScalar);
 }
 ```
 
-Although it is a secret key, so it should be treated with a special care, there is one situation, where it can be shared - as a key letting a trusted backend service index wallet transactions - in such context it acts as a viewing key.
+Although it is a secret key, so it should be treated with special care, there is one situation where it can be shared: as a key letting a trusted backend service index wallet transactions. In such a context, it acts as a viewing key.
 
-Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the Eris curve), that is $esk \cdot G$, where $G$ is Eris's generator point and $esk$ the encryption secret key.
+The encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the Eris curve), that is $esk \cdot G$, where $G$ is Eris's generator point and $esk$ the encryption secret key.
 
 #### Coin keys
 
-Coin secret key is 32 random bytes, generated as a SHA-256 hash of seed with domain separator "midnight:csk". Through coin commitment calculation in a zero-knowledge proof it is a credential to rights to spend particular coin.
+The coin secret key is 32 random bytes long, generated as a SHA-256 hash of a seed with domain separator "midnight:csk". [TODO: this sentence might be a bit unclear: "Through coin commitment calculation in a zero-knowledge proof it is a credential to rights to spend particular coin."]
 
 Coin public key is 32 bytes calculated as SHA-256 hash of coin secret key suffixed with domain separator `mdn:pk`, that is (in a TS pseudocode):
 
@@ -226,17 +237,17 @@ function coinPublicKey (coinSecretKey: Buffer): Buffer {
 
 #### Address
 
-Since coin ownership and output encryption are separated and use different keys, address contains both components as a concatenation of a base16-encoded coin public key, pipe sign (`|`) and base16-serialized encryption public key.
+Since coin ownership and output encryption are separated and use different keys, an address contains both components as a concatenation of a base16-encoded coin public key, denoted with the pipe sign (`|`) and base16-serialized encryption public key.
 
-Such built address can be sent to other parties, and the sender wallet can easily extract both components by splitting at `|` character.
+Such built address can be sent to other parties, and the sender wallet can easily extract both components by splitting at the `|` character.
 
 ### Metadata keys
 
-Similarly to Night, metadata signing uses Schnorr signatures over secp256k1 curve, thus a private key derived at a path is a private key for signature, with public key being derived accordingly for Schnorr (e.g. as specified in [BIP-0340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)).
+Similarly to Night, metadata signing uses Schnorr signatures over a `secp256k1` curve, thus a private key derived at a path is a private key for that signature, with a public key being derived accordingly for Schnorr (e.g. as specified in [BIP-0340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)).
 
 ### Scalar sampling
 
-Zswap and Dust keys require sampling a scalar value out of uniform bytes. The procedure to follow is the same for both, with some details specific to a key and curve it is related to. It iteratively hashes provided bytes with a domain separator until a certain number of bytes is reached (enough to represent every number on the scalar field plus couple more to have more uniform output[^1]). Resulting byte sequence is interpreted to scalar assuming a little-endian layout and taken modulo the field prime. In naive pseudocode (simplifying for readability):
+Zswap and Dust keys require sampling a scalar value out of uniform bytes. The procedure to follow is the same for both, with some details specific to the key and curve it is related to. It iteratively hashes the provided bytes with a domain separator until a certain number of bytes is reached (enough to represent every number on the scalar field plus couple more to have more uniform output[^1]). The resulting byte sequence is interpreted as a scalar assuming a little-endian layout and taken modulo the field prime. In naive pseudocode (simplified for readability):
 ```ts
 function toScalar(bytes: Buffer): BigInt {
     return BigInt(`0x${Buffer.from(bytes).reverse().toString('hex')}`);
@@ -264,14 +275,15 @@ function sampledSecretKey(seed: Buffer, domainSeparator: string, bytesMargin: nu
 
 Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) as an address format.
 
-The human-readable part should consist of 3 parts, separated by underscore:
-- constant `mn` indicating it is a Midnight address
-- type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
-- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present. Following approach should be used to map ledger's `NetworkId` enum into network identifier:
+The human-readable part should consist of 3 parts, separated by an underscore:
+- A constant `mn` indicating it is a Midnight address.
+- The type of credential encoded as `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and the hyphen symbol are allowed. The hyphen allows for the use multiple segments in the credential name, simplifying parsing and validation.
+- The network identifier, which is an arbitrary string consisting of alphanumeric characters and hyphens, identifying the network. The hyphen allows for the use of multiple segments in network identifier, simplifying parsing and validation.
+For mainnet the network identifier has to be omitted. For other networks it needs to be present. The following list defines how the ledger's `NetworkId` enum should be mapped to the network identifier:
   - mainnet - no prefix
   - testnet - "test"
   - devnet - "dev"
-  - undeployed - "undeployed" 
+  - undeployed - "undeployed"
 
 ### Unshielded Payment address
 
@@ -279,11 +291,11 @@ Currently undefined, it is designated as a primary payment address in the networ
 
 Its credential type is `addr`.
 
-Example human-readable parts:
-- for the mainnet: `mn_addr`
-- for the testnet: `mn_addr_test`
-- for a testing environment: `mn_addr_testing-env`
-- for local development environment: `mn_addr_dev`
+Example of the human-readable parts:
+- For the mainnet: `mn_addr`
+- For the testnet: `mn_addr_test`
+- For a testing environment: `mn_addr_testing-env`
+- For local development environment: `mn_addr_dev`
 
 ### Dust address
 
@@ -295,44 +307,46 @@ Its credential type is `dust-addr`.
 
 It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption public key (59 bytes).
 
-NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
+NOTE: in its current form and usage this address structure is prone to malleability, where attacker replaces the coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of the assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
 
 Its credential type is `shield-addr`.
 
-Example human-readable parts:
-- for the mainnet: `mn_shield-addr`
-- for the testnet: `mn_shield-addr_test`
-- for a testing environment: `mn_shield-addr_testing-env`
-- for local development environment: `mn_shield-addr_dev`
+Example of the human-readable parts:
+- For the mainnet: `mn_shield-addr`
+- For the testnet: `mn_shield-addr_test`
+- For a testing environment: `mn_shield-addr_testing-env`
+- For local development environment: `mn_shield-addr_dev`
 
 ### Shielded Coin public key
 
 32 bytes of the public key.
-Credential type is `shield-cpk`.
+The credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-serialized encryption secret key: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes, ) 
-Credential type is `shield-esk`
+Ledger-serialized encryption secret key: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes). The credential type is `shield-esk`
 
 ## Transaction structure and statuses
 
 Midnight transaction includes 3 components:
-1. guaranteed Zswap offer
-2. (optional) fallible Zswap offer
-3. (optional) list of contract calls and deploys
+1. A guaranteed Zswap offer.
+2. An _optional_ fallible Zswap offer.
+3. An _optional_ list of contract calls and deployments.
 
-Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs and transients. It also tracks token imbalances, because finalized offer does not contain information about coins values. The split into guaranteed and fallible offers is related to contracts and paying fees - guaranteed offer is applied first and needs to succeed for transaction to succeed at all, this offer needs to cover transaction fees. Then fallible offer is applied, which may fail, or may succeed, together with contract part. Because Midnight Node might include in a block transaction, which failed execution, there are 3 possible statuses to derive:
-- success - in which case all present components of transaction were successfully applied by ledger
-- partial success - when only guaranteed offer was successfully applied
-- failure - when even the guaranteed offer failed
+Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs and transients. It also tracks token imbalances because a finalized offer does not contain information about coins values. The split into guaranteed and fallible offers is related to contracts and paying fees: a guaranteed offer is applied first and needs to succeed for the transaction to succeed. This offer needs to cover the transaction fees. The fallible offer is applied next, which may fail. Finally the contract part is applied [TODO: can this part fail as well?].
+[TODO: I do not understand this sentence: "Because Midnight Node might include in a block transaction, which failed execution".]
+When trying to apply a transaction, there are three possible outcomes:
+- Success: if the ledger could successfully apply the all components of transaction.
+- Partial success: if the ledger could successfully apply only the guaranteed offer.
+- Failure: if the ledger could not successfully apply the guaranteed offer. [TODO: I guess in this case we do not care whether the other parts could be applied]
 
-Offer input represents a coin spent in a transaction. It contains:
-- coin nullifier
-- value commitment
-- root of a coin commitment tree expected to be a result of a merkle proof
-- zero-knowledge spend proof
-- optionally, contract address, if contract is providing the input.
+The offer's input represents the coin spent in a transaction. It contains:
+- The coin nullifier.
+- The value commitment.
+- The root of a coin commitment Merkle tree, which is expected to be the result of a Merkle proof [TODO: can we say that "The coin commitment is expected to be included in the tree whose root
+is specified"].
+- A zero-knowledge spend proof.
+- An optional contract address, if the contract is providing the input.
 
 Offer output represents coin received in a transaction. It contains:
 - coin commitment
@@ -347,13 +361,13 @@ Transients are an extension needed mostly for contract execution - they are inte
 - input value commitment
 - output value commitment
 - optionally, coin ciphertext,
-- optionally, contract address, if a contract received the original coin 
+- optionally, contract address, if a contract received the original coin
 
 Transaction hash is not a reliable identifier of a Midnight transaction because it is possible for transaction to be merged with another one. Instead, any value commitment can be used - they are part of transaction data and remain unchanged when transactions are merged.
 
 ## State management
 
-Wallet has a state, which needs accurate maintenance in order to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
+Wallet has a state, which needs accurate maintenance to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
 - keys
 - set of known coins
 - coin commitment Merkle tree
@@ -363,8 +377,8 @@ Additionally, it is in practice important to track progress of synchronization w
 There are 6 foundational operations defined, which should be atomic to whole wallet state:
 - `apply_transaction(transaction, status, expected_root)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming transactions
 - `finalize_transaction(transaction)` - which marks transaction as final according to consensus rules
-- `rollback_last_transaction` - which reverts effects of applying last transaction 
-- `discard_transaction(transaction)` - which considers a pending transaction irreversibly failed  
+- `rollback_last_transaction` - which reverts effects of applying last transaction
+- `discard_transaction(transaction)` - which considers a pending transaction irreversibly failed
 - `spend(coins_to_spend, new_coins)` - which spends coins in a new transaction
 - `watch_for(coin)` - which adds a coin to explicitly watch for
 
@@ -397,7 +411,7 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for an offer are:
 1. Update coin commitment tree with commitments of outputs and transients present in the offer
 2. Verify obtained coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
-3. Book coins, whose nullifiers match the ones present in offer inputs 
+3. Book coins, whose nullifiers match the ones present in offer inputs
 4. Watch for received coins, for each output:
    1. Match commitment with set of pending coins, if it is a match, mark coin as confirmed
    2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
@@ -409,7 +423,7 @@ If transaction history is tracked and transaction is found relevant, an entry sh
 
 #### `finalize_transaction`
 
-Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide definitive information about finalization, thus there is no need to implement probabilistic rules. It is expected wallet state has already applied provided transaction. 
+Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide definitive information about finalization, thus there is no need to implement probabilistic rules. It is expected wallet state has already applied provided transaction.
 This operation needs to:
 1. Mark coin commitment tree state from that transaction as final
 2. Update status of known coins to final, so that they become part of available balance
@@ -429,11 +443,11 @@ It needs to:
 
 There are a couple of practical considerations:
 - usage of persistent data structures will allow coin commitment tree revert to be as simple as picking an older pointer
-- depending on the APIs for providing blockchain data slightly different input to this operation might be needed for a more efficient implementation; in all cases though handling reorganization is conceptually first - finding relevant range of blocks/transactions to revert, then reverting them and then applying new updates  
+- depending on the APIs for providing blockchain data slightly different input to this operation might be needed for a more efficient implementation; in all cases though handling reorganization is conceptually first - finding relevant range of blocks/transactions to revert, then reverting them and then applying new updates
 
 #### `discard_transaction`
 
-Frees resources related to tracking a transaction considered not relevant anymore due to a reorganization or wallet giving up on submitting one. 
+Frees resources related to tracking a transaction considered not relevant anymore due to a reorganization or wallet giving up on submitting one.
 Following steps need to be taken:
 1. Move transaction to transaction history as failed
 2. Remove coins received in the transaction
@@ -441,7 +455,7 @@ Following steps need to be taken:
 
 #### `spend`
 
-Spend coins in a transaction, either by initiating swap, making transfer or balancing other transaction. Only final coins should be provided as inputs to the transaction. 
+Spend coins in a transaction, either by initiating swap, making transfer or balancing other transaction. Only final coins should be provided as inputs to the transaction.
 
 In certain situations implementation might allow to use confirmed and yet not final coins. Such transaction is bound to fail in case of reorganization because of coin commitment tree root mismatch, so a special care should be put into user experience of managing such transactions.
 
@@ -454,9 +468,9 @@ Following steps need to be taken, from perspective of wallet state:
 
 Watches for a coin whose details are provided. There are limitations, which require usage of this operation to receive coins from contracts.
 
-It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history with "expected" status. 
+It only adds a coin to a pending set, if transaction details are provided too, then such transaction might be added to transaction history with "expected" status.
 
-Note: in many cases such transaction would be requested to be balanced, in such case the final transaction should only be added as pending one. 
+Note: in many cases such transaction would be requested to be balanced, in such case the final transaction should only be added as pending one.
 
 ## Synchronization process
 
@@ -489,7 +503,7 @@ A structured process for building transactions like mentioned above generally ca
 1. Prepare/retrieve transaction with necessary inputs and outputs, which drive the outcome - whether it is a regular transfer, contract call or a swap
 2. (optional) balance the transaction obtained in step #1 - to ensure fees are paid and other inputs provided if needed
 
-Following subsections define the steps needed to perform particular operation of prepare part of transaction. 
+Following subsections define the steps needed to perform particular operation of prepare part of transaction.
 
 ### Building operations
 
@@ -524,7 +538,7 @@ Steps to follow are very similar as in the case of creating input:
 4. calculate input value commitment
 5. calculate Merkle proof of the coin - but using an empty tree with the coin commitment only
 6. generate input zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
-7. return input randomness, output randomness and the transient containing both input data (nullifier, input value commitment, input zero-knowledge proof) and output data (coin commitment, output value commitment, ciphertext, output zero-knowledge proof, no contract address) 
+7. return input randomness, output randomness and the transient containing both input data (nullifier, input value commitment, input zero-knowledge proof) and output data (coin commitment, output value commitment, ciphertext, output zero-knowledge proof, no contract address)
 
 #### Combining inputs, outputs and transients into an offer
 
@@ -535,13 +549,13 @@ When inputs and outputs are ready, they can be combined into a Zswap offer with 
    2. For each token type calculate imbalance as a sum of input values minus sum of output values
    3. Discard imbalances equal zero
    4. Return a map, where keys are token types, and values are their imbalances
-3. Calculate binding randomness - iteratively combine randomnesses of inputs, outputs and transients (both input and output randomness for each)
+3. Calculate binding randomness - iteratively combine randomness of inputs, outputs and transients (both input and output randomness for each)
 4. Return binding randomness and the offer (inputs, outputs, imbalances)
 
 #### Replacing output with a transient
 
 Many use-cases involving transients require replacing an existing output with a transient in an offer. Such operation requires offer, transient, its input randomness and coin information - type and amount. The steps are:
-1. Identify and remove the output to be replaced from output list, one can use output value commitment or coin commitment available in transient as a reference 
+1. Identify and remove the output to be replaced from output list, one can use output value commitment or coin commitment available in transient as a reference
 2. Add transient to transient list, keeping the list sorted
 3. Update the offer's binding randomness, by combining it with provided transient's input randomness
 4. Update the offer's imbalances by increasing the imbalance for a provided coin's type by provided amount
@@ -552,7 +566,7 @@ Given an offer and its binding randomness, a transaction can be created using th
 
 #### Merging with other transaction
 
-Transactions can be merged, by merging their guaranteed offers, fallible offers, contract calls and binding randomnesses.
+Transactions can be merged, by merging their guaranteed offers, fallible offers, contract calls and binding randomness.
 
 ##### Merging offers
 
@@ -580,7 +594,7 @@ Resulting transaction will not be balanced, thus the next step of balancing tran
 
 #### Prepare a swap
 
-Swap can be thought as a specific case of a transfer - with the difference being multiple parties providing inputs and outputs to the transaction. 
+Swap can be thought as a specific case of a transfer - with the difference being multiple parties providing inputs and outputs to the transaction.
 To prepare a swap, one needs to provide what amounts of tokens of certain types one wants to exchange (provide as an input to the swap) for other types of tokens (receive from the swap).
 The transaction that initiates the swap will be a result of:
 1. Creating necessary output for each of token types to be received in the swap
@@ -591,11 +605,11 @@ Resulting transaction will only have outputs to be received defined, with no inp
 
 #### Contract call
 
-Contract calls are prepared by other components than wallet. Once ready, in most cases an unbalanced transaction would be passed to wallet in order to provide necessary inputs and pay fees in the balancing process.
+Contract calls are prepared by other components than wallet. Once ready, in most cases an unbalanced transaction would be passed to wallet to provide necessary inputs and pay fees in the balancing process.
 
 #### Balance transaction
 
-Balancing a transaction is a process of creating a transaction with a counter-offer, so that after merging them both, resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. Particular difficulty in the process is coin selection (out of scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.  
+Balancing a transaction is a process of creating a transaction with a counter-offer, so that after merging them both, resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. Particular difficulty in the process is coin selection (out of scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.
 
 Balancing in the most generic form requires 2 inputs:
 1. The transaction to be balanced
