@@ -1,0 +1,33 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+ipykernel = "*"
+ipython = "*"
+jupyter-client = "*"
+jupyter-core = "*"
+kiwisolver = "*"
+matplotlib = "*"
+matplotlib-inline = "*"
+numpy = "<2"
+packaging = "*"
+pandas = "*"
+pathlib = "*"
+pyparsing = "*"
+python-dateutil = "*"
+pyro-ppl = "*"
+seaborn = "*"
+sympy = "*"
+typing-extensions = "*"
+z3-solver = "*"
+tqdm = "*"
+torch = "*"
+
+[dev-packages]
+black = "*"
+icecream = "*"
+
+[requires]
+python_version = "3.11"
