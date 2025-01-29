@@ -2,7 +2,7 @@
 
 Rob Jones <robert.jones@shielded.io>
 
-28 Jan 2025
+29 Jan 2025
 
 ---
 
@@ -27,14 +27,18 @@ number of faulty nodes.
 3. **Non-Federated Voting Power ($V_{\text{others}}$):**
    - The percentage of voting power held by other nodes (non-federated ones).
 
-4. **Quorum Threshold:** 
+4. Consensus algorithms are generately concerned with ensuring two properties:
+    - **liveness** indicating the ability for the chain to keep making progress.
+    - **safety** indicating that all honest nodes eventually agreed on the state of the chain.
+   
+5. It then follows that in BFT blockchain networks, there are two critical thresholds to consider for liveness and saftety, respectively:
+    - **1/3** for **liveness**: Progress can be made if up to 1/3 of the total nodes are honest. If 1/3 or more nodes are dishonest the network may "halt." These dishonest nodes can refuse to participate, preventing the remaining nodes from achieving the 2/3 supermajority needed for consensus. In this case, the network does not generate invalid transactions; it simply stops producing transactions altogether.
+    - **2/3** for **safety**: Worse-case situation, if dishonest nodes make up 2/3 or more of the total nodes, they can collude to create arbitrary transactions. This is the worst-case scenario, as the network no longer produces accurate transactions but instead generates any transactions the 2/3 dishonest supermajority desires.
+
+6. **Quorum Threshold:** 
    - The minimum percentage of total voting power needed to make decisions (e.g., 66.67%).
-   - **In BFT blockchain networks, there are two critical thresholds to consider:**
-      - **1/3**: If dishonest nodes make up 1/3 or more of the total nodes, the network may "halt." These dishonest nodes can refuse to participate, preventing the remaining nodes from achieving the 2/3 supermajority needed for consensus. In this case, the network does not generate invalid transactions; it simply stops producing transactions altogether.
-      - **2/3**: If dishonest nodes make up 2/3 or more of the total nodes, they can collude to create arbitrary transactions. This is the worst-case scenario, as the network no longer produces accurate transactions but instead generates any transactions the 2/3 dishonest supermajority desires.
 
-
-5. **Purpose of the Formula:**
+7. **Purpose of the Formula:**
     - Ensure that after $f$ federated nodes fail, the remaining federated nodes still have enough voting power to **collectively meet the quorum** when combined with non-federated nodes.
 
 ## Practical Considerations
