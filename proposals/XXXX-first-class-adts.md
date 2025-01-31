@@ -33,7 +33,7 @@ structure) which is a map in the ledger.
 The value of a ledger ADT-typed expression is the key associated with the ledger
 ADT in the heap.  This acts as a reference to the ledger ADT.  Because it's a
 Compact value, it is fully first-class.  When an ADT operation is applied to a
-value of ledger ADT type, there is implicitly a dereferenced via a lookup in the
+value of ledger ADT type, there is implicitly a dereference via a lookup in the
 heap corresponding to the type.
 
 ## The Source Language
@@ -185,7 +185,7 @@ export circuit test(): [Field, Field, Field] {
   swap(c, cell1.read());
   return [heap_Cell<Field>lookup(cell0.read()).read(),
           heap_Cell<Field>lookup(cell1.read()).read(),
-		  heap_Cell<Field>lookup(c).read()];
+          heap_Cell<Field>lookup(c).read()];
 ```
 
 If `cell0` contains 0 and `cell1` contains 1 and we invoke `test`, the result
