@@ -115,7 +115,7 @@ heap_T.insert(a, default<T>);
 The translation `expr[[_]]` operates on Compact expressions looking for ledger
 ADT operation invocations and translating the implicit dereference of the ledger
 ADT value into an explicit one.  We write `expr*[[_]]` to indicate mapping this
-translation over a sequence of expressionsl
+translation over a sequence of expressions.
 
 The translation recurs into expressions, simply translating the subterms using
 `expr[[_]]` itself with the exceptions below:
