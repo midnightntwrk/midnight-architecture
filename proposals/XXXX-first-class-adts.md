@@ -39,7 +39,7 @@ heap corresponding to the type.
 ## The Source Language
 
 Because Compact does not currently have first-class ADTs, calls to `read` on
-ledger `Cell` types are implicit, and assignment expressions are used as
+ledger `Cell` types can be implicit, and assignment expressions can be used as
 shorthand for calls to `write` on ledger `Cell`s.  In the presence of
 first-class ADTs these will be ambiguous.  For this reason we consider a source
 language where ledger `Cell` reads and writes are explicit (in the form of calls
@@ -47,9 +47,9 @@ to the `read` and `write` operations).  For clarity, we use a fully
 type-annotated source language in examples, though this is not necessary.
 
 The source language is then extended so that ledger ADT types are Compact types
-and can appear wherever Compact types can appear in the language.  Expressions
-with ledger ADT types can appear anywhere (not just as the ADT subexpression in
-a ledger ADT operation expression).
+and can appear wherever Compact types can appear.  Expressions with ledger ADT
+types can appear anywhere expressions can appear (and not just as the ADT
+subexpression in a ledger ADT operation expression).
 
 ## Collecting First-class Ledger ADT Types
 
