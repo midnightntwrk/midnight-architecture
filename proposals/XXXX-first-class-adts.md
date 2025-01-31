@@ -73,7 +73,8 @@ constructor, and a translation on expressions.  We describe each of them below.
 
 ### Types
 
-The translation `type[[_]]` operates on Compact and ledger ADT types.
+The translation `type[[_]]` operates on Compact and ledger ADT types.  We write
+`type*[[_]]` to indicate mapping this translation of a sequence of types.
 
 If the type is a first-class ledger ADT type in the collected set, it is
 replaced with `Addr`, which is a builtin Compact type we have introduced for the
@@ -91,8 +92,10 @@ will write this field with name `heap_T`, e.g., for `Cell<Field>` we will write
 `heap_Cell<Field>` even though this is not a valid Compact identifier that a
 programmer could write.
 
-The type of this field is `Map<Addr, type[[T]]>`.  That is, the value type is
-translated using the type translation described above.
+For a non-generic ledger ADT type `T`, the type of this field is `Map<Addr, T>`.
+For a generic ledger ADT type `T<T*, ...>`, the type of this field is
+`Map<Addr,T<type*[[T*]],...>`.  That is, the subterms of the value type are
+translated using the type translation above.
 
 We need the ability to allocate keys for these maps.  We assume a nullary
 generic ledger kernel operation `allocate`,
@@ -101,13 +104,13 @@ e.g. `kernel.allocate<Cell<Field>>()` will return a value of type `Addr`.
 If there is no constructor, we introduce one.  In the constructor, before any
 other code, we add allocation and initialization for all the ledger fields with
 first-class ledger ADT types (i.e., types in the collected set which are `Addr`
-after the translation).  For a field `f` and type `T`, we introduce a fresh
-identifier `a` and add the statements:
+after the translation).  For a field `f` and type `T`, where the value type of
+`heap_T` is `V`, we introduce a fresh identifier `a` and add the statements:
 
 ```
 const a: Addr = kernel.allocate<T>();
 f.write(a);
-heap_T.insert(a, default<T>);
+heap_T.insert(a, default<V>);
 ```
 
 ### Expressions
@@ -127,7 +130,24 @@ The translation recurs into expressions, simply translating the subterms using
   `e.op(e*,...)` where the type `T` of `e` is in the collected set and `op` is
   an ADT operation) it produces `heap_T.lookup(expr[[e]]).op(expr*[[e*]],...)`.
 
+- When it encounters `default<T>` where `T` is a ledger ADT type in the
+  collected set, this represents the dynamic memory allocation of a first class
+  value of type `T` *[KSM: except as a value inserted in a `Map` with a ledger
+  ADT value type, how to describe this in a simple way?]*  This is translated as
+  the expression:
+  ```
+  (addr) => {
+     heap_T.insert(addr,default<T>);
+	 return addr;
+  }(kernel.allocate<T>())
+  ```
+  This is simply a `let` binding.  In reality the translation can be done on an
+  IR that includes `let`.  As a source-to-source translation in the examples we
+  will use `const` binding when `default` occurs in a suitable context.
+
 ## Examples
+
+### Swapping arbitrary ledger cells
 
 Here is a program in the source language which swaps the values in a pair of
 ledger cells:
@@ -191,3 +211,78 @@ export circuit test(): [Field, Field, Field] {
 If `cell0` contains 0 and `cell1` contains 1 and we invoke `test`, the result
 will be `[1,0,1]`, illustrating that the reference `c` is an alias to the
 reference `cell0` (they are the same heap map key).
+
+### Passing lists of cells, dynamic allocation
+
+Here is a program that has a list of cells which can be passed to a circuit.
+
+```
+import CompactStandardLibrary;
+
+ledger list: List<Cell<Field>>;
+
+circuit swapTwo(ls: List<Cell<Field>>): [] {
+  const fst: Cell<Field> = ls.head().value;
+  ls.pop_front();
+  const snd: Cell<Field> = ls.head().value;
+  ls.pop_front();
+  ls.push_front(fst);
+  ls.push_front(snd);
+}
+
+export circuit test(): [] {
+  const x0: Cell<Field> = default<Cell<Field>>;
+  x0.write(0);
+  list.push_front(x0);
+  const x1: Cell<Field> = default<Cell<Field>>;
+  x1.write(1);
+  list.push_front(x1);
+  swapTwo(list);
+}
+```
+
+The collected set contains `List<Cell<Field>>` because it is used as the
+parameter type in `swapTwo`, and it contains `Cell<Field>` because it is a
+subterm in `List<Cell<Field>>` (where only Compact types are currently allowed)
+and also because it is used on `const` type annotations.
+
+The translation will therefore have a pair of heaps:
+
+```
+import CompactStandardLibrary;
+
+ledger list: Addr;
+
+ledger heap_List<Cell<Field>>: Map<Addr, List<Addr>>;
+ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
+
+constructor() {
+  const a0: Addr = kernel.allocate<List<Cell<Field>>();
+  list.write(a0);
+  heap_List<Cell<Field>>.insert(default<List<Addr>>);
+}
+
+circuit swapTwo(ls: Addr): [] {
+  const fst: Addr = heap_List<Cell<Field>>.lookup(ls).head().value;
+  heap_List<Cell<Field>>.lookup(ls).pop_front();
+  const snd: Addr = heap_List<Cell<Field>>.lookup(ls).head().value;
+  heap_List<Cell<Field>>.lookup(ls).pop_front();
+  heap_List<Cell<Field>>.lookup(ls).push_front(fst);
+  heap_List<Cell<Field>>.lookup(ls).push_front(snd);
+}
+
+export circuit test(): [] {
+  const x0: Addr = kernel.allocate<Cell<Field>>();
+  heap_Cell<Field>.insert(x0, default<Cell<Field>>);
+  heap_Cell<Field>.lookup(x0).write(0);
+  heap_List<Cell<Field>>.lookup(list.read()).push_front(x0);
+  const x1: Addr = kernel.allocate<Cell<Field>>();
+  heap_Cell<Field>.insert(x1, default<Cell<Field>>);
+  heap_Cell<Field>.lookup(x1).write(1);
+  heap_List<Cell<Field>>.lookup(list.read()).push_front(x1);
+  swapTwo(list.read());
+}
+```
+
+This example illustrates the dynamic allocation of a pair of ledger cells, which
+survive the transaction by being placed in a list in the ledger.
