@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 # %% [markdown]
-# # Pyro-based fault modeling for blockchain systems
+## Pyro-based fault modeling for blockchain systems
 #
-# **Author**: Rob Jones <robert.jones@shielded.io>
-
 # %%
 import logging
 import time
@@ -19,18 +17,15 @@ import pyro.distributions as dist
 from utils import measure_time
 
 # %% [markdown]
-#
 # ## Monte Carlo Simulations with Fault Injection
 #
-# #### Concept:
+#### Concept:
 #
-# Simulate random faults across nodes to assess the network's resilience. By injecting faults
-# based on predefined probabilities, you can observe how the system behaves under various failure
-# conditions.
+# Simulate random faults across nodes to assess the network's resilience.
+# By injecting faults based on predefined probabilities, you can observe
+# how the system behaves under various failure conditions.
 #
-# #### Implementation:
-#
-
+#### Implementation:
 
 @measure_time
 def monte_carlo_fault_injection(num_nodes, fault_prob, num_iterations):
@@ -115,8 +110,14 @@ def monte_carlo_fault_injection_vectorized(num_nodes, fault_prob, num_iterations
     return failure_rate
 
 
-# %%
-# Parameters
+# %% [markdown]
+#### Run Monte Carlo simulation with parameters:
+# ```python
+# NUM_NODES = 10
+# FAULT_PROB = 0.222
+# NUM_ITERATIONS = 100000
+# ```
+
 NUM_NODES = 10
 FAULT_PROB = 0.222
 NUM_ITERATIONS = 100000
@@ -127,20 +128,22 @@ for f in [monte_carlo_fault_injection, monte_carlo_fault_injection_vectorized]:
 
 
 # %% [markdown]
-# #### Explanation:
+#### Explanation:
 #
-# - **Fault Simulation**: Each node can fail independently with a probability `fault_prob`.
-# - **Consensus Condition**: In BFT systems, if more than a third of the nodes are faulty, consensus can't be
+# - **Fault Simulation**: Each node can fail independently with a probability
+#     `fault_prob`.
+# - **Consensus Condition**: In BFT systems, if more than a third of the nodes
+#     are faulty, consensus can't be
 #     guaranteed.
-# - **Iterations**: Running the simulation multiple times provides a statistical estimate of the failure rate.
+# - **Iterations**: Running the simulation multiple times provides a
+#     statistical estimate of the failure rate.
 #
-# ## Probabilistic Modeling
+#### Concept:
 #
-# #### Concept:
+# Model the number of faulty nodes using a Binomial distribution to calculate
+# the probability of observing a certain number of failures.
 #
-# Model the number of faulty nodes using a Binomial distribution to calculate the probability of observing a certain number of failures.
-#
-# #### Implementation:
+#### Implementation:
 
 
 def binomial_fault_model(num_nodes, fault_prob):
@@ -161,7 +164,7 @@ data = pd.DataFrame(
 )
 data
 # %% [markdown]
-# #### Visualization:
+#### Visualization:
 #
 # Plot the probability mass function to visualize the likelihood of different numbers of faulty nodes.
 #
@@ -180,7 +183,7 @@ plt.show()
 #
 # #### State Diagram:
 #
-# ![Markov Chain State Diagram](code/mc.png)
+# ![Markov Chain State Diagram](docs/mc.png)
 #
 # #### Implementation:
 #
@@ -204,8 +207,14 @@ def markov_chain_model(num_steps, failure_rate, recovery_rate):
 
     return states
 
+# %% [markdown]
+#### Run the Markov chain model with parameters:
+# ```python
+# NUM_STEPS = 50
+# FAILURE_RATE = 0.05
+# RECOVERY_RATE = 0.1
+# ```
 
-# Parameters
 NUM_STEPS = 50
 FAILURE_RATE = 0.05
 RECOVERY_RATE = 0.1
@@ -215,7 +224,8 @@ states = markov_chain_model(NUM_STEPS, FAILURE_RATE, RECOVERY_RATE)
 states
 
 # %% [markdown]
-# #### Analysis:
+#### Analysis:
 #
 # - Track the state transitions over time to understand the system's reliability.
 # - Analyze the steady-state probabilities of being in each state.
+# %%

@@ -28,7 +28,7 @@ from pyro.infer import Importance, EmpiricalMarginal
 import pyro.infer.mcmc as pyromcmc
 from pyro.infer import MCMC, NUTS
 from config_loader import load_config
-
+from utils import measure_time
 
 # %%
 
@@ -157,6 +157,9 @@ def run_simulations(
 
 
 # %%
+
+
+@measure_time
 def main(
     file_path: str,
     output_path: str,
@@ -235,9 +238,6 @@ if __name__ == "__main__":
     print("Group Sizes:", GROUP_SIZES)
     print("R_ws:", R_WS)
 
-    # start time
-    start_time = time.time()
-
     # Run simulation
     main(
         str(FILE_PATH),
@@ -246,9 +246,6 @@ if __name__ == "__main__":
         GROUP_SIZES,
         R_WS,
     )
-
-    stop_time = time.time()
-    logging.info(f"Time taken: {stop_time - start_time:.2f} seconds")
 
 # %% [markdown]
 # ## Understanding the Transition

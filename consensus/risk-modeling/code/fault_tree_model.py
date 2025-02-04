@@ -53,6 +53,7 @@
 # %%
 import logging
 import time
+import functools
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -61,6 +62,11 @@ import torch
 import pyro
 import pyro.distributions as dist
 from utils import measure_time
+from itertools import product
+from multiprocessing import Pool, freeze_support
+
+# Set the random seed for reproducibility
+pyro.set_rng_seed(42)
 
 
 def fault_tree_model(num_federated, num_spos, committee_size):
@@ -68,12 +74,12 @@ def fault_tree_model(num_federated, num_spos, committee_size):
     Simulates a fault tree model for a blockchain network with federated nodes and SPOs.
 
     Args:
-      num_federated (int): The number of federated nodes in the system.
-      num_spos (int): The number of SPOs (Single Point of Failures) in the system.
-      committee_size (int): The size of the committee involved in the simulation.
+        num_federated (int): The number of federated nodes in the system.
+        num_spos (int): The number of SPOs (Single Point of Failures) in the system.
+        committee_size (int): The size of the committee involved in the simulation.
 
     Returns:
-      bool: A boolean indicating whether the system has failed.
+        bool: A boolean indicating whether the system has failed.
     """
     # Total validators
     total_validators = num_federated + num_spos
@@ -145,47 +151,47 @@ def fault_tree_model(num_federated, num_spos, committee_size):
     return system_failure
 
 
-@measure_time
-def simulate_fault_tree(
-    num_iterations,
-    num_federated,
-    num_spos,
-    committee_size,
-):
-    """
-    Simulates the fault tree model to estimate the system failure probability.
-    Args:
-      num_iterations (int): The number of iterations to run the simulation.
-      num_federated (int): The number of federated nodes in the system.
-      num_spos (int): The number of SPOs (Single Point of Failures) in the system.
-      committee_size (int): The size of the committee involved in the simulation.
+# @measure_time
+# def simulate_fault_tree(
+#     num_federated,
+#     num_spos,
+#     committee_size,
+#     num_iterations,
+# ):
+#     """
+#     Simulates the fault tree model to estimate the system failure probability.
+#     Args:
+#         num_federated (int): The number of federated nodes in the system.
+#         num_spos (int): The number of SPOs (Single Point of Failures) in the system.
+#         committee_size (int): The size of the committee involved in the simulation.
+#         num_iterations (int): The number of iterations to run the simulation.
 
-    Returns:
-      None: This function prints the estimated system failure probability.
-    """
-    failures = torch.zeros(num_iterations)
+#     Returns:
+#         None: This function prints the estimated system failure probability.
+#     """
+#     failures = torch.zeros(num_iterations)
 
-    for i in range(num_iterations):
-        failures[i] = fault_tree_model(num_federated, num_spos, committee_size)
+#     for i in range(num_iterations):
+#         failures[i] = fault_tree_model(num_federated, num_spos, committee_size)
 
-    failure_probability = failures.mean().item()
-    print(f"Estimated System Failure Probability: {failure_probability:.6f}")
+#     failure_prob = failures.mean().item()
+#     return failure_prob
 
 
 # %%
-# Run the simulation with the specified parameters
-# Parameters
-NUM_ITERATIONS = 10000
-NUM_FEDERATED_NODES = 5
-NUM_SPOS = 20
-COMMITTEE_SIZE = 10
+# # Run the simulation with the specified parameters
+# # Parameters
+# NUM_ITERATIONS = 10000
+# NUM_FEDERATED_NODES = 5
+# NUM_SPOS = 20
+# COMMITTEE_SIZE = 10
 
-simulate_fault_tree(
-    NUM_ITERATIONS,
-    NUM_FEDERATED_NODES,
-    NUM_SPOS,
-    COMMITTEE_SIZE,
-)
+# simulate_fault_tree(
+#     NUM_FEDERATED_NODES,
+#     NUM_SPOS,
+#     COMMITTEE_SIZE,
+#     NUM_ITERATIONS,
+# )
 
 # %% [markdown]
 ### Explanation of the Model
@@ -261,6 +267,30 @@ simulate_fault_tree(
 #     system_failure = (liveness_failure or safety_failure)
 #                      or network_partition
 #     ```
+# ---
+##### NOTEWORTHY:
+#
+# * In the fault tree, the AND gate represents a scenario where
+# multiple conditions must be met simultaneously for the subsequent event to occur.
+# Specifically, for a Liveness Failure in your blockchain network, two critical conditions
+# need to be satisfied:
+#
+#   1. Node Failures Occur:
+# There must be failures among the nodes in the network—this includes both federated nodes and SPOs.
+#
+#   2. Failure Threshold Exceeded:
+#   The number of faulty nodes exceeds 33% of the committee size.
+#
+# * The Liveness Failure event is triggered when both of these conditions are met,
+# indicating that the network is unable to make progress due to the high proportion
+# of faulty nodes.
+# * The AND gate is placed between the Liveness Failure and the
+# Node Failures to illustrate that both conditions are necessary.
+# * It's not sufficient
+# for some nodes to fail; the system is designed to handle a certain degree of failure.
+# However, when the proportion of faulty nodes surpasses the 33% threshold, the network's
+# ability to maintain liveness is compromised.
+# ---
 #
 ##### 7. Simulation Function
 #
@@ -273,50 +303,112 @@ simulate_fault_tree(
 #     - **`committee_size`:** Number of validators in the committee.
 #
 #
-#### Visualization
+##### 8. Visualization
 #
 # To gain more insight, we can run the simulation multiple times and
 # plot the distribution of failure probabilities under varying conditions.
-#
+
+
 # %%
+# Simulate with multiprocessing
+
+"""
+                  Main Process
+                       |
+         --------------------------------
+        |                                |
+   Trial 1 Process                  Trial 2 Process
+        |                                |
+  run_simulation_trial             run_simulation_trial
+        |                                |
+  Compute Failure Prob             Compute Failure Prob
+        |                                |
+   Returns Result                     Returns Result
+
+"""
 
 
-@measure_time
-def run_simulation_trials(
-    num_trials,
-    num_iterations,
-    num_federated,
-    num_spos,
-    committee_size,
+def run_simulation_trial(args):
+    """Run a single simulation trial.
+
+    Args:
+        num_federated (int): The number of federated nodes in the system.
+        num_spos (int): The number of SPOs (Single Point of Failures) in the system.
+        committee_size (int): The size of the committee involved in the simulation.
+        num_iterations (int): The number of iterations to run the simulation.
+    Returns:
+        float: The failure probability of the system.
+    """
+    num_federated, num_spos, committee_size, num_iterations = args
+
+    failures = torch.zeros(num_iterations)
+    for j in range(num_iterations):
+        failures[j] = fault_tree_model(
+            num_federated,
+            num_spos,
+            committee_size,
+        )
+    failure_prob = failures.mean().item()
+    return failure_prob
+
+
+def run_simulation_trials_parallel(
+    num_federated: list,
+    num_spos: list,
+    committee_size: list,
+    num_iterations: int,
 ):
-    failure_probs = torch.zeros(num_trials)
-    for i in range(num_trials):
-        failures = torch.zeros(num_iterations)
-        for j in range(num_iterations):
-            failures[j] = fault_tree_model(
-                num_federated,
-                num_spos,
-                committee_size,
-            )
-        failure_probs[i] = failures.mean().item()
-    return failure_probs.tolist()
+    """Run multiple simulation trials in parallel.
+
+    Args:
+        num_federated (list): The number of federated nodes in the system.
+        num_spos (list): The number of SPOs (Single Point of Failures) in the system.
+        committee_size (list): The size of the committee involved in the simulation.
+        num_iterations (int): The number of iterations per trial.
+    Returns:
+        List[float]: results is a list of failure probabilities from each trial.
+    """
+    # Run simulations in parallel
+    logging.info("Starting simulation...")
+
+    # Generate simulation arguments
+    simulation_args = list(
+        product(
+            num_federated,
+            num_spos,
+            committee_size,
+            [num_iterations],
+        )
+    )
+
+    with Pool() as pool:
+        results = pool.map(run_simulation_trial, simulation_args)
+
+    logging.info("Simulation complete.")
+
+    # Convert results to a DataFrame
+    results_df = pd.DataFrame(
+        simulation_args,
+        columns=["Num Federated", "Num SPOs", "Committee Size", "Num Iterations"],
+    )
+    results_df["Failure Probability"] = results
+    return results_df
 
 
-# %%
-# Running trials
-NUM_TRIALS = 50
-failure_probabilities = run_simulation_trials(
-    NUM_TRIALS, NUM_ITERATIONS, NUM_FEDERATED_NODES, NUM_SPOS, COMMITTEE_SIZE
-)
+def main():
+    # Example usage
+    NUM_FEDERATED_NODES = [10, 15, 20]
+    NUM_SPOS = [10, 20, 30]
+    COMMITTEE_SIZE = [10, 20, 30]
+    NUM_ITERATIONS = 1000
 
-# %%
-# Plotting
-plt.figure(figsize=(10, 6))
-sns.histplot(failure_probabilities, kde=True)
-plt.title("Distribution of System Failure Probabilities")
-plt.xlabel("Failure Probability")
-plt.ylabel("Frequency")
-plt.show()
+    return run_simulation_trials_parallel(
+        NUM_FEDERATED_NODES,
+        NUM_SPOS,
+        COMMITTEE_SIZE,
+        NUM_ITERATIONS,
+    )
+
 
 # %% [markdown]
 #
@@ -347,3 +439,41 @@ plt.show()
 # enhanced model can help in assessing the resilience of the network and
 # identifying areas for improvement.
 #
+# %%
+if __name__ == "__main__":
+    df = main()
+    print(df)
+
+    # Visualization
+
+    # Heatmap
+    plt.figure(figsize=(12, 8))
+    heatmap_data = df.pivot_table(
+        index="Num Federated", columns="Committee Size", values="Failure Probability"
+    )
+    sns.heatmap(heatmap_data, annot=True, cmap="coolwarm")
+    plt.title("Failure Probability Heatmap")
+    plt.savefig("docs/figs/failure_probability_heatmap.png")
+    plt.show()
+
+    # Pairplot
+    sns.pairplot(df, hue="Num Federated", palette="coolwarm")
+    plt.suptitle("Pairplot of Variables", y=1.02)
+    plt.savefig("docs/figs/pairplot_variables.png")
+    plt.show()
+
+    # Bar Plot
+    plt.figure(figsize=(12, 8))
+    sns.barplot(
+        x="Num Federated",
+        y="Failure Probability",
+        hue="Committee Size",
+        data=df,
+        palette="coolwarm",
+    )
+    plt.title("Failure Probability by Num Federated and Committee Size")
+    plt.savefig("docs/figs/failure_probability_barplot.png")
+    plt.show()
+
+
+# %%

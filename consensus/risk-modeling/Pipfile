@@ -24,6 +24,8 @@ typing-extensions = "*"
 z3-solver = "*"
 tqdm = "*"
 torch = "*"
+nbconvert = "*"
+black = "*"
 
 [dev-packages]
 black = "*"
