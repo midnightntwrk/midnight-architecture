@@ -1,0 +1,59 @@
+digraph FaultTree {
+    rankdir = TB;
+    splines = line;
+    nodesep = 0.5;
+    ranksep = 0.7;
+    edge[fontname = "Helvetica", arrowsize = 0.7];
+    node[shape = rectangle, style = filled, color = "#f0f0f0", fontname = "Helvetica"];
+
+    // Top Event
+    SystemFailure[label = "System Failure", shape = ellipse, style = filled, color = "#ff7f7f", fontsize = 18];
+
+    // Intermediate Events
+    LivenessFailure[label = "Liveness Failure\n(Faulty Nodes > 33%)", shape = ellipse, style = filled, color = "#ffbf80"];
+    SafetyFailure[label = "Safety Failure\n(Malicious Nodes > 33%)", shape = ellipse, style = filled, color = "#ffbf80"];
+    NetworkPartition[label = "Network Partition", shape = box, style = filled, color = "#ffbf80"];
+
+    // Gates
+    OR1[label = "OR", shape = diamond, style = filled, color = "#cccccc", fixedsize = true, width = 0.5];
+    OR2[label = "OR", shape = diamond, style = filled, color = "#cccccc", fixedsize = true, width = 0.5];
+    AND1[label = "AND", shape = circle, style = filled, color = "#cccccc", fixedsize = true, width = 0.4];
+
+    // Basic Events
+    NodeFailures[label = "Node Failures", shape = ellipse, color = "#b3d9ff"];
+    FederatedNodeFailures[label = "Federated Node Failures", shape = box, color = "#b3d9ff"];
+    SPOFailures[label = "SPO Failures", shape = box, color = "#b3d9ff"];
+    MaliciousNodes[label = "Malicious Nodes", shape = box, color = "#b3d9ff"];
+
+    // Connections
+    SystemFailure -> OR1[dir = none];
+
+    OR1 -> LivenessFailure[dir = none];
+    OR1 -> SafetyFailure[dir = none];
+    OR1 -> NetworkPartition[dir = none];
+
+    // Liveness Failure Branch
+    LivenessFailure -> AND1[dir = none];
+    AND1 -> NodeFailures[xlabel = ">33%", fontsize = 12, dir = none];
+
+    NodeFailures -> OR2[dir = none];
+
+    OR2 -> FederatedNodeFailures[dir = none];
+    OR2 -> SPOFailures[dir = none];
+
+    // Safety Failure Branch
+    SafetyFailure -> MaliciousNodes[xlabel = ">33%", fontsize = 12, dir = none];
+
+    // Adjustments for better centering
+    // Place FederatedNodeFailures and SPOFailures directly under OR2
+    { rank = same; FederatedNodeFailures; SPOFailures; }
+    { rank = same; OR2; }
+
+    // Invisible edges to center the bottom nodes under OR2
+    FederatedNodeFailures -> SPOFailures[style = invis];
+    OR2 -> Midpoint[style = invis];
+    Midpoint[shape = point, width = 0];
+
+    // Aesthetics
+    { rank = same; LivenessFailure; SafetyFailure; NetworkPartition; }
+}

@@ -1,0 +1,15 @@
+digraph MarkovChain {
+    rankdir = LR;
+    node[shape = oval, style = rounded, fontsize = 12];
+
+    Healthy -> Degraded[label = "failure_rate", fontsize = 10];
+    Degraded -> Failed[label = "failure_rate", fontsize = 10];
+    Degraded -> Healthy[label = "recovery_rate", fontsize = 10];
+
+    Healthy[label = "Healthy", style = "filled", fillcolor = "#8FBC8F"];
+    Degraded[label = "Degraded", style = "filled", fillcolor = "#FFD700"];
+    Failed[label = "Failed", style = "filled", fillcolor = "#CD5C5C"];
+
+    // Loopback from Failed to itself if needed
+    // Failed -> Failed [ label="stay_failed_rate", fontsize=10 ];
+}
