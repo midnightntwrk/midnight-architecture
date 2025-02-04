@@ -20,17 +20,19 @@ located on Cardano, and "mNIGHT" to refer to NIGHT tokens on Midnight.
 
 Our goal is to create mechanisms that allow cNIGHT owners to manage DUST
 generation.  By default, cNIGHT tokens do not generate DUST.  cNIGHT owner
-should thus be able to enable DUST generation from their tokens.  They should
-have the option to either delegate all of generated DUST to a DUST address on
-Midnight - typically their own - or lease access to DUST generation to someone
-else.  This leasing can be either managed manually by the cNIGHT owner or
-delegated to a broker.  All of these actions must be recorded on Cardano and
-then transferred to Midnight.
+should thus be able to enable DUST generation from their tokens.  As the first
+step, cNIGHT owners should have the option to delegate all of DUST generated
+from their tokens to a DUST address on Midnight.  In the future we will also
+want to allow cNIGHT owners to lease access to DUST generation to someone else.
+This leasing can be either managed manually by the cNIGHT owner or delegated to
+a broker.
 
-Motivation for recording the mappings on Cardano, rather than directly on
-Midnight, is because people who first receive cNIGHT from a glacier drop will
-not own any DUST, and thus would not be able to pay for a delegation on
-Midnight.
+In all cases - either producing DUST for own use or leasing access to DUST
+production to other users - all of the actions taken must be recorded on Cardano
+and then transferred to Midnight.  Motivation for recording the mappings on
+Cardano, rather than directly on Midnight, is because people who first receive
+cNIGHT from a glacier drop will not own any DUST, and thus would not be able to
+pay for a delegation on Midnight.
 
 Scenarios, informally
 ---------------------
@@ -54,6 +56,10 @@ might engage in the following scenarios:
      manage making arrangements with potential buyers on their own.  Therefore,
      they wish to delegate the task of leasing access to DUST production and
      collecting payments to a 3rd party.
+
+**NOTE:** Scenario 2 is a priority and we want to support it at launch.
+Solutions to Scenarios 3 and 4 are independent from solution to Scenario 2.
+These two scenarios can be implemented after Midnight launch.
 
 Personas
 --------
