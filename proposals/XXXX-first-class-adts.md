@@ -413,7 +413,7 @@ ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
 constructor() {
   const a0: Addr = kernel.allocate<List<Cell<Field>>();
   list.write(a0);
-  heap_List<Cell<Field>>.insert(default<List<Addr>>);
+  heap_List<Cell<Field>>.insert(a0, default<List<Addr>>);
 }
 
 circuit swapTwo(ls: Addr): [] {
