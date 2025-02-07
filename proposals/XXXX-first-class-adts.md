@@ -128,8 +128,8 @@ after the translation).  For a field `f` and type `T`, where the value type of
 
 ```
 const a: Addr = kernel.allocate<T>();
-f.write(a);
 heap_T.insert(a, default<V>);
+f.write(a);
 ```
 
 ### Expressions
@@ -207,27 +207,32 @@ ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
 
 constructor() {
   const a0: Addr = kernel.allocate<Cell<Field>>();
-  field0.write(a0);
   heap_Cell<Field>.insert(a0, default<Cell<Field>>);
+  field0.write(a0);  // Reference count for a0 is 1.
   
   const a1: Addr = kernel.allocate<Cell<Field>>();
-  field1.write(a1);
   heap_Cell<Field>.insert(a1, default<Cell<Field>>);
+  field1.write(a1);  // Reference count for a1 is 1.
 }
 
 circuit swap(c0: Addr, c1: Addr): [] {
+  // Reference counts for c0 and c1 are incremented as they come into scope.
   const tmp: Field = heap_Cell<Field>.lookup(c0).read();
   heap_Cell<Field>.lookup(c0).write(heap_Cell<Field>.lookup(c1).read());
   heap_Cell<Field>.lookup(c1).write(tmp);
+  // Reference counts for c0 and c1 are decremented as the go out of scope.
 }
 
 export circuit test(): [Field, Field, Field] {
-  const c: Addr = field0.read();
+  const c: Addr = field0.read();  // Reference count for c is incremented as it
+                                  // comes into scope.
   heap_Cell<Field>.lookup(field0.read()).write(2);
   swap(c, field1.read());
-  return [heap_Cell<Field>.lookup(field0.read()).read(),
-          heap_Cell<Field>.lookup(field1.read()).read(),
-          heap_Cell<Field>.lookup(c).read()];
+  const ret: [heap_Cell<Field>.lookup(field0.read()).read(),
+              heap_Cell<Field>.lookup(field1.read()).read(),
+              heap_Cell<Field>.lookup(c).read()];
+  // Reference count for c is decremented as it goes out of scope.
+  return ret;
 ```
 
 If `field0` contains 0 and `field1` contains 1 and we invoke `test`, the result
@@ -294,20 +299,20 @@ ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
 
 constructor() {
   const a0: Addr = kernel.allocate<Cell<Field>>();
-  field0.write(a0);
   heap_Cell<Field>.insert(a0, default<Cell<Field>>);
+  field0.write(a0);  // Reference count for a0 is 1.
 
   const a1: Addr = kernel.allocate<Cell<Field>>();
-  field1.write(a1);
   heap_Cell<Field>.insert(a1, default<Cell<Field>>);
+  field1.write(a1);  // Reference count for a1 is 1.
 
   const a2: Addr = kernel.allocate<Cell<Field>>();
   heap_Cell<Field>.insert(a2, default<Cell<Field>>);
-  cell0.write(addr);
+  cell0.write(a2);  // Reference count for a2 is 1.
 
   const a3: Addr = kernel.allocate<Cell<Field>>();
   heap_Cell<Field>.insert(a3, default<Cell<Field>>);
-  cell1.write(addr);
+  cell1.write(a3);  // Reference count for a3 is 1.
 }
 
 export circuit fieldToCell(): [] {
@@ -331,7 +336,11 @@ export circuit cellContentsToCellContents(): [] {
 }
 
 export circuit cellToCell(): [] {
+  // Reference count for cell0.read() is decremented.  It can potentially
+  // be reclaimed.
   cell0.write(cell1.read());
+  // Reference count for cell0.read() (== cell1.read()) is incremented
+  // reflecting the aliasing of those two cells.
 }
 ```
 
@@ -358,12 +367,11 @@ translation of the bodies of the first four circuits (moving the cell contents
 around) are identical as we would expect.  For references to `field0` and
 `field1`, there is an extra `read()` inserted by the translation, and for
 references to `cell0` and `cell1` it was already explicit in the source.  Their
-initialization in the constructor is also the same modulo the ordering of
-instructions.  For `field0` and `field1`, the translation of the top-level
-ledger field of type `Cell<Field>` inserts the allocation of an address and
-stores it in the heap mapped to a fresh cell in the heap map.  For `cell0` and
-`cell1`, the allocation of the address is part of the expression
-`default<Cell<Field>>` that occurs in those fields' initializers.
+initialization in the constructor is also the same.  For `field0` and `field1`,
+the translation of the top-level ledger field of type `Cell<Field>` inserts the
+allocation of an address and stores it in the heap mapped to a fresh cell in the
+heap map.  For `cell0` and `cell1`, the allocation of the address is part of the
+expression `default<Cell<Field>>` that occurs in those fields' initializers.
 
 The body of the last circuit demonstrates a capability that isn't available for
 `field0`: `cell0` is a mutable cell in the ledger and the programmer can assign
@@ -418,29 +426,50 @@ ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
 
 constructor() {
   const a0: Addr = kernel.allocate<List<Cell<Field>>();
-  list.write(a0);
   heap_List<Cell<Field>>.insert(a0, default<List<Addr>>);
+  list.write(a0);  // Reference count for a0 is 1.
 }
 
 circuit swapTwo(ls: Addr): [] {
+  // Reference count for ls is incremented as it comes into scope.
   const fst: Addr = heap_List<Cell<Field>>.lookup(ls).head().value;
+  // Reference count for fst is incremented.
   heap_List<Cell<Field>>.lookup(ls).pop_front();
+  // Reference count for the former list head (== fst) is decremented.
+
   const snd: Addr = heap_List<Cell<Field>>.lookup(ls).head().value;
+  // Reference count for snd is incremented.
   heap_List<Cell<Field>>.lookup(ls).pop_front();
+  // Reference count for the former list head (== snd) is decremeneted.
+
   heap_List<Cell<Field>>.lookup(ls).push_front(fst);
+  // Reference count for fst is incremented.  fst and the head of the list.
   heap_List<Cell<Field>>.lookup(ls).push_front(snd);
+  // Reference count for snd is incremented.  snd and the head of the list.
+  // Reference counts for ls, fst, and snd are decremented as they go out of
+  // scope.
 }
 
 export circuit test(): [] {
   const x0: Addr = kernel.allocate<Cell<Field>>();
   heap_Cell<Field>.insert(x0, default<Cell<Field>>);
+  // Reference count for x0 is 1.  x0 is the only reference.
+
   heap_Cell<Field>.lookup(x0).write(0);
   heap_List<Cell<Field>>.lookup(list.read()).push_front(x0);
+  // Reference count for x0 is 2.  x0 and the head of the list.
+
   const x1: Addr = kernel.allocate<Cell<Field>>();
   heap_Cell<Field>.insert(x1, default<Cell<Field>>);
+  // Reference count for x1 is 1.  x1 is the only reference.
+
   heap_Cell<Field>.lookup(x1).write(1);
   heap_List<Cell<Field>>.lookup(list.read()).push_front(x1);
+  // Reference count for x1 is 2.  x1 and the head of the list.
+
   swapTwo(list.read());
+  // Reference counts for x0 and x1 are decremented as they go out of scope.
+  // They are still referenced by the list and therefore not reclaimed.
 }
 ```
 
