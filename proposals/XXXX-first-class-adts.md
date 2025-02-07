@@ -41,15 +41,28 @@ heap corresponding to the type.
 Because Compact does not currently have first-class ADTs, calls to `read` on
 ledger `Cell` types can be implicit, and assignment expressions can be used as
 shorthand for calls to `write` on ledger `Cell`s.  In the presence of
-first-class ADTs these will be ambiguous.  For this reason we consider a source
+first-class ADTs these could be ambiguous.  For this reason we consider a source
 language where ledger `Cell` reads and writes are explicit (in the form of calls
 to the `read` and `write` operations).  For clarity, we use a fully
 type-annotated source language in examples, though this is not necessary.
+
+In Compact, top-level ledger fields with a Compact (not ledger ADT) type `T` are
+implicitly of ledger ADT type `Cell<T>`.  We assume that this is always explicit
+in the source language.
+
+*[TODO: require a constructor and that every field is explicitly initialized in
+the source language, using the appropriate default if there was no original
+initializer.  Update all the examples to include this.  Does it let (or make) us
+modify the translation of the ledger slightly?]*
 
 The source language is then extended so that ledger ADT types are Compact types
 and can appear wherever Compact types can appear.  Expressions with ledger ADT
 types can appear anywhere expressions can appear (and not just as the ADT
 subexpression in a ledger ADT operation expression).
+
+The target language is the same as the source language except that the
+first-class ledger ADTs have been translated away.  The type system is again
+stratified into Compact types and ledger ADT types.
 
 ## Collecting First-class Ledger ADT Types
 
@@ -84,6 +97,12 @@ given type.  This is not a type which is available to the user.
 
 Otherwise, the type is the same type with the subterms translated by
 `type[[_]]`.
+
+Top-level ledger fields use a slightly different tranlation `ltype[[_]]`.  For a
+top-level ledger field whose type is in the collected set, we replace it with
+`Cell<Addr>` (not just `Addr`, because that can't appear as a top-level ledger
+field type in the source language).  Otherwise, we translate the subterms using
+`type[[_]]` (because they are not top-level ledger ADTs).
 
 ### Ledger
 
@@ -155,8 +174,10 @@ ledger cells:
 ```
 import CompactStandardLibrary;
 
-ledger cell0: Field;
-ledger cell1: Field;
+ledger field0: Cell<Field>;
+ledger field1: Cell<Field>;
+
+// TODO: Add a constructor and verify its translation below.
 
 circuit swap(c0: Cell<Field>, c1: Cell<Field>): [] {
   const tmp: Field = c0.read();
@@ -165,32 +186,32 @@ circuit swap(c0: Cell<Field>, c1: Cell<Field>): [] {
 }
 
 export circuit test(): [Field, Field, Field] {
-  const c: Cell<Field> = cell0;
-  swap(c, cell1);
-  return [cell0.read(), cell1.read(), c.read()];
+  const c: Cell<Field> = field0;
+  field0.write(2);
+  swap(c, field1);
+  return [field0.read(), field1.read(), c.read()];
 }
 ```
 
-The collected set for this program is {`Cell<Field>`}.  In `ledger cell0: Field`
-the type is implicitly `Cell<Field>`.
+The collected set for this program is {`Cell<Field>`}.
 
 Applying the translation defined above yields:
 
 ```
 import CompactStandardLibrary;
 
-ledger cell0: Addr;
-ledger cell1: Addr;
+ledger field0: Cell<Addr>;
+ledger field1: Cell<Addr>;
 
 ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
 
 constructor() {
   const a0: Addr = kernel.allocate<Cell<Field>>();
-  cell0.write(a0);
+  field0.write(a0);
   heap_Cell<Field>.insert(a0, default<Cell<Field>>);
   
   const a1: Addr = kernel.allocate<Cell<Field>>();
-  cell1.write(a1);
+  field1.write(a1);
   heap_Cell<Field>.insert(a1, default<Cell<Field>>);
 }
 
@@ -201,16 +222,147 @@ circuit swap(c0: Addr, c1: Addr): [] {
 }
 
 export circuit test(): [Field, Field, Field] {
-  const c: Addr = cell0.read();
-  swap(c, cell1.read());
-  return [heap_Cell<Field>lookup(cell0.read()).read(),
-          heap_Cell<Field>lookup(cell1.read()).read(),
-          heap_Cell<Field>lookup(c).read()];
+  const c: Addr = field0.read();
+  heap_Cell<Field>.lookup(field0.read()).write(2);
+  swap(c, field1.read());
+  return [heap_Cell<Field>.lookup(field0.read()).read(),
+          heap_Cell<Field>.lookup(field1.read()).read(),
+          heap_Cell<Field>.lookup(c).read()];
 ```
 
-If `cell0` contains 0 and `cell1` contains 1 and we invoke `test`, the result
-will be `[1,0,1]`, illustrating that the reference `c` is an alias to the
-reference `cell0` (they are the same heap map key).
+If `field0` contains 0 and `field1` contains 1 and we invoke `test`, the result
+will be `[1,2,1]`, illustrating that the reference `c` is an alias to the
+reference `field0` (they are the same heap map key).
+
+### Top-level first-class ledger ADTs
+
+An example that uses first-class ledger ADTs in the ledger itself (at the top
+level) is a variation of the one above.  It has ledger fields holding Compact
+values of `Field` type, and ledger fields holding Compact values of
+`Cell<Field>` type:
+
+```
+import CompactStandardLibrary;
+
+ledger field0: Cell<Field>;
+ledger field1: Cell<Field>;
+ledger cell0: Cell<Cell<Field>>;
+ledger cell1: Cell<Cell<Field>>;
+
+constructor() {
+  field0.write(default<Field>);
+  field1.write(default<Field>);
+  cell0.write(default<Cell<Field>>);
+  cell1.write(default<Cell<Field>>);
+}
+
+Export circuit fieldToCell(): [] {
+  cell0.read().write(field0.read());
+}
+
+export circuit cellToField(): [] {
+  field0.write(cell0.read().read());
+}
+
+export circuit fieldToField(): [] {
+  field0.write(field1.read());
+}
+
+export circuit cellContentsToCellContents(): [] {
+  cell0.read().write(cell1.read().read());
+}
+
+export circuit cellToCell(): [] {
+  cell0.write(cell1.read());
+}
+```
+
+This program illustrates first class ledger ADTs that appear in the ledger
+itself, not necessarily as Compact values flowing through the contract.  The
+collected set is `Cell<Field>` because it appears as the type argument in
+`cell0: Cell<Cell<Field>>.  The translation results in:
+
+```
+import CompactStandardLibrary;
+
+ledger field0: Cell<Addr;
+ledger field1: Cell<Addr>;
+ledger cell0: Cell<Addr>;
+ledger cell1: Cell<Addr>;
+
+ledger heap_Cell<Field>: Map<Addr, Cell<Field>>;
+
+constructor() {
+  const a0: Addr = kernel.allocate<Cell<Field>>();
+  field0.write(a0);
+  heap_Cell<Field>.insert(a0, default<Cell<Field>>);
+
+  const a1: Addr = kernel.allocate<Cell<Field>>();
+  field1.write(a1);
+  heap_Cell<Field>.insert(a1, default<Cell<Field>>);
+
+  const a2: Addr = kernel.allocate<Cell<Field>>();
+  heap_Cell<Field>.insert(a2, default<Cell<Field>>);
+  cell0.write(addr);
+
+  const a3: Addr = kernel.allocate<Cell<Field>>();
+  heap_Cell<Field>.insert(a3, default<Cell<Field>>);
+  cell1.write(addr);
+}
+
+export circuit fieldToCell(): [] {
+  heap_Cell<Field>.lookup(cell0.read()).write(
+      heap_Cell<Field>.lookup(field0.read()).read());
+}
+
+export circuit cellToField(): [] {
+  heap_Cell<Field>.lookup(field0.read()).write(
+      heap_Cell<Field>.lookup(cell0.read()).read());
+}
+
+export circuit fieldToField(): [] {
+  heap_Cell<Field>.lookup(field0.read()).write(
+      heap_Cell<Field>.lookup(field1.read()).read());
+}
+
+export circuit cellContentsToCellContents(): [] {
+  heap_Cell<Field>.lookup(cell0.read()).write(
+      heap_Cell<Field>.lookup(cell1.read()).read());
+}
+
+export circuit cellToCell(): [] {
+  cell0.write(cell1.read());
+}
+```
+
+This example illustrates some subtle properties.
+
+First, the types of `field0` and `cell0` are different before the translation
+but they are the same after the translation.  They have the same type but for
+different reasons.  The source type of `field0` is `Cell<Field>` which is in the
+collected set.  This type is translated to `Addr` everywhere, except the
+top-level of the ledger where it becomes `Cell<Addr>`.  The source type of
+`cell0` is `Cell<Cell<Field>>`.  This type is not in the collected set
+(`Cell<Cell<Field>>` is not a first-class ADT in this program), but the type
+argument `Cell<Field>` is in the collected set and so it's replaced with `Addr`,
+yielding `Cell<Addr>`.  In the type of `field0`, the outermost `Cell` is to keep
+the ledger types well-formed (they must be ledger ADT types, not Compact types
+like `Addr`).  This cell is *NOT* mutable to the programmer (because the
+translation doesn't expose any way to change its contents).  In the type of
+`cell0`, the `Cell` type is the *outermost* one in the original
+`Cell<Cell<Field>>`.  This cell *IS* mutable because it occurs in the original
+source program.
+
+Because `field0`, `field1`, `cell0`, and `cell1` all have the same type, the
+translation of the bodies of the first four circuits (moving the cell contents
+around) are identical as we would expect.  For references to `field0` and
+`field1`, there is an extra `read()` inserted by the translation, and for
+references to `cell0` and `cell1` it was already explicit in the source.
+
+The body of the last circuit demonstrates a capability that isn't available for
+`field0`: `cell0` is a mutable cell in the ledger and the programmer can assign
+it.  In this case, the code causes `cell0` to become an alias for `cell1` (they
+are the same address in the heap).
 
 ### Passing lists of cells, dynamic allocation
 
@@ -220,6 +372,8 @@ Here is a program that has a list of cells which can be passed to a circuit.
 import CompactStandardLibrary;
 
 ledger list: List<Cell<Field>>;
+
+// TODO: Add a proper constructor and ensure that the translation of it is correct.
 
 circuit swapTwo(ls: List<Cell<Field>>): [] {
   const fst: Cell<Field> = ls.head().value;
