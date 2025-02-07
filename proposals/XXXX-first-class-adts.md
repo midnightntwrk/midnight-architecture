@@ -357,7 +357,13 @@ Because `field0`, `field1`, `cell0`, and `cell1` all have the same type, the
 translation of the bodies of the first four circuits (moving the cell contents
 around) are identical as we would expect.  For references to `field0` and
 `field1`, there is an extra `read()` inserted by the translation, and for
-references to `cell0` and `cell1` it was already explicit in the source.
+references to `cell0` and `cell1` it was already explicit in the source.  Their
+initialization in the constructor is also the same modulo the ordering of
+instructions.  For `field0` and `field1`, the translation of the top-level
+ledger field of type `Cell<Field>` inserts the allocation of an address and
+stores it in the heap mapped to a fresh cell in the heap map.  For `cell0` and
+`cell1`, the allocation of the address is part of the expression
+`default<Cell<Field>>` that occurs in those fields' initializers.
 
 The body of the last circuit demonstrates a capability that isn't available for
 `field0`: `cell0` is a mutable cell in the ledger and the programmer can assign
