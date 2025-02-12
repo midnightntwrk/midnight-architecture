@@ -21,11 +21,11 @@ located on Cardano, and "mNIGHT" to refer to NIGHT tokens on Midnight.
 Our goal is to create mechanisms that allow cNIGHT owners to manage DUST
 generation.  By default, cNIGHT tokens do not generate DUST.  cNIGHT owner
 should thus be able to enable DUST generation from their tokens.  As the first
-step, cNIGHT owners should have the option to delegate all of DUST generated
-from their tokens to a DUST address on Midnight.  In the future we will also
-want to allow cNIGHT owners to lease access to DUST generation to someone else.
-This leasing can be either managed manually by the cNIGHT owner or delegated to
-a broker.
+step, cNIGHT owners should have the option to delegate DUST generated from their
+cNIGHt tokens to a DUST address on Midnight.  In the future we will also want to
+allow cNIGHT owners to lease access to DUST generation to someone else.  This
+leasing can be either managed manually by the cNIGHT owner or delegated to a
+broker.
 
 In all cases - either producing DUST for own use or leasing access to DUST
 production to other users - all of the actions taken must be recorded on Cardano
@@ -44,8 +44,8 @@ might engage in the following scenarios:
   1. **No DUST production**: cNIGHT owner has not expressed a wish for their
      tokens to produce any DUST, and so no DUST gets generated.
 
-  2. **DUST produced for own use**: cNIGHT owner wants all of their tokens to
-     always produce DUST for own use.
+  2. **DUST produced for own use**: cNIGHT owner wants their tokens to produce
+     DUST for own use.
 
   3. **Self-managed leasing access to DUST production**: cNIGHT owner wants to
      lease access to DUST production to someone else, and they want to manage
@@ -116,8 +116,8 @@ Correctness criteria:
 
 ### Scenario 2: DUST produced for own use
 
-cNIGHT DUST User wants all of their cNIGHT tokens to always produce DUST and
-have that DUST accumulated at a specified DUST address on Midnight.
+cNIGHT DUST User wants their cNIGHT tokens to produce DUST and have that DUST
+accumulated at a specified DUST address on Midnight.
 
 Correctness criteria:
 
@@ -125,11 +125,16 @@ Correctness criteria:
     Registration includes specifying a Cardano wallet that stores the cNIGHT
     tokens and a DUST address where the DUST should go.
 
-  * Once a registration is made, all cNIGHT tokens stored in registered wallet
-    at any given time should be automatically used for DUST production.
+  * Once a registration is made, all cNIGHT tokens received to a wallet from the
+    moment of its registration produce DUST to an indicated DUST address.
 
   * cNIGHT DUST User should be able to deregister their wallet from DUST
     production.
+
+  * Once a deregistration is made, all cNIGHT tokens received to a wallet from
+    the moment of its deregistration do not produce DUST.  All the cNIGHT tokens
+    that where sent to the wallet when it was registered, continue to producing
+    DUST after deregistration until they are spent.
 
   * It must be impossible to perform registration or deregistration on someone
     else's behalf.  Only the wallet's owner may register it for DUST production
@@ -323,7 +328,7 @@ Correctness discussion:
     - While the above solution should prevent double-registration in majority of
       the cases, it does not guarantee that a double (or multiple) registration
       is not made.  Thus, the observability layer must be able to handle such
-      situations, preasumably by ignoring all registrations.  Another way of
+      situations, presumably by ignoring all registrations.  Another way of
       handling such a case would be to use the latest registration and ignore
       the previous ones, though this could be problematic if two transactions
       were submitted in a single block.
@@ -539,6 +544,29 @@ need.  In particular:
 
 Other explored alternatives (and why they were discarded)
 ---------------------------------------------------------
+
+### Scenario 2: Produce DUST from cNIGHT tokens present during of registration
+
+The original requirements of Scenario 2 assumed, that when a cNIGHT owner
+registers their wallet, all of the cNIGHT tokens they already possess in their
+wallet start producing DUST immediately.  Similarly, when deregistration was
+made, all tokens would automatically stop producing DUST.  The requirement was
+stated as:
+
+  * Once a registration is made, all cNIGHT tokens stored in registered wallet
+    at any given time should be automatically used for DUST production.
+
+There are two problems with this approach.  Firstly, requiring that all UTxOs
+present in the wallet at the moment of registration immediately start producing
+DUST would mean, that all UTxOs need to be recorded in a Midnight System
+Transaction.  This carries a high cost for the network, but not the user,
+meaning that a malicious user could generate a lot of workload at a relatively
+small cost.  This presents a DOS attack vector and is a security risk for the
+Midnight network.  Second problem with this requirement is its inconsistency
+with Midnight.  On Midnight users only receive DUST to a specified address from
+UTxOs received after the registrations.  The reason why Midnight does that is
+precisely to avoid the same DOS attack vector outlined above.
+
 
 ### Scenario 2: Using distributed set to guarantee registration uniqueness
 
