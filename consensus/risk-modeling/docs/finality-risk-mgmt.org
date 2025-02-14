@@ -1,0 +1,930 @@
+#+TITLE: Risk Management for Midnight Block Finality
+#+AUTHOR: Jon Rossie
+#+DATE: v.\docversion{}, \today
+#+OPTIONS: tex:dvipng
+#+OPTIONS: num:t ':t
+#+OPTIONS: minted:t
+#+OPTIONS: H:4
+#+OPTIONS: org-footnote-auto-label:t
+#+OPTIONS: toc:nil  # Disable auto-generated TOC
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \usepackage{fvextra} 
+#+LATEX_HEADER: \usepackage{minted}
+
+# #+LATEX_HEADER: \usepackage{palatino}
+#+LATEX_HEADER: \usepackage{concrete}
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+# #+LATEX_HEADER: \usepackage{stix2}
+
+
+#+LATEX_HEADER: \setminted{frame=single}
+#+LATEX_HEADER: \newcommand{\aura}[0]{\textsf{AURA}}
+#+LATEX_HEADER: \newcommand{\grandpa}[0]{\textsf{GRANDPA}}
+#+LATEX_HEADER: \newcommand{\docversion}{1.0}
+
+#+STARTUP: nolatexpreview
+
+#+OPTIONS: timestamp:t
+
+#+LATEX_HEADER: \usepackage{datetime2}
+#+LATEX_HEADER: \renewcommand{\today}{\DTMtoday}
+#+LATEX_HEADER: \usepackage{fancyhdr}
+#+LATEX_HEADER: \fancypagestyle{customfooter}{
+#+LATEX_HEADER:   \fancyhf{}
+#+LATEX_HEADER:   \renewcommand{\headrulewidth}{0pt}
+#+LATEX_HEADER:   \fancyhead[C]{\hfill Version \docversion{} | \today}
+#+LATEX_HEADER:   \fancyfoot[C]{Copyright © 2025 Input Output Global | Confidential \hfill \thepage}
+#+LATEX_HEADER: }
+#+LATEX_HEADER: \pagestyle{customfooter}
+
+#+LATEX_HEADER: \usepackage{caption}
+#+LATEX_HEADER: \captionsetup[figure]{aboveskip=10pt, belowskip=15pt}
+#+LATEX_HEADER: \captionsetup{labelfont=normalfont, font=it}
+
+#+ODT_HEADER: <style:footer>Version 1.0 - <text:date style:data-style-name=\"N106\" text:date-value=\"2024-01-01\"/> - © 2024 MyCompany - Confidential</style:footer>
+
+#+PROPERTY: header-args:python :exports both :results output
+
+
+* Document Status and Version
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+#+BEGIN_QUOTE
+This document is actively maintained. See **Status & Changes**,  Section
+\ref{sec:status-changes}, for recent updates and roadmap.
+#+END_QUOTE
+
+- **Document Date**: This export was created on \today.
+- **Document Version**: This export is based on version \docversion{}
+  of the document source.
+
+#+LATEX: \thispagestyle{empty}
+#+LATEX:\newpage
+
+
+
+
+* Table of Contents
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+#+TOC: headlines 2
+
+# #+LATEX: \thispagestyle{empty}
+#+LATEX: \newpage
+
+# #+LATEX: \clearpage
+# #+LATEX: \pagenumbering{arabic} % restart page numbering here
+
+* Overview
+
+This document is concerned with a specific risk Midnight faces: loss
+of liveness or safety for the consensus protocol, \grandpa, that
+finalizes blocks.  Finality plays a critical role in Midnight because,
+unlike most blockchain clients, Midnight's smart-contract client
+~midnight.js~ is unable to process rollbacks.  When the client
+observes a confirmed transaction, it applies pending local state
+updates in a destructive manner.  Because of this (temporary)
+limitation, Midnight has been designed to assume fast finalization to
+reduce user-visible latencies while protecting against data loss.
+
+Figure [[fig:arch]] shows a simplified set of Midnight components.
+The Midnight Node observes its Cardano Node via DB Sync, and does so
+at a delay of 12 hours because that is Cardano's longest-chain
+finality window.  But most Midnight clients are more concerned with
+the finality delay for transactions they post to the Midnight Node.
+It relies on the Indexer to provide only finalized Midnight
+transactions, to prevent possible data loss should rollback occur on
+the Midnight Node.  Anything that disrupts the orderly finalization of
+blocks, via the \grandpa{} consensus protocol, will impact clients.
+If \grandpa{} experiences liveness issues that delay finalization for
+unbounded periods, Midnight will appear offline to its clients even if
+new blocks are being produced.  If \grandpa{} experiences a safety
+violation that allows it to finalize contradictory forks, clients
+will struggle to recover.
+
+Although this document mentions \grandpa{}, none of the analysis is
+specific to that protocol.  The entire analysis is relevant to any
+consensus model that uses quorum-based BFT with stake-weighted,
+decentralized committee selection.  This includes the potential
+replacement for \grandpa{} and \aura{} being prototyped as part of the
+FastBFT effort, based on Jolteon consensus.
+
+
+The rest of this document presents both a detailed analysis of
+Midnight's finality risks and an analysis of the effectiveness of
+Ariadne in reducing this risk.  We end with recommended best practice
+for dynamically adjusting Ariadne's parameters to maximize the
+system's ability to tolerate faults that could impact finality.
+
+Appendix [[Risk Management Framework]] provides an overview of
+risk-management concepts.  Familiarity with these ideas may be assumed
+at various points in the document.
+
+#+attr_org: :width 600px
+#+DOWNLOADED: 2025-02-09 14:15:02
+#+NAME: fig:arch
+#+CAPTION: Major components of the Midnight architecture.
+#+Attr_ORG: :width 450px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.95\linewidth
+[[file:Midnight_Architectural_Components/2025-02-09_14-14-57_screenshot.png]]
+
+
+* Finality Risk
+
+To understand finality risk, we must understand how the consensus
+protocol makes progress and provides safety.  We will then review the
+ways in which the protocol can fail, and the effects of those failures.
+
+** Quorum-Based Consensus and Weighted Selection
+
+Midnight uses a proof-of-stake consensus where the amount of control
+wielded by a community member is proportional to their stake relative
+to the stake of other participants.  Unlike Cardano's Ouroboros proof
+of stake, which is a longest-chain model, Midnight uses quorum-based
+consensus to achieve consensus with faster finality.  Quorum-based
+consensus in the presence of adversarial actors is a well-studied
+problem, often called /classical BFT/, where /BFT/ means /Byzantine
+fault tolerance./ A /Byzantine/ fault is any fault other than a crash
+fault, so it encompasses both malicious behaviors and faults that
+cause a well-intentioned participant to participate incorrectly in the
+protocol.
+
+A key research result is that quorum-based BFT consensus requires
+$3f+1$ participants to survive $f$ concurrent Byzantine faults.
+Longest-chain protocols like Ouroboros have a weaker assumption of
+only $2f+1$ participants (also known as a 51% honest majority), but at
+the cost of much longer finality times. Quorum-based voting can achieve
+finality in minutes or seconds, while longest chain requires hours.
+
+
+** Committee Selection
+Quorum-based consensus is built on the notion of a /committee/---or
+series of committees---whose members propose and vote on the value
+for each new slot. (In our case, they propose and vote on the next
+block in the chain.)  In a decentralized system, this means there must
+exist a /committee-selection/ algorithm that chooses a committee from
+a set of candidate participants.  Midnight follows an approach where
+committee selection is based on /weighted random selection/ using each
+registered participant's stake as their weight.  The rough outline of
+the procedure is:
+
+
+- Let $P = \{(p_1, s_1), ..., (p_n, s_n)\}$ be the set of candidate
+  participants $p$ and their stakes $s$ at the time of committee
+  selection.  Assume $P$ is a subset of some larger set $A$ of all stake
+  pools.
+- Compute $S = \sum_{i=1}^n\; s_i$ as the total stake.
+- Compute each participant's weight $\displaystyle(p_i, w_i) =
+  \frac{s_i}{S}\quad\forall (p_i, s_i)\in P$.  Let $W$ be the set of
+  all such weights.
+- To fill a committee of size $k$, make $k$ separate weighted
+  selections from $W$, allowing the same participant to be selected
+  many times. The resulting committee is an ordered list $K = [p_1,
+  ..., p_k]$ which can include duplicate entries.  We may refer to
+  $p_i$ as the /owner/ of the $i^{\text{th}}$ committee seat.
+
+We assume the overall system selects new committees at some
+configurable interval, running this full algorithm each time.
+
+** Voting Strength
+
+Participants selected into a committee do not all wield equivalent
+voting power in consensus.  This is an important difference from a
+typical centralized deployment, where every node's intentions are
+trusted equally and every node's exposure to unintentional faults is
+roughly equivalent.  Variable voting strengths are a deliberate outcome
+of stake-weighted selection.  They reflect a complex set of assumptions
+that can be reduced to "/more stake implies greater trust/."
+
+The amount of power a committee member holds, called is /voting
+strength/, is the percentage of total seats it owns on the committee.
+To compute the voting strength of each participant $p$ in a committee
+$k$, first count the number of seats $p$ owns in $K$; this is
+expressed as $\text{count}(p,K)$ or $C_K^p$ for short.  The voting
+strength $V_K^p$ of a participant $p$ in a committee $K$ with size $k$
+is computed as \[ V_K^p = \frac{C_K^p}{k} \]
+
+
+Naturally, a candidate who is not selected into a committee has zero
+voting strength on that committee.
+
+
+** Implications for Risk
+
+
+Voting strengths play a central role in the computational model of
+risk this document develops.  For a simple preview: suppose a single
+participant $p$ has voting strength $V_K^p\;=\;0.34$ on a given
+committee $K$.  If $p$ were to become faulty, the committee would not
+be able to achieve consensus on any finality votes, and the system may
+exhibit either safety or liveness issues (or both), as discussed in
+section [[Quorum Assumptions and Pathologies]].
+
+In our fault analysis, we are concerned primarily with the ranked
+voting strength of committee members.  For a committee $K$ with distinct
+members $\{p_1, ..., p_m\}$, we analyze the voting-strengths vector
+\[
+V_K = [V_K^{p_1}, ..., V_K^{p_m}]\qquad \text{sorted in descending order}
+\]
+This vector allows us to analyze the amount of voting strength at risk
+under different fault assumptions.
+
+
+
+
+** Subsetting of Candidates
+
+Two critical steps on the path to forming a committee act as filters,
+reducing the set of active participants.  Starting with the full set
+of potential candidates (say, Cardano SPOs in the case of Midnight),
+the first filter is whether or not these potential candidates register to
+be considered for committees; we call this self-selected subset the
+/participant pool/.  Then weighted selection acts as another filter,
+almost certainly subsetting the participant pool due to the low
+probability of selecting candidates with very low relative stake for
+any committee seats.  Only those candidates who win committee seats
+are active participants in consensus.[fn::The committee members are
+also the active participants for block production on Midnight, but the
+focus of this paper is their participation in finality voting.]
+
+The subsetting performed by weighted random selection means some
+candidate participants will be excluded from some committees.  This
+is true even if the committee size $k$ is much larger than the number
+$n$ of candidates.  Whenever a candidate with large stake wins an
+additional seat, that seat is no longer available to other candidates.
+The effect when stakes vary widely is to effectively exclude the
+lowest-staked candidates from committees.  If we equate trust with 
+
+ 
+# ** Iterated Committee Selection
+
+# Whenever the participant pool $P = \{(p_1, s_1), ..., (p_n, s_n)\}$
+# remains constant across a series of committee selections, the weights
+# $\{(p_1, w_1), ..., (p_n, w_n)\}$ are also constant.  Iterated
+# weighted selection of these weighted participants will result in
+# committees where the voting strength of each $V_K^{p_i}$ is
+# $\sigma\cdot w_i$ for some scaling constant $\sigma$.  
+
+
+# ** Blah
+
+ 
+#   voting strength of a given participant $p$ is $v/k$ where $v$ is the
+#   number of times $p$ occurs in $[p_1, ..., p_k]$.  (I.e., the number
+#   of /votes/ $p$ wields on the committee.)  In practice, a single
+#   actor may control more than one participant and may therefore wield
+#   the total voting power across those participants; from a
+#   fault-tolerance perspective, however, it's useful to think of each
+#   $p$ as a potential unit of failure.  If a participant with 35% of
+#   the seats (and therefore 35% of the voting power) experiences a
+#   fault, we expect their entire 35% of votes to fail together.
+# - For a given committee $K$, the
+#   voting strength of a given participant $p$ is $v/k$ where $v$ is the
+#   number of times $p$ occurs in $[p_1, ..., p_k]$.  (I.e., the number
+#   of /votes/ $p$ wields on the committee.)  In practice, a single
+#   actor may control more than one participant and may therefore wield
+#   the total voting power across those participants; from a
+#   fault-tolerance perspective, however, it's useful to think of each
+#   $p$ as a potential unit of failure.  If a participant with 35% of
+#   the seats (and therefore 35% of the voting power) experiences a
+#   fault, we expect their entire 35% of votes to fail together.
+# - Let $V = [(p_1, v_1), ..., (p_k, v_k)]$ be the voting strengths in
+#   sorted order, such that $v_i \geq v_{i+1}$.
+
+# When this procedure is iterated over time, if we hold $P$ constant,
+# the voting strength $v_i$ of any given participant $p_i$ will converge
+# on $w_i$, although individual committees will exhibit varied results
+# due to randomness. When $P$ evolves over time, voting strengths will
+# automatically scale to changing relative weights.  This is the intent
+# and effect of linearly weighted selection.  It prevents an adversarial
+# actor from registering a large number of lower-stake Sybil
+# participants that can gain more voting power than the same amount of
+# stake would earn if held by a single participant.
+
+# There is no constraint on the relative sizes $n$ versus $k$.  We might
+# imagine $n<k$ in the early stages of the chain, but that eventually
+# $n\gg k$ when the chain is mature.  Even when $n<k$, however, there is
+# no guarantee all $n$ participants will be selected into committees;
+# relative stake could still assign extremely low selection weights to
+# lower-stake participants, allowing those with large stakes (however
+# few there are) to dominate committees.
+
+
+
+
+** Quorum Assumptions and Pathologies
+
+For the purposes of this discussion, we will write /QBFT/ to refer to
+the broad class of quorum-based BFT consensus protocols, to
+distinguish them from longest-chain BFT protocols such as Ouroboros.
+Further, we will refer to /QBFT/ as if it were a single protocol, but
+our scope includes many practical quorum-based protocols; the
+properties we discuss here are common to such protocols.
+
+QBFT consensus assumes greater than $2/3$ of the committee are /honest/
+in the strictly technical sense of /operating within the specification
+of the protocol/.  Committee members with the best intentions may fail
+to participate honestly if, for example, they experience faults (crash
+faults or otherwise), or if their network connectivity suffers due to
+benign or malicious causes.
+
+QBFT does nothing to ensure greater than $2/3$ honest participation or
+to cope with situations where $2/3$ or less of the committee is
+behaving honestly.  Those responsibilities fall to the system in which
+QBFT is a component.  From the point of view of the QBFT protocol
+designer, as soon as the security assumption is violated, "all bets
+are off" and protocol behavior is wholly unspecified.  In reality, as
+we explore below, QBFT systems degrade in some very specific ways
+depending on how the security assumption is violated.  Midnight, as a
+system leveraging QBFT, must bring its own methods of fostering
+greater than $2/3$ honest participation, and must detect and recover
+when this security assumption fails.
+  
+
+*** What Can Go Wrong?
+
+When a QBFT system's honest-participation assumption is violated, its
+behavior is unspecified.  The ill effects of this unspecified behavior
+are typically classified as either liveness or safety violations, as
+described below.
+
+**** Liveness Risk
+
+Liveness risk is the risk that the system will enter a state where
+progress is impossible. In a strict technical sense, this usually
+refers to a terminal state (or cycle of states) from which there is no
+recovery.  In our discussion we are also concerned with transient,
+intermittent states in which no finality votes are possible until
+either (a) faulty committee members return to normal behavior, or (b)
+a new committee is formed with sufficient honest members to restore
+progress.
+
+A QBFT that experiences $f\geq 1/3$ crash faults is below quorum and
+can no longer agree to finalize new blocks.  Depending on the details
+of the block-production rules, either the system will stop extending
+the chain with new blocks or it will simply stop agreeing that any new
+blocks are finalized.  In the time it takes the faulty nodes to detect
+their faults and return to operation, progress on block finalization
+may be delayed arbitrarily.  Also, there is no inherent mechanism to
+exclude faulty nodes from each new committee, so repeated committee
+selection is likely to keep including faulty members, prolonging the
+system liveness fault.
+
+If crash faults alone are problematic, Byzantine faults can be worse.
+The operator of a node experiencing an unintentional Byzantine fault
+will have a harder time detecting the fault than they would a crash
+fault, delaying restoration of normal behavior.  If, instead,
+adversarial operators deliberately withhold votes, they may block (or
+help block) progress for as long as they are assigned sufficient
+voting strength in new committees.  For example, a single committee
+member with 34% voting strength can block all progress by ceasing to
+submit votes.
+
+These potentially unbounded interruptions of the normal process of
+finalizing blocks are considered liveness faults in our analysis.
+
+
+**** Safety Risk
+
+A QBFT protocol is /safe/ if no two honest participants or observers
+can witness the protocol making contradictory decisions.  In the case
+of a blockchain, let $b^\text{\sf F}_i$ be a block at height $i$ that
+any witness can observe as having been finalized by the protocol and
+let $b \prec b'$ signify that $b$ is in the prefix chain of $b'$.  The
+protocol is /safe/ if for all finalized blocks $b^\text{\sf F}_i$,
+$b^\text{\sf F}_j$, and $b^\text{\sf F}_k$ where $i < j < k$, it holds
+that $b^\text{\sf F}_i \prec b^\text{\sf F}_j \prec b^\text{\sf F}_k$.
+Simply: the protocol is safe if it does not finalize conflicting
+forks.
+
+A QBFT system experiencing $f \geq 1/3$ Byzantine faults might fail
+safety if some of the faulty nodes /equivocate/, which means voting to
+support conflicting proposals.  This is the classic form of Byzantine
+fault, where observers are somehow partitioned such that they are
+unable to compare notes and discover that a duplicitous voter is
+voting differently on both sides of the partition.  This could lead
+observers in the two partitions to witness quorums and support
+conflicting finality decisions.  While /Byzantine/ faults refer to any
+non-crash faults, equivocation is the key safety risk and is therefore
+the primary focus of Byzantine fault tolerance.
+
+
+
+* Objectives and Measures
+
+Before we manage a risk, it is useful to quantify it.  In this section
+we identify the most urgent risk objective and our approach to
+measuring it.  The same measurement approach should apply to the
+system both before and after the introduction of preventive or
+mitigating controls.  In later sections we will analyze the inherent
+risk (before controls) and residual risk (with controls).
+
+** Objective: Liveness in the Face of Crash Faults
+
+In a system that could easily face deliberate attacks against liveness
+and safety, there is significant value in focusing on a much simpler
+path to failure: the risk of crash faults that block new finality
+votes.
+
+It may seem counterintuitive to focus on these benign scenarios, but
+it helps to consider that no system that can easily fail for
+accidental causes is safe from deliberate attacks.  Surviving ordinary
+faults is the baseline for all further risk management.
+
+Put differently, a system that requires the simultaneous failure of
+$f$ benign nodes has also made it impossible for an adversary to
+realize an attack without controlling more than $f$ committee seats,
+either directly or through corruption.  Anything we do to drive $f$
+higher to protect against liveness failures among well-intentioned
+committees also reduces the chance of a successful attack on the
+liveness or safety of the system.  Figure \ref{fig:hierarchy}
+illustrates this relationship.
+
+
+#+BEGIN_EXPORT latex
+\begin{figure}
+  \centering
+  \[
+  \boxed{\text{accidental liveness}} \gg\ \boxed{\text{deliberate liveness}} \gg\ \boxed{\text{deliberate safety}}
+  \]
+  \caption{\it A risk hierarchy.  If we cannot defend against accidental liveness faults, we have no defense against deliberate liveness attacks.  If we cannot defend against deliberate liveness attacks, we have no defense against deliberate safety attacks.  That is why we focus first on accidental liveness faults.}
+  \label{fig:hierarchy}
+\end{figure}
+#+END_EXPORT
+
+
+** Primary Risk Measure: Number of Faults Tolerated
+
+Our central risk measure is the probability of selecting a committee
+in which crash faults of fewer than $f$ nodes can result in a liveness
+failure.  The target $f$ is an organizational decision, part of the
+organization's /risk appetite/.
+
+
+Since committees are chosen randomly from participants, which are a random subset of all SPOs, _our aim is to predict the probability of a random committee arising that cannot survive a target minimum number of faults_.  Put differently, we will analyze the highest number of faults that a potential committee can be expected to survive with a target probability.  This lets us pick a risk tolerance of, say 99%,
+and aim for the highest $f$ that can be achieved with 99% probability.
+
+
+*** Computing the Number of Faults Tolerated
+
+
+An intuitive way to understand the number of faults a given committee
+  $K = [p_1, ..., p_k]$ can handle is to first derive $V_K =
+  [V_K^{p_1}, ..., V_K^{p_m}]$, which are the voting strengths of each
+  committee member, sorted from highest to lowest.  We can then
+  compute $f$ by running the algorithm shown in Listing
+  [[fig:countFaults]].  The algorithm finds the longest prefix of $V_K$
+  whose total voting strength is less than $1/3$ the total voting
+  strength of the committee.  The length of that prefix is the number
+  of faults the committee can tolerate.  Figure [[fig:twoScenarios]]
+  illustrates this process in two scenarios with different degrees of
+  fault tolerance.
+
+
+
+  
+#+NAME: fig:countFaults
+#+CAPTION: Counting Faults:  This algorithm processes voting-strength vector $V_K = [V_K^{p_1}, ..., V_K^{p_m}]$ for a committe $K$, sorted in descending order. The value returned is greatest number of faults that the system is guaranteed to survive.  The committee may survive more faults if they occur in lower-strength committee members, but $f+1$ faults are capable of violating the security assumptions of the system.
+#+BEGIN_SRC python
+x, f = 0
+for v in V:
+  if x + v >= 1/3:
+     break
+  x += v
+  f += 1
+return f
+#+END_SRC
+
+
+#+NAME: fig:twoScenarios
+#+CAPTION: Counting Faults: This figure illustates the process for counting tolerated faults.  Every blue bar is a voting strength in $V_K$, the vertical divider is the final index of the loop, and the value for $f$ is the count from the prior step.  Read this as "if all the committee members left of the mark fail, the system has failed."  As long as only $f$ faults occur, the system still has sufficient voting power to finalize blocks.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+[[file:Objectives_and_Measures/2025-02-10_14-50-11_screenshot.png]]
+
+
+**** Key Concept: What $f$ Means
+
+Looking at Figure [[fig:twoScenarios]], one might question why we say
+scenario 1 cannot survive a single fault when it could clearly survive
+a fault in its weakest committee member.  In fact, if we simply
+sorted the members in increasing order, our loop to discover $f$ would
+return much higher values for $f$.  Why do we sort in descending order
+when determining the value of $f$?
+Think of $f$ as a number of blank termination notices you give to an
+adversary.  The adversary can halt any $f$ nodes they like.  Your job
+is to pick the highest possible $f$ such that your adversary is unable
+to put the system in a faulty state regardless of which members they
+halt.  That is the point of $f$: you always know you can lose /any/
+$f$ nodes and maintain operation.
+
+
+
+* Inherent Risk
+
+
+** Approach
+
+To analyze inherent risk we perform a Monte Carlo simulation of the
+process of selecting random committees with different parameters.  The
+simulation details are:
+
+1. Our SPO data is the set of all SPOs on Cardano at the time of a
+   scrape of ~pooltool.io~ at some point in September 2024.
+2. We then simulate committee selection assuming different numbers of
+   registered Midnight participants.  We use a range from fifty up to
+   two thousand, out of roughly 3000 total SPOs.  Committee size seems
+   to have fairly little impact on fault tolerance, so we just assume
+   committee size is 300.
+3. For each committee generated, we compute the number of faults the
+   committee can tolerate.
+
+We then aggregate data from thousands of such simulation runs to build
+a probabilistic model indicating the risk that a committee drawn from
+a registered participant pool of each size will result in a committee
+with low fault tolerance. This provides the baseline data shown in
+Figure [[fig:inherent]].  In this chart, 1.0 means 100% of the simulations
+tolerated the given number of faults.
+
+
+
+** Analysis
+
+It's clear from the chart that more participants lead to higher fault
+tolerance, even with a fixed committee size of 300.  At the same time,
+it's important to note that a centralized consensus protocol could
+tolerate 21 faults with 124 nodes ($3f+1$), whereas our decentralized,
+stake-weighted participation approach requires more than 1000 to reach
+the same degree of fault tolerance (closer to $300f$).
+
+If Midnight could launch with 1000 active participants, the risk
+analysis would focus on making their committees survive even more
+faults.  But in the early stages of Midnight it's more realistic to
+expect 200 or fewer participants.  We should be looking for
+early-stage alternatives or augmentations to simple stake-weighted
+committee selection that yield committees whose fault tolerance is
+similar to that of a pure stake-weighted model with 1000 or more
+participants.
+
+
+
+
+#+NAME: fig:inherent
+#+CAPTION: Inherent risk that a random committee will not tolerate $f$ concurrent faults, for $f$ in 1-50. The different curves represent different numbers of registered participants.  (We acknowledge the labeling here may be confusing.  The "risk" is higher at higher values of $f$, as the chance of tolerating that many faults decreases.  This chart matches the residual risk charts in later sections, but we may update all these charts and wording in a later revision.)
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+[[file:Inherent_Risk/2025-02-10_17-28-28_screenshot.png]]
+
+
+
+
+* Ariadne for Risk Prevention
+:PROPERTIES:
+:ID:       0353CED0-7403-483F-B554-03B1C5398D55
+:END:
+
+The inherent risk analysis shows that adding more participants
+increases the fault tolerance of the system.  Ariadne[fn::Unpublished,
+IOG internal.  Ariadne was conceived as a stepping stone to true
+multi-resource consensus in Minotaur, designed by Zajkowski and Rossie
+circa 2022 for Midnight.  In classical mythology, Ariadne gave Theseus
+the ball of string he used to escape the Minotaur's labyrinth.] is a
+modification to committee selection that adds a relatively small
+number of permissioned nodes holding sufficient stake to stand in for
+the eventual SPO participants until they arise.
+
+#+NAME: fig:ariadneVotingBlock
+#+CAPTION: Ariadne's two key parameters are $\varphi$, the percentage of voting strength reserved for the federated nodes, and $F$, the number of federated nodes across which Ariadne distributes this voting strength.  If $S$ is the sum of the stake held by all SPO participants, $\varphi S$ is the virtual stake held by federated nodes on the committee.  The voting strength of each federated member is $\frac{\varphi S}{F}$.
+#+ATTR_ORG: :width 150px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_for_Risk_Prevention/2025-02-10_22-20-36_screenshot.png]]
+
+
+
+#+NAME: fig:ariadneInserted
+#+CAPTION: Ariadne-inserted committee members dilute the voting strength of the highest-strength members in order to raise the overall fault tolerance of the commitee.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+[[file:Ariadne_for_Risk_Prevention/2025-02-10_22-17-24_screenshot.png]]
+
+Figure [[fig:ariadneInserted]] shows a committee in which Ariadne has
+reserved five committee seats for its auxiliary /federated/ members,
+and has assigned each an equal amount of /virtual stake/.  The effect
+is to dilute the voting strength of the more strengthful permissionless
+members, raising the overall fault tolerance.
+
+Figure [[fig:ariadneVotingBlock]] illustrates the two key parameters that
+control Ariadne.  The first is $F$, the number of committee seats
+reserved for federated members.  The second is $\varphi$ which
+represents the percentage of total voting strength to be held across
+those federated members.[fn::The actual configuration parameter that
+defines $\varphi$ is the "D parameter", which is specified as a ratio
+of permissioned to permissionless seats.]  Ariadne divides the
+federated voting strength evenly across the $F$ federated members.
+
+Ariadne follows these steps to create a committee:
+1. Reserve $F$ of the $k$ committee seats for the federated nodes.
+2. Use weighted random selection to populate the $k-F$ seats in the
+   usual way, choosing from the available participants and allowing
+   the same participant to occupy multiple seats.  This yields a
+   committee composition: \[V = [(P_1, v_1), ..., (p_{k-F}, v_{k-F})]\]
+3. Dilute the voting strength of each committee member by
+   $(1-\varphi)$, converting real stake to virtual stake.
+   \[V' = [(P_1, v_1(1-\varphi)), ..., (p_{k-F},
+   v_{k-F}(1-\varphi))]\]
+4. Compute the virtual stake of the federated block as $\varphi S$.
+5. Add $F$ federated members to the committee, each having $\varphi
+   S/F$ voting strength.
+
+The result is a committee whose net voting strength is still $S$, but
+with the effective voting strength of all permissionless members
+diluted to shift $\varphi S$ voting strength to the federated block.
+
+The federated nodes must be explicitly configured in Midnight.  They
+are sometimes called /trusted/ nodes because they are expected to
+behave honestly within their ability.  But as with any nodes,
+federated nodes are subject to their own faults.  The fault analysis
+of an Ariadne committee therefore follows the same approach used in
+our study of inherent risk, but with federated nodes inserted in the
+correct sorted position within the list of committee members, as
+illustrated in Figure [[fig:ariadneInserted]].
+
+
+
+
+
+* Ariadne Residual Risk
+
+To measure the risk reduction offered by Ariadne, we use Monte Carlo
+simulations to show the effects of Ariadne with changing parameters.
+
+** Simulation Parameters and Approach
+
+The key variables we test are:
+1. The number of participating SPOs, drawn from the Sept 2024 pooltool scrape.
+2. The $\varphi$ parameter---the percentage of voting strength reserved for
+   the federated nodes.
+
+We keep two important parameters fixed:
+1. We set the number of federated nodes at 10.  That number is $3f+1$
+   for $f=3$, allowing the federated nodes to act as their own
+   fault-tolerant cluster for ancillary consensus problems that can
+   support Midnight in other ways.  Ten is a reasonable number in
+   terms of operational cost and complexity.  More is always better
+   from a risk perspective, but practical concerns suggest a number
+   closer to 10.
+2. We fix the committee size at 300, as it has little effect on the
+   outcomes (as discovered in prior experimentation). 
+
+** Simulation Results
+
+Here we present our results as a series of charts, each showing the
+fault tolerance for a given SPO participation level across a range of
+possible $\varphi$ values.  For each curve, the point at which it drops
+below $1.0$ is the point where uncertainty creeps in as to whether a
+committee selected with those parameters will tolerate the number of
+faults indicated on the x-axis.
+
+
+#+NAME: fig:50_10
+#+CAPTION: Fifty SPOs.  With such low participation, high federated strength is essential to provide any reasonable degree of fault tolerance. Even with 49% federated, there is a non-zero chance of choosing a commitee with $f<4$.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa50.png]]
+
+
+
+
+#+NAME: fig:100_10
+#+CAPTION: One hundred SPOs.  Even with 100 participants, 49% federated strength still gives the best chance of surviving up to five faults, although 34% has non-zero chance of surviving more than seven faults, where 49% cannot.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa100.png]]
+
+
+
+
+#+NAME: fig:200_10
+#+CAPTION: Two hundred SPOs.  Now we see 34% federated strength as the best way to ensure higher fault tolerance.  It's conclusively better than 49% at this level of participation.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa200.png]]
+
+
+
+
+#+NAME: fig:300_10
+#+CAPTION: Three hundred SPOs.  Now 20% federated strength is a strong contender.  While 34% still wins for maintaining 100% tolerance longer, it plummets to zero chance for fault tolerances where 34% still offers some odds of safety.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa300.png]]
+
+#+NAME: fig:500_10
+#+CAPTION: Five hundred SPOs.  Now 20% federated strength is clearly superiod.  Higher values of $\varphi$  have definitely shown their cliff-edge behavior at much lower degrees of fault tolerance.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa500.png]]
+
+
+
+
+#+NAME: fig:1000_10
+#+CAPTION: One thousand SPOs.  At this level of participation Ariadne's federated voters do more harm than good.  The right strategy is to give them no votes at all.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa1000.png]]
+
+
+
+
+#+NAME: fig:2000_10
+#+CAPTION: Two thousand SPOs.  (Scale extended up to $f = 50$ for this one chart.)  In case Midnight achieves this level of participation, the system without federated voters can tolerate up to nearly 30 faults with certainty, with probabilities falling off thereafter.  It reaches zero chance of a safe committee when $f$ is in the mid 40s.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.5\linewidth
+[[file:Ariadne_Residual_Risk/aa2000.png]]
+
+
+** Analysis
+
+These charts tell a consistent story about the benefits of
+Ariadne.  When participation is low, there is benefit in a high degree
+of federated voting strength. But as the set of SPOs grows, the curves
+representing higher $\varphi$ values all exhibit a vertical cliff at some
+point.  As we keep adding SPOs, the curves that employ Ariadne become
+less and less effective, with the higher $\varphi$ curves having the worst
+fault tolerance toward the end.
+
+Figure [[fig:whyCliffs]] illustrates why this happens.  As the natural
+pool of SPOs grows, the amount of virtual stake held by the federated
+committee cannot scale horizontally across more federated nodes, so it
+effectively scales vertically.  In the sorted representation of voting
+strengths, this shifts the whole block of federated committee members
+farther and farther to the left.  When they become the leading voters,
+they also become the weakest link in the fault tolerance story.
+
+** Recommendations
+
+These simulations show that Ariadne is not a set-and-forget system.
+It must be continuously monitored and updated to ensure it is a net
+benefit to the fault tolerance of the system, or else it can become a
+significant detriment.  The best way to make the right changes is to
+track actual participating SPOs and potential non-participating ones,
+and to run simulations like those used here to ensure the current
+$\varphi$ is still advantageous.  In the early stages of the network
+we might have a $\varphi$ of 34%, but we may need to drop to 20%
+shortly thereafter and we may even go to 0% if we are lucky enough to
+have thousands of participating SPOs.
+
+
+
+#+NAME: fig:whyCliffs
+#+CAPTION: Rough illustration of the problem of too much federated voting strength when there is high SPO participation.  When $\varphi$ is too large and $F$ is too small, the federated nodes sort to the front of the list and dominate the fault tolerance of the system.  Removing them re-normalizes voting strength to the permissionless members, creating higher fault tolerance at higher SPO participation levels.
+#+ATTR_ORG: :width 250px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.95\linewidth
+[[file:Analysis/2025-02-10_23-25-52_screenshot.png]]
+
+
+\newpage
+#+LATEX:\appendix
+
+
+* Status & Changes
+#+LATEX: \label{sec:status-changes}
+
+** Version History
+- **\docversion{} (2025-02-11)**: Initial version.
+
+** Future Roadmap
+- **Revisit Risk Charts**: The charts for inherent and residual risk
+  might be inverted.  That is, if we say a chart is about risk, then
+  100$ should be total exposure, while 0% should be no exposure.  We
+  should revisit the graphs and wording to be more clear.
+- **Incorporate Unused Charts**: Find the right place to include the
+  unused charts in section [[Unused Charts]].
+- **Simulation Details**: Improve description of the residual risk
+  simulation setup.
+- **Simulation Details**: Improve description of the residual risk
+  simulation setup.
+- **Improved Analysis and Recommendations for Ariadne**: That section
+  is a bit light at the moment.
+- **Mitigation**: We have discussed Ariadne as a /preventive/ risk,
+  but when something really does go wrong, we need some mitigations
+  and recovery strategies.
+- **Health Checks**: Another preventive measure is some basic form of
+  health check we can perform against committee members before adding
+  them to the committee.  There are some ideas in the works that need
+  to be added here.
+- **Equivocation Penalties**: \grandpa{} allows members to detect and
+  respond to equivocation; we should discuss here.
+- **Fast Failure Detection**: When well-meaning nodes fail, they may
+  fail in a non-crash manner.  We could improve the fault tolerance of
+  the system by reducing the average time required for an operator to
+  learn their node has failed.
+- **Fast Failure Recovery**: Similar to fast failure detection, a node
+  that returns more quickly to correct operation is one less failed
+  node for the system to tolerate concurrently.
+
+
+* Risk Management Framework
+
+This appendix provides a short overview of risk management terminology
+and procedures.
+
+** Risk Decision-Makers & Appetite
+Risk decision-making requires a defined governance structure. Decision-makers establish risk policies, set risk appetite, and enforce risk tolerances. Risk appetite represents the level of risk an organization is willing to accept in pursuit of objectives. Tolerances define acceptable deviations from this threshold.
+
+Risk is not inherently negative. Some risks are necessary to achieve strategic goals. Effective risk management ensures that risks are identified, assessed, and controlled within predefined thresholds.
+
+** Impact vs. Probability (Severity vs. Frequency)
+Risk is assessed along two dimensions:
+- *Impact (severity):* The consequence of a risk event materializing.
+- *Probability (frequency):* The likelihood of the event occurring.
+
+Both dimensions are critical for prioritization. High-impact, low-probability risks may require different strategies than low-impact, high-probability risks. Risk assessments must quantify these attributes where possible to facilitate structured decision-making.
+
+** Risk Event Types & Categories
+Risks are classified into structured categories to improve identification, assessment, and response. Classification typically follows a hierarchical structure:
+- *High-level categories:* Broad risk domains (e.g., operational, financial, security, compliance).
+- *Subcategories:* Specific risk types within each domain (e.g., data breach under security, liquidity risk under financial).
+
+Classification schemes must remain adaptable. New risks may necessitate reclassification, and obsolete categories must be removed to maintain relevance.
+
+** Inherent Risk (Pre-Control Assessment)
+Inherent risk is the level of risk in the absence of mitigating controls. It is evaluated along the impact and probability dimensions. Organizations assess inherent risk to:
+- Understand baseline exposure.
+- Prioritize risk mitigation efforts.
+- Establish a benchmark for measuring control effectiveness.
+
+** Risk Controls & Residual Risk
+*Risk controls* are measures that reduce either the impact or probability of a risk event. Controls include technical, procedural, and administrative mechanisms.
+
+Residual risk is the risk that remains after controls are applied. Effective risk management seeks to ensure that residual risk falls within acceptable tolerances.
+
+Control effectiveness is periodically evaluated to verify that controls function as intended. Weak or obsolete controls necessitate adjustment or replacement.
+
+** Monitoring & Adaptive Risk Management
+Ongoing monitoring is necessary to maintain an effective risk management framework. This includes:
+
+- *Event tracking:* Risk events are recorded and classified according to the established taxonomy.
+- *Adaptive learning:* Risk categories evolve based on observed incidents and emerging threats.
+- *Scenario analysis:* Risk exposure is periodically reassessed under varying conditions to identify potential gaps.
+- *Control assurance:* Control implementation and effectiveness are routinely evaluated to ensure alignment with risk tolerances.
+
+Monitoring mechanisms ensure that risk management remains an iterative process, continuously adapting to internal and external changes.
+
+
+* Unused Charts
+
+This section includes some charts and accompanying discussion that are
+not yet integrated into the main document.
+
+
+#+attr_org: :width 600px
+#+DOWNLOADED: 2025-02-13 10:58:00
+#+NAME: fig:votingStrength
+#+CAPTION: Scaling effect of federation.  This chart shows the scaled voting strength (red) of all committee members after the addition of five federated nodes with 20% of the voting strength.  Let $k=300$ be the committee size.  The blue line represents $\text{count}(p)/0.2k$ for every unique participant $p$ in the permissioness committee, with a gap where the federated nodes will ultimately appear.  The red line shows that all nodes are scaled down, but the scaling effect is larger for larger nodes.
+#+ATTR_ORG: :width 450px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.75\linewidth
+[[file:Unused_Graphics/2025-02-13_10-57-57_screenshot.png]]
+
+
+
+#+attr_org: :width 600px
+#+DOWNLOADED: 2025-02-13 11:30:13
+#+NAME: fig:tooMuchFederation
+#+CAPTION: Similar to Figure [[fig:votingStrength]], but with excessive federated strength of 30%, causing the federated nodes to each have voting strength higher than any SPO.  The specific threshold where a given federated voting strength, such as 30%, becomes excessive depends on the stake distribution of participating SPOs.
+#+ATTR_ORG: :width 450px
+#+ATTR_ODT: :width 10
+#+ATTR_LATEX: :width 0.75\linewidth
+[[file:Unused_Graphics/2025-02-13_11-30-09_screenshot.png]]
+
+
+The specific threshold where a given federated voting strength, such as $\varphi =$ 30%, becomes excessive depends on the stake distribution of participating SPOs.  It's conceivable, but not in current plans, to automate the selection of a computed $\varphi$ that brings maximal increase in fault tolerance.
+
+
+
+# #+attr_org: :width 600px
+# #+DOWNLOADED: 2025-02-13 11:49:38
+# #+NAME: fig:ss
+# #+CAPTION: ss
+# #+ATTR_ORG: :width 450px
+# #+ATTR_ODT: :width 10
+# #+ATTR_LATEX: :width 0.95\linewidth
+# [[file:Unused_Graphics/2025-02-13_11-49-33_screenshot.png]]
+
