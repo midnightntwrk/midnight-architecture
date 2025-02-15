@@ -21,7 +21,7 @@
 #+LATEX_HEADER: \setminted{frame=single}
 #+LATEX_HEADER: \newcommand{\aura}[0]{\textsf{AURA}}
 #+LATEX_HEADER: \newcommand{\grandpa}[0]{\textsf{GRANDPA}}
-#+LATEX_HEADER: \newcommand{\docversion}{1.0}
+#+LATEX_HEADER: \newcommand{\docversion}{1.01}
 
 #+STARTUP: nolatexpreview
 
@@ -629,23 +629,23 @@ defines $\varphi$ is the "D parameter", which is specified as a ratio
 of permissioned to permissionless seats.]  Ariadne divides the
 federated voting strength evenly across the $F$ federated members.
 
-Ariadne follows these steps to create a committee:
-1. Reserve $F$ of the $k$ committee seats for the federated nodes.
-2. Use weighted random selection to populate the $k-F$ seats in the
-   usual way, choosing from the available participants and allowing
-   the same participant to occupy multiple seats.  This yields a
-   committee composition: \[V = [(P_1, v_1), ..., (p_{k-F}, v_{k-F})]\]
-3. Dilute the voting strength of each committee member by
-   $(1-\varphi)$, converting real stake to virtual stake.
-   \[V' = [(P_1, v_1(1-\varphi)), ..., (p_{k-F},
-   v_{k-F}(1-\varphi))]\]
-4. Compute the virtual stake of the federated block as $\varphi S$.
-5. Add $F$ federated members to the committee, each having $\varphi
-   S/F$ voting strength.
+Ariadne follows these steps to create a committee of size $k$:
+1) Reserve $\varphi k$ committee seats for the federated nodes. (These
+   reserved seats may be randomly distributed across the $k$ committee
+   seats.)
+2) Use weighted random selection to populate the unreserved
+   permissionless $(1-\varphi)k$ seats in the usual way, choosing from
+   the available participants and allowing the same participant to
+   occupy multiple seats.
+3) Populate the reserved federated seats in round robin from the set
+   of $F$ federated nodes, again allowing the same participant to
+   occupy multiple seats.
 
-The result is a committee whose net voting strength is still $S$, but
-with the effective voting strength of all permissionless members
-diluted to shift $\varphi S$ voting strength to the federated block.
+This will result in a committee where each federated node has a voting
+strength of approximately $\frac{\varphi k}{F}$, regardless of the
+voting strengths of the permissionless nodes.  When the voting
+strengths are sorted, the federated nodes will sort together in a
+block as illustrated in Figure [[fig:ariadneInserted]].
 
 The federated nodes must be explicitly configured in Midnight.  They
 are sometimes called /trusted/ nodes because they are expected to
@@ -807,7 +807,9 @@ have thousands of participating SPOs.
 #+LATEX: \label{sec:status-changes}
 
 ** Version History
-- **\docversion{} (2025-02-11)**: Initial version.
+- **\docversion{} (\today)**: Updated page 16 with the correct
+  procedure for choosing a committee in Ariadne.
+- **1.0 (2025-02-14)**: Initial version.
 
 ** Future Roadmap
 - **Revisit Risk Charts**: The charts for inherent and residual risk
