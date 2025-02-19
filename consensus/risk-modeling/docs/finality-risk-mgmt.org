@@ -1,4 +1,4 @@
-#+TITLE: Risk Management for Midnight Block Finality
+#+TITLE: Committee Selection Risks in Midnight
 #+AUTHOR: Jon Rossie
 #+DATE: v.\docversion{}, \today
 #+OPTIONS: tex:dvipng
@@ -21,7 +21,7 @@
 #+LATEX_HEADER: \setminted{frame=single}
 #+LATEX_HEADER: \newcommand{\aura}[0]{\textsf{AURA}}
 #+LATEX_HEADER: \newcommand{\grandpa}[0]{\textsf{GRANDPA}}
-#+LATEX_HEADER: \newcommand{\docversion}{1.01}
+#+LATEX_HEADER: \newcommand{\docversion}{1.2}
 
 #+STARTUP: nolatexpreview
 
@@ -82,30 +82,34 @@ This document is actively maintained. See **Status & Changes**,  Section
 
 * Overview
 
-This document is concerned with a specific risk Midnight faces: loss
-of liveness or safety for the consensus protocol, \grandpa, that
-finalizes blocks.  Finality plays a critical role in Midnight because,
-unlike most blockchain clients, Midnight's smart-contract client
-~midnight.js~ is unable to process rollbacks.  When the client
-observes a confirmed transaction, it applies pending local state
-updates in a destructive manner.  Because of this (temporary)
-limitation, Midnight has been designed to assume fast finalization to
-reduce user-visible latencies while protecting against data loss.
+This document is concerned with a specific risk Midnight faces: the
+risk of selecting committees with low fault tolerance, thereby
+increasing the risk of a breakdown of the consensus protocol,
+\grandpa, that finalizes blocks.  Finality plays a critical role in
+Midnight because, unlike most blockchain clients, Midnight's
+smart-contract client ~midnight.js~ is unable to process rollbacks.
+When the client observes a confirmed transaction, it applies pending
+local state updates in a destructive manner.  Because of this (perhaps
+temporary) limitation, Midnight has been designed to assume fast
+finalization to reduce user-visible latencies while protecting against
+data loss.  Fast finality also provides direct usability benefits
+for people interacting with the chain, so Midnight's commitment to
+fast finality is never likely to decrease.
 
-Figure [[fig:arch]] shows a simplified set of Midnight components.
-The Midnight Node observes its Cardano Node via DB Sync, and does so
-at a delay of 12 hours because that is Cardano's longest-chain
-finality window.  But most Midnight clients are more concerned with
-the finality delay for transactions they post to the Midnight Node.
-It relies on the Indexer to provide only finalized Midnight
-transactions, to prevent possible data loss should rollback occur on
-the Midnight Node.  Anything that disrupts the orderly finalization of
-blocks, via the \grandpa{} consensus protocol, will impact clients.
-If \grandpa{} experiences liveness issues that delay finalization for
-unbounded periods, Midnight will appear offline to its clients even if
-new blocks are being produced.  If \grandpa{} experiences a safety
-violation that allows it to finalize contradictory forks, clients
-will struggle to recover.
+Figure [[fig:arch]] shows a simplified set of Midnight components.  The
+Midnight Node observes its Cardano Node via DB Sync, and does so at a
+delay of 12 hours because that is Cardano's longest-chain finality
+window.  But most Midnight clients are more concerned with the
+finality delay for transactions they post to the Midnight Node.
+Midnight clients rely on the Indexer to provide only finalized
+Midnight transactions, to prevent possible data loss should rollback
+occur on the Midnight Node.  Anything that disrupts the orderly
+finalization of blocks will impact clients.  If \grandpa{} experiences
+liveness issues that delay finalization for unbounded periods,
+Midnight will appear offline to its clients even if new blocks are
+being produced.  If \grandpa{} experiences a safety violation that
+allows it to finalize contradictory forks, clients will struggle to
+recover.
 
 Although this document mentions \grandpa{}, none of the analysis is
 specific to that protocol.  The entire analysis is relevant to any
@@ -115,15 +119,19 @@ replacement for \grandpa{} and \aura{} being prototyped as part of the
 FastBFT effort, based on Jolteon consensus.
 
 
-The rest of this document presents both a detailed analysis of
-Midnight's finality risks and an analysis of the effectiveness of
-Ariadne in reducing this risk.  We end with recommended best practice
-for dynamically adjusting Ariadne's parameters to maximize the
-system's ability to tolerate faults that could impact finality.
+The rest of this document presents a detailed analysis of Midnight's
+finality risks arising from stake-weighted committee selection.  After
+analyzing the inherent risks of that approach, we describe a variant,
+Ariadne, developed for Midnight.  We analyze its effectiveness in risk
+reduction and offer recommendations for dynamic tuning of Ariadne's
+parameters for best effect.  We conclude with an overview of how this
+document's analyses fit within a larger risk model of quorum-based
+voting in Midnight.
 
-Appendix [[Risk Management Framework]] provides an overview of
-risk-management concepts.  Familiarity with these ideas may be assumed
-at various points in the document.
+
+# Appendix [[Risk Management Framework]] provides an overview of
+# risk-management concepts.  Familiarity with these ideas may be assumed
+# at various points in the document.
 
 #+attr_org: :width 600px
 #+DOWNLOADED: 2025-02-09 14:15:02
@@ -254,14 +262,47 @@ also the active participants for block production on Midnight, but the
 focus of this paper is their participation in finality voting.]
 
 The subsetting performed by weighted random selection means some
-candidate participants will be excluded from some committees.  This
-is true even if the committee size $k$ is much larger than the number
-$n$ of candidates.  Whenever a candidate with large stake wins an
+candidate participants will be excluded from some committees.  This is
+true even if the committee size $k$ is much larger than the number $n$
+of candidates.  Whenever a candidate with large stake wins an
 additional seat, that seat is no longer available to other candidates.
-The effect when stakes vary widely is to effectively exclude the
-lowest-staked candidates from committees.  If we equate trust with 
+The effect when stakes vary widely is to probabilistically exclude the
+lowest-staked candidates from committees.
 
- 
+If we equate trust with amount staked, this probabilistic subsetting
+effect increases the security of the chain.  But it comes at the cost
+of potentially centralizing authority among the largest players.  This
+centralization can be reduced by imposing a non-linearity to voting
+strength to create diminishing returns past a certain stakepool size.
+Midnight has no direct mechanism like this in its launch plan because
+Midnight participants are a self-selected subset of Cardano
+stakepools, and Cardano already has a /saturation/ mechanism to
+implement diminishing returns for extremely large stakepools.
+
+Any mechanism that artificially inflates the voting power of
+lower-staked candidates opens the door to Sybil attacks in which a
+large stakeholder transfers their stake to a large number of smaller
+stakepools it controls, resulting in a much higher aggregate voting
+strength than their single stakepool would have commanded.  This risk
+justifies Midnight's conservative use of strictly linear scaling when
+computing voting strength.  While the linear approach is not a defense
+against all forms of Sybil attacks, it avoids introducing a direct
+incentive among rational actors to split their stake.
+
+
+
+
+# There is no constraint on the relative sizes $n$ versus $k$.  We might
+# imagine $n<k$ in the early stages of the chain, but that eventually
+# $n\gg k$ when the chain is mature.  Even when $n<k$, however, there is
+# no guarantee all $n$ participants will be selected into committees;
+# relative stake could still assign extremely low selection weights to
+# lower-stake participants, allowing those with large stakes (however
+# few there are) to dominate committees.
+
+
+
+
 # ** Iterated Committee Selection
 
 # Whenever the participant pool $P = \{(p_1, s_1), ..., (p_n, s_n)\}$
@@ -306,15 +347,6 @@ lowest-staked candidates from committees.  If we equate trust with
 # actor from registering a large number of lower-stake Sybil
 # participants that can gain more voting power than the same amount of
 # stake would earn if held by a single participant.
-
-# There is no constraint on the relative sizes $n$ versus $k$.  We might
-# imagine $n<k$ in the early stages of the chain, but that eventually
-# $n\gg k$ when the chain is mature.  Even when $n<k$, however, there is
-# no guarantee all $n$ participants will be selected into committees;
-# relative stake could still assign extremely low selection weights to
-# lower-stake participants, allowing those with large stakes (however
-# few there are) to dominate committees.
-
 
 
 
@@ -413,8 +445,6 @@ observers in the two partitions to witness quorums and support
 conflicting finality decisions.  While /Byzantine/ faults refer to any
 non-crash faults, equivocation is the key safety risk and is therefore
 the primary focus of Byzantine fault tolerance.
-
-
 
 * Objectives and Measures
 
@@ -523,6 +553,48 @@ is to pick the highest possible $f$ such that your adversary is unable
 to put the system in a faulty state regardless of which members they
 halt.  That is the point of $f$: you always know you can lose /any/
 $f$ nodes and maintain operation.
+
+
+
+# ** Non-Objectives
+
+# When establishing clear objectives it can be helpful to list notable
+# non-objectives.  (This section may be expanded as needed.)
+
+# *** Non-Objective: Risk of System Faults
+
+# When we model how many faults the system can tolerate, we do not also
+# model the probability of those faults occurring, either individually
+# or in sufficient numbers to exceed the overall tolerance.
+
+# For example, we do not consider whether faults are independent. It
+# should be clear that overall system fault tolerance is greatest when
+# all potential faults are fully independent, but that analysis is
+# outside this document's specific scope.
+
+# A full model of the fault tolerance of the system would need to
+# model how many of the candidate stakepools could potentially be
+# controlled by a single party, whether for benign or nefarious
+# purposes.  But even separately controlled candidates might
+# unintentionally share infrastructure, such as an AWS node or site.
+# These models become quite complex.  They do not depend on our
+# analysis, nor does our analysis depend on them.  The two analyses
+# together can help form a model of overall system fault tolerance.
+
+# The structure of the full
+# fault model would be:
+
+# 1. Model the probability of the system experiencing any given number
+#    of concurrent faults due to various potential violations of
+#    independence.
+# 2. Use this paper's model of the probability of randomly selecting a
+#    committee that cannot survive that number of faults.
+# 3. Combine these probabilities to form the final risk analysis.
+
+# Whatever the details of step 1 in that process, our focus to lower the
+# risk of committees with low fault tolerance should increase the
+# overall fault tolerance of the system.
+
 
 
 
@@ -785,9 +857,9 @@ significant detriment.  The best way to make the right changes is to
 track actual participating SPOs and potential non-participating ones,
 and to run simulations like those used here to ensure the current
 $\varphi$ is still advantageous.  In the early stages of the network
-we might have a $\varphi$ of 34%, but we may need to drop to 20%
-shortly thereafter and we may even go to 0% if we are lucky enough to
-have thousands of participating SPOs.
+we might have a $\varphi$ of 34% or even 49%, but we may need to drop
+to 20% shortly thereafter and we may even go to 0% if we are lucky
+enough to have thousands of participating SPOs.
 
 
 
@@ -799,22 +871,201 @@ have thousands of participating SPOs.
 [[file:Analysis/2025-02-10_23-25-52_screenshot.png]]
 
 
+
+
+* Toward a Full Model of Finality Risk
+
+A complete model of Midnight's finality risk is outside the scope of
+this document, but the elements discussed here form one of two pillars
+for such a model, each of which is largely independent of the other.
+The rest of this section provides a brief overview of these pillars
+and how their results can be combined to form a full risk model.
+
+** The Risk of a Committee that Cannot Tolerate $f$ Faults
+
+This risk is the focus of the current document.  The document provides
+an approach to analyzing the risk of selecting committees with low
+fault tolerance, and establishes both the inherent risk and the risk
+reduction that can be achieved using Ariadne.
+
+** The Risk of $f$ Faults Occurring at Once
+
+This risk is outside the scope of the current document.  It's
+essentially open-ended problem with a great deal of nuance.  We cannot
+do justice to the topic here, but it might be useful to consider some
+of the factors to consider in such a model.  For most of this
+discussion we are concerned with improving the /honest uptime/ of
+nodes operated by honest actors; it will be clear when we mean to
+discuss adversarial actors.
+
+*** MTBF Abstraction
+
+For a node to become a faulty protocol participant requires either
+adversarial intent of the failure of some component or interaction
+among components within the node or the network.  Nodes are complex,
+consisting of many interacting components with their own fault
+profiles.  A deep analysis of all these potential faults can be
+instructive, but can never be fully complete.  Instead, it's common to
+abstract over root causes by simply measuring the mean time between
+failure (MTBF) of entire nodes and of their major components. This is
+much more tractable than trying to analyze the complex interactions of
+all hardware, software, and network elements.
+
+*** Detection Time
+
+Byzantine faults are, by nature, hard to detect.  It's hard for other
+nodes to reliably detect a Byzantine fault in another node, but it's
+also hard for an operator to detect a Byzantine fault in their own
+node.  Since nodes and components suffering Byzantine faults continue
+to attempt protocol interactions, but do so incorrectly, fault
+detection requires someone to monitor KPIs related to successful
+protocol interactions.  Even when those KPIs indicate an issue, the
+node operator must determine whether they are at fault or whether they
+are witnessing faults in other nodes.  The longer it takes a node
+operator to detect their own faults, the longer they will remain in a
+faulty state.  The average time to detect a fault is called the mean
+time to detection (MTTD).
+
+
+*** Recovery Time
+
+The mean time to recovery (MTTR) is essential in a model meant to
+predict the risk of concurrent faults.  The sum of MTTD and MTTR is
+the total time the node is not experiencing honest uptime.  
+
+If MTBF is much shorter than MTTD+MTTR, it's easy to imagine a system
+in which all nodes are in recovery at the same time.  If MTBF is much
+greater, it helps reduce the probability of concurrent faults.
+
+
+*** DB Sync Example
+
+Every Midnight node has, for example, a DB Sync instance it relies on
+for information about Cardano.  While it may be possible to replace DB
+Sync with a different technology, current nodes can fail simply
+because DB Sync fails.  DB Sync instances are known to fail silently,
+producing incorrect data rather than crashing.  By definition, these
+are Byzantine faults.  They manifest as incorrect participation in the
+protocol, causing the node's votes and block-production opportunities
+to be wasted, and preventing the node from validating correct traffic
+from the rest of the network.
+
+The honest uptime of a node can be improved by a number of approaches,
+including:
+1. Raising DB Sync's MTBF (through hardening engineering on that codebase).
+2. Reducing the node's MTTD for DB Sync.
+3. Reducing the MTTR to get the node back into service.
+4. Replacing DB Sync with a component whose MTBF is higher and/or
+   whose MTTD+MTTR is lower.
+
+One possible mechanism, as an illustration, would be for a set of
+trusted nodes to operate a small fault-tolerant cluster that
+periodically votes on the current hash of the important elements of DB
+Sync's state and publishes a signed outcome of their agreed value to
+Midnight's gossip network.  This would allow Midnight nodes to
+automatically self-check against a known-good finterprint to greatly
+reduce MTTD.  Such a cluster could also publish full state snapshots
+of their DB Sync instances (using, say ~psql_dump~) to provide fast
+recovery, reducing MTTR.
+
+
+*** Common Cause Analysis
+
+Independent node failures are less of a worry than failures from
+common causes.  If multiple nodes share any common infrastructure or
+use common operational support, a failure in that infrastructure or
+support can affect all those nodes concurrently.  In a decentralized
+system these common-cause faults are extremely hard to predict,
+because they are the results of individual choices by decentralized
+actors.
+
+*** Adversarial Control or Collusion
+
+These are important variants of common-cause faults.  In the first
+case, an adversarial actor corrupts and controls the votes of other
+participants.  In the second case, a number of adversarial actors
+actively collude to combine their voting power.  In either case, such
+adversarial behaviors fall outside MTBF/MTTR analysis and form a
+category of their own.  The assumption that "/more stake implies
+greater trust/" must somehow factor into any probability analysis for
+collusion, but says little about adversarial corruption and control.
+These are perhaps the hardest risks to model accurately in a
+decentralized chain.
+
+** Putting it Together
+
+Suppose we can quantify these risks as probabilities, where
+$P(\text{not tolerated})_f$ is the probability of selecting a
+committee cannot tolerate $f$ concurrent faults, and
+$P(\text{occur})_f$ is the probability that $f$ faults might occur
+simultaneously.  If these turn out to be independent probabilities, we
+can compute the probability of both arising as the product of their
+probabilities:
+
+\[
+P(\text{system fault})_{f} =  P(\text{not tolerated})_f \times P(\text{occur})_{f}
+\]
+
+There remain some subtleties to explore before we could accept this
+simple model.  Suppose, for example, larger stakepools have lower risk
+of individual faults.  Then the overall model becomes more complicated
+because the system can generally support more faults among smaller
+stakepools.
+
+** Telling Risks Apart
+
+It's not always easy to see whether a risk is in one pillar or
+another, although they are often easily distinguished.  Consider a
+scenario in which the single operator of several large stakepools
+participates in Midnight for a period of time and then simply stops
+without de-registering.  There is a real risk the committee-selection
+protocol will continue to add them to committees despite their lack of
+activity, since selection does not consider such factors.  The result
+could be a persistent state in which all their committee members
+represent perpetual, concurrent faults that the system must carry.
+
+This risk is harder to address than it may seem; it requires a
+protocol for proposing and challenging claims that a committee member
+appears inactive, as well as a protocol to allow them to return when
+they are ready.
+
+We might say that this scenario concerns the risk of choosing a
+committee that cannot tolerate $f$ faults, since it concerns a
+blind spot in the committee selection algorithm.  But in fact it is
+primarily about the risk of $f$ concurrent faults because the blind
+spot has the potential to allow faults to accumulate.  The underlying
+issue is that the candidate has abandoned the protocol, which is a
+fault.  
+
+
+** Conclusion
+
+This was only a brief overview of the larger risk analysis problem,
+but it should serve to contextualize the contributions of the current
+document.  Regardless of the specifics of such a combined model, it
+should be clear that raising the number of faults a committee can
+tolerate is a significant part of risk management.
+
 \newpage
 #+LATEX:\appendix
-
-
 * Status & Changes
 #+LATEX: \label{sec:status-changes}
 
 ** Version History
-- **\docversion{} (\today)**: Updated page 16 with the correct
+- **\docversion{} (\today)**: Significant update after early feedback.
+  - New title more reflective of the focus of the document within a larger risk model.
+  - New section "Toward a Full Model of Finality Risk" that
+    contextualizes this document's contribution within a larger risk
+    analysis.
+  - Finished incomplete paragraph concerning participant subsetting. 
+- **1.01 (2025-02-14)**: Updated page 16 with the correct
   procedure for choosing a committee in Ariadne.
 - **1.0 (2025-02-14)**: Initial version.
 
 ** Future Roadmap
 - **Revisit Risk Charts**: The charts for inherent and residual risk
   might be inverted.  That is, if we say a chart is about risk, then
-  100$ should be total exposure, while 0% should be no exposure.  We
+  100% should be total exposure, while 0% should be no exposure.  We
   should revisit the graphs and wording to be more clear.
 - **Incorporate Unused Charts**: Find the right place to include the
   unused charts in section [[Unused Charts]].

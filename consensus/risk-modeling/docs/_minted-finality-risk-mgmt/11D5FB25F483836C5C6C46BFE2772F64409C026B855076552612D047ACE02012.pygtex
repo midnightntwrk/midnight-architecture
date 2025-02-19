@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{x}\PYG{p}{,} \PYG{n}{f} \PYG{o}{=} \PYG{l+m+mi}{0}
+\PYG{k}{for} \PYG{n}{v} \PYG{o+ow}{in} \PYG{n}{V}\PYG{p}{:}
+  \PYG{k}{if} \PYG{n}{x} \PYG{o}{+} \PYG{n}{v} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{1}\PYG{o}{/}\PYG{l+m+mi}{3}\PYG{p}{:}
+     \PYG{k}{break}
+  \PYG{n}{x} \PYG{o}{+=} \PYG{n}{v}
+  \PYG{n}{f} \PYG{o}{+=} \PYG{l+m+mi}{1}
+\PYG{k}{return} \PYG{n}{f}
+\end{Verbatim}
