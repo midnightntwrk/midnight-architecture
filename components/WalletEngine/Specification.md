@@ -312,7 +312,7 @@ Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-serialized encryption secret key: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes, ) 
+Ledger-serialized encryption secret key without network id: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes) 
 Credential type is `shield-esk`
 
 ## Transaction structure and statuses
