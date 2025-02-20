@@ -10,13 +10,13 @@ NIGHT UTxO on Midnight produces DUST, assigning it to a specific *DUST address*.
 Importantly, the *NIGHT address*, where the NIGHT UTxO resides, and the *DUST
 address*, where DUST is allocated, need not be controlled by the same party.
 
-NIGHT tokens can be transferred to Cardano.  NIGHT tokens on Cardano should
-still be able to produce DUST if their Cardano owner desires so.  The owner of
-NIGHT tokens may also want to trade DUST produced from their tokens to someone
-else.
+NIGHT tokens can exist on Cardano.  These tokens should still be able to produce
+DUST on Midnight if their Cardano owner desires so.  The owner of NIGHT tokens
+may also want to trade DUST produced from their tokens to someone else.
 
 **NOTE:** Henceforth we will use the term "cNIGHT" to refer to NIGHT tokens
-located on Cardano, and "mNIGHT" to refer to NIGHT tokens on Midnight.
+located on Cardano, to distinguish them from NIGHT tokens on Midnight
+("mNIGHT").
 
 Our goal is to create mechanisms that allow cNIGHT owners to manage DUST
 generation.  By default, cNIGHT tokens do not generate DUST.  cNIGHT owner
