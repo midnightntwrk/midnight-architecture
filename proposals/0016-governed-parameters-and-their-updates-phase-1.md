@@ -1,4 +1,4 @@
-# Proposal 0016: Governed parameters and their update mechanics: Phase 1
+# Proposal 0016: Governed Parameters and Their Update Mechanics: Phase 1
 
 ## Problem Statement
 

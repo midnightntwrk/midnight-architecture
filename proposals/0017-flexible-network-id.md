@@ -1,4 +1,4 @@
-# Proposal 0017: Flexible network identifier
+# Proposal 0017: Flexible Network Identifier
 
 ## Problem Statement
 
