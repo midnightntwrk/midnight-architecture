@@ -77,13 +77,16 @@ declare global {
 ```
 
 Here, some responsibilities lie on both DApp and Wallet:
-1. In case multiple wallets install their API - the DApp should present the user with way to choose the wallet to use for the interaction
-2. From DApp perspective, both name and icon are potentially malicious input, and thus - they should be sanitized before being presented to the user. In particular - the icon should always be rendered inside an `img` tag to prevent XSS from JavaScript embedded in SVG.
-3. DApp should always check the `apiVersion` against supported range of versions (following semver semantics)
-4. Wallet must report exact version of the `@midnight-ntwrk/dapp-connector-api` package it implemented
-5. When connecting:
+1. The DApp should not rely on the contents of the key in the `midnight` object, as it can be arbitrary string and defined arbitrarily by the implementor. The wallet can use their name as the identifier, but a randomized string, like UUID is equally valid option.
+2. In case multiple wallets install their API - the DApp should present the user with way to choose the wallet to use for the interaction
+3. From DApp perspective, both name and icon are potentially malicious input, and thus - they should be sanitized before being presented to the user. In particular - the icon should always be rendered inside an `img` tag to prevent XSS from JavaScript embedded in SVG.
+4. DApp should always check the `apiVersion` against supported range of versions (following semver semantics)
+5. Wallet must report exact version of the `@midnight-ntwrk/dapp-connector-api` package it implemented
+6. If the Wallet implements multiple incompatible versions of the API simultanously (which is a possible case during transition period related to a hard-fork), Wallet must provide multiple entries in the `midnight` object.
+7. When connecting:
    - DApp must provide network id it wants to connect to
    - Wallet must reject connection request if it can't connect to the network with id provided by the DApp
+   - It is up to wallet to define their approach to different networks, they can support connecting to multiple networks simultanously, they can connect to only single network at a time and ask user to make the switch and then reload the DApp, etc.
    - Wallet should ask user for the scope of permissions provided to the DApp and indicate what network the DApp wants to connect to. It is up to the wallet implementation to decide how exactly and when exactly user is asked for confirmation
 
 ### Connected API
@@ -125,9 +128,22 @@ type UnshieldedAddress = {
 };
 
 type InitActions = {
+  /**
+   * Take transaction, add necessary inputs and outputs to remove imbalances from it, returning a transaction ready for submission
+   */
   balanceTransaction(tx: string): Promise<{tx: string}>;
+  /**
+   * Initialize a transfer transaction with desired outputs
+   */
   makeTransfer(desiredOutputs: DesiredOutput[]): Promise<{tx: string}>;
+  /**
+   * Initialize a transaction with unbalanced intent containing desired inputs and outputs.
+   * Primary use-case for this method is to create a transaction, which inits a swap
+   */
   makeIntent(intentId: number | "random", desiredInputs: DesiredInput[], desiredOutputs: DesiredOutput[]): Promise<{tx: string}>;
+  /**
+   * Sign provided data using key specified in the options
+   */
   signData(data: string, options?: SignDataOptions): Promise<{ data: string; signature: string }>;
 };
 
@@ -149,8 +165,8 @@ type AccessConfiguration = {
   getConfiguration(): Promise<Configuration>;
 }
 
-type SubmitTransactions = {
-    submitTx(tx: string): Promise<void>;
+type SubmitTransaction = {
+    submitTransaction(tx: string): Promise<void>;
 }
 
 type ConnectedAPI = 
@@ -231,6 +247,8 @@ The protocol that comes with this API is as follows:
 10. In the configuration object, the wallet must point to service deployments, which are compatible with network id present, and preferably are the same that the wallet itself uses for particular network.
 11. Wallet must provide data like token types and addresses in format compatible with network id present in the configuration object.
 12. Wallet can reconcile data like balances from multiple accounts, in such case wallet must ensure data consistency, mostly related to reported balances, so that they can actually be used in a transaction, if only it fits single transaction and user does permits so.
+13. Wallet needs to ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
+
 
 ### Errors
 
