@@ -26,6 +26,8 @@ tqdm = "*"
 torch = "*"
 nbconvert = "*"
 black = "*"
+scikit-learn = "*"
+notebook = "*"
 
 [dev-packages]
 black = "*"
