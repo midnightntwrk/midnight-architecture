@@ -80,7 +80,7 @@ Here, some responsibilities lie on both DApp and Wallet:
 1. The DApp should not rely on the contents of the key in the `midnight` object, as it can be arbitrary string and defined arbitrarily by the implementor. The wallet can use their name as the identifier, but a randomized string, like UUID is equally valid option.
 2. In case multiple wallets install their API - the DApp should present the user with way to choose the wallet to use for the interaction
 3. From DApp perspective, both name and icon are potentially malicious input, and thus - they should be sanitized before being presented to the user. In particular - the icon should always be rendered inside an `img` tag to prevent XSS from JavaScript embedded in SVG.
-4. DApp should always check the `apiVersion` against supported range of versions (following semver semantics)
+4. DApp should always check the `apiVersion` against supported range of versions (following semver semantics) and the DApp must not attempt to connect or present to the user initial APIs that are annotated with an unsupported API version.
 5. Wallet must report exact version of the `@midnight-ntwrk/dapp-connector-api` package it implemented
 6. If the Wallet implements multiple incompatible versions of the API simultanously (which is a possible case during transition period related to a hard-fork), Wallet must provide multiple entries in the `midnight` object.
 7. When connecting:
@@ -92,6 +92,8 @@ Here, some responsibilities lie on both DApp and Wallet:
 ### Connected API
 
 Once connected, wallet provides connected API - one which allow for specific interaction with the wallet.
+
+Main intention behind the connected API design is to enable many useful DApps, but also - to maintain separation of responsibilities between DApps and wallets. Wallets should not be concerned about preparing the right contract calls and preparing whole transaction as the DApp needs it, but also DApps should not be concerned with key management or wallet-specific operations like coin selection. For that reason, no API provides direct access to shielded coins or unshielded UTxOs, and instead DApps can ask wallet to prepare a transaction having specific effect using methods like `makeTransfer` or `makeIntent`. At the same time, main API allowing contracts to effectively use tokens owned by wallet but without direct access is `balanceTransaction` - the DApp can provide there a transaction including shielded or unshielded offers describing desired token movements, and also contract calls/deploys themselves. Such API allows wallet to not be concerned with details of transaction construction, but also being enabled to provide necessary inputs and outputs without making them a concern of the DApp.
 
 The connected API consists of couple of parts, each always present, but its methods may throw an error indicating lack of permission:
 ```ts
@@ -115,12 +117,6 @@ type ShieldedAddress = {
   }>;
 };
 
-type DustAddress = {
-    getDustAddress(): Promise<{
-        dustAddress: string;
-    }>;
-}
-
 type UnshieldedAddress = {
   getUnshieldedAddress(): Promise<{
     unshieldedAddress: string;
@@ -142,9 +138,9 @@ type InitActions = {
    */
   makeIntent(intentId: number | "random", desiredInputs: DesiredInput[], desiredOutputs: DesiredOutput[]): Promise<{tx: string}>;
   /**
-   * Sign provided data using key specified in the options
+   * Sign provided data using key and format specified in the options
    */
-  signData(data: string, options?: SignDataOptions): Promise<{ data: string; signature: string }>;
+  signData(data: string, options: SignDataOptions): Promise<Signature>;
 };
 
 type Configuration = {
@@ -174,7 +170,6 @@ type ConnectedAPI =
   & UnshieldedBalance 
   & TxHistory 
   & ShieldedAddress 
-  & DustAddress 
   & UnshieldedAddress 
   & InitActions 
   & AccessConfiguration 
@@ -228,26 +223,44 @@ type DesiredInput = DesiredOutput;
 
 type TokenType = string;
 
-type SignDataKeyType = "unshielded";
 type SignDataOptions = {
-  keyType: SignDataKeyType;
+  /**
+   * How are data for signing encoded.
+   * "hex" and "base64" mean binary data are encoded using one or the other format, 
+   *   the wallet must decode them into binary sequence first
+   * "text" means the data should be signed as provided in the string, but encoded into UTF-8 as a normalization step. 
+   *   Conversion is necessary, because JS strings are UTF-16
+   */
+  encoding: "hex" | "base64" | "text"
+  /**
+   * What kind of key to use for signing
+   */
+  keyType: "unshielded";
 };
+type Signature = {
+  /**
+   * The data signed
+   */
+  data: string; 
+  signature: string; 
+  verifyingKey: string
+}
 ```
 
 The protocol that comes with this API is as follows:
-1. The DApp should not assume presence of methods means granted permission, wallets might implement policy like "Ask on first use", as well as "Ask user upfront"
+1. The DApp should not assume presence of methods means granted permission, wallets might implement various policies like "Ask on first use", as well as "Ask user upfront". In particular - wallets implementing "Ask on first use" policies might add some latency to first calls, in order to collect multiple requests the DApp makes for particular view and only ask the user once.
 2. To let DApp clearly distinguish it is the case, wallet must return `PermissionRejected` error for a particular method
 3. The way the API is compartmentalized is a possibility of how wallets can manage permissions, though wallets are free to implement more coarse-grained as well as more fine-grained permissions to limit access to certain actions or data.
-4. When asked returning transaction (in methods `balanceTransaction`, `makeTransfer` or `makeIntent`), wallet must always return a transaction ready to be submitted to the network, that is one that is sealed, contains signatures, and contains proofs.
+4. When asked returning transaction (in methods `balanceTransaction`, `makeTransfer` or `makeIntent`), wallet must always return a transaction ready to be submitted to the network, that is one that is sealed, contains needed signatures, and contains needed proofs.
 5. The DApp, when asking wallet to submit a transaction, needs to provide a transaction ready to be submitted to the network, that is one that is sealed, contains signatures, and contains proofs.
 6. The DApp, when asking wallet to balance a transaction, needs to provide a transaction, which is not sealed and does not contain signatures, but already contains proof, otherwise wallet won't be able to deserialize it and complement with necessary tokens.
 7. The DApp, when asking wallet to balance a transaction, needs to provide a transaction compatible with network id indicated in the configuration object.
 8. The DApp should connect to indexer and proving server indicated by configuration, therefore wallet should not limit access to the `getConfiguration` method unless absolutely necessary.
 9. The DApp can double check if `networkId` present in configuration matches the requested one
 10. In the configuration object, the wallet must point to service deployments, which are compatible with network id present, and preferably are the same that the wallet itself uses for particular network.
-11. Wallet must provide data like token types and addresses in format compatible with network id present in the configuration object.
+11. Wallet must provide data like token types and addresses in format compatible with network id present in the configuration object and following relevant specification, Midnight Wallet specification does define address format.
 12. Wallet can reconcile data like balances from multiple accounts, in such case wallet must ensure data consistency, mostly related to reported balances, so that they can actually be used in a transaction, if only it fits single transaction and user does permits so.
-13. Wallet needs to ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
+13. Wallet must ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
 
 
 ### Errors
@@ -298,3 +311,7 @@ In many cases wallets might want to expose additional APIs, which are not part o
 ### Structured data signing
 
 DApp connector's ability to sign arbitrary data is crucial to enable plenty of use-cases. It faces a significant user experience issue - many times the data being signed will not be human-readable, preventing user from assesing what exactly is being signed. To change that, Ethereum has adopted [EIP-712](https://eips.ethereum.org/EIPS/eip-712), Midnight's DApp connector could be extended to similar functionality.
+
+### Event listener/observable API
+
+In many cases, DApps might want to be notified when information relevant for them changes - e.g. a DEX might want to be notified whenever balances change. Providing push-based updates would be a welcome quality-of-life improvement. 
