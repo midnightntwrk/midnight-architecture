@@ -17,69 +17,68 @@ This document comprises a couple of sections:
 7. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
 8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
-<!-- TOC -->
-* [Midnight Wallet Specification](#midnight-wallet-specification)
-  * [Introduction](#introduction)
-    * [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
-    * [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
-    * [Binding randomness](#binding-randomness)
-    * [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
-    * [Summary](#summary)
-  * [Key management](#key-management)
-    * [HD Wallet structure](#hd-wallet-structure)
-    * [Night keys](#night-keys)
-    * [Dust keys](#dust-keys)
-    * [Zswap keys](#zswap-keys)
-      * [Zswap seed](#zswap-seed)
-      * [Output encryption keys](#output-encryption-keys)
-      * [Coin keys](#coin-keys)
-      * [Address](#address)
-    * [Metadata keys](#metadata-keys)
-    * [Scalar sampling](#scalar-sampling)
-  * [Address format](#address-format)
-    * [Unshielded Payment address](#unshielded-payment-address)
-    * [Dust address](#dust-address)
-    * [Shielded Payment address](#shielded-payment-address)
-    * [Shielded Coin public key](#shielded-coin-public-key)
-    * [Shielded Encryption secret key](#shielded-encryption-secret-key)
-  * [Transaction structure and statuses](#transaction-structure-and-statuses)
-    * [Standard transaction](#standard-transaction)
-    * [Mint claim](#mint-claim)
-  * [State management](#state-management)
-    * [Balances](#balances)
-    * [Operations](#operations)
-      * [`apply_transaction`](#apply_transaction)
-        * [shielded offer of a section](#shielded-offer-of-a-section)
-        * [unshielded offer of a section](#unshielded-offer-of-a-section)
-      * [`finalize_transaction`](#finalize_transaction)
-      * [`rollback_last_transaction`](#rollback_last_transaction)
-      * [`discard_transaction`](#discard_transaction)
-      * [`spend`](#spend)
-      * [`watch_for`](#watch_for)
-  * [Synchronization process](#synchronization-process)
-    * [Indexing service for shielded tokens](#indexing-service-for-shielded-tokens)
-    * [Indexing service for unshielded tokens](#indexing-service-for-unshielded-tokens)
-  * [Building standard transactions](#building-standard-transactions)
-    * [Building operations](#building-operations)
-      * [Building a shielded input](#building-a-shielded-input)
-      * [Building a shielded output](#building-a-shielded-output)
-      * [Building a transient](#building-a-transient)
-      * [Combining shielded inputs, outputs and transients into a shielded offer](#combining-shielded-inputs-outputs-and-transients-into-a-shielded-offer)
-      * [Replacing a shielded output with a transient](#replacing-shielded-output-with-a-transient)
-      * [Building an unshielded input (called UTxO Spend)](#building-an-unshielded-input-called-utxo-spend)
-      * [Building an unshielded output](#building-an-unshielded-output)
-      * [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
-      * [Creating an intent](#creating-an-intent)
-      * [Creating transaction with an intent and shielded offers](#creating-transaction-with-an-intent-and-shielded-offers)
-      * [Merging with other transaction](#merging-with-other-transaction)
-        * [Merging shielded offers](#merging-shielded-offers)
-    * [Building stages](#building-stages)
-      * [Prepare transfer](#prepare-transfer)
-      * [Prepare a swap](#prepare-a-swap)
-      * [Contract call](#contract-call)
-      * [Balance transaction](#balance-transaction)
-  * [Transaction submission](#transaction-submission)
-<!-- TOC -->
+- [Midnight Wallet Specification](#midnight-wallet-specification)
+  - [Introduction](#introduction)
+    - [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
+    - [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
+    - [Binding randomness](#binding-randomness)
+    - [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
+    - [Summary](#summary)
+  - [Key management](#key-management)
+    - [HD Wallet structure](#hd-wallet-structure)
+    - [Night and unshielded tokens keys](#night-and-unshielded-tokens-keys)
+    - [Dust keys](#dust-keys)
+    - [Zswap keys](#zswap-keys)
+      - [Zswap seed](#zswap-seed)
+      - [Output encryption keys](#output-encryption-keys)
+      - [Coin keys](#coin-keys)
+      - [Address](#address)
+    - [Metadata keys](#metadata-keys)
+    - [Scalar sampling](#scalar-sampling)
+  - [Address format](#address-format)
+    - [Unshielded Payment address](#unshielded-payment-address)
+    - [Dust address](#dust-address)
+    - [Shielded Payment address](#shielded-payment-address)
+    - [Shielded Coin public key](#shielded-coin-public-key)
+    - [Shielded Encryption secret key](#shielded-encryption-secret-key)
+  - [Transaction structure and statuses](#transaction-structure-and-statuses)
+    - [Standard transactions](#standard-transactions)
+    - [Mint claim](#mint-claim)
+  - [State management](#state-management)
+    - [Balances](#balances)
+    - [Operations](#operations)
+      - [`apply_transaction`](#apply_transaction)
+        - [Steps to apply shielded offer of a section](#steps-to-apply-shielded-offer-of-a-section)
+        - [Steps to apply unshielded offer of a section](#steps-to-apply-unshielded-offer-of-a-section)
+      - [`finalize_transaction`](#finalize_transaction)
+      - [`rollback_last_transaction`](#rollback_last_transaction)
+      - [`discard_transaction`](#discard_transaction)
+      - [`spend`](#spend)
+      - [`watch_for`](#watch_for)
+  - [Synchronization process](#synchronization-process)
+    - [Indexing service for shielded tokens](#indexing-service-for-shielded-tokens)
+    - [Indexing service for unshielded tokens](#indexing-service-for-unshielded-tokens)
+  - [Building standard transactions](#building-standard-transactions)
+    - [Building operations](#building-operations)
+      - [Building a shielded input](#building-a-shielded-input)
+      - [Building a shielded output](#building-a-shielded-output)
+      - [Building a transient](#building-a-transient)
+      - [Combining shielded inputs, outputs and transients into a shielded offer](#combining-shielded-inputs-outputs-and-transients-into-a-shielded-offer)
+      - [Replacing shielded output with a transient](#replacing-shielded-output-with-a-transient)
+      - [Building an unshielded input](#building-an-unshielded-input)
+      - [Building an unshielded output](#building-an-unshielded-output)
+      - [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
+      - [Creating an intent](#creating-an-intent)
+      - [Creating transaction with an intent and shielded offers](#creating-transaction-with-an-intent-and-shielded-offers)
+      - [Merging with other transaction](#merging-with-other-transaction)
+        - [Merging shielded offers](#merging-shielded-offers)
+    - [Building stages](#building-stages)
+      - [Prepare transfer](#prepare-transfer)
+      - [Prepare a swap](#prepare-a-swap)
+      - [Contract call](#contract-call)
+      - [Balance transaction](#balance-transaction)
+  - [Transaction submission](#transaction-submission)
+
 
 ## Introduction
 
@@ -186,9 +185,9 @@ Where:
 > 
 > Generally treating keys as uniform bitstrings should not be done, though in this particular case, where secp256k1 base field is so close in size to 2^256, it is found that impact on security is negligible, which makes this approach acceptable.
 
-### Night (and unshielded tokens) keys
+### Night and unshielded tokens keys
 
-Night uses Schnorr signature over secp256k1 curve.
+Unshielded tokens use Schnorr signature over secp256k1 curve.
 
 That makes a private key derived at certain path, the private key for Night. The public key being derived accordingly, e.g. as specified in [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
 
@@ -342,16 +341,18 @@ Standard Midnight transactions include 3 kinds of components:
 2. An unshielded offer.
 3. A contract action.
 
-Shielded offer is an atomically applicable, balanced, sorted set of shielded inputs, outputs and transients. It also tracks token imbalances, because finalized offer does not contain information about coins values.
+Shielded offer is an atomically applicable, sorted set of shielded inputs, outputs and transients. It also conveys information on utilised token imbalances (if there are any), because finalized offer does not contain information about coins values.
 
-Unshielded offer is an atomically applicable, balanced, sorted set of unshielded inputs and outputs, together with a set of signatures.
+Unshielded offer is an atomically applicable, sorted set of unshielded inputs and outputs, together with a set of signatures authorizing the spends and sealing the intent an offer is part of.
+
+Balance of a token within an offer/intent is a sum of values of the coins of particular type in the outputs subtracted from the sum of values of inputs. Only transactions which have balance for all tokens used greater than or equal to zero, where the balance of tDUST token needs to cover transaction fees, will be accepted by the ledger as valid ones.
 
 A standard transaction contains:
 - *Intents*: each intent has assigned its execution order, determined by an identifier within the transaction. It contains or refers to shielded and unshielded offers, and contract actions within a transaction that are meant to be executed together (e.g. because they represent a swap of unshielded tokens for shielded ones, which is all done through a contract).
 - Fallible and guaranteed sections.  A guaranteed section includes a shielded offer and a set of unshielded ones (one for each intent). A guaranteed section has to succeed for the whole transaction to succeed. Fallible sections (there exists one for each intent present) comprise a shielded offer, unshielded offer and contract actions. This split makes a transaction execution yield one of the following 3 results:
-  - total success - when guaranteed section and all fallible sections succeed
-  - total failure - when guaranteed section fails
-  - partial success, with succeeding intent ids - when guaranteed section passes, but some (or all) of fallible sections fail
+  - success - when guaranteed section and all fallible sections succeed
+  - failure - when guaranteed section fails, so no fallible section is even executed
+  - partial success, with succeeding intent ids - when guaranteed section passes, but some (or all) of fallible sections fail, the succeeding ones are being returned
 
 Because a transaction can always be extended (by adding new intents or merging shielded offers), its hash is not a reliable identifier to use when looking for transaction confirmation. Instead, transactions should be identified by their known components: value commitments of shielded offers or binding commitments of intents.
 
@@ -363,13 +364,17 @@ The claim includes:
 - The recipient's address.
 - The proof that the recipient is eligible for the claim.
 
+Possible uses of mint transactions are - assigning rewards to SPOs, assigning rewards to SPO delegators, minting tokens for faucet in testnets.
+
 ## State management
 
 Wallet has a state, which needs accurate maintenance in order to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
 - keys
-- set of known shielded coins
-- shielded coin commitment Merkle tree
-- set of known unshielded coins
+- A set of owned shielded coins
+- A Merkle tree of shielded coin commitments
+- A set of owned unshielded coins
+
+Owned coins do not have to be spendable at particular point. They might also be coins that the wallet was let know of, which are expected to be included in one of the future transactions.
 
 Additionally, it is in practice important to track progress of synchronization with chain, pool of pending transactions and transaction history.
 
@@ -385,7 +390,7 @@ Functions `apply_transaction`, `finalize_transaction` and `rollback_transaction`
 
 Full transaction lifecycle in relationship to those operations is presented on figure below. Please note, that confirmed and final transactions have statuses related to their execution.
 
-The status "failed entirely" is conceptually the same as "failed" (there was no effect on ledger state), with the major difference being the reason - if transaction was confirmed with "failed entirely" status it meant it was successfully submitted to the network and there was an attempt of adding it to a block, but it was rejected by ledger rules, so it was added to a block as a failed one. The "failed" status means though that transaction was submitted to the network, but there is no block to include it in any form (because of some intermittent issues or a chain reorganization).
+The status "failure" is conceptually the same as "rejected" (there was no effect on ledger state), with the major difference being the reason - if transaction was confirmed with "failure" status it meant it was successfully submitted to the network and there was an attempt of adding it to a block, but it was rejected by ledger rules, so it was added to a block as a failed one. The "rejected" status means though that transaction was submitted to the network, but there is no block to include it in any form (because of some intermittent issues or a chain reorganization).
 
 ![](./tx-lifecycle.svg)
 
@@ -407,9 +412,9 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 
 #### `apply_transaction`
 
-Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed section only or first guaranteed and then fallible sections. 
+Applies a transaction to the wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes only sections indicated as successful (all of them in case of a `success` status, guaranteed and then indicated fallible sections in case of `partial success` status).
 
-##### shielded offer of a section
+##### Steps to apply shielded offer of a section
 1. Update coin commitment tree with commitments of outputs and transients present in the offer
 2. Verify obtained coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
 3. Book coins, whose nullifiers match the ones present in offer inputs 
@@ -418,14 +423,15 @@ Applies transaction to wallet state. Most importantly - to discover received coi
    2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
    3. If decryption fails - ignore output
 
-##### unshielded offer of a section
+##### Steps to apply unshielded offer of a section
 1. Book coins spent in the inputs.
 2. Filter outputs to narrow them down to only ones received by tracked addresses, for each one:
    1. Match the coin with pending ones, if there is a match, mark the matching pending coin as confirmed.
    2. Otherwise add a coin to the known set as a confirmed.
-If transaction is reported to fail entirely and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
 
-If transaction history is tracked and transaction is found relevant, an entry should be added, with confirmed status. Amount of shielded tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
+If transaction is reported to fail and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
+
+If the transaction history is tracked and the transaction is found relevant to the history of the wallet (e.g. spends or outputs tokens from/to wallet keys), an entry should be added, with confirmed status. The amount of shielded tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
 
 #### `finalize_transaction`
 
@@ -486,9 +492,9 @@ An alternative idea is to use an indexing service, at the cost of having to trus
 
 ### Indexing service for shielded tokens
 
-The service receives wallet's encryption secret key. Then the service uses it to scan for transactions relevant for particular wallet and provides data needed to evolve the state, that is:
-- necessary updates to coin commitment tree (including roots for consistency checks) - either commitments themselves or subtrees collapsed to only relevant nodes in the tree 
-- filtered transactions to apply
+The service receives wallet's encryption secret key. Then the service uses it to scan for transactions relevant for particular wallet (in this context a relevant transaction is one containing an output that can be decrypted with the key provided) and provides data needed to evolve the state, that is:
+- The necessary updates to coin commitment tree (including roots for consistency checks) - that is either commitments themselves or subtrees of the coin commitment tree collapsed to only relevant nodes in the tree 
+- Filtered transactions to apply
 Such service cannot spend coins because it does not have access to the coin secret key. It still needs to be trusted by the user though, because it has access to otherwise private information. The upside is that it can offer better synchronization time, less resource consumption on the user side, and overall better user experience.
 
 ### Indexing service for unshielded tokens
@@ -575,9 +581,11 @@ Many use-cases involving transients require replacing an existing output with a 
 3. Update the offer's binding randomness, by combining it with provided transient's input randomness
 4. Update the offer's imbalances by increasing the imbalance for a provided coin's type by provided amount
 
-#### Building an unshielded input (called UTxO Spend)
+#### Building an unshielded input
 
-UTxO spend is almost the same as UTxO itself, with the difference that instead of an address, a Schnorr verifying key is provided
+UTxO spend is almost the same as UTxO itself, with the difference that instead of an address, a Schnorr verifying key is provided.
+
+While inputs/outputs is a common vocabulary for UTxO-based systems and unshielded offer has a field called inputs, the ledger specification calls the datatype used as an input to transaction a UTxO Spend, hence mentioning both names.
 
 #### Building an unshielded output
 
@@ -593,7 +601,7 @@ An unshielded offer contains a list of inputs, outputs, and signatures correspon
 #### Creating an intent
 
 Given:
-- A non-zero segment id. There are multiple approaches to obtaining one, with two being particularly useful in most use cases:
+- A non-zero segment id (zero is reserved for the guaranteed section). There are multiple approaches to obtaining one, with two being particularly useful in most use cases:
   - Use 1 to create an intent that will prevent front-running any actions because other intents in the transaction will have to use a higher number
   - Use a random number to create an intent that is expected to be merged in an arbitrary order with the other ones (e.g. in swaps).
 - An optional guaranteed unshielded offer (unshielded offer being part of the guaranteed section).

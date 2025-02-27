@@ -3,7 +3,6 @@
  */
 
 import * as zswap from "@midnight-ntwrk/zswap";
-import { NetworkId } from "@midnight-ntwrk/zswap";
 import { program } from "commander";
 import * as jestDiff from "jest-diff";
 import isEqual from "lodash-es/isEqual.js";
