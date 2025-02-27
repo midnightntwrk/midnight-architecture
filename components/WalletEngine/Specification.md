@@ -65,7 +65,7 @@ This document comprises a couple of sections:
       * [Building a shielded output](#building-a-shielded-output)
       * [Building a transient](#building-a-transient)
       * [Combining shielded inputs, outputs and transients into a shielded offer](#combining-shielded-inputs-outputs-and-transients-into-a-shielded-offer)
-      * [Replacing shielded output with a transient](#replacing-shielded-output-with-a-transient)
+      * [Replacing a shielded output with a transient](#replacing-shielded-output-with-a-transient)
       * [Building an unshielded input (called UTxO Spend)](#building-an-unshielded-input-called-utxo-spend)
       * [Building an unshielded output](#building-an-unshielded-output)
       * [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
