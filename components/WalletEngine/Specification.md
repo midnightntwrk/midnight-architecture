@@ -286,7 +286,8 @@ The human-readable part should consist of 3 parts, separated by underscore:
 
 ### Unshielded Payment address
 
-Primary payment address in the network. It allows to receive Night and other unshielded tokens. It is a SHA256 of unshielded token public key.
+Primary payment address in the network. It allows receiving Night and other unshielded tokens. 
+It is a SHA256 of an unshielded token public key.
 
 Its credential type is `addr`.
 
@@ -330,37 +331,37 @@ Credential type is `shield-esk`
 
 <!-- TODO: Refer to ledger spec -->
 
-There are multiple types of supported transactions in Midnight, from wallet perspective only 2 matter:
-1. standard transactions
-2. mint claim
+There are multiple types of supported transactions in Midnight, from the wallet perspective only 2 matter:
+1. Standard transactions.
+2. Mint claims.
 
-### Standard transaction
+### Standard transactions
 
-Standard Midnight transaction includes 3 kinds of components:
-1. shielded offer
-2. unshielded offer
-3. contract action
+Standard Midnight transactions include 3 kinds of components:
+1. A shielded offer.
+2. An unshielded offer.
+3. A contract action.
 
 Shielded offer is an atomically applicable, balanced, sorted set of shielded inputs, outputs and transients. It also tracks token imbalances, because finalized offer does not contain information about coins values.
 
 Unshielded offer is an atomically applicable, balanced, sorted set of unshielded inputs and outputs, together with a set of signatures.
 
-Standard transaction is split in 2 directions:
-- with intents - each intent has assigned its execution order (which is also an id within a transaction) and consists of (or referring to) unshielded offers, shielded ones and contract actions within transaction that are meant to be executed together (e.g. because they represent a swap of unshielded tokens for shielded ones, all done through a contract)
-- into fallible and guaranteed sections - where guaranteed section includes a shielded offer and set of unshielded ones (one for each intent) and has to succeed for whole transaction to succeed, and fallible sections (there exists one for each intent present) comprises a shielded offer, unshielded offer and contract actions. This split makes transaction execution status take one of 3 possibilities:
+A standard transaction contains:
+- *Intents*: each intent has assigned its execution order, determined by an identifier within the transaction. It contains or refers to shielded and unshielded offers, and contract actions within a transaction that are meant to be executed together (e.g. because they represent a swap of unshielded tokens for shielded ones, which is all done through a contract).
+- Fallible and guaranteed sections.  A guaranteed section includes a shielded offer and a set of unshielded ones (one for each intent). A guaranteed section has to succeed for the whole transaction to succeed. Fallible sections (there exists one for each intent present) comprise a shielded offer, unshielded offer and contract actions. This split makes a transaction execution yield one of the following 3 results:
   - total success - when guaranteed section and all fallible sections succeed
   - total failure - when guaranteed section fails
   - partial success, with succeeding intent ids - when guaranteed section passes, but some (or all) of fallible sections fail
 
-Because transaction can always be extended (by adding new intents or merging shielded offers), their hash is not a reliable identifier to use when looking for transaction confirmation. Instead, transactions should be identified by known components of them - value commitments of shielded offers or binding commitments of intents.
+Because a transaction can always be extended (by adding new intents or merging shielded offers), its hash is not a reliable identifier to use when looking for transaction confirmation. Instead, transactions should be identified by their known components: value commitments of shielded offers or binding commitments of intents.
 
 ### Mint claim
 
 A system transaction can be issued by Midnight nodes to mint certain amount of tokens as a reward a party. Such minted tokens can be claimed with dedicated type of transaction.
 The claim includes:
-- information about coin created as a result of the claim
-- recipient address
-- proof of being eligible for the claim
+- Information about the coin created as a result of the claim.
+- The recipient's address.
+- The proof that the recipient is eligible for the claim.
 
 ## State management
 
@@ -380,7 +381,7 @@ There are 6 foundational operations defined, which should be atomic to whole wal
 - `spend(coins_to_spend, new_coins)` - which spends coins in a new transaction
 - `watch_for(coin)` - which adds a coin to explicitly watch for
 
-With the `apply_transaction`, `finalize_transaction` and `rollback_transaction` possibly be extended to blocks, ranges of blocks or other data allowing to reliably reconstruct the wallet state. Since shielded tokens are implemented using effectively an UTxO model, and unshielded tokens are implemented in the UTxO model, one can find [Cardano Wallet Formal Specification](https://iohk.io/en/research/library/papers/formal-specification-for-a-cardano-wallet/) a relevant read, with many similarities present.
+Functions `apply_transaction`, `finalize_transaction` and `rollback_transaction` can be extended to blocks, ranges of blocks or other data to reconstruct the wallet state. Since shielded tokens are implemented using effectively a UTxO model and unshielded tokens are implemented in the UTxO model, the [Cardano Wallet Formal Specification](https://iohk.io/en/research/library/papers/formal-specification-for-a-cardano-wallet/) remains relevant read, which has many similarities with the Midnight wallet.
 
 Full transaction lifecycle in relationship to those operations is presented on figure below. Please note, that confirmed and final transactions have statuses related to their execution.
 
@@ -413,16 +414,15 @@ Applies transaction to wallet state. Most importantly - to discover received coi
 2. Verify obtained coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
 3. Book coins, whose nullifiers match the ones present in offer inputs 
 4. Watch for received coins, for each output:
-   1. Match commitment with set of pending coins, if there is a match, mark matching pending coin as confirmed
+   1. Match commitment with a set of pending coins, if there is a match, mark the matching pending coin as confirmed
    2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
    3. If decryption fails - ignore output
 
 ##### unshielded offer of a section
-1. book coins spent in inputs
-2. filter outputs to narrow them down to only ones received by tracked addresses, for each one:
-   1. match coin with pending ones, if there is a match, mark matching pending coin as confirmed
-   2. otherwise add coin to known set as a confirmed one
-
+1. Book coins spent in the inputs.
+2. Filter outputs to narrow them down to only ones received by tracked addresses, for each one:
+   1. Match the coin with pending ones, if there is a match, mark the matching pending coin as confirmed.
+   2. Otherwise add a coin to the known set as a confirmed.
 If transaction is reported to fail entirely and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
 
 If transaction history is tracked and transaction is found relevant, an entry should be added, with confirmed status. Amount of shielded tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
@@ -431,7 +431,7 @@ If transaction history is tracked and transaction is found relevant, an entry sh
 
 Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide definitive information about finalization, thus there is no need to implement probabilistic rules. It is expected wallet state has already applied provided transaction. 
 This operation needs to:
-1. Mark shielded coin commitment tree state from that transaction as final
+1. Mark the shielded coin commitment tree state from that transaction as final.
 2. Update status of known coins to final, so that they become part of available balance
 3. Update statuses of transactions in history if tracked
 
@@ -482,26 +482,26 @@ Note: in many cases such transaction would be requested to be balanced, in such 
 
 Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant. Such option requires only a stream of blocks from a node, perform basic consistency checks and run `apply_transaction` one by one (alternatively batch all transactions from a block).
 
-An alternative idea is to use an indexing service, at a cost of having to trust the service. In the most simplistic approach such service could stream all transactions to the client, but the time needed to process all of them would still be high. Below are drafted possible alternative approaches for shielded and unshielded tokens 
+An alternative idea is to use an indexing service, at the cost of having to trust said service. In the most simplistic approach such a service could stream all transactions to the client, but the time needed to process all of them would still be high. Below we draft alternative approaches for shielded and unshielded tokens.
 
 ### Indexing service for shielded tokens
 
 The service receives wallet's encryption secret key. Then the service uses it to scan for transactions relevant for particular wallet and provides data needed to evolve the state, that is:
 - necessary updates to coin commitment tree (including roots for consistency checks) - either commitments themselves or subtrees collapsed to only relevant nodes in the tree 
 - filtered transactions to apply
-Such service cannot spend coins because it does not have access to coin secret key. It still needs to be trusted by user though, because it has access to otherwise private information. The upside is that it can offer better synchronization time, less resource consumption on user side, and overall better user experience.
+Such service cannot spend coins because it does not have access to the coin secret key. It still needs to be trusted by the user though, because it has access to otherwise private information. The upside is that it can offer better synchronization time, less resource consumption on the user side, and overall better user experience.
 
 ### Indexing service for unshielded tokens
 
-Because all the information needed by wallet in case of unshielded tokens is list of UTxOs, augmented by information about transactions they were created and spent at (including finalization information), indexing service only needs to provide API to query (or subscribe) for set of UTxOs relevant to particular address and the references to creation/spend transactions.   
+Because all the information needed by the wallet in the case of unshielded tokens is the list of UTxOs, augmented by information about transactions they were created and spent at (including finalization information), the indexing service only needs to provide an API to query (or subscribe) for a set of UTxOs relevant to a particular address and the references to creation/spend transactions.   
 
 ## Building standard transactions
 
 While there are structural similarities, building Midnight transaction is more involved than in most UTxO chains. The reason for that is that wallet needs to prove to ledger being eligible to spend coins and not minting new coins without having right to do so.
 
-With the flexibility of standard transaction, various semantics of performed operations can be represented using this single type:
-- a regular transfer of tokens, with possibly many inputs and outputs different types of tokens
-- balancing existing transaction, that is - creating necessary counter-offers, so that after merging them appropriately, a transaction reporting only fee-related imbalances is obtained 
+With the flexibility of standard transactions, various semantics of performed operations can be represented using this single type:
+- A regular transfer of tokens, of different types, with possibly many inputs and outputs.
+- Balancing an existing transaction, that is, creating the necessary counter-offers, so that after merging them appropriately, a transaction reporting only fee-related imbalances is obtained. 
 - initiating a swap - creating a transaction (usually containing some inputs of token A and some outputs of token B), which is purposefully not balanced, to let another party balance such transaction and in that way - exchange tokens
 
 Technically, building a standard transaction by wallet involves following operations:
@@ -515,7 +515,7 @@ Technically, building a standard transaction by wallet involves following operat
 - Merging with other transaction
 
 A structured process for building transactions like mentioned above generally can be done in 2 steps:
-1. Prepare/retrieve transaction with necessary inputs and outputs, which drive the outcome - whether it is a regular transfer, contract call or a swap (or mix of them)
+1. Prepare/retrieve transactions with necessary inputs and outputs, which drive the outcome - whether it is a regular transfer, contract call or a swap (or a mix of them)
 2. Balance the transaction obtained in step #1 - to ensure fees are paid and inputs and outputs match the desired structure (most importantly - that necessary change outputs are created)
 
 Following subsections define the steps needed to perform particular operation of prepare part of transaction. 
@@ -581,55 +581,54 @@ UTxO spend is almost the same as UTxO itself, with the difference that instead o
 
 #### Building an unshielded output
 
-Unshielded output is just minimal description of value to transfer:
-- amount (number of indivisible units)
-- token type
-- recipient (unshielded address)
+An unshielded output is just a minimal description of the value to transfer:
+- Amount (number of indivisible units).
+- Token type.
+- Recipient (unshielded address).
 
 #### Combining unshielded inputs and outputs into an unshielded offer
 
-Unshielded offer contains list of inputs, outputs and signatures corresponding to inputs. The signatures sign over whole intent though, and for that reason - an intermediate format needs to be used, where only inputs and outputs are present, which allows to construct the intent. 
+An unshielded offer contains a list of inputs, outputs, and signatures corresponding to inputs. The signatures sign over the whole intent though, and, for that reason, an intermediate format needs to be used, where only inputs and outputs are present, which allows to construct the intent. 
 
 #### Creating an intent
 
 Given:
-- non-zero segment id - there multiple approaches to obtaining one, with two being particularly useful in most use-cases:
-  - use 1 to create an intent that will prevent front-running any actions because possible other intents in the transaction having to use a higher number
-  - use a random number to create an intent that is expected to be merged at arbitrary order with other ones (e.g. in swaps) 
-- optional guaranteed unshielded offer (unshielded offer being part of the guaranteed section)
-- optional fallible unshielded offer (unshielded offer being part of fallible section identified by segment id)
-- optional fallible shielded offer and its binding randomness
-- list of contract actions
-- ttl being time after which the intent is considered invalid
+- A non-zero segment id. There are multiple approaches to obtaining one, with two being particularly useful in most use cases:
+  - Use 1 to create an intent that will prevent front-running any actions because other intents in the transaction will have to use a higher number
+  - Use a random number to create an intent that is expected to be merged in an arbitrary order with the other ones (e.g. in swaps).
+- An optional guaranteed unshielded offer (unshielded offer being part of the guaranteed section).
+- Optional fallible unshielded offer (unshielded offer being part of fallible section identified by segment id).
+- Optional fallible shielded offer and its binding randomness.
+- A list of contract actions.
+- A time-to-live (TTL), which is the time after which the intent is considered invalid.
 
-an intent can be constructed.
-1. Establish data binding with proof-of-exponent as described in ledger specification (Preliminaries, Fiat-Shamir'd and Multi-Base Pedersen), resulting with commitment and binding randomness
-2. In each unshielded offer present, for each of its inputs provide a signature and append it to the list of signatures (so that when finished number of signatures matches number of inputs and keys match):
-   - over segment id and proof- and signature-erased intent
-   - using Schnorr secret key allowing to authorize particular spend
-3. Return segment id, intent, the fallible shielded offer and binding randomnesses for both the intent and the fallible shielded offer
-
+An intent can be constructed as follows:
+1. Establish data binding with proof-of-exponent as described in the ledger specification (Preliminaries, Fiat-Shamir'd and Multi-Base Pedersen), resulting in a commitment and binding randomness.
+2. In each unshielded offer present, for each of its inputs provide a signature and append it to the list of signatures (so that when finished the number of signatures matches the number of inputs, and the keys match):
+   - Over segment id and proof- and signature-erased intent.
+   - Using Schnorr secret key to authorize particular spend.
+3. Return the segment id, intent, the fallible shielded offer and binding randomnesses for both the intent and the fallible shielded offer
 #### Creating transaction with an intent and shielded offers
 
 Given:
-- list of segment ids, their intents, fallible shielded offers and binding randomnesses
-- guaranteed shielded offer and its binding randomness
+- A list of segment ids, their intents, fallible shielded offers and binding randomnesses.
+- A guaranteed shielded offer and its binding randomness.
 
-One can construct a transaction, by:
-1. turning list segments into 2 maps:
-   - one being a mapping from segment id to relevant intent
-   - the other being a mapping from segment id to a fallible zswap offer 
-2. combining all binding randomnesses into a single one (to bind transaction contents together)
-3. returning the transaction consisting of the maps from step 1, guaranteed zswap offer and binding randomness
+One can construct a transaction by:
+1. Turning the list of segments into 2 maps:
+   - A mapping from segment id to the relevant intent.
+   - A mapping from segment id to a fallible zswap offer.
+2. Combining all binding randomnesses into a single one (to bind transaction contents together).
+3. Returning the transaction consisting of the maps from step 1, the guaranteed Zswap offer and binding randomness.
 
 #### Merging with other transaction
 
 Transactions can generally be merged as long as it is possible to merge guaranteed shielded offers and the segment ids do not overlap. 
 To do so:
-1. merge intents map into a single one
-2. merge fallible shielded offers map into a single one
-3. merge guaranteed shielded offers as described below
-4. combine transaction's binding randomnesses
+1. Merge the intents map into a single one.
+2. Merge the fallible shielded offers map into a single one.
+3. Merge the guaranteed shielded offers as described below.
+4. Combine the transaction's binding randomness.
 
 ##### Merging shielded offers
 
@@ -647,25 +646,25 @@ To do so:
 
 #### Prepare transfer
 
-Transfer transaction can be built by taking a list of desired transfers, where each one has defined the recipient's address, token type (including information whether it's shielded or unshielded) and amount to be sent.
+Transfer transactions can be built by taking a list of desired transfers, where each one has defined the recipient's address, token type (including information on whether it's shielded or unshielded) and the amount to be sent.
 Such list can be transformed into a transaction by:
 1. Creating an output for each of elements
-2. Combining all the outputs into needed offers
-3. Creating a transaction skeleton from the offers, by putting them into guaranteed section (that is - data needed to build transaction, but without signatures or proofs present)
+2. Combining all the outputs into needed offers.
+3. Creating a transaction skeleton from the offers, by putting them into a guaranteed section (that is - data needed to build the transaction, but without signatures or proofs present)
 
-Resulting transaction will not be balanced, thus the next step of balancing transaction (to reach 0 imbalance for each token type) needs to be employed before transaction is ready to be submitted to the network.
+The resulting transaction will not be balanced, thus the next step of balancing the transaction (to reach 0 imbalance for each token type) needs to be employed before the transaction is ready to be submitted to the network.
 
 #### Prepare a swap
 
 Swap can be thought as a specific case of a transfer - with the difference being multiple parties providing inputs and outputs to the transaction. 
 To prepare a swap, one needs to provide what amounts of tokens of certain types one wants to exchange (provide as an input to the swap) for other types of tokens (receive from the swap).
 The transaction that initiates the swap will be a result of:
-1. Randomly choosing segment id for the unshielded intent
-2. Creating expected outputs for each of token types to be received in the swap
+1. Randomly choosing segment id for the unshielded intent.
+2. Creating expected outputs for each of the token types to be received in the swap.
 3. Combining them all into offers
-4. Creating a transaction skeleton with the offers and intents, by putting them into guaranteed section.
+4. Creating a transaction skeleton with the offers and intents, by putting them into the guaranteed section.
 
-Resulting transaction will only have outputs to be received defined, with no inputs. Thus, the next step of balancing transaction needs to be employed before the swap offer is ready to be submitted, with proper target imbalances indicated.
+The resulting transaction will only have outputs to be received defined, with no inputs. Thus, the next step of balancing the transaction must be employed before the swap offer is ready to be submitted, with proper target imbalances indicated.
 
 #### Contract call
 
@@ -673,56 +672,56 @@ Contract calls are prepared by other components than wallet. Once ready, in most
 
 #### Balance transaction
 
-Balancing a transaction is a process of creating counter-offers, so that after merging them both, resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. Particular difficulty in the process is coin selection (out of scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.  
+Balancing a transaction is a process of creating counter-offers, so that after merging them both, the resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. A particular difficulty in the process is coin selection (out of the scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.  
 
 Balancing in the most generic form requires 2 inputs:
 1. The transaction to be balanced
 2. Map of desired imbalances per token type, per segment when desired is different from zero
 
 > [!NOTE]
-> Balancing fallible sections will only be possible when provided transaction is not yet bound with signatures and binding randomness.
-> This does not apply to guaranteed section because its shielded offer is not part of intents and all intents can include offers belonging to the guaranteed section. 
+> Balancing fallible sections will only be possible when the provided transaction is not yet bound with signatures and binding randomness.
+> This does not apply to the guaranteed section because its shielded offer is not part of intents and all intents can include offers belonging to the guaranteed section. 
 
 Conceptually, the process follows given steps:
-1. List all segments in the imbalances present, sort them in descending order (to balance fees payments at the very end), then for each segment: 
+1. List all segments in the imbalances present, sort them in descending order (to balance fees at the very end), then for each segment: 
    1. Create an empty offer skeleton for collecting inputs and outputs to be created
    2. Calculate total fees to be paid from the initial imbalances and all new balancing offers
-   3. Calculate resulting imbalances by merging ones from the unbalanced transaction, the balancing offers and target imbalances with values inversed (multiplied by -1), additionally for DUST in the guaranteed section - subtract total fees from the imbalance.
+   3. Calculate the resulting imbalances by merging ones from the unbalanced transaction, the balancing offers and target imbalances with values inversed (multiplied by -1), additionally for DUST in the guaranteed section, then subtract total fees from the imbalance.
    4. Verify if target imbalances for a segment are met:
-      - if they are - given segment has successfully assigned inputs and outputs to be balanced - proceed to the next segment
-      - if they are not - continue
-   5. Sort token types present in result imbalances in a way, that DUST is left last and select first token type
+      - If they are, the given segment has successfully assigned inputs and outputs to be balanced. Proceed to the next segment.
+      - If they are not, continue
+   5. Sort token types present in result imbalances in a way, that DUST is left last and select the first token type
    6. Perform a balancing step for the selected token type:
-      - if the imbalance is positive (there is more value in inputs than outputs) - create an output for self with the amount equal to imbalance, and add it to the offer; in case of DUST - subtract estimated fees for an output from the amount
-      - if the imbalance is negative (there is more value in outputs than inputs) - select a single coin of the selected type, create an input and add it to the offer; abort with error if there is no coin available to be spent
+      - If the imbalance is positive (there is more value in inputs than outputs), create an output for self with the amount equal to the imbalance, and add it to the offer; in the case of DUST, subtract estimated fees for an output from the amount
+      - If the imbalance is negative (there is more value in outputs than inputs), select a single coin of the selected type, create an input and add it to the offer; abort with error if there is no coin available to be spent
       - Go back to step 1.2
 2. Once all offer skeletons are created, actual offers and intents can be created or adjusted:
    1. For each non-zero segment id:
-      1. Create unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton
-      2. Merge fallible unshielded offer with the created one
-      3. Create shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton
-      4. Merge fallible shielded offer with the created one
+      1. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton.
+      2. Merge the fallible unshielded offer with the created one
+      3. Create a shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton.
+      4. Merge the fallible shielded offer with the created one.
    2. For zero segment id (guaranteed section):
-      1. Create shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton
-      2. Merge guaranteed shielded offer with the created one
-      3. Create unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton
-      4. Depending on provided transaction status:
-         - if it is bound and sealed - add a new intent containing created unshielded offer as the guaranteed one
-         - if it is not bound and sealed yet (and likely to contain only single intent) - merge guaranteed unshielded offer of an intent of choose with the created one
+      1. Create a shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton.
+      2. Merge the guaranteed shielded offer with the created one
+      3. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton
+      4. Depending on the provided transaction status:
+         - If it is bound and sealed - add a new intent containing the created unshielded offer as the guaranteed one
+         - If it is not bound and sealed yet (and likely to contain only a single intent), merge the guaranteed unshielded offer of an intent of choice with the created one.
 
 ## Transaction submission
 
 Once transaction is created, it can be submitted to the network or other party.
 
-For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking problems, node being temporarily unavailable, the network being congested or a form of eclipse attack being executed at the moment.
+For cases, where the wallet submits a transaction to the network, it is advised that the wallet implements a re-submission mechanism. A blockchain is a distributed system and there are many possible issues, which may arise due to, among others, networking problems such as a node being temporarily unavailable, the network being congested or a form of eclipse attack being momentarily executed.
 
 For example:
-1. Each intent has assigned a TTL value being the timestamp after which transaction cannot be included (Ledger has also a parameter defining possible margin of TTL values - how much ahead of `now` TTL values can be)
+1. Each intent has assigned a TTL value, which is the timestamp after which a transaction cannot be included (Ledger also has a parameter defining a possible margin of TTL values, this is, how much ahead of `now` TTL values can be)
 2. Repeatedly, in constant time intervals for each transaction present in the pending set:
-   1. find minimal TTL value across all intents present in a transaction - let's call it transaction TTL
-   2. compare that TTL value against wall clock time
-   3. if transaction TTL is past wall clock time - discard it
-   4. if transaction TTL is not past wall clock time yet - submit it to the network
+   1. Find the minimal TTL value across all intents present in a transaction - let's call it transaction TTL.
+   2. Compare the transaction TTL value against the wall clock time.
+   3. If the transaction TTL is past the wall clock time - discard it.
+   4. If the transaction TTL is not past the wall clock time yet - submit it to the network.
       
 
 [^1]: [The definitive guide to “modulo bias and how to avoid it”!](https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/)
