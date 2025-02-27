@@ -1,15 +1,12 @@
 import * as crypto from "node:crypto";
+import { schnorr } from "@noble/curves/secp256k1";
 import { ErisScalar, Field, PlutoScalar, toScalar } from "./field.js";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
   return crypto.createHash("sha-256").update(a).update(b).digest();
 }
 
-function sampleBytes(
-  bytes: number,
-  domainSeparator: Buffer,
-  seed: Buffer,
-): Buffer {
+function sampleBytes(bytes: number, domainSeparator: Buffer, seed: Buffer): Buffer {
   const rounds = Math.ceil(bytes / 32);
   const result = Buffer.alloc(bytes);
   for (let i = 0; i < rounds; i++) {
@@ -21,12 +18,7 @@ function sampleBytes(
   return result;
 }
 
-export function sampleKey(
-  seed: Buffer,
-  margin: number,
-  domainSeparator: Buffer,
-  field: Field,
-): { intermediateBytes: Buffer; key: bigint } {
+export function sampleKey(seed: Buffer, margin: number, domainSeparator: Buffer, field: Field): { intermediateBytes: Buffer; key: bigint } {
   // Generating some more bytes is important to get a better distribution of keys
   const sampledBytes = sampleBytes(field.bytes + margin, domainSeparator, seed);
   return {
@@ -62,4 +54,22 @@ export function coinKeys(seed: Buffer): {
     secretKey,
     publicKey: sha256(secretKey, Buffer.from("mdn:pk", "utf-8")),
   };
+}
+
+export function unshieldedKeyPairFromSecretKey(secretKey: Buffer): {
+  secretKey: Buffer | null;
+  publicKey: Buffer | null;
+} {
+  try {
+    return {
+      secretKey,
+      publicKey: Buffer.from(schnorr.getPublicKey(secretKey)),
+    };
+  } catch (e) {
+    // Got error in deriving unshielded key pair from seed returning null
+    return {
+      secretKey: null,
+      publicKey: null,
+    };
+  }
 }

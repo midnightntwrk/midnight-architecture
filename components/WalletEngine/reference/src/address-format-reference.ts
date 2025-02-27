@@ -72,6 +72,24 @@ export class Bech32mCodec<T> {
   }
 }
 
+export class UnshieldedAddress {
+  static readonly length = 32;
+
+  static codec = new Bech32mCodec<UnshieldedAddress>(
+    "addr",
+    (addr) => addr.data,
+    (repr) => new UnshieldedAddress(repr),
+  );
+
+  [Bech32m] = UnshieldedAddress.codec;
+
+  constructor(public readonly data: Buffer) {
+    if (data.length != ShieldedCoinPublicKey.length) {
+      throw new Error("Unshielded address needs to be 32 bytes long");
+    }
+  }
+}
+
 export class ShieldedAddress {
   static codec = new Bech32mCodec<ShieldedAddress>(
     "shield-addr",
