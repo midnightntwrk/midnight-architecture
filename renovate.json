@@ -1,12 +1,34 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    "schedule:weekly",
-    ":disableRateLimiting",
-    ":rebaseStalePrs"
-  ],
   "nix": {
     "enabled": true
-  }
+  },
+  "extends": ["config:best-practices", "schedule:weekly", ":disableRateLimiting"],
+  "dependencyDashboard": true,
+  "semanticCommits": "enabled",
+  "rebaseWhen": "conflicted",
+  "hostRules": [
+    {
+      "hostType": "npm",
+      "matchHost": "https://npm.pkg.github.com/",
+      "npmrc": "@midnight-ntwrk:registry=https://npm.pkg.github.com/"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "enabled": true
+    },
+    {
+      "groupName": "Midnight libraries",
+      "matchPackageNames": [
+        "@midnight-ntwrk/**"
+      ]
+    },
+    {
+      "groupName": "devDependencies (non-major)",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"]
+    }
+  ]
 }
