@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+
+jobs:
+  check:
+    name: Check test vectors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: './components/WalletEngine/reference/.nvmrc'
+
+      - name: Install dependencies
+        run: |
+          cd ./components/WalletEngine/reference
+          npm install
+
+      - name: Check test vectors
+        run: |
+          cd ./components/WalletEngine/reference/
+          npm run test-vectors
+
+      - name: Test reference implementation
+        run: |
+          cd ./components/WalletEngine/reference/
+          npm run test-addr

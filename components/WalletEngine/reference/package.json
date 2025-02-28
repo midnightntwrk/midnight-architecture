@@ -1,0 +1,29 @@
+{
+  "name": "key-derivation-reference",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "gen": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts gen --dir ../test-vectors",
+    "test-vectors": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts test-vectors --dir ../test-vectors",
+    "test-addr": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts test-addr"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@scure/base": "^1.1.9",
+    "@types/node": "^22.0.0",
+    "@types/lodash-es": "^4.17.12",
+    "commander": "^12.1.0",
+    "jest-diff": "^29.7.0",
+    "lodash-es": "^4.17.21",
+    "@midnight-ntwrk/zswap": "^3.0.2",
+    "rxjs": "^7.8.1"
+  }
+}

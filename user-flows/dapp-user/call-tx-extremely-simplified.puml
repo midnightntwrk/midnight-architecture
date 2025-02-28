@@ -9,9 +9,9 @@ header %filename()\n%date("yyyy.MM.dd' at 'HH:mm z")\n\n\n
 
 actor user
 
-'Dapp might be embedded/"installed" inside wallet, but even then it requires quite strong separation between wallet and dApp code
+'Dapp might be embedded/"installed" inside wallet (or the other way around), but even then it requires quite strong separation between wallet and dApp code
 box "dApp" #eef
-        participant "client-sdk" as clientSdk
+        participant "Midnight.js" as midnightjs
         participant "Transition\nFunction" as gamma
         database "Pending\nPrivate\nUpdates" as pending
 end box
@@ -20,82 +20,89 @@ end box
 box "Wallet" #eff
     'The browser extension
     participant "Wallet" as wallet
-    'Wallet Backend, server component that works as a cache for frontend + bridge between frontend and the network
-    participant "Wallet Backend" as walletBackend
-end box
-/'
- ' box "Wallet Backend Component" #efe
- '         participant "WBE\nClient API" as walletBackend
- '         database "Client\nData" as clientData
- ' end box
- '/
-box "Proof Server Component" #fee
-        participant "Proof\nServer" as proofServer
 end box
 
-boundary Consensus as consensus
+box "Services" #fee
+        participant "Proof\nServer" as proofServer
+
+        'Indexer acts as a Wallet Backend - server component that works as a cache for frontend + bridge between frontend and the network
+        participant "Indexer" as indexer
+
+        participant "Midnight Node" as node
+end box
+
+box "Midnight Network"
+  boundary Consensus as consensus
+end box
 
 '==================================================================
-        ' Wallet Backend is always active, at least from perspective of this flow
-        activate walletBackend
+        ' Indexer is always active, at least from perspective of this flow
+        activate indexer
 
-        user -> clientSdk : action
+        user -> midnightjs : action
 
-        activate clientSdk
-        group compute a state update
-                clientSdk -> gamma : update(args) using\n  public state,\n  private state
+        activate midnightjs
+        group call a contract
+                midnightjs -> gamma : call(args) using\n  public state,\n  private state
                 activate gamma
-                        gamma -> clientSdk : ok(result,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate)
+                        gamma -> midnightjs : ok(result,\n     private transcript,\n     public transcript,\n     witness,\n     gas estimate)
                 deactivate gamma
         end
 
-        group over TLS, to TEE in Proof Server
-                                note over clientSdk: witness includes private data\nnot shared with Wallet
-                                clientSdk -> proofServer : prove(circuit, witness)
+        group to local Proof Server or over TLS to a remote, TEE-equipped one
+                                note over midnightjs: witness includes private data\nnot shared with Wallet
+                                midnightjs -> proofServer : prove(transaction_outline(circuit, witness))
                                 activate proofServer
-                                        proofServer -> clientSdk : proof
+                                        proofServer -> midnightjs : proven transaction
                                 deactivate proofServer
                         end
 
-        clientSdk -> pending ++ : store pending private transcript
+        midnightjs -> pending ++ : store pending data
         return ok
 
+
         group build and send transaction
-                clientSdk -> wallet : callTx(call, circuit)
+                midnightjs -> wallet : balanceTransaction(tx)
                 activate wallet
-                group over TLS, to TEE in Proof Server
-                        wallet -> proofServer : prove(notesOwnership)
+                group to local Proof Server or over TLS to a remote, TEE-equipped one
+                        wallet -> proofServer : prove(balancing_tx_outline)
                         activate proofServer
-                                proofServer -> wallet : proof
+                                proofServer -> wallet : proven balancing transaction
                         deactivate proofServer
                 end
 
-                wallet -> walletBackend : submitTx(tx)
-                walletBackend -> consensus : submitTx(tx)
-                walletBackend -> wallet : pending
-                wallet -> clientSdk : pending
+                wallet -> wallet : assemble aggregated transaction
+                wallet -> midnightjs : ok(aggregated_transaction)
+
+                midnightjs -> wallet : submitTx(tx)
+                wallet -> node : submitTx(tx)
+                node -> consensus : submitTx(tx)
+                node -> wallet : ok
+                wallet -> midnightjs : pending
         end
 
-        clientSdk -> user: pending
+        midnightjs -> user: pending
 
         == time passes as TX is verified and propageted ==
 
-        consensus -> walletBackend : verified tx and new public state
-        walletBackend -> wallet : verified tx, new public state
-        wallet -> clientSdk : tx verified, new public state
+        consensus -> indexer : verified tx and new public state
+        indexer -> wallet : verified tx, public state updates
+        wallet -> user : outcome information
+        wallet -> midnightjs : tx verified
 
         deactivate wallet
 
         group dApp processes consesus data
-                clientSdk -> clientSdk : install new public state
-                clientSdk -> pending ++ : fetch private transcript for the tx
-                pending -> clientSdk -- : private transcript for the tx
-                clientSdk -> clientSdk : apply private transcript
-                clientSdk -> clientSdk : install new private state
+                midnightjs -> indexer : fetch new public state
+                indexer -> midnightjs : new public state
+                midnightjs -> midnightjs : install new public state
+                midnightjs -> pending ++ : fetch private data
+                pending -> midnightjs -- : private data
+                midnightjs -> midnightjs : install new private state
         end
 
-        clientSdk -> user : outcome information
-deactivate clientSdk
+        midnightjs -> user : outcome information
+deactivate midnightjs
 
 
 '-----------------------------------------------------------
