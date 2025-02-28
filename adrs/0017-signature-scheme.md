@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+accepted
 
 ---
 <!-- These are optional elements. Feel free to remove any of them. -->
