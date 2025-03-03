@@ -34,8 +34,7 @@ struct Intent<S, P, B> {
     guaranteed_unshielded_offer: Option<UnshieldedOffer<S>>,
     fallible_unshielded_offer: Option<UnshieldedOffer<S>>,
     actions: Vec<ContractAction<P>>,
-    // Dust payments will be enabled once dust tokenomics is fully settled.
-    // dust_payments: Vec<DustSpend<P>>,
+    dust_actions: Option<DustActions<P>>,
     ttl: Timestamp,
     binding_commitment: B,
 }
@@ -122,13 +121,13 @@ rejected.
 
 ```rust
 struct ReplayProtectionState {
-    intent_history: Map<Timestamp, IntentHash>,
+    intent_history: TimeFilterMap<Hash<ErasedIntent>>,
 }
 
 impl ReplayProtectionState {
     fn apply_intent<S, P, B>(mut self, intent: Intent<S, P, B>, tblock: Timestamp) -> Result<Self> {
         let hash = hash(intent.erase_proofs());
-        assert!(!self.intent_history.contains_value(hash));
+        assert!(!self.intent_history.contains(hash));
         assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
         self.intent_history = self.intent_history.insert(intent.ttl, hash);
         Ok(self)
@@ -139,7 +138,7 @@ impl ReplayProtectionState {
     }
 
     fn post_block_update(mut self, tblock: Timestamp) -> Self {
-        self.intent_history = self.intent_history.filter(|(t, _)| t > tblock);
+        self.intent_history = self.intent_history.filter(tblock);
         self
     }
 }
@@ -716,7 +715,12 @@ impl LedgerState {
             for intent in tx.intents.values() {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.guaranteed_unshielded_offer {
-                    self.utxo = self.utxo.apply_offer(offer, erased)?;
+                    self.utxo = self.utxo.apply_offer(
+                        offer,
+                        0,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
                 }
                 for action in intent.actions.iter() {
                     self.contract = self.contract.apply_action(
@@ -731,7 +735,12 @@ impl LedgerState {
             if let Some(intent) = tx.intents.get(segment) {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.fallible_unshielded_offer {
-                    self.utxo = self.utxo.apply_offer(offer, erased)?;
+                    self.utxo = self.utxo.apply_offer(
+                        offer,
+                        segment,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
                 }
                 for action in intent.actions.iter() {
                     self.contract = self.contract.apply_action(

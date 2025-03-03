@@ -56,11 +56,18 @@ impl From<UtxoSpend> for Utxo {
 }
 ```
 
-The state associated with the UTXO subsystem is simply the set of UTXOs:
+The state associated with the UTXO subsystem is a set of UTXOs, associated with
+metadata. This is represented as a map from the UTXO, to its metadata.
+Presently, the metadata solely consists of a creating time timestamp of the
+UTXO.
 
 ```rust
+struct UtxoMeta {
+    ctime: Timestamp,
+}
+
 struct UtxoState {
-    utxos: Set<Utxo>,
+    utxos: Map<Utxo, UtxoMeta>,
 }
 ```
 
@@ -137,11 +144,19 @@ applied.
 
 ```rust
 impl UtxoState {
-    fn apply_offer<S>(mut self, offer: UnshieldedOffer<S>, parent: ErasedIntent) -> Result<UtxoState> {
+    fn apply_offer<S>(
+        mut self,
+        offer: UnshieldedOffer<S>,
+        segment: u16,
+        parent: ErasedIntent,
+        tnow: Timestamp,
+    ) -> Result<UtxoState> {
         let inputs = offer.inputs.iter().map(Utxo::from).collect();
         assert!(self.utxos.hasSubset(inputs));
-        self.utxos -= inputs;
-        let intent_hash = hash(parent);
+        for input in inputs {
+            self.utxos = self.utxos.remove(input);
+        }
+        let intent_hash = hash((segment, parent));
         let outputs = offer.outputs.iter().enumerate().map(|(output_no, output)| Utxo {
             value: output.value,
             owner: output.owner,
@@ -150,8 +165,12 @@ impl UtxoState {
             output_no,
         }).collect();
         // The below is *not* needed, due to the uniqueness of outputs.
-        // assert!(self.utxo.intersection(outputs).is_empty());
-        self.utxos += outputs;
+        // assert!(self.utxos.intersection(outputs).is_empty());
+        for output in outputs {
+            self.utxos.insert(output, UtxoMeta {
+                ctime: tnow,
+            });
+        }
         Ok(self)
     }
 }
