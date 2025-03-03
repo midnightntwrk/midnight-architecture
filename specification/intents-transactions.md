@@ -9,8 +9,8 @@ atomically together. These are important for [sequencing](#sequencing) the
 order in which parts of the transaction are applied.
 
 ```rust
-struct Transaction<S, P> {
-    intents: Map<u16, Intent<S, P>>,
+struct Transaction<S, P, B> {
+    intents: Map<u16, Intent<S, P, B>>,
     guaranteed_offer: Option<ZswapOffer<P>>,
     fallible_offer: Map<u16, ZswapOffer<P>>,
     binding_randomness: Fr,
@@ -30,18 +30,54 @@ The transaction is only valid if the TTL is a) not in the past, and b) to too
 far in the future (by the ledger parameter `global_ttl`).
 
 ```rust
-struct Intent<S, P> {
+struct Intent<S, P, B> {
     guaranteed_unshielded_offer: Option<UnshieldedOffer<S>>,
     fallible_unshielded_offer: Option<UnshieldedOffer<S>>,
     actions: Vec<ContractAction<P>>,
     // Dust payments will be enabled once dust tokenomics is fully settled.
     // dust_payments: Vec<DustSpend<P>>,
     ttl: Timestamp,
-    binding_commitment: FiatShamirPedersen<P>,
+    binding_commitment: B,
 }
 
-type IntentHash = Hash<(u16, Intent<(), ()>)>;
+type ErasedIntent = Intent<(), (), Pedersen>;
+type IntentHash = Hash<(u16, ErasedIntent)>;
 ```
+
+## Lifecycle of Intents and Transactions
+
+The number of type parameters of `Transaction` and `Intent` deserves some
+discussion, as it's directly linked to the lifecycle of intents and
+transactions. Broadly speaking, a transaction goes through the following
+phases, which are represented by parameterising different parts of the
+cryptography differently:
+
+- **Transaction construction**: This is gathering the content that should be in a
+  transaction - at this point there are no privacy guarantees, the transaction
+  can be freely modified, and authenticating signatures are missing.
+  Parameterised as `Transaction<Signature, PreProof, PedersenRandomness>`,
+  `well_formed` is not expected to succeed signature or balancing checks.
+- **Transaction balancing**: At this point, the transaction gets handed to the
+  wallet, which should not handle private information relating to contract calls.
+  For this purpose zero-knowledge proofs are done before the handover.
+  Parameterised as `Transaction<Signature, Proof, PedersenRandomness>`. This
+  still allows `Intent`s to be modified, however existing contract calls cannot
+  be moved around. `well_formed` is not expected to succeed signature or
+  balancing checks.
+- **Transaction signing**: At this point, all UTXOs have been added, and
+  transaction binding has been enforced. The signatures still need to be added,
+  which may be handled by an independent hardware security module handling
+  solely this step. Parameterised as `Transaction<Signature, Proof,
+  FiatShamirPedersen>`. `well_formed` is not expected to succeed signature
+  checks.
+- **Transaction submission**: At this point, transactions are submitted and
+  catalogued by the node. Parameterised as `Transaction<Signature, Proof,
+  FiatShamirPedersen>`. `well_formed` is expected to succeed.
+
+At any stage, parts of the system may want to access a consistent view of the
+transaction access all stages, without authenticating information. This view is
+captured by parametrising the transaction as `Transaction<(), (), Pedersen>`.
+This is also used to define a hash consistent across the latter two stages.
 
 ## Sequencing
 
@@ -90,7 +126,7 @@ struct ReplayProtectionState {
 }
 
 impl ReplayProtectionState {
-    fn apply_intent<S, P>(mut self, intent: Intent<S, P>, tblock: Timestamp) -> Result<Self> {
+    fn apply_intent<S, P, B>(mut self, intent: Intent<S, P, B>, tblock: Timestamp) -> Result<Self> {
         let hash = hash(intent.erase_proofs());
         assert!(!self.intent_history.contains_value(hash));
         assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
@@ -98,12 +134,12 @@ impl ReplayProtectionState {
         Ok(self)
     }
 
-    fn apply_tx<S, P>(mut self, tx: Transaction<S, P>, tblock: Timestamp) -> Result<Self> {
+    fn apply_tx<S, P, B>(mut self, tx: Transaction<S, P, B>, tblock: Timestamp) -> Result<Self> {
         tx.intents.values().fold(|st, intent| (st?).apply_intent(intent, tblock), Ok(self))
     }
 
     fn post_block_update(mut self, tblock: Timestamp) -> Self {
-        self.intent_history = self.intent_history.filter(|(t, _)| t > tblock + global_ttl);
+        self.intent_history = self.intent_history.filter(|(t, _)| t > tblock);
         self
     }
 }
@@ -148,7 +184,7 @@ existence constraints, where specific interactions also mandate the existence
 of another part in a contract.
 
 ```rust
-impl<S, P> Intent<S, P> {
+impl<S, P, B> Intent<S, P, B> {
     fn well_formed(
         self,
         segment_id: u16,
@@ -163,7 +199,7 @@ impl<S, P> Intent<S, P> {
 
 const SEGMENT_GUARANTEED: u16 = 0;
 
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn well_formed(self, tblock: Timestamp, ref_state: LedgerContractState) -> Result<()> {
         self.guaranteed_offer.map(|offer| offer.well_formed(0)).transpose()?;
         for (segment, offer) in self.fallible_offer {
@@ -187,7 +223,7 @@ impl<S, P> Transaction<S, P> {
 The weak TTL check simply checks if the transaction is in the expected time window:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn ttl_check_weak(self, tblock: Timestamp) -> Result<()> {
         for (_, intent) in self.intents {
             assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
@@ -200,7 +236,7 @@ The disjoint check ensures that no inputs or outputs in the different parts
 overlap:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn disjoint_check(self) -> Result<()> {
         let mut shielded_inputs = Set::new();
         let mut shielded_outputs = Set::new();
@@ -234,7 +270,7 @@ impl<S, P> Transaction<S, P> {
 The sequencing check enforces the 'causal precedence' partial order above:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn sequencing_check(self) -> Result<()> {
         // NOTE: this is implemented highly inefficiently, and should be
         // optimised for the actual implementation to run sub-quadratically.
@@ -316,7 +352,7 @@ The balance check depends on fee calculations (out of scope), and the overall
 balance of the transaction, which is per token type, per segment ID:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn fees(self) -> Result<u128> {
         // Out of scope of this spec
     }
@@ -394,11 +430,15 @@ The Pedersen check ensures that the Pedersen commitments are openable to the
 declared balances:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn pedersen_check(self) -> Result<()> {
         let comm_parts =
             self.intents.values()
-                .map(|intent| intent.binding_commitment.commitment)
+                .map(|intent| {
+                    let hash = hash(intent.erase_proofs());
+                    intent.binding_commitment.well_formed(hash)?;
+                    Ok(Pedersen::from(intent.binding_commitment))
+                })?
                 .chain(
                     self.guaranteed_offer.iter()
                         .chain(self.fallible_offer.values())
@@ -429,7 +469,7 @@ The effects check ensures that the requirements of each `ContractCall`s
 `Effects` section are fulfilled.
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn effects_check(self) -> Result<()> {
         // We have multisets for the following:
         // - Claimed nullifiers (per segment ID)
@@ -589,7 +629,7 @@ enum TransactionResult {
     }
 }
 
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn segments(self) -> Vec<u16> {
         let mut segments = vec![0];
         let mut intent_segments = self.intents.iter().map(|(s, _)| s).peekable();
@@ -622,9 +662,9 @@ struct LedgerState {
 }
 
 impl LedgerState {
-    fn apply<S, P>(
+    fn apply<S, P, B>(
         mut self,
-        tx: Transaction<S, P>,
+        tx: Transaction<S, P, B>,
         block_context: BlockContext,
     ) -> (Self, TransactionResult) {
         let segments = tx.segments();
@@ -653,9 +693,9 @@ impl LedgerState {
         })
     }
 
-    fn apply_segment<S, P>(
+    fn apply_segment<S, P, B>(
         mut self,
-        tx: Transaction<S, P>,
+        tx: Transaction<S, P, B>,
         segment: u16,
         block_context: BlockContext,
     ) -> Result<Self> {
