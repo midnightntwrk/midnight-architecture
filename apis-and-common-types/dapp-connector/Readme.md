@@ -97,6 +97,7 @@ Main intention behind the connected API design is to enable many useful DApps, b
 
 The connected API consists of couple of parts, each always present, but its methods may throw an error indicating lack of permission:
 ```ts
+
 type ShieldedBalance = {
   getShieldedBalances(): Promise<Record<TokenType, bigint>>;
 };
@@ -165,7 +166,7 @@ type SubmitTransaction = {
     submitTransaction(tx: string): Promise<void>;
 }
 
-type ConnectedAPI = 
+type WalletConnectedAPI = 
   & ShieldedBalance 
   & UnshieldedBalance 
   & TxHistory 
@@ -245,22 +246,32 @@ type Signature = {
   signature: string; 
   verifyingKey: string
 }
+
+type HintUsage = {
+  hintUsage(methodNames: Array<keyof ConnectedAPI>): Promise<void>;
+}
+
+type ConnectedAPI = WalletConnectedAPI & HintUsage;
+
 ```
 
 The protocol that comes with this API is as follows:
-1. The DApp should not assume presence of methods means granted permission, wallets might implement various policies like "Ask on first use", as well as "Ask user upfront". In particular - wallets implementing "Ask on first use" policies might add some latency to first calls, in order to collect multiple requests the DApp makes for particular view and only ask the user once.
-2. To let DApp clearly distinguish it is the case, wallet must return `PermissionRejected` error for a particular method
-3. The way the API is compartmentalized is a possibility of how wallets can manage permissions, though wallets are free to implement more coarse-grained as well as more fine-grained permissions to limit access to certain actions or data.
-4. When asked returning transaction (in methods `balanceTransaction`, `makeTransfer` or `makeIntent`), wallet must always return a transaction ready to be submitted to the network, that is one that is sealed, contains needed signatures, and contains needed proofs.
-5. The DApp, when asking wallet to submit a transaction, needs to provide a transaction ready to be submitted to the network, that is one that is sealed, contains signatures, and contains proofs.
-6. The DApp, when asking wallet to balance a transaction, needs to provide a transaction, which is not sealed and does not contain signatures, but already contains proof, otherwise wallet won't be able to deserialize it and complement with necessary tokens.
-7. The DApp, when asking wallet to balance a transaction, needs to provide a transaction compatible with network id indicated in the configuration object.
-8. The DApp should connect to indexer and proving server indicated by configuration, therefore wallet should not limit access to the `getConfiguration` method unless absolutely necessary.
-9. The DApp can double check if `networkId` present in configuration matches the requested one
-10. In the configuration object, the wallet must point to service deployments, which are compatible with network id present, and preferably are the same that the wallet itself uses for particular network.
-11. Wallet must provide data like token types and addresses in format compatible with network id present in the configuration object and following relevant specification, Midnight Wallet specification does define address format.
-12. Wallet can reconcile data like balances from multiple accounts, in such case wallet must ensure data consistency, mostly related to reported balances, so that they can actually be used in a transaction, if only it fits single transaction and user does permits so.
-13. Wallet must ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
+1. The DApp should not assume presence of methods means granted permission
+2. The wallet might implement various policies like "Ask on first use", as well as "Ask user upfront". In particular - wallets implementing "Ask on first use" policies might add some latency to first calls, in order to collect multiple requests the DApp makes for particular view and only ask the user once.
+3. The DApp should not assume any particular permission system and its granularity being implemented. In particular - The DApp should use as little `ConnectedAPI` surface as possible for its functionality and follow the rules of progressive enhancement/graceful degradation when learning that certain methods are rejected. The DApp can use `hintUsage` method to hint to wallet what methods will be used in the context (be it whole session, single view, or a user flow).
+4. The wallet should expect multiple `hintUsage` calls as they may be related to different parts of a DApp. The wallet can use these calls as an opportunity to ask user for permissions. The wallet should always return void value (`undefined`). 
+5. To let DApp clearly distinguish it is the case, wallet must return `PermissionRejected` error for a particular method
+6. The way the API is compartmentalized is a possibility of how wallets can manage permissions, though wallets are free to implement more coarse-grained as well as more fine-grained permissions to limit access to certain actions or data.
+7. When asked returning transaction (in methods `balanceTransaction`, `makeTransfer` or `makeIntent`), wallet must always return a transaction ready to be submitted to the network, that is one that is sealed, contains needed signatures, and contains needed proofs.
+8. The DApp, when asking wallet to submit a transaction, needs to provide a transaction ready to be submitted to the network, that is one that is sealed, contains signatures, and contains proofs.
+9. The DApp, when asking wallet to balance a transaction, needs to provide a transaction, which is not sealed and does not contain signatures, but already contains proof, otherwise wallet won't be able to deserialize it and complement with necessary tokens.
+10. The DApp, when asking wallet to balance a transaction, needs to provide a transaction compatible with network id indicated in the configuration object.
+11. The DApp should connect to indexer and proving server indicated by configuration, therefore wallet should not limit access to the `getConfiguration` method unless absolutely necessary.
+12. The DApp can double check if `networkId` present in configuration matches the requested one
+13. In the configuration object, the wallet must point to service deployments, which are compatible with network id present, and preferably are the same that the wallet itself uses for particular network.
+14. Wallet must provide data like token types and addresses in format compatible with network id present in the configuration object and following relevant specification, Midnight Wallet specification does define address format.
+15. Wallet can reconcile data like balances from multiple accounts, in such case wallet must ensure data consistency, mostly related to reported balances, so that they can actually be used in a transaction, if only it fits single transaction and user does permits so.
+16. Wallet must ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
 
 
 ### Errors
