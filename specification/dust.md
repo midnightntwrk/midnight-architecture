@@ -231,53 +231,55 @@ struct DustActions<S, P> {
     /// Further note that it *only* happens to the guaranteed unshielded offer,
     /// and the fallible offer is processed normally.
     registrations: Vec<DustRegistration>,
-    ctime: Tiemstamp,
+    ctime: Timestamp,
 }
 
 impl<S, P> DustActions<S, P> {
-    fn well_formed(self, ref_state: DustState, segment: u16, parent: ErasedIntent, tnow: Timestamp) -> Result<()> {
+    fn well_formed(
+        self,
+        ref_dust_state: DustState,
+        ref_utxo_state: UtxoState,
+        segment: u16,
+        parent: ErasedIntent,
+        tnow: Timestamp,
+        params: DustParameters,
+    ) -> Result<()> {
         let binding = parent.binding_commitment;
         assert!(!self.spends.is_empty() || !self.registrations.is_empty())
         for spend in self.spends {
             spend.well_formed(ref_state, segment, binding, self.ctime)?;
         }
         assert!(self.ctime <= tnow && self.ctime + params.dust_grace_period >= tnow);
-        // FIXME: Need to make sure that the declared possible dust
-        // registrations are actually possible
+        // Make sure that we are not registering for the same night key more
+        // than once
+        let mut night_keys = self.registrations
+            .iter()
+            .map(|reg| reg.night_key)
+            .collect::<Vec<_>>();
+        night_keys.sort();
+        assert!(night_keys.windows(2).all(|window| window[0] != window[1]));
+        // Make sure that each registration has sufficient unclaimed night in
+        // the ref utxo state to cover its allowed fee payment field.
+        assert!(self.registrations
+            .iter()
+            .filter(|reg| reg.allow_fee_payment > 0)
+            .all(|reg|
+                ref_dust_state.generationless_fee_availability(
+                    ref_utxo_state,
+                    parent,
+                    reg.night_key,
+                    params,
+                ).unwrap_or(0) >= reg.allow_fee_payment
+            )
+        );
     }
 }
 
 impl DustState {
-    fn apply<S, P>(
-        mut self,
-        actions: DustActions<S, P>,
-        remaining_fees: u128,
-        segment: u16,
-        parent_intent: ErasedIntent,
-        utxo_state: UtxoState,
-        params: DustParameters,
-    ) -> Result<(Self, u128)> {
-        for spend in self.spends {
-            self = self.apply_spend(spend)?;
-        }
-        for reg in self.registrations {
-            (self, remaining_fees) = self.apply_registration(
-                utxo_state,
-                remaining_fees,
-                segment,
-                parent_intent,
-                reg,
-                params,
-            )?;
-        }
-        Ok((self, remaining_fees))
-    }
-
     fn apply_offer<S, P>(
         mut self,
         offer: UnshieldedOffer<S>,
         segment: u16,
-        guaranteed: bool,
         parent: ErasedIntent,
         tnow: Timestamp,
     ) -> Result<Self> {
@@ -295,45 +297,13 @@ impl DustState {
             .filter(|(_, o)| o.type_ == NIGHT_RAW)
         {
             let Some(dust_addr) = self.generation.address_delegation.get(output.owner) else { continue; };
-            let handled_by_registration = guaranteed && parent.dust_actions
+            let handled_by_registration = segment == 0 && parent.dust_actions
                 .iter()
                 .flat_map(|actions| actions.registrations.iter())
                 .any(|reg| hash(reg.night_key) == output.owner);
-            if handled_by_registration {
-                continue;
+            if !handled_by_registration {
+                self = self.fresh_dust_output(segment, parent, 0, output_no as u32, output)?;
             }
-            let initial_nonce = hash(hash(segment, parent), output_no as u32);
-            let seq = 0;
-            let dust_pre_projection = DustPreProjection {
-                value: 0,
-                owner: dust_addr,
-                nonce: field::hash((initial_nonce, seq, dust_addr)),
-                ctime: tnow,
-            };
-            let dust_commitment = field::hash(dust_pre_projection);
-            self.utxo.commitments = self.utxo.commitments.insert(
-                self.utxo.commitments_first_free,
-                dust_commitment,
-            );
-            self.utxo.commitments_first_free += 1;
-            let gen_info = DustGenerationInfo {
-                value: output.value,
-                owner: dust_addr,
-                nonce: initial_nonce,
-                dtime: Timestamp::MAX,
-            };
-            let utxo = Utxo {
-                value: output.value,
-                owner: output.owner,
-                type_: output.type_,
-                intent_hash: hash(segment, parent),
-                output_no,
-            };
-            assert!(!self.generation.generating_set.contains(gen_info.into()));
-            self.generation.generating_set = self.generation.generating_set.insert(gen_info.into());
-            self.generation.generating_tree = self.generation.generating_tree.insert(self.generation.generating_tree_first_free, gen_info);
-            self.generation.night_indices.insert(utxo, self.generation.generating_tree_first_free);
-            self.generation.generating_tree_first_free += 1;
         }
         self
     }
@@ -346,12 +316,79 @@ impl DustState {
         Ok(self)
     }
 
+    fn generationless_fee_availability(
+        self,
+        utxo_state: UtxoState,
+        parent_intent: ErasedIntent,
+        night_key: VerifyingKey,
+        params: DustParameters,
+    ) -> Result<u128> {
+        let generationless_inputs = parent_intent.guaranteed_unshielded_offer
+            .iter()
+            .flat_map(|o| o.inputs.iter())
+            .filter(|i| i.owner == night_key && i.type_ == NIGHT_RAW)
+            .filter(|i| !self.generation.night_indices.contains(Utxo::from(i)))
+            .collect();
+        generationless_inputs.iter().map(|i| {
+            // In parallel with `updated_value`, but only phase 1
+            let vfull = i.value * params.night_dust_ratio;
+            let rate = i.value * params.generation_decay_rate;
+            let tstart = utxo_state.get(Utxo::from(i))?.ctime;
+            let tend = parent_intent.dust_actions
+                .expect("Dust actions must exist to process a generationless fee availability")
+                .ctime;
+            let value_unchecked = (tend_phase_1 - tstart_phase_1).as_seconds() * rate;
+            clamp(value_unchecked, 0, vfull)
+        }).sum()
+    }
+
+    fn fresh_dust_output(
+        mut self,
+        segment: u16,
+        parent: ErasedIntent,
+        initial_value: u128,
+        output_no: u32,
+        output: UtxoOutput,
+    ) -> Result<Self> {
+        let initial_nonce = hash(hash(segment, parent), output_no as u32);
+        let seq = 0;
+        let dust_pre_projection = DustPreProjection {
+            value: initial_value,
+            owner: dust_addr,
+            nonce: field::hash((initial_nonce, seq, dust_addr)),
+            ctime: tnow,
+        };
+        let dust_commitment = field::hash(dust_pre_projection);
+        self.utxo.commitments = self.utxo.commitments.insert(
+            self.utxo.commitments_first_free,
+            dust_commitment,
+        );
+        self.utxo.commitments_first_free += 1;
+        let gen_info = DustGenerationInfo {
+            value: output.value,
+            owner: dust_addr,
+            nonce: initial_nonce,
+            dtime: Timestamp::MAX,
+        };
+        let utxo = Utxo {
+            value: output.value,
+            owner: output.owner,
+            type_: output.type_,
+            intent_hash: hash(segment, parent),
+            output_no,
+        };
+        assert!(!self.generation.generating_set.contains(gen_info.into()));
+        self.generation.generating_set = self.generation.generating_set.insert(gen_info.into());
+        self.generation.generating_tree = self.generation.generating_tree.insert(self.generation.generating_tree_first_free, gen_info);
+        self.generation.night_indices.insert(utxo, self.generation.generating_tree_first_free);
+        self.generation.generating_tree_first_free += 1;
+    }
+
     // Returns the updated self, and the updated `remaining_fees`.
     fn apply_registration<S>(
         mut self,
         utxo_state: UtxoState,
         mut remaining_fees: u128,
-        segment: u16,
         parent_intent: ErasedIntent,
         reg: DustRegistration<S>,
         params: DustParameters,
@@ -364,28 +401,12 @@ impl DustState {
             },
             Some(dust_addr) => self.generation.address_delegation.insert(night_address, dust_addr),
         }
-        let generationless_inputs = parent_intent.guaranteed_unshielded_offer
-            .iter()
-            .flat_map(|o| o.inputs.iter())
-            .filter(|i| i.owner == self.night_key && i.type_ == NIGHT_RAW)
-            .filter(|i| !self.generation.night_indices.contains(Utxo::from(i)))
-            .collect();
         let owned_outputs = parent_intent.guaranteed_unshielded_offer
             .iter()
             .flat_map(|o| o.outputs.iter().enumerate())
             .filter(|(_, o)| o.owner == night_address && o.type_ == NIGHT_RAW)
             .collect();
-        let dust_in = generationless_inputs.iter().map(|i| {
-            // In parallel with `updated_value`, but only phase 1
-            let vfull = i.value * params.night_dust_ratio;
-            let rate = i.value * generation_decay_rate;
-            let tstart = utxo_state.get(Utxo::from(i))?.ctime;
-            let tend = parent_intent.dust_actions
-                .expect("Dust actions must exist to process a registration")
-                .ctime;
-            let value_unchecked = (tend_phase_1 - tstart_phase_1).as_seconds() * rate;
-            clamp(value_unchecked, 0, vfull)
-        }).sum();
+        let dust_in = self.generationless_fee_availability(utxo_state, parent_intent, reg.night_key, params)?;
         let fee_paid = u128::min(remaining_fees, u128::min(reg.allow_fee_payment, dust_in));
         remaining_fees -= fee_paid;
         let dust_out = dust_in - fee_paid;
@@ -397,39 +418,7 @@ impl DustState {
                 const DISTRIBUTION_RESOLUTION: u128 = 10_000;
                 let ratio = ((output.value * DISTRIBUTION_RESOLUTION) / output_sum);
                 let initial_value = (ratio * dust_out) / DISTRIBUTION_RESOLUTION;
-                // NOTE: This is identical to `apply_offer`. Factor out?
-                let initial_nonce = hash(hash(segment, parent), output_no as u32);
-                let seq = 0;
-                let dust_pre_projection = DustPreProjection {
-                    value: initial_value,
-                    owner: dust_addr,
-                    nonce: field::hash((initial_nonce, seq, dust_addr)),
-                    ctime: tnow,
-                };
-                let dust_commitment = field::hash(dust_pre_projection);
-                self.utxo.commitments = self.utxo.commitments.insert(
-                    self.utxo.commitments_first_free,
-                    dust_commitment,
-                );
-                self.utxo.commitments_first_free += 1;
-                let gen_info = DustGenerationInfo {
-                    value: output.value,
-                    owner: dust_addr,
-                    nonce: initial_nonce,
-                    dtime: Timestamp::MAX,
-                };
-                let utxo = Utxo {
-                    value: output.value,
-                    owner: output.owner,
-                    type_: output.type_,
-                    intent_hash: hash(segment, parent),
-                    output_no,
-                };
-                assert!(!self.generation.generating_set.contains(gen_info.into()));
-                self.generation.generating_set = self.generation.generating_set.insert(gen_info.into());
-                self.generation.generating_tree = self.generation.generating_tree.insert(self.generation.generating_tree_first_free, gen_info);
-                self.generation.night_indices.insert(utxo, self.generation.generating_tree_first_free);
-                self.generation.generating_tree_first_free += 1;
+                self = self.fresh_dust_output(0, parent_intent, initial_value, output_no as u32, output)?;
             }
         }
         Ok((self, remaining_fees))

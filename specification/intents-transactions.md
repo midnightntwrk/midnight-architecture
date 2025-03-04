@@ -186,28 +186,46 @@ of another part in a contract.
 impl<S, P, B> Intent<S, P, B> {
     fn well_formed(
         self,
+        tblock: Timestamp,
         segment_id: u16,
-        ref_state: LedgerContractState,
+        ref_state: LedgerState,
     ) -> Result<()> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
         self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
-        self.actions.iter().all(|action| action.well_formed(ref_state, hash((segment_id, erased)))).collect()?;
+        self.actions.iter()
+            .all(|action|
+                action.well_formed(
+                    ref_state.contract,
+                    hash((segment_id, erased)),
+                ))
+            .collect()?;
+        self.dust_actions.iter()
+            .all(|dust_actions|
+                dust_actions.well_formed(
+                    ref_state.dust,
+                    ref_state.utxo,
+                    segment_id,
+                    erased,
+                    tblock,
+                    ref_state.params.dust,
+                ))
+            .collect()?;
     }
 }
 
 const SEGMENT_GUARANTEED: u16 = 0;
 
 impl<S, P, B> Transaction<S, P, B> {
-    fn well_formed(self, tblock: Timestamp, ref_state: LedgerContractState) -> Result<()> {
-        self.guaranteed_offer.map(|offer| offer.well_formed(0)).transpose()?;
+    fn well_formed(self, tblock: Timestamp, ref_state: LedgerState) -> Result<()> {
+        self.guaranteed_offer.map(|offer| offer.well_formed(tblock, 0, ref_state)).transpose()?;
         for (segment, offer) in self.fallible_offer {
             assert!(segment != SEGMENT_GUARANTEED);
             offer.well_formed(segment)?;
         }
         for (segment, intent) in self.intents {
             assert!(segment != SEGMENT_GUARANTEED);
-            intent.well_formed(segment, ref_state)?;
+            intent.well_formed(tblock, segment, ref_state)?;
         }
         self.disjoint_check()?;
         self.sequencing_check()?;
@@ -358,7 +376,15 @@ impl<S, P, B> Transaction<S, P, B> {
 
     fn balance(self) -> Result<Map<(TokenType, u16), i128>> {
         let mut res = Map::new();
+        let mut dust_bal = - (self.fees() as i128);
         for (segment, intent) in self.intents {
+            for dust_spend in self.dust_actions.iter().flat_map(|da| da.spends) {
+                dust_bal += min(spends.v_fee, i128::MAX) as i128;
+            }
+            for dust_reg in self.dust_actions.iter().flat_map(|da| da.registrations) {
+                dust_bal += min(dust_reg.allow_fee_payment, i128::MAX) as i128;
+            }
+
             for (segment, offer) in [
                 (0, intent.guaranteed_unshielded_offer),
                 (segment, intent. fallible_unshielded_offer),
@@ -414,6 +440,7 @@ impl<S, P, B> Transaction<S, P, B> {
                 res.set((TokenType::Shielded(tt), segment), val);
             }
         }
+        res.insert((DUST, 0), bust_bal);
         Ok(res)
     }
 
@@ -653,11 +680,18 @@ impl<S, P, B> Transaction<S, P, B> {
     }
 }
 
+struct LedgerParameters {
+    // ...
+    dust: DustParameters,
+}
+
 struct LedgerState {
     utxo: UtxoState,
     zswap: ZswapState,
     contract: LedgerContractState,
     replay_protection: ReplayProtectionState,
+    dust: DustState,
+    params: LedgerParameters,
 }
 
 impl LedgerState {
@@ -721,6 +755,12 @@ impl LedgerState {
                         erased,
                         block_context.seconds_since_epoch,
                     )?;
+                    self.dust = self.dust.apply_offer(
+                        offer,
+                        0,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
                 }
                 for action in intent.actions.iter() {
                     self.contract = self.contract.apply_action(
@@ -731,11 +771,44 @@ impl LedgerState {
                     )?;
                 }
             }
+            // process fees and dust actions first. This is not in `apply_segment`,
+            // as they are not processed segment-by-segment.
+            let mut fees_remaining = tx.fees();
+            // apply spends first, to make sure registration outputs get the
+            // maximum dust they can.
+            for dust_spend in tx.intents.values()
+                .flat_map(|i| i.dust_actions.iter().flat_map(|a| a.spends.iter()))
+            {
+                self.dust = self.dust.apply_spend(dust_spend)?;
+                fees_remaining = fees_remaining.saturating_sub(dust_spend.v_fee);
+            }
+            // Then apply registrations
+            for intent in tx.intents.values() {
+                for reg in intent.dust_actions
+                    .iter()
+                    .flat_map(|a| a.registrations.iter())
+                {
+                    (self.dust, fees_remaining) = self.dust.apply_registration(
+                        self.utxo,
+                        fees_remaining,
+                        intent.erase_proofs(),
+                        reg,
+                        self.params.dust,
+                    )?;
+                }
+            }
+            assert!(fees_remaining == 0);
         } else {
             if let Some(intent) = tx.intents.get(segment) {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.fallible_unshielded_offer {
                     self.utxo = self.utxo.apply_offer(
+                        offer,
+                        segment,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
+                    self.dust = self.dust.apply_offer(
                         offer,
                         segment,
                         erased,
