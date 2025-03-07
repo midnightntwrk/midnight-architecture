@@ -28,6 +28,7 @@ nbconvert = "*"
 black = "*"
 scikit-learn = "*"
 notebook = "*"
+openpyxl = "*"
 
 [dev-packages]
 black = "*"

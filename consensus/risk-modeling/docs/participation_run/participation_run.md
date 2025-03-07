@@ -1,6 +1,6 @@
  # Participation Distribution in Committee Selection
 
- ### Executive Summary
+ ## Executive Summary
 
  In the following computer experiments,
  we aim to understand the distribution of selections in a committee
@@ -206,28 +206,28 @@ group_stakes
   <tbody>
     <tr>
       <th>0</th>
-      <td>74560000.0</td>
-      <td>7.017396e-02</td>
+      <td>72900000.0</td>
+      <td>9.110995e-02</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>70000000.0</td>
-      <td>6.588221e-02</td>
+      <td>70530000.0</td>
+      <td>8.814794e-02</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>70000000.0</td>
-      <td>6.588221e-02</td>
+      <td>64930000.0</td>
+      <td>8.114909e-02</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>70000000.0</td>
-      <td>6.588221e-02</td>
+      <td>60880000.0</td>
+      <td>7.608743e-02</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>64730000.0</td>
-      <td>6.092222e-02</td>
+      <td>56330000.0</td>
+      <td>7.040087e-02</td>
     </tr>
     <tr>
       <th>...</th>
@@ -236,28 +236,28 @@ group_stakes
     </tr>
     <tr>
       <th>95</th>
-      <td>23.0</td>
-      <td>2.164701e-08</td>
+      <td>35.0</td>
+      <td>4.374277e-08</td>
     </tr>
     <tr>
       <th>96</th>
-      <td>18.0</td>
-      <td>1.694114e-08</td>
+      <td>17.0</td>
+      <td>2.124649e-08</td>
     </tr>
     <tr>
       <th>97</th>
-      <td>8.0</td>
-      <td>7.529395e-09</td>
+      <td>11.0</td>
+      <td>1.374773e-08</td>
     </tr>
     <tr>
       <th>98</th>
-      <td>2.0</td>
-      <td>1.882349e-09</td>
+      <td>3.0</td>
+      <td>3.749381e-09</td>
     </tr>
     <tr>
       <th>99</th>
       <td>1.0</td>
-      <td>9.411744e-10</td>
+      <td>1.249794e-09</td>
     </tr>
   </tbody>
 </table>
@@ -306,38 +306,38 @@ group_stakes.describe()
     </tr>
     <tr>
       <th>mean</th>
-      <td>1.062502e+07</td>
+      <td>8.001322e+06</td>
       <td>1.000000e-02</td>
     </tr>
     <tr>
       <th>std</th>
-      <td>2.114452e+07</td>
-      <td>1.990068e-02</td>
+      <td>1.762188e+07</td>
+      <td>2.202371e-02</td>
     </tr>
     <tr>
       <th>min</th>
       <td>1.000000e+00</td>
-      <td>9.411744e-10</td>
+      <td>1.249794e-09</td>
     </tr>
     <tr>
       <th>25%</th>
-      <td>2.867500e+03</td>
-      <td>2.698818e-06</td>
+      <td>1.102500e+03</td>
+      <td>1.377897e-06</td>
     </tr>
     <tr>
       <th>50%</th>
-      <td>2.037500e+05</td>
-      <td>1.917643e-04</td>
+      <td>5.674500e+04</td>
+      <td>7.091953e-05</td>
     </tr>
     <tr>
       <th>75%</th>
-      <td>5.882500e+06</td>
-      <td>5.536458e-03</td>
+      <td>2.412500e+06</td>
+      <td>3.015127e-03</td>
     </tr>
     <tr>
       <th>max</th>
-      <td>7.456000e+07</td>
-      <td>7.017396e-02</td>
+      <td>7.290000e+07</td>
+      <td>9.110995e-02</td>
     </tr>
   </tbody>
 </table>
@@ -379,36 +379,36 @@ print(first_zero_index)
 
     Committee
              stake  stake_weight
-    12  34980000.0      0.032922
-    7   63890000.0      0.060132
-    8   62190000.0      0.058532
-    19  13650000.0      0.012847
-    5   64660000.0      0.060856
+    7   43150000.0      0.053929
+    9   38640000.0      0.048292
+    9   38640000.0      0.048292
+    9   38640000.0      0.048292
+    16  14780000.0      0.018472
     ..         ...           ...
-    6   64330000.0      0.060546
-    11  51710000.0      0.048668
-    8   62190000.0      0.058532
-    2   70000000.0      0.065882
-    5   64660000.0      0.060856
+    5   55950000.0      0.069926
+    16  14780000.0      0.018472
+    9   38640000.0      0.048292
+    5   55950000.0      0.069926
+    7   43150000.0      0.053929
     
     [100 rows x 2 columns]
     
     Seat Counts
-    0     0.06903
-    3     0.06596
-    2     0.06533
-    1     0.06508
-    6     0.06199
+    0     0.09135
+    1     0.08864
+    2     0.08084
+    3     0.07598
+    4     0.07025
            ...   
-    69    0.00000
-    68    0.00000
-    66    0.00000
-    64    0.00000
+    77    0.00000
+    78    0.00000
+    79    0.00000
+    80    0.00000
     99    0.00000
     Name: relative frequency, Length: 100, dtype: float64
     
     First Zero Index
-    66
+    64
 
 
 
@@ -948,123 +948,123 @@ committee_seats_df
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.067845</td>
-      <td>0.059950</td>
-      <td>0.033845</td>
-      <td>0.02261</td>
-      <td>0.016740</td>
-      <td>0.110023</td>
-      <td>0.058183</td>
-      <td>0.032363</td>
-      <td>0.024580</td>
-      <td>0.019247</td>
+      <td>0.073850</td>
+      <td>0.039650</td>
+      <td>0.029115</td>
+      <td>0.021475</td>
+      <td>0.021090</td>
+      <td>0.077130</td>
+      <td>0.057333</td>
+      <td>0.030613</td>
+      <td>0.022977</td>
+      <td>0.019403</td>
       <td>...</td>
-      <td>0.098936</td>
-      <td>0.042228</td>
-      <td>0.031282</td>
-      <td>0.022488</td>
-      <td>0.016358</td>
-      <td>0.098936</td>
-      <td>0.042228</td>
-      <td>0.031282</td>
-      <td>0.022488</td>
-      <td>0.016358</td>
+      <td>0.065616</td>
+      <td>0.049302</td>
+      <td>0.025080</td>
+      <td>0.020762</td>
+      <td>0.021444</td>
+      <td>0.065616</td>
+      <td>0.049302</td>
+      <td>0.025080</td>
+      <td>0.020762</td>
+      <td>0.021444</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.068715</td>
-      <td>0.058495</td>
-      <td>0.033610</td>
-      <td>0.02243</td>
-      <td>0.016370</td>
-      <td>0.108877</td>
-      <td>0.057353</td>
-      <td>0.031813</td>
-      <td>0.024490</td>
-      <td>0.019043</td>
+      <td>0.072835</td>
+      <td>0.039180</td>
+      <td>0.029360</td>
+      <td>0.020975</td>
+      <td>0.020790</td>
+      <td>0.075147</td>
+      <td>0.056763</td>
+      <td>0.030750</td>
+      <td>0.022560</td>
+      <td>0.019083</td>
       <td>...</td>
-      <td>0.093620</td>
-      <td>0.041044</td>
-      <td>0.031380</td>
-      <td>0.022328</td>
-      <td>0.016434</td>
-      <td>0.093620</td>
-      <td>0.041044</td>
-      <td>0.031380</td>
-      <td>0.022328</td>
-      <td>0.016434</td>
+      <td>0.065226</td>
+      <td>0.048306</td>
+      <td>0.025112</td>
+      <td>0.020772</td>
+      <td>0.021260</td>
+      <td>0.065226</td>
+      <td>0.048306</td>
+      <td>0.025112</td>
+      <td>0.020772</td>
+      <td>0.021260</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.067155</td>
-      <td>0.057850</td>
-      <td>0.033825</td>
-      <td>0.02232</td>
-      <td>0.016395</td>
-      <td>0.091033</td>
-      <td>0.057610</td>
-      <td>0.031537</td>
-      <td>0.023550</td>
-      <td>0.019190</td>
+      <td>0.071360</td>
+      <td>0.038825</td>
+      <td>0.028715</td>
+      <td>0.020425</td>
+      <td>0.020010</td>
+      <td>0.074110</td>
+      <td>0.057197</td>
+      <td>0.030300</td>
+      <td>0.022413</td>
+      <td>0.018493</td>
       <td>...</td>
-      <td>0.093920</td>
-      <td>0.040756</td>
-      <td>0.031458</td>
-      <td>0.022052</td>
-      <td>0.016206</td>
-      <td>0.093920</td>
-      <td>0.040756</td>
-      <td>0.031458</td>
-      <td>0.022052</td>
-      <td>0.016206</td>
+      <td>0.063958</td>
+      <td>0.046922</td>
+      <td>0.025086</td>
+      <td>0.020514</td>
+      <td>0.020366</td>
+      <td>0.063958</td>
+      <td>0.046922</td>
+      <td>0.025086</td>
+      <td>0.020514</td>
+      <td>0.020366</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.067555</td>
-      <td>0.058080</td>
-      <td>0.033280</td>
-      <td>0.02143</td>
-      <td>0.016020</td>
-      <td>0.085087</td>
-      <td>0.057087</td>
-      <td>0.030130</td>
-      <td>0.024257</td>
-      <td>0.018683</td>
+      <td>0.071805</td>
+      <td>0.038825</td>
+      <td>0.028390</td>
+      <td>0.020620</td>
+      <td>0.020205</td>
+      <td>0.074997</td>
+      <td>0.055717</td>
+      <td>0.030240</td>
+      <td>0.022543</td>
+      <td>0.018543</td>
       <td>...</td>
-      <td>0.093074</td>
-      <td>0.040992</td>
-      <td>0.030788</td>
-      <td>0.021814</td>
-      <td>0.015854</td>
-      <td>0.093074</td>
-      <td>0.040992</td>
-      <td>0.030788</td>
-      <td>0.021814</td>
-      <td>0.015854</td>
+      <td>0.063448</td>
+      <td>0.043458</td>
+      <td>0.024836</td>
+      <td>0.020380</td>
+      <td>0.020570</td>
+      <td>0.063448</td>
+      <td>0.043458</td>
+      <td>0.024836</td>
+      <td>0.020380</td>
+      <td>0.020570</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.066210</td>
-      <td>0.048815</td>
-      <td>0.033235</td>
-      <td>0.02139</td>
-      <td>0.016050</td>
-      <td>0.078980</td>
-      <td>0.058020</td>
-      <td>0.029650</td>
-      <td>0.023930</td>
-      <td>0.018703</td>
+      <td>0.069460</td>
+      <td>0.038200</td>
+      <td>0.027630</td>
+      <td>0.019595</td>
+      <td>0.019770</td>
+      <td>0.071467</td>
+      <td>0.053463</td>
+      <td>0.029923</td>
+      <td>0.022407</td>
+      <td>0.018263</td>
       <td>...</td>
-      <td>0.064470</td>
-      <td>0.040954</td>
-      <td>0.031078</td>
-      <td>0.020330</td>
-      <td>0.016032</td>
-      <td>0.064470</td>
-      <td>0.040954</td>
-      <td>0.031078</td>
-      <td>0.020330</td>
-      <td>0.016032</td>
+      <td>0.059620</td>
+      <td>0.043488</td>
+      <td>0.025004</td>
+      <td>0.020178</td>
+      <td>0.020130</td>
+      <td>0.059620</td>
+      <td>0.043488</td>
+      <td>0.025004</td>
+      <td>0.020178</td>
+      <td>0.020130</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1456,7 +1456,27 @@ plt.show()
     
 
 
-### Appendix: Computer Code
+
+```python
+# %%
+
+# Save data to an Excel file
+
+data = {}
+data["committee_seats"] = committee_seats_df
+data["first_zero_indices"] = pd.DataFrame(
+    first_zero_indices,
+    index=comm_sizes,
+    columns=group_sizes,
+)
+data["not_selected_percentages"] = not_selected_df
+
+with pd.ExcelWriter("../data/sim_results_data.xlsx") as writer:
+    for sheet_name, df in data.items():
+        df.to_excel(writer, sheet_name=sheet_name)
+```
+
+## Appendix: Computer Code
 
 
 ```python
@@ -1466,11 +1486,11 @@ plt.show()
 """
 Module: participation_lib
 
-This module performs risk modeling for participation distribution in a
-consensus mechanism. It includes functions to load and normalize SPO data,
-sample participants based on their stake, and perform Monte Carlo simulations
-to analyze the committee seat selection process based on stake weight. The
-module also demonstrates the uneven distribution of selections based on stake
+This module performs risk modeling for participation distribution in a 
+consensus mechanism. It includes functions to load and normalize SPO data, 
+sample participants based on their stake, and perform Monte Carlo simulations 
+to analyze the committee seat selection process based on stake weight. The 
+module also demonstrates the uneven distribution of selections based on stake 
 weights and the finite committee.
 
 Functions:
