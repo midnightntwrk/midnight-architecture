@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 # Module comment:
 #   This module simulates the process of selecting a committee
 #   and evaluating its fault tolerance.
@@ -6,9 +9,27 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-def random_participants(population: list[(int, int, int)], num_participants: int) -> list[int]:
+PRINT_TABLE = False
+PRINT_SEAT_INFO = False
+
+
+def random_participants(
+    population: list[(int, int, int)],
+    num_participants: int,
+) -> list[int]:
     """
     Randomly select a committee from the population.
+
+    Args:
+    - population: list of tuples of (id, stake, blocks_produced)
+    - num_participants: number of participants to select
+
+    Returns:
+    - list of num_participants tuples
+
+    Raises:
+    - ValueError: if negative ids found in population
+
     """
     ids, stakes = zip(*population)
     # lookup population tuple by id
@@ -17,9 +38,6 @@ def random_participants(population: list[(int, int, int)], num_participants: int
     return [population[i] for i in np.random.choice(len(population), num_participants, replace=False).tolist()]
 
 
-PRINT_TABLE = False
-PRINT_SEAT_INFO = False
-
 def weighted_config(
         participants: list[(int, int)], 
         committee_size: int,
@@ -27,15 +45,22 @@ def weighted_config(
         ) -> list[int]:
     """
     Randomly select a committee from the population, weighted by stake.
-    Return the list committe-seat counts of the unique
-    committee members.
+
+    Args:
+    - participants: list of tuples of (id, stake)
+    - committee_size: number of participants to select
+    - num_federated_seats: number of seats reserved for federated nodes
+
+    Returns:
+    - list of committee-seat counts of the unique committee members
+
     """
     # Separate the IDs and stakes
     ids, stakes = zip(*participants)
 
     # Reserve seats for federated nodes
     permissionless_seats = committee_size - num_federated_seats
-        
+
     # Check for negative stakes
     negative_stakes = [(id, stake) for id, stake in participants if stake < 0]
     if negative_stakes:
@@ -49,17 +74,17 @@ def weighted_config(
         print(f"total_weight is zero, which means the population is all zero stakes")
         return [0] * permissionless_seats # reserve seats for federated nodes
     probabilities = [stake / total_weight for stake in stakes]
-    
+
     # Debug prints
-    #print(f"ids = {ids}")
-    #print(f"stakes = {stakes}")
-    #print(f"total_weight = {total_weight}")
-    #print(f"probabilities = {probabilities}")
-    
+    # print(f"ids = {ids}")
+    # print(f"stakes = {stakes}")
+    # print(f"total_weight = {total_weight}")
+    # print(f"probabilities = {probabilities}")
+
     # Ensure all probabilities are non-negative
     if any(prob < 0 for prob in probabilities):
         raise ValueError("Probabilities must be non-negative")
-    
+
     # Check for NaN probabilities
     if any(math.isnan(prob) for prob in probabilities):
         bad_participants = [(id, stake) for id, stake, _ in participants if math.isnan(stake / total_weight)]
@@ -83,7 +108,7 @@ def weighted_config(
             reintegrated[id] += 1
         else:
             reintegrated[id] = 1
-        
+
     return [num_seats for id, num_seats in reintegrated.items()]
 
 
@@ -98,6 +123,17 @@ def faults_tolerated(
     Expanded version of faults_tolerated that allows federated nodes to
     fail as well as SPOs.  Altered signature and return type: this is
     now a predicate for a given target f
+
+    Args:
+    - committee_size: number of participants in the committee
+    - permissioned_seats: list of adjusted voting strengths
+    - num_federated_seats: number of seats reserved for federated nodes
+    - num_federated: number of federated nodes
+    - num_participants: number of participants in the population
+
+    Returns:
+    - number of faults tolerated by the committee
+
     """
     global PRINT_SEAT_INFO
 
@@ -112,7 +148,7 @@ def faults_tolerated(
         for n in descending:
             print(f"{n:.2f}")
         print('-' * 80)
-    
+
     x, f = 0, 0
     for v in descending:
         strength = v/committee_size
@@ -137,6 +173,19 @@ def driver(
     Simulate running the committee selection and fault tolerance calculation
     for a number of iterations, computing the probability of choosing a committee
     whose f escapes the target_f.
+
+    Args:
+    - population: list of tuples of (id, stake)
+    - committee_size: number of participants in the committee
+    - target_f: number of faults tolerated by the committee
+    - iterations: number of iterations to simulate
+    - num_participants: number of participants in the population
+    - num_federated_seats: number of seats reserved for federated nodes
+    - num_federated_nodes: number of federated nodes
+
+    Returns:
+    - probability of a committee that tolerates f faults
+
     """
     global PRINT_SEAT_INFO
     # PRINT_SEAT_INFO = True
@@ -151,6 +200,7 @@ def driver(
     return 1 - good_config_count / iterations
 
 def hex_to_int(hex_str):
+    """Convert a hex string to an integer"""
     return int(hex_str, 16)
 
 def plotter(
@@ -158,14 +208,26 @@ def plotter(
         num_participants: int,
         num_federated_nodes: int,
         ):
-    """create datasets in a format needed to plot as in fake_consensus_fault_curves.py"""
+    """Create datasets in a format needed to plot as in fake_consensus_fault_curves.py
+
+    Only participlants with stake > 0 are considered.
+
+    Args:
+    - committee_size: number of participants in the committee
+    - num_participants: number of participants in the population
+    - num_federated_nodes: number of federated nodes
+
+    Returns:
+    - None
+
+    """
     color_options = ['tab:red', 'tab:orange', 'tab:blue', 'tab:pink', 'tab:purple']
     federated_percs = [0.0, 0.20, 0.34, 0.49]
     # federated_percs = [0.2, 0.5]
     target_f = np.array(range(1, 51, 2))
     iterations = 1_000
     population = np.genfromtxt('data/pooltool-cleaned.csv', delimiter=',', converters={0: hex_to_int}, dtype=int)
-    population = [participant for participant in population if participant[1] >= 0]
+    population = [participant for participant in population if participant[1] > 0]
     # drop the unwanted 3rd column (blocks produced)
     population = [(participant[0], participant[1]) for participant in population]
 
@@ -204,7 +266,7 @@ def plotter(
         from scipy.interpolate import PchipInterpolator
         interpolator = PchipInterpolator(target_f, p_values)
         p_smooth = interpolator(f_smooth)
-        
+
         # Plot the original data as scatter points
         plt.scatter(target_f, p_values, color=colors[label], label=f"_nolabel_", alpha=0.7)
         # Plot the spline‐interpolated curve
@@ -219,20 +281,48 @@ def plotter(
     if num_federated_nodes > 0:
         plt.title(f"{num_participants} SPOs, {num_federated_nodes} federated nodes")
     else:
-        plt.title(f"Inherent Risks")
+        plt.title("Inherent Risks")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-    
+
 def main(committee_size: int, num_participants: int, num_federated: int = 10):
+    """Run the simulation and plot the results
+
+    Args:
+    - committee_size: number of participants in the committee
+    - num_participants: number of participants in the population
+    - num_federated: number of federated nodes
+
+    Returns:
+    - None
+    - But plot figures are created and opened on screen.
+
+    """
     plotter(committee_size, num_participants, num_federated)
+
 
 if __name__ == "__main__":
     # parse federated_perc and target_f from command line
     import sys
-    if len(sys.argv) != 3:
-        print("Usage: python sim_residual_risk.py <committee_size> <num_participants>")
-        sys.exit(1) # error
-    main(int(sys.argv[1]), int(sys.argv[2]))
-
+    if len(sys.argv) == 3:
+        k, n = int(sys.argv[1]), int(sys.argv[2])
+        main(k, n)
+    elif len(sys.argv) == 4:
+        k, n, f = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])
+        main(k, n, f)
+    else:
+        print(
+            "Usage:\n\n"
+            "python finality_risk_paper.py <committee_size> <num_participants> [<num_federated>]\n"
+            "where:\n"
+            "  <committee_size> is the number of participants in the committee\n"
+            "  <num_participants> is the number of participants in the population\n"
+            "  <num_federated> is the number of federated nodes\n"
+            "\n"
+            "If <num_federated> is omitted, it defaults to 10\n"
+            "Example: python finality_risk_paper.py 300 1000 10\n"
+            "Example: python finality_risk_paper.py 300 1000\n"
+        )
+        sys.exit(1)

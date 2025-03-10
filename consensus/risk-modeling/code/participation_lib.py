@@ -63,7 +63,22 @@ def get_stake_distribution(
     plot_it: bool = True,
     figsize: tuple[int, int] = (16, 8),
 ) -> pd.DataFrame:
-    """ """
+    """
+    Collect and plot the stake distribution for a sample group of participants.
+    The stake distribution is calculated by summing the stakes of each participant
+    in the sample group. The average stake is calculated if num_iter > 1.
+
+    Args:
+    - population: DataFrame containing the population.
+    - group_size: Number of samples to draw.
+    - num_iter: Number of iterations for Monte Carlo simulation.
+    - plot_it: Boolean flag to plot the stake distribution.
+    - figsize: Size of the figure.
+
+    Returns:
+    - stakes: DataFrame containing the stake and stake weight of each participant.
+
+    """
     # Let's collect the sample participants.stake.values
     # for every participant in the given sample group size.
     # Average them if num_iter > 1.
@@ -133,6 +148,7 @@ def assign_commitee(
     committee_size: int = 300,
     alpha: float = 0.0,
     num_iter: int = 1000,
+    plot_it: bool = True,
     figsize: tuple[int, int] = (16, 8),
 ) -> tuple[pd.DataFrame, pd.Series, int]:
     """
@@ -148,6 +164,7 @@ def assign_commitee(
     - committee_size: Size of the committee (k).
     - alpha: Probability of uniform random sampling in a mixture model.
     - num_iter: Number of iterations for Monte Carlo simulation.
+    - plot_it: Boolean flag to plot the committee seat distribution.
     - figsize: Size of the figure.
 
     Returns:
@@ -201,37 +218,38 @@ def assign_commitee(
 
     # Let's plot both group and sum_counts with two y-axes,
     # one for each
-    fig, ax1 = plt.subplots(figsize=figsize)
-    ax2 = ax1.twinx()
-    ax1.plot(seat_counts.values, color="blue", label="Committee Seat Frequency")
-    ax2.plot(group.stake_weight.values, color="red", label="Group Stake Weight")
-    ax1.set_ylabel("Committee Seats (relative frequency)")
-    ax2.set_ylabel("Stake Weight")
-    ax1.set_xlabel("Participant Index")
-    ax1.legend(loc="upper center")
-    ax2.legend(loc="upper right")
-    plt.title(
-        f"Committee Participation per Stake Weight\n"
-        f"Committee Size k = {committee_size}\n"
-        f"Participation Group Size n = {group_size}",
-        fontsize="medium",
-    )
-    plt.axhline(y=0, color="gray", linestyle="--", alpha=0.6)
-    # Draw vertical line where the committee seat count first goes to zero
-    plt.axvline(x=first_zero_index, color="green", linestyle="--")
-    # Print the value of this first_zero_index along the center of the
-    # vertical line
-    plt.text(
-        first_zero_index,
-        ax2.get_ylim()[1] / 2.0,
-        f"First Zero Index = {first_zero_index}",
-        rotation=0,
-        verticalalignment="center",
-        horizontalalignment="center",
-        color="green",
-        backgroundcolor="white",
-    )
-    plt.show()
+    if plot_it:
+        fig, ax1 = plt.subplots(figsize=figsize)
+        ax2 = ax1.twinx()
+        ax1.plot(seat_counts.values, color="blue", label="Committee Seat Frequency")
+        ax2.plot(group.stake_weight.values, color="red", label="Group Stake Weight")
+        ax1.set_ylabel("Committee Seats (relative frequency)")
+        ax2.set_ylabel("Stake Weight")
+        ax1.set_xlabel("Participant Index")
+        ax1.legend(loc="upper center")
+        ax2.legend(loc="upper right")
+        plt.title(
+            f"Committee Participation per Stake Weight\n"
+            f"Committee Size k = {committee_size}\n"
+            f"Participation Group Size n = {group_size}",
+            fontsize="medium",
+        )
+        plt.axhline(y=0, color="gray", linestyle="--", alpha=0.6)
+        # Draw vertical line where the committee seat count first goes to zero
+        plt.axvline(x=first_zero_index, color="green", linestyle="--")
+        # Print the value of this first_zero_index along the center of the
+        # vertical line
+        plt.text(
+            first_zero_index,
+            ax2.get_ylim()[1] / 2.0,
+            f"First Zero Index = {first_zero_index}",
+            rotation=0,
+            verticalalignment="center",
+            horizontalalignment="center",
+            color="green",
+            backgroundcolor="white",
+        )
+        plt.show()
 
     return committee, seat_counts, first_zero_index
 

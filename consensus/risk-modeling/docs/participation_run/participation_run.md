@@ -1,6 +1,6 @@
  # Participation Distribution in Committee Selection
 
- ## Executive Summary
+ ### Executive Summary
 
  In the following computer experiments,
  we aim to understand the distribution of selections in a committee
@@ -17,7 +17,7 @@
    using random selection with replacement.
  - Analyze the relationship and distribution of committee selection with group size.
 
- We conducted the experiments with varying sizes $(100, 200, ..., 500)$
+ We conducted the experiments with varying sizes $(100, 200, 300, ..., 800)$
  of groups and committees. The results are visualized through plots of committee
  assignments where we vary the group size to see how the committee selection and
  seat count changes.
@@ -166,8 +166,9 @@ group_size = 100
 
 group_stakes = get_stake_distribution(
     population,
-    group_size=100,
-    num_iter=1,
+    group_size=group_size,
+    num_iter=1000,
+    plot_it=True,
 )
 group_stakes
 ```
@@ -206,28 +207,28 @@ group_stakes
   <tbody>
     <tr>
       <th>0</th>
-      <td>72900000.0</td>
-      <td>9.110995e-02</td>
+      <td>7.250552e+07</td>
+      <td>9.187861e-02</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>70530000.0</td>
-      <td>8.814794e-02</td>
+      <td>6.841225e+07</td>
+      <td>8.669164e-02</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>64930000.0</td>
-      <td>8.114909e-02</td>
+      <td>6.467127e+07</td>
+      <td>8.195109e-02</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>60880000.0</td>
-      <td>7.608743e-02</td>
+      <td>5.973343e+07</td>
+      <td>7.569388e-02</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>56330000.0</td>
-      <td>7.040087e-02</td>
+      <td>5.455255e+07</td>
+      <td>6.912870e-02</td>
     </tr>
     <tr>
       <th>...</th>
@@ -236,28 +237,28 @@ group_stakes
     </tr>
     <tr>
       <th>95</th>
-      <td>35.0</td>
-      <td>4.374277e-08</td>
+      <td>1.949900e+01</td>
+      <td>2.470903e-08</td>
     </tr>
     <tr>
       <th>96</th>
-      <td>17.0</td>
-      <td>2.124649e-08</td>
+      <td>1.151700e+01</td>
+      <td>1.459428e-08</td>
     </tr>
     <tr>
       <th>97</th>
-      <td>11.0</td>
-      <td>1.374773e-08</td>
+      <td>6.368000e+00</td>
+      <td>8.069496e-09</td>
     </tr>
     <tr>
       <th>98</th>
-      <td>3.0</td>
-      <td>3.749381e-09</td>
+      <td>3.539000e+00</td>
+      <td>4.484602e-09</td>
     </tr>
     <tr>
       <th>99</th>
-      <td>1.0</td>
-      <td>1.249794e-09</td>
+      <td>1.706000e+00</td>
+      <td>2.161834e-09</td>
     </tr>
   </tbody>
 </table>
@@ -306,38 +307,38 @@ group_stakes.describe()
     </tr>
     <tr>
       <th>mean</th>
-      <td>8.001322e+06</td>
+      <td>7.891447e+06</td>
       <td>1.000000e-02</td>
     </tr>
     <tr>
       <th>std</th>
-      <td>1.762188e+07</td>
-      <td>2.202371e-02</td>
+      <td>1.662034e+07</td>
+      <td>2.106120e-02</td>
     </tr>
     <tr>
       <th>min</th>
-      <td>1.000000e+00</td>
-      <td>1.249794e-09</td>
+      <td>1.706000e+00</td>
+      <td>2.161834e-09</td>
     </tr>
     <tr>
       <th>25%</th>
-      <td>1.102500e+03</td>
-      <td>1.377897e-06</td>
+      <td>1.886276e+03</td>
+      <td>2.390279e-06</td>
     </tr>
     <tr>
       <th>50%</th>
-      <td>5.674500e+04</td>
-      <td>7.091953e-05</td>
+      <td>1.532795e+05</td>
+      <td>1.942350e-04</td>
     </tr>
     <tr>
       <th>75%</th>
-      <td>2.412500e+06</td>
-      <td>3.015127e-03</td>
+      <td>4.771583e+06</td>
+      <td>6.046524e-03</td>
     </tr>
     <tr>
       <th>max</th>
-      <td>7.290000e+07</td>
-      <td>9.110995e-02</td>
+      <td>7.250552e+07</td>
+      <td>9.187861e-02</td>
     </tr>
   </tbody>
 </table>
@@ -378,37 +379,37 @@ print(first_zero_index)
 ```
 
     Committee
-             stake  stake_weight
-    7   43150000.0      0.053929
-    9   38640000.0      0.048292
-    9   38640000.0      0.048292
-    9   38640000.0      0.048292
-    16  14780000.0      0.018472
-    ..         ...           ...
-    5   55950000.0      0.069926
-    16  14780000.0      0.018472
-    9   38640000.0      0.048292
-    5   55950000.0      0.069926
-    7   43150000.0      0.053929
+              stake  stake_weight
+    1   68412250.00      0.086692
+    6   44320150.00      0.056162
+    24   5272658.06      0.006681
+    2   64671270.00      0.081951
+    0   72505520.00      0.091879
+    ..          ...           ...
+    24   5272658.06      0.006681
+    3   59733430.00      0.075694
+    7   39975470.00      0.050657
+    4   54552550.00      0.069129
+    24   5272658.06      0.006681
     
     [100 rows x 2 columns]
     
     Seat Counts
-    0     0.09135
-    1     0.08864
-    2     0.08084
-    3     0.07598
-    4     0.07025
+    0     0.09152
+    1     0.08581
+    2     0.08115
+    3     0.07591
+    4     0.06956
            ...   
-    77    0.00000
-    78    0.00000
-    79    0.00000
-    80    0.00000
+    72    0.00000
+    68    0.00000
+    65    0.00000
+    63    0.00000
     99    0.00000
     Name: relative frequency, Length: 100, dtype: float64
     
     First Zero Index
-    64
+    69
 
 
 
@@ -421,7 +422,16 @@ print(first_zero_index)
 
 # Initialize Parameters:
 comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
-group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
+group_sizes = [
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+]  # vary over group size, n
 num_iter = 1000  # Number of iterations for Monte Carlo simulation
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
@@ -559,8 +569,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 100 participants
-    Committee Size: 200 seats
+    Group Size ...: 600 participants
+    Committee Size: 100 seats
 
 
 
@@ -575,8 +585,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 200 participants
-    Committee Size: 200 seats
+    Group Size ...: 700 participants
+    Committee Size: 100 seats
 
 
 
@@ -591,8 +601,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 300 participants
-    Committee Size: 200 seats
+    Group Size ...: 800 participants
+    Committee Size: 100 seats
 
 
 
@@ -607,7 +617,7 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 400 participants
+    Group Size ...: 100 participants
     Committee Size: 200 seats
 
 
@@ -623,7 +633,7 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 500 participants
+    Group Size ...: 200 participants
     Committee Size: 200 seats
 
 
@@ -639,8 +649,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 100 participants
-    Committee Size: 300 seats
+    Group Size ...: 300 participants
+    Committee Size: 200 seats
 
 
 
@@ -655,8 +665,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 200 participants
-    Committee Size: 300 seats
+    Group Size ...: 400 participants
+    Committee Size: 200 seats
 
 
 
@@ -671,8 +681,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 300 participants
-    Committee Size: 300 seats
+    Group Size ...: 500 participants
+    Committee Size: 200 seats
 
 
 
@@ -687,8 +697,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 400 participants
-    Committee Size: 300 seats
+    Group Size ...: 600 participants
+    Committee Size: 200 seats
 
 
 
@@ -703,8 +713,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 500 participants
-    Committee Size: 300 seats
+    Group Size ...: 700 participants
+    Committee Size: 200 seats
 
 
 
@@ -719,8 +729,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 100 participants
-    Committee Size: 400 seats
+    Group Size ...: 800 participants
+    Committee Size: 200 seats
 
 
 
@@ -735,8 +745,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 200 participants
-    Committee Size: 400 seats
+    Group Size ...: 100 participants
+    Committee Size: 300 seats
 
 
 
@@ -751,8 +761,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 300 participants
-    Committee Size: 400 seats
+    Group Size ...: 200 participants
+    Committee Size: 300 seats
 
 
 
@@ -767,8 +777,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 400 participants
-    Committee Size: 400 seats
+    Group Size ...: 300 participants
+    Committee Size: 300 seats
 
 
 
@@ -783,8 +793,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 500 participants
-    Committee Size: 400 seats
+    Group Size ...: 400 participants
+    Committee Size: 300 seats
 
 
 
@@ -799,8 +809,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 100 participants
-    Committee Size: 500 seats
+    Group Size ...: 500 participants
+    Committee Size: 300 seats
 
 
 
@@ -815,8 +825,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 200 participants
-    Committee Size: 500 seats
+    Group Size ...: 600 participants
+    Committee Size: 300 seats
 
 
 
@@ -831,8 +841,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 300 participants
-    Committee Size: 500 seats
+    Group Size ...: 700 participants
+    Committee Size: 300 seats
 
 
 
@@ -847,8 +857,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 400 participants
-    Committee Size: 500 seats
+    Group Size ...: 800 participants
+    Committee Size: 300 seats
 
 
 
@@ -863,8 +873,8 @@ for i, committee_size in enumerate(comm_sizes):
     
 
 
-    Group Size ...: 500 participants
-    Committee Size: 500 seats
+    Group Size ...: 100 participants
+    Committee Size: 400 seats
 
 
 
@@ -876,6 +886,246 @@ for i, committee_size in enumerate(comm_sizes):
 
     
 ![png](output_9_74.png)
+    
+
+
+    Group Size ...: 200 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_76.png)
+    
+
+
+
+    
+![png](output_9_77.png)
+    
+
+
+    Group Size ...: 300 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_79.png)
+    
+
+
+
+    
+![png](output_9_80.png)
+    
+
+
+    Group Size ...: 400 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_82.png)
+    
+
+
+
+    
+![png](output_9_83.png)
+    
+
+
+    Group Size ...: 500 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_85.png)
+    
+
+
+
+    
+![png](output_9_86.png)
+    
+
+
+    Group Size ...: 600 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_88.png)
+    
+
+
+
+    
+![png](output_9_89.png)
+    
+
+
+    Group Size ...: 700 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_91.png)
+    
+
+
+
+    
+![png](output_9_92.png)
+    
+
+
+    Group Size ...: 800 participants
+    Committee Size: 400 seats
+
+
+
+    
+![png](output_9_94.png)
+    
+
+
+
+    
+![png](output_9_95.png)
+    
+
+
+    Group Size ...: 100 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_97.png)
+    
+
+
+
+    
+![png](output_9_98.png)
+    
+
+
+    Group Size ...: 200 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_100.png)
+    
+
+
+
+    
+![png](output_9_101.png)
+    
+
+
+    Group Size ...: 300 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_103.png)
+    
+
+
+
+    
+![png](output_9_104.png)
+    
+
+
+    Group Size ...: 400 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_106.png)
+    
+
+
+
+    
+![png](output_9_107.png)
+    
+
+
+    Group Size ...: 500 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_109.png)
+    
+
+
+
+    
+![png](output_9_110.png)
+    
+
+
+    Group Size ...: 600 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_112.png)
+    
+
+
+
+    
+![png](output_9_113.png)
+    
+
+
+    Group Size ...: 700 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_115.png)
+    
+
+
+
+    
+![png](output_9_116.png)
+    
+
+
+    Group Size ...: 800 participants
+    Committee Size: 500 seats
+
+
+
+    
+![png](output_9_118.png)
+    
+
+
+
+    
+![png](output_9_119.png)
     
 
 
@@ -914,11 +1164,11 @@ committee_seats_df
   <thead>
     <tr>
       <th></th>
-      <th colspan="5" halign="left">Committee Size = 100</th>
-      <th colspan="5" halign="left">Committee Size = 200</th>
+      <th colspan="8" halign="left">Committee Size = 100</th>
+      <th colspan="2" halign="left">Committee Size = 200</th>
       <th>...</th>
-      <th colspan="5" halign="left">Committee Size = 400</th>
-      <th colspan="5" halign="left">Committee Size = 500</th>
+      <th colspan="2" halign="left">Committee Size = 400</th>
+      <th colspan="8" halign="left">Committee Size = 500</th>
     </tr>
     <tr>
       <th></th>
@@ -927,144 +1177,144 @@ committee_seats_df
       <th>Group Size = 300</th>
       <th>Group Size = 400</th>
       <th>Group Size = 500</th>
+      <th>Group Size = 600</th>
+      <th>Group Size = 700</th>
+      <th>Group Size = 800</th>
       <th>Group Size = 100</th>
       <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
       <th>...</th>
+      <th>Group Size = 700</th>
+      <th>Group Size = 800</th>
       <th>Group Size = 100</th>
       <th>Group Size = 200</th>
       <th>Group Size = 300</th>
       <th>Group Size = 400</th>
       <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
+      <th>Group Size = 600</th>
+      <th>Group Size = 700</th>
+      <th>Group Size = 800</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.073850</td>
-      <td>0.039650</td>
-      <td>0.029115</td>
-      <td>0.021475</td>
-      <td>0.021090</td>
-      <td>0.077130</td>
-      <td>0.057333</td>
-      <td>0.030613</td>
-      <td>0.022977</td>
-      <td>0.019403</td>
+      <td>0.08757</td>
+      <td>0.043200</td>
+      <td>0.040625</td>
+      <td>0.026810</td>
+      <td>0.018830</td>
+      <td>0.015130</td>
+      <td>0.016680</td>
+      <td>0.011470</td>
+      <td>0.071170</td>
+      <td>0.046437</td>
       <td>...</td>
-      <td>0.065616</td>
-      <td>0.049302</td>
-      <td>0.025080</td>
-      <td>0.020762</td>
-      <td>0.021444</td>
-      <td>0.065616</td>
-      <td>0.049302</td>
-      <td>0.025080</td>
-      <td>0.020762</td>
-      <td>0.021444</td>
+      <td>0.013800</td>
+      <td>0.012996</td>
+      <td>0.093502</td>
+      <td>0.046058</td>
+      <td>0.033262</td>
+      <td>0.023990</td>
+      <td>0.017010</td>
+      <td>0.016038</td>
+      <td>0.013800</td>
+      <td>0.012996</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.072835</td>
-      <td>0.039180</td>
-      <td>0.029360</td>
-      <td>0.020975</td>
-      <td>0.020790</td>
-      <td>0.075147</td>
-      <td>0.056763</td>
-      <td>0.030750</td>
-      <td>0.022560</td>
-      <td>0.019083</td>
+      <td>0.08796</td>
+      <td>0.042655</td>
+      <td>0.029030</td>
+      <td>0.025680</td>
+      <td>0.018080</td>
+      <td>0.015380</td>
+      <td>0.011895</td>
+      <td>0.011845</td>
+      <td>0.069837</td>
+      <td>0.045970</td>
       <td>...</td>
-      <td>0.065226</td>
-      <td>0.048306</td>
-      <td>0.025112</td>
-      <td>0.020772</td>
-      <td>0.021260</td>
-      <td>0.065226</td>
-      <td>0.048306</td>
-      <td>0.025112</td>
-      <td>0.020772</td>
-      <td>0.021260</td>
+      <td>0.013242</td>
+      <td>0.012174</td>
+      <td>0.092302</td>
+      <td>0.044934</td>
+      <td>0.032242</td>
+      <td>0.023464</td>
+      <td>0.016884</td>
+      <td>0.015796</td>
+      <td>0.013242</td>
+      <td>0.012174</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.071360</td>
-      <td>0.038825</td>
-      <td>0.028715</td>
-      <td>0.020425</td>
-      <td>0.020010</td>
-      <td>0.074110</td>
-      <td>0.057197</td>
-      <td>0.030300</td>
-      <td>0.022413</td>
-      <td>0.018493</td>
+      <td>0.08623</td>
+      <td>0.041585</td>
+      <td>0.029060</td>
+      <td>0.025565</td>
+      <td>0.018515</td>
+      <td>0.015390</td>
+      <td>0.012240</td>
+      <td>0.011585</td>
+      <td>0.068637</td>
+      <td>0.046003</td>
       <td>...</td>
-      <td>0.063958</td>
-      <td>0.046922</td>
-      <td>0.025086</td>
-      <td>0.020514</td>
-      <td>0.020366</td>
-      <td>0.063958</td>
-      <td>0.046922</td>
-      <td>0.025086</td>
-      <td>0.020514</td>
-      <td>0.020366</td>
+      <td>0.013082</td>
+      <td>0.012356</td>
+      <td>0.092222</td>
+      <td>0.044570</td>
+      <td>0.032260</td>
+      <td>0.023024</td>
+      <td>0.016370</td>
+      <td>0.015764</td>
+      <td>0.013082</td>
+      <td>0.012356</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.071805</td>
-      <td>0.038825</td>
-      <td>0.028390</td>
-      <td>0.020620</td>
-      <td>0.020205</td>
-      <td>0.074997</td>
-      <td>0.055717</td>
-      <td>0.030240</td>
-      <td>0.022543</td>
-      <td>0.018543</td>
+      <td>0.08575</td>
+      <td>0.041100</td>
+      <td>0.027050</td>
+      <td>0.025270</td>
+      <td>0.017825</td>
+      <td>0.015835</td>
+      <td>0.011910</td>
+      <td>0.011380</td>
+      <td>0.067917</td>
+      <td>0.045767</td>
       <td>...</td>
-      <td>0.063448</td>
-      <td>0.043458</td>
-      <td>0.024836</td>
-      <td>0.020380</td>
-      <td>0.020570</td>
-      <td>0.063448</td>
-      <td>0.043458</td>
-      <td>0.024836</td>
-      <td>0.020380</td>
-      <td>0.020570</td>
+      <td>0.013126</td>
+      <td>0.012472</td>
+      <td>0.079798</td>
+      <td>0.044686</td>
+      <td>0.031870</td>
+      <td>0.023178</td>
+      <td>0.016324</td>
+      <td>0.015916</td>
+      <td>0.013126</td>
+      <td>0.012472</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.069460</td>
-      <td>0.038200</td>
-      <td>0.027630</td>
-      <td>0.019595</td>
-      <td>0.019770</td>
-      <td>0.071467</td>
-      <td>0.053463</td>
-      <td>0.029923</td>
-      <td>0.022407</td>
-      <td>0.018263</td>
+      <td>0.08662</td>
+      <td>0.039510</td>
+      <td>0.027585</td>
+      <td>0.024540</td>
+      <td>0.018140</td>
+      <td>0.015455</td>
+      <td>0.011295</td>
+      <td>0.011550</td>
+      <td>0.068020</td>
+      <td>0.045420</td>
       <td>...</td>
-      <td>0.059620</td>
-      <td>0.043488</td>
-      <td>0.025004</td>
-      <td>0.020178</td>
-      <td>0.020130</td>
-      <td>0.059620</td>
-      <td>0.043488</td>
-      <td>0.025004</td>
-      <td>0.020178</td>
-      <td>0.020130</td>
+      <td>0.012796</td>
+      <td>0.012618</td>
+      <td>0.065576</td>
+      <td>0.044846</td>
+      <td>0.031668</td>
+      <td>0.023638</td>
+      <td>0.016462</td>
+      <td>0.015060</td>
+      <td>0.012796</td>
+      <td>0.012618</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1091,7 +1341,10 @@ committee_seats_df
       <td>...</td>
     </tr>
     <tr>
-      <th>495</th>
+      <th>795</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1099,15 +1352,12 @@ committee_seats_df
       <td>0.000000</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.000000</td>
       <td>...</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1115,7 +1365,10 @@ committee_seats_df
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>496</th>
+      <th>796</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1123,15 +1376,12 @@ committee_seats_df
       <td>0.000000</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.000000</td>
       <td>...</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1139,7 +1389,10 @@ committee_seats_df
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>497</th>
+      <th>797</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1147,15 +1400,12 @@ committee_seats_df
       <td>0.000000</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.000000</td>
       <td>...</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1163,7 +1413,10 @@ committee_seats_df
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>498</th>
+      <th>798</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1171,15 +1424,12 @@ committee_seats_df
       <td>0.000000</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.000000</td>
       <td>...</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1187,7 +1437,10 @@ committee_seats_df
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>499</th>
+      <th>799</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1195,15 +1448,12 @@ committee_seats_df
       <td>0.000000</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.000000</td>
       <td>...</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1212,7 +1462,7 @@ committee_seats_df
     </tr>
   </tbody>
 </table>
-<p>500 rows × 25 columns</p>
+<p>800 rows × 40 columns</p>
 </div>
 
 
@@ -1476,437 +1726,115 @@ with pd.ExcelWriter("../data/sim_results_data.xlsx") as writer:
         df.to_excel(writer, sheet_name=sheet_name)
 ```
 
-## Appendix: Computer Code
+
+```python
+# %%
+
+# Model the number of distinct voters for various group sizes
+# with committee size k = 400
+
+committee_size = 400
+distinct_voters = {}
+distinct_voters_std = {}
+n_iters = 100
+
+# Loop over the group sizes
+for group_size in group_sizes:
+    print(f"Group Size ...: {group_size} participants")
+    print(f"Committee Size: {committee_size} seats")
+
+    distinct_voters_list = []
+
+    for _ in range(n_iters):
+        group_stakes = get_stake_distribution(
+            population,
+            group_size,
+            num_iter=1,
+            plot_it=False,
+        )
+        committee, seat_counts, first_zero_index = assign_commitee(
+            group_stakes,
+            committee_size=committee_size,
+            num_iter=num_iter,
+            plot_it=False,
+        )
+
+        # Count the number of distinct voters
+        distinct_voters_list.append(len(committee.index.unique()))
+
+    # Average the number of distinct voters over the iterations
+    distinct_voters[group_size] = np.mean(distinct_voters_list)
+    # Standard deviation of the number of distinct voters
+    distinct_voters_std[group_size] = np.std(distinct_voters_list)
+
+# Create a DataFrame for plotting
+distinct_voters_df = pd.DataFrame(
+    list(distinct_voters.items()),
+    columns=["Group Size", "Distinct Voters"],
+)
+distinct_voters_df["Std Dev"] = distinct_voters_df["Group Size"].map(distinct_voters_std)
+```
+
+    Group Size ...: 100 participants
+    Committee Size: 400 seats
+    Group Size ...: 200 participants
+    Committee Size: 400 seats
+    Group Size ...: 300 participants
+    Committee Size: 400 seats
+    Group Size ...: 400 participants
+    Committee Size: 400 seats
+    Group Size ...: 500 participants
+    Committee Size: 400 seats
+    Group Size ...: 600 participants
+    Committee Size: 400 seats
+    Group Size ...: 700 participants
+    Committee Size: 400 seats
+    Group Size ...: 800 participants
+    Committee Size: 400 seats
+
 
 
 ```python
-#!/usr/bin/env python
-# coding: utf-8
+# %%
 
-"""
-Module: participation_lib
+# Plot the number of distinct voters for each group size with error bars
+plt.figure(figsize=(12, 8))
+sns.lineplot(data=distinct_voters_df, x="Group Size", y="Distinct Voters", marker="o")
 
-This module performs risk modeling for participation distribution in a 
-consensus mechanism. It includes functions to load and normalize SPO data, 
-sample participants based on their stake, and perform Monte Carlo simulations 
-to analyze the committee seat selection process based on stake weight. The 
-module also demonstrates the uneven distribution of selections based on stake 
-weights and the finite committee.
+# Add error bars
+plt.errorbar(
+    distinct_voters_df["Group Size"],
+    distinct_voters_df["Distinct Voters"],
+    yerr=distinct_voters_df["Std Dev"],
+    fmt="o",
+    ecolor="r",
+    capsize=5,
+)
 
-Functions:
-- sample_group: Uniformly sample from a population of participants without replacement.
-- get_stake_distribution: Collect and plot the stake distribution for a sample group.
-- assign_commitee: Assign participants to a committee using random selection based on stake weight.
-- plot_group_to_committee_index: Scatter plot of group participant index vs. seat selection index.
-- plot_committee_selection_counts: Plot the committee selection counts for varying group sizes.
-- plot_selection_count_vs_stake: Plot the seat assignment count vs. stake for a committee.
-
-Author: Rob Jones <robert.jones@shield.io>
-Date: 5 Mar 2025
-
-"""
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from data import load_data
-
-
-def sample_group(
-    population: pd.DataFrame,
-    group_size: int = 300,
-) -> pd.DataFrame:
-    """
-    Uniformly sample from a population of participlants without replacement.
-    Only samples groups with nonzero stake is returned.
-
-    Args:
-    - population: DataFrame containing the population.
-    - group_size: Number of samples to draw.
-
-    Returns:
-    - sample: DataFrame of sample of size `group_size` (n).
-
-    """
-    sample = population[population.stake > 0].sample(
-        group_size,
-        replace=False,
-    )
-    sample["stake_weight"] = sample.stake / sample.stake.sum()
-    # Sort by stake weight in descending order
-    sample = sample.sort_values("stake_weight", ascending=False)
-    return sample
-
-
-def get_stake_distribution(
-    population: pd.DataFrame,
-    group_size: int = 300,
-    num_iter: int = 1,
-    plot_it: bool = True,
-    figsize: tuple[int, int] = (16, 8),
-) -> pd.DataFrame:
-    """ """
-    # Let's collect the sample participants.stake.values
-    # for every participant in the given sample group size.
-    # Average them if num_iter > 1.
-
-    # Initialize an array to store the sum of stakes for each participant
-    stakes = np.zeros(group_size)
-    for n in range(num_iter):
-        participants = sample_group(population, group_size)
-        # Add the stakes of the current iteration to the stake_sums array
-        stakes += participants.stake.values
-
-    if num_iter > 1:
-        # Calculate the average stakes
-        stakes = pd.DataFrame(stakes / num_iter, columns=["stake"])
-    else:
-        stakes = pd.DataFrame(stakes, columns=["stake"])
-
-    min_stake = stakes.stake.min()
-    max_stake = stakes.stake.max()
-
-    if plot_it:
-        # Plot the stake for each participant number 1 to group_size
-        plt.figure(figsize=figsize)
-        plt.plot(
-            stakes.stake.values,
-            marker=".",
-            linestyle="-",
-            alpha=1,
-            color="red",  # Color for the average curve
-            linewidth=2,
-            markersize=3,
-            label="Average Stake",
-        )
-
-        # Draw a horizontal line at maximum stake value
-        plt.axhline(
-            y=max_stake,
-            color="blue",
-            linestyle="--",
-            alpha=0.6,
-            label=f"Max. Stake = {max_stake}",
-        )
-
-        # Draw a horizontal line at minimum stake value
-        plt.axhline(
-            y=min_stake,
-            color="green",
-            linestyle="--",
-            alpha=0.6,
-            label=f"Min. Stake = {min_stake}",
-        )
-
-        plt.legend()
-        plt.title(f"Stake for each Participant (1 to {group_size})")
-        plt.xlabel("Participant Number")
-        plt.ylabel("Stake")
-        plt.show()
-
-    # Add the stake weight column to the DataFrame
-    stakes["stake_weight"] = stakes.stake / stakes.stake.sum()
-
-    return stakes
-
-
-def assign_commitee(
-    group: pd.DataFrame,
-    committee_size: int = 300,
-    alpha: float = 0.0,
-    num_iter: int = 1000,
-    figsize: tuple[int, int] = (16, 8),
-) -> tuple[pd.DataFrame, pd.Series, int]:
-    """
-    Assumes participants in a given group of size group_size are assigned to
-    a committee using random selection with replacement based on their stake
-    weight. The committee has a fixed size equal to the group_size. As such,
-    partipants with larger stake-weight will occupy multiple committee seats.
-    We perform Monte Carlo simulation of multiplle committee selections, thus
-    repeated for the given number of iterations.
-
-    Args:
-    - group: DataFrame containing the group of participants, assumed size n.
-    - committee_size: Size of the committee (k).
-    - alpha: Probability of uniform random sampling in a mixture model.
-    - num_iter: Number of iterations for Monte Carlo simulation.
-    - figsize: Size of the figure.
-
-    Returns:
-    - committee: DataFrame containing the committee members.
-    - seat_counts: Series containing the committee seat relative frequency.
-    - first_zero_index: Index where the seat count first goes to zero.
-
-    """
-    group_size = group.shape[0]  # size n
-
-    # Initialize an array to store the number of
-    # committee seats per participant
-    seat_counts = pd.Series(
-        np.zeros(group_size, dtype="int64"),
-        name="relative frequency",
-    )
-
-    for n in range(num_iter):
-        #
-        # Select a committee based on the stake weight of each
-        # participant stake holder.
-        #
-        committee = group.sample(
-            n=committee_size,
-            weights="stake_weight",
-            replace=True,
-        )
-
-        # Count the number of times each participant is selected
-        # for a committee seat
-        participant_counts = committee.index.value_counts()
-
-        # Reindex participant_counts to match sum_counts index
-        # and fill missing values with 0
-        participant_counts = participant_counts.reindex(
-            seat_counts.index,
-            fill_value=0,
-        )
-
-        # Add the counts to the sum_counts array
-        seat_counts += participant_counts
-
-    # Normalize the sum_counts by total sum of counts
-    seat_counts /= seat_counts.sum()
-
-    # Sort the sum_counts in descending order
-    seat_counts.sort_values(ascending=False, inplace=True)
-
-    # Get the index of sum_counts where the value is first zero
-    first_zero_index = group.index[: -seat_counts[seat_counts == 0.0].shape[0]].max()
-
-    # Let's plot both group and sum_counts with two y-axes,
-    # one for each
-    fig, ax1 = plt.subplots(figsize=figsize)
-    ax2 = ax1.twinx()
-    ax1.plot(seat_counts.values, color="blue", label="Committee Seat Frequency")
-    ax2.plot(group.stake_weight.values, color="red", label="Group Stake Weight")
-    ax1.set_ylabel("Committee Seats (relative frequency)")
-    ax2.set_ylabel("Stake Weight")
-    ax1.set_xlabel("Participant Index")
-    ax1.legend(loc="upper center")
-    ax2.legend(loc="upper right")
-    plt.title(
-        f"Committee Participation per Stake Weight\n"
-        f"Committee Size k = {committee_size}\n"
-        f"Participation Group Size n = {group_size}",
-        fontsize="medium",
-    )
-    plt.axhline(y=0, color="gray", linestyle="--", alpha=0.6)
-    # Draw vertical line where the committee seat count first goes to zero
-    plt.axvline(x=first_zero_index, color="green", linestyle="--")
-    # Print the value of this first_zero_index along the center of the
-    # vertical line
+# Add the actual values next to each data point with more offset
+for i in range(distinct_voters_df.shape[0]):
     plt.text(
-        first_zero_index,
-        ax2.get_ylim()[1] / 2.0,
-        f"First Zero Index = {first_zero_index}",
-        rotation=0,
-        verticalalignment="center",
-        horizontalalignment="center",
-        color="green",
-        backgroundcolor="white",
-    )
-    plt.show()
-
-    return committee, seat_counts, first_zero_index
-
-
-def plot_group_to_committee_index(
-    seat_counts: pd.Series,
-    figsize: tuple[int, int] = (6, 6),
-):
-    """
-    A simple scatter plot of the two series indexes
-    to see how they align.
-
-    Args:
-    - seat_counts: Series containing the committee seat counts
-      indexed by participant index.
-    - figsize: Size of the figure.
-
-    """
-    plt.figure(figsize=figsize)
-    plt.scatter(
-        np.arange(len(seat_counts)),
-        seat_counts.index,
-        marker=".",
-        color="green",
-    )
-    plt.xlabel("Group Participant Index")
-    plt.ylabel("Seat Selection Participant Index")
-    plt.title("Seat Selection Index vs. Participant Index")
-    plt.legend()
-    plt.show()
-
-
-# Plot the selection counts for each group size
-def plot_committee_selection_counts(
-    committee_size: int,
-    selection_counts: pd.DataFrame,
-    first_zero_indices: np.ndarray,
-    log_scale: bool = True,
-    figsize: tuple[int, int] = (16, 8),
-):
-    """
-    Plot the committee selection counts for varying group sizes.
-
-    Args:
-    - committee_size: Size of the committee (k).
-    - selection_counts: DataFrame containing the committee seat relative frequency.
-    - first_zero_indices: Array containing the first zero index for each group size.
-    - log_scale: Boolean flag to set the y-axis to log scale.
-    - figsize: Size of the figure.
-
-    """
-    plt.figure(figsize=figsize)
-    selection_counts.plot(
-        marker="",
-        linestyle="-",
-        linewidth=1,
-        alpha=0.9,
-    )
-    for i, cutoff in enumerate(first_zero_indices):
-        plt.axvline(
-            x=cutoff,
-            color=plt.gca().lines[i].get_color(),
-            linestyle="--",
-            linewidth=1,
-            alpha=0.6,
-        )
-        # Print the value of this cutoff value
-        # along the center of the vertical line
-        plt.text(
-            cutoff,
-            plt.gca().get_ylim()[1] / 2.0,
-            f"{int(cutoff)}",
-            rotation=0,
-            verticalalignment="center",
-            horizontalalignment="center",
-            color=plt.gca().lines[i].get_color(),
-            backgroundcolor="white",
-            fontsize="medium",
-        )
-        if log_scale:
-            plt.yscale("log")
-
-    plt.legend(fontsize="small")
-    plt.xlabel("Participant Index", fontsize="small")
-    plt.ylabel("Committee Seat Frequency", fontsize="small")
-    plt.title(
-        f"Committee Participation from Varying Group Sizes\n"
-        f"Committee Size k = {committee_size}",
-        fontsize="medium",
-    )
-    plt.show()
-
-
-def plot_selection_count_vs_stake(
-    group_stakes: pd.DataFrame,
-    committee_seats: pd.DataFrame,
-    first_zero_index: int,
-    figsize: tuple[int, int] = (16, 8),
-):
-    """
-    Plot the seat assignment count vs. stake for a committee
-    of a given size.
-
-    Args:
-    - group_stakes: DataFrame containing the stake weight of each participant.
-    - committee_seats: DataFrame containing the committee members.
-    - first_zero_index: Index where the seat count first goes to zero.
-    - figsize: Size of the figure.
-
-    """
-    committee_size = committee_seats.shape[0]
-    group_size = group_stakes.shape[0]
-    cutoff = group_stakes.loc[first_zero_index, "stake_weight"]
-
-    # Count the number of seats each participant has in the committee
-    participant_counts = committee_seats.index.value_counts()
-    assert participant_counts.index.is_unique
-
-    # Align committee_members with participant_counts
-    committee_members = group_stakes.loc[participant_counts.index].sort_values(
-        by="stake_weight", ascending=False
-    )
-
-    x = committee_members.stake_weight.values
-    y = participant_counts.values
-
-    # Plot selection seat count vs. stake
-    plt.figure(figsize=figsize)
-    plt.plot(
-        x,
-        y,
-        marker=".",
-        linestyle="-",
-        alpha=0.8,
-    )
-    plt.gca().invert_xaxis()
-    plt.xlabel("Participant Stake Weight")
-    plt.ylabel("Participant Seat Counts")
-    plt.title(
-        "Committee Participation per Stake Weight\n"
-        f"Committee Size k = {committee_size}\n"
-        f"Participation Group Size n = {group_size}",
-        fontsize="medium",
-    )
-    plt.axvline(
-        x=cutoff,
-        color="gray",
-        linestyle="--",
-        linewidth=1,
-        alpha=0.6,
-    )
-    # Print the value of this cutoff value along the center of the vertical line
-    plt.text(
-        cutoff,
-        plt.gca().get_ylim()[1] / 2.0,
-        f"Cutoff stake weight = {int(cutoff)}",
-        rotation=0,
-        verticalalignment="center",
+        distinct_voters_df["Group Size"][i] - 5,  # Offset horizontally
+        distinct_voters_df["Distinct Voters"][i],  # Offset vertically
+        f"{distinct_voters_df['Distinct Voters'][i]}",
         horizontalalignment="right",
+        size="medium",
         color="black",
-        backgroundcolor="white",
-        fontsize="medium",
+        weight="semibold",
     )
-    plt.show()
 
-
-def plot_committee_selection_seat_cutoff(
-    committee_sizes: list,
-    committee_seats_df: pd.DataFrame,
-    first_zero_indices: np.ndarray,
-    log_scale: bool = False,
-):
-    """
-    Plot the committee selection counts for each group size.
-
-    Args:
-    - committee_sizes: list of committee sizes
-    - committee_seats_df: DataFrame of committee selection counts
-    - first_zero_indices: array of first zero indices
-    - log_scale: whether to use log scale for the plot
-
-    Returns:
-    - None
-
-    """
-    # Loop over the committee sizes
-    for i, committee_size in enumerate(
-        committee_seats_df.columns.get_level_values(0).unique()
-    ):
-        plot_committee_selection_counts(
-            committee_size=committee_sizes[i],
-            selection_counts=committee_seats_df[committee_size],
-            first_zero_indices=first_zero_indices[i],
-            log_scale=log_scale,
-        )
+plt.title(
+    "Average Number of Distinct Voters for Various Group Sizes (Committee Size = 400)"
+)
+plt.xlabel("Group Size")
+plt.ylabel("Average Number of Distinct Voters")
+plt.grid(axis="y", linestyle="--", alpha=0.6)
+plt.tight_layout()
+plt.show()
 ```
+
+
+    
+![png](output_20_0.png)
+    
+
