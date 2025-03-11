@@ -101,24 +101,19 @@ print(first_zero_index)
 
 # Initialize Parameters:
 comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
-group_sizes = [
-    100,
-    200,
-    300,
-    400,
-    500,
-    600,
-    700,
-    800,
-]  # vary over group size, n
+group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
 num_iter = 1000  # Number of iterations for Monte Carlo simulation
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
 # If we have a new epoch per day, then 1000 iterations is about 3 years.
 
+num_reps = 30  # is the number of repetitions for each group size
+# used to average the number of distinct voters over the iterations
+
 # Collect the selection count values
 # for each group size, keyed by committee size
 committee_seats = {}
+distinct_voters = {}
 
 # Initialize an array to store the first zero index
 # for each committee size (row) and group size (columns)
@@ -129,49 +124,82 @@ first_zero_indices = np.zeros(
     )
 )
 
-# Initialize a DataFrame to store the seat count for each group size
-selection_counts = {}
-
 # %%
 # Loop over the committee sizes
 for i, committee_size in enumerate(comm_sizes):
     # Loop over the group sizes
-    for j, group_size in enumerate(group_sizes):
-        print(f"Group Size ...: {group_size} participants")
-        print(f"Committee Size: {committee_size} seats")
+    selection_counts = {}
+    distinct_voters_avg = {}
+    distinct_voters_std = {}
+    distinct_voters_lst = []  # for the given committee size
 
-        group_stakes = get_stake_distribution(
-            population,
-            group_size,
-            num_iter=1,
-            plot_it=False,
-        )
-        committee, seat_counts, first_zero_index = assign_commitee(
-            group_stakes,
-            committee_size=committee_size,
-            num_iter=num_iter,
-        )
-        first_zero_indices[i][j] = first_zero_index
-        selection_counts[f"Group Size = {group_size}"] = seat_counts
+    for j, group_size in enumerate(group_sizes):
+
+        group_label = f"Group Size = {group_size}"
+        comm_label = f"Committee Size = {committee_size}"
+
+        print(f"{group_label} participants")
+        print(f"{comm_label} seats")
+
+        distinct_voters_list = []
+
+        # Average the number of distinct voters over the iterations
+        for _ in range(num_reps):
+            group_stakes = get_stake_distribution(
+                population,
+                group_size,
+                num_iter=1,
+                plot_it=False,
+            )
+            committee, seat_counts, first_zero_index = assign_commitee(
+                group_stakes,
+                committee_size=committee_size,
+                num_iter=num_iter,
+                plot_it=False,
+            )
+
+            # Store the last seat counts for each group size
+            selection_counts[group_label] = seat_counts
+
+            # Count the number of distinct voters
+            distinct_voters_lst.append(len(committee.index.unique()))
+
+        # Average the number of distinct voters over the iterations
+        distinct_voters_avg[group_label] = np.mean(distinct_voters_lst)
+
+        # Standard deviation of the number of distinct voters
+        distinct_voters_std[group_label] = np.std(distinct_voters_lst)
 
         plot_selection_count_vs_stake(
             group_stakes,
             committee,
             first_zero_index,
         )
+
+        # Store the last first zero index
+        first_zero_indices[i][j] = first_zero_index
+
     # Collect the selection frequencies in a DataFrame
-    selection_counts = pd.DataFrame(selection_counts)
-    committee_seats[f"Committee Size = {committee_size}"] = selection_counts
+    committee_seats[comm_label] = pd.DataFrame(selection_counts)
+    distinct_voters[comm_label] = pd.DataFrame(
+        [distinct_voters_avg, distinct_voters_std],
+        index=["Mean", "Std Dev"],
+    )
 
 # %%
-# I want to combine the selection counts for each committee size
+# Combine the selection counts for each committee size
 # into a single DataFrame for easier analysis and plotting.
-# Make committee size a new column in the DataFrame
+
+distinct_voters_df = pd.concat(distinct_voters, axis=1)
 committee_seats_df = pd.concat(
     committee_seats,
     axis=1,
 )
-committee_seats_df
+sim_results_df = pd.concat(
+    [distinct_voters_df, committee_seats_df],
+    keys=["Distinct Voters", "Committee Seats"],
+)
+sim_results_df
 
 # %%
 # Plot the selection counts for each group size
@@ -207,160 +235,73 @@ plot_committee_selection_seat_cutoff(
 # committee_seats_df = committee_seats_df.swaplevel(axis=1).sort_index(axis=1)
 
 # %%
-# Finally plot a bar chart showing the percentage of group participants
-# not selected for committee seats. The x-axis is the group size and the y-axis
-# is the Committee Seats (relative frequency). For each group size, 100...500,
-# the bars are grouped by committee size.
+# Extract the data for plotting
+committee_size = 300
+
+df = distinct_voters_df[f"Committee Size = {committee_size}"]
+group_sizes = [int(col.split("=")[1].strip()) for col in df.columns]
+mean_values = df.loc["Mean"].values
+std_dev_values = df.loc["Std Dev"].values
 
 # Calculate the percentage of participants not selected for committee seats
-not_selected_percentages = (1.0 - first_zero_indices / group_sizes) * 100
+not_selected_percentages = 100 * (1 - mean_values / group_sizes)
 
-# Create a DataFrame for plotting
-not_selected_df = pd.DataFrame(
-    not_selected_percentages,
-    index=comm_sizes,
-    columns=group_sizes,
+# Create a DataFrame for easier plotting with seaborn
+plot_data = pd.DataFrame(
+    {
+        "Group Size": group_sizes,
+        "Percentage Excluded": not_selected_percentages,
+        "Std Dev": std_dev_values,
+    }
 )
+print(
+    "Percentage of Group Participants Not Selected"
+    f" for Committee Seats, k = {committee_size}:"
+)
+
+plot_data
 
 # %%
-# Plot the line chart
-not_selected_df.T.plot(kind="line", figsize=(12, 8), marker="o", colormap="viridis")
-plt.title("Percentage of Group Participants Not Selected for Committee Seats")
-plt.xlabel("Group Size")
-plt.ylabel("Percentage Not Selected")
-plt.xticks(rotation=0)
-plt.legend(title="Committee Size", bbox_to_anchor=(1.05, 1), loc="upper left")
-plt.grid(axis="y", linestyle="--", alpha=0.6)
-plt.tight_layout()
-plt.show()
+# Create upper and lower bounds for the error bands
 
-# %%
-# Plot the bar chart
-not_selected_df.T.plot(kind="bar", figsize=(12, 8), colormap="viridis")
-plt.title("Percentage of Group Participants Not Selected for Committee Seats")
-plt.xlabel("Group Size")
-plt.ylabel("Percentage Not Selected")
-plt.xticks(rotation=0)
-plt.legend(title="Committee Size", bbox_to_anchor=(1.05, 1), loc="upper left")
-plt.grid(axis="y", linestyle="--", alpha=0.6)
-plt.tight_layout()
-plt.show()
-
-# %%
-# Create a heatmap to visualize the percentage of participants not selected
-# for committee seats. This can provide a clear view of the distribution
-# across different group sizes and committee sizes.
-
-plt.figure(figsize=(12, 8))
-sns.heatmap(
-    not_selected_df,
-    annot=True,
-    fmt=".1f",
-    cmap="viridis",
-    cbar_kws={"label": "Percentage Not Selected"},
-)
-plt.title(
-    "Heatmap of Percentage of Group Participants Not Selected for Committee Seats"
-)
-plt.xlabel("Group Size")
-plt.ylabel("Committee Size")
-plt.show()
-# %%
-# Save data to an Excel file
-
-data = {}
-data["committee_seats"] = committee_seats_df
-data["first_zero_indices"] = pd.DataFrame(
-    first_zero_indices,
-    index=comm_sizes,
-    columns=group_sizes,
-)
-data["not_selected_percentages"] = not_selected_df
-
-with pd.ExcelWriter("../data/sim_results_data.xlsx") as writer:
-    for sheet_name, df in data.items():
-        df.to_excel(writer, sheet_name=sheet_name)
-
-# %%
-# Model the number of distinct voters for various group sizes
-# with committee size k = 400
-
-committee_size = 400
-distinct_voters = {}
-distinct_voters_std = {}
-n_iters = 100
-
-# Loop over the group sizes
-for group_size in group_sizes:
-    print(f"Group Size ...: {group_size} participants")
-    print(f"Committee Size: {committee_size} seats")
-
-    distinct_voters_list = []
-
-    for _ in range(n_iters):
-        group_stakes = get_stake_distribution(
-            population,
-            group_size,
-            num_iter=1,
-            plot_it=False,
-        )
-        committee, seat_counts, first_zero_index = assign_commitee(
-            group_stakes,
-            committee_size=committee_size,
-            num_iter=num_iter,
-            plot_it=False,
-        )
-
-        # Count the number of distinct voters
-        distinct_voters_list.append(len(committee.index.unique()))
-
-    # Average the number of distinct voters over the iterations
-    distinct_voters[group_size] = np.mean(distinct_voters_list)
-    # Standard deviation of the number of distinct voters
-    distinct_voters_std[group_size] = np.std(distinct_voters_list)
-
-# Create a DataFrame for plotting
-distinct_voters_df = pd.DataFrame(
-    list(distinct_voters.items()),
-    columns=["Group Size", "Distinct Voters"],
-)
-distinct_voters_df["Std Dev"] = distinct_voters_df["Group Size"].map(
-    distinct_voters_std
-)
-
-# %%
-# Plot the number of distinct voters for each group size with error bars
-plt.figure(figsize=(12, 8))
-sns.lineplot(data=distinct_voters_df, x="Group Size", y="Distinct Voters", marker="o")
-
-# Add error bars
-plt.errorbar(
-    distinct_voters_df["Group Size"],
-    distinct_voters_df["Distinct Voters"],
-    yerr=distinct_voters_df["Std Dev"],
-    fmt="o",
-    ecolor="r",
-    capsize=5,
-)
-
-# Add the actual values next to each data point with more offset
-for i in range(distinct_voters_df.shape[0]):
-    plt.text(
-        distinct_voters_df["Group Size"][i] - 5,  # Offset horizontally
-        distinct_voters_df["Distinct Voters"][i],  # Offset vertically
-        f"{distinct_voters_df['Distinct Voters'][i]}",
-        horizontalalignment="right",
-        size="medium",
-        color="black",
-        weight="semibold",
+def std_error(data, **kwargs):
+    """Function that returns lower and upper error bounds"""
+    return (
+        data["Percentage Excluded"] - data["Std Dev"],
+        data["Percentage Excluded"] + data["Std Dev"],
     )
 
-plt.title(
-    "Average Number of Distinct Voters for Various Group Sizes (Committee Size = 400)"
+# %%
+# Plot the data with seaborn
+plt.figure(figsize=(12, 8))
+sns.set(style="whitegrid")
+
+# Plot the main line without error bars
+sns.lineplot(
+    x="Group Size",
+    y="Percentage Excluded",
+    data=plot_data,
+    errorbar=std_error,
+    err_style="band",
+    marker="o",
+    color="b",
+    label="Percentage Excluded",
+)
+# Add error bands using plt.errorbar
+plt.errorbar(
+    plot_data["Group Size"],
+    plot_data["Percentage Excluded"],
+    yerr=plot_data["Std Dev"],
+    fmt="none",  # No connecting line
+    ecolor="r",
+    capsize=5,
+    alpha=0.6,
+    label="Error (±1 std dev)"
 )
 plt.xlabel("Group Size")
-plt.ylabel("Average Number of Distinct Voters")
-plt.grid(axis="y", linestyle="--", alpha=0.6)
-plt.tight_layout()
+plt.ylabel("Percentage Excluded")
+plt.title("Percentage of Group Participants Not Selected for Committee Seats"
+          f"\n(Committee Seats k = {committee_size})")
+plt.legend()
+plt.grid(True)
 plt.show()
-# %%

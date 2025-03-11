@@ -347,6 +347,7 @@ def plot_selection_count_vs_stake(
     group_stakes: pd.DataFrame,
     committee_seats: pd.DataFrame,
     first_zero_index: int,
+    plot_cutoff_line: bool = False,
     figsize: tuple[int, int] = (16, 8),
 ):
     """
@@ -357,6 +358,7 @@ def plot_selection_count_vs_stake(
     - group_stakes: DataFrame containing the stake weight of each participant.
     - committee_seats: DataFrame containing the committee members.
     - first_zero_index: Index where the seat count first goes to zero.
+    - plot_cutoff_line: Boolean flag to plot the cutoff line.
     - figsize: Size of the figure.
 
     """
@@ -385,6 +387,7 @@ def plot_selection_count_vs_stake(
         linestyle="-",
         alpha=0.8,
     )
+    plt.grid(axis="y", which="major", linestyle="--", linewidth=0.5, alpha=0.7)
     plt.gca().invert_xaxis()
     plt.xlabel("Participant Stake Weight")
     plt.ylabel("Participant Seat Counts")
@@ -394,25 +397,26 @@ def plot_selection_count_vs_stake(
         f"Participation Group Size n = {group_size}",
         fontsize="medium",
     )
-    plt.axvline(
-        x=cutoff,
-        color="gray",
-        linestyle="--",
-        linewidth=1,
-        alpha=0.6,
-    )
-    # Print the value of this cutoff value along the center of the vertical line
-    plt.text(
-        cutoff,
-        plt.gca().get_ylim()[1] / 2.0,
-        f"Cutoff stake weight = {int(cutoff)}",
-        rotation=0,
-        verticalalignment="center",
-        horizontalalignment="right",
-        color="black",
-        backgroundcolor="white",
-        fontsize="medium",
-    )
+    if plot_cutoff_line:
+        plt.axvline(
+            x=cutoff,
+            color="gray",
+            linestyle="--",
+            linewidth=1,
+            alpha=0.6,
+        )
+        # Print the value of this cutoff value along the center of the vertical line
+        plt.text(
+            cutoff,
+            plt.gca().get_ylim()[1] / 2.0,
+            f"Cutoff stake weight = {int(cutoff)}",
+            rotation=0,
+            verticalalignment="center",
+            horizontalalignment="right",
+            color="black",
+            backgroundcolor="white",
+            fontsize="medium",
+        )
     plt.show()
 
 
