@@ -45,9 +45,8 @@ from participation_lib import (
     sns,
     load_data,
     get_stake_distribution,
-    assign_commitee,
     assign_commitee_plus,
-    simulate,
+    # simulate,
     plot_group_to_committee_index,
     plot_selection_count_vs_stake,
     plot_committee_selection_counts,
@@ -84,19 +83,11 @@ group_stakes.describe()
 # Let's now assign a committee of the fixed group_size
 # based on the stake weight of each
 
-committee, seat_counts, first_zero_index = assign_commitee(
+results = assign_commitee_plus(
     group_stakes,
     committee_size=group_size,
     num_iter=1000,
 )
-
-# %%
-print("Committee")  # Participants selected for the committee
-print(committee)
-print("\nSeat Counts")  # Number of times each participant is selected
-print(seat_counts)
-print("\nFirst Zero Index")  # Index where the seat count first goes to zero
-print(first_zero_index)
 
 # %%
 # Let's now create a plots of committee assignments where we vary
@@ -104,6 +95,8 @@ print(first_zero_index)
 # committee selection and seat count changes.
 
 # Initialize Parameters:
+# comm_sizes = [100]  # vary over committee size, k
+# group_sizes = [100]  # vary over group size, n
 comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
 group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
 num_iter = 1000  # Number of iterations for Monte Carlo simulation
@@ -112,39 +105,104 @@ num_iter = 1000  # Number of iterations for Monte Carlo simulation
 # of selection rounds for the committee, which we call an epoch.
 # If we have a new epoch per day, then 1000 iterations is about 3 years.
 
+
+# %%
+def simulate(
+    population: pd.DataFrame,
+    comm_sizes: list,
+    group_sizes: list,
+    num_iter: int,
+    plot_it: bool = False,
+) -> pd.DataFrame:
+    """Simulate the committee selection process for varying group sizes
+    and committee sizes and return the results in a DataFrame.
+
+    Args:
+    - population: DataFrame containing the population of SPOs.
+    - comm_sizes: list of committee sizes to simulate.
+    - group_sizes: list of group sizes to simulate.
+    - num_iter: int number of iterations for the Monte Carlo simulation.
+    - plot_it: bool flag to plot the results. Default is False.
+
+    Returns:
+    - results_df: DataFrame containing the results of the simulation.
+
+    """
+    # Dictionary to hold simulation data for each (committee_size, group_size) pair.
+    # For each pair, we compute a DataFrame of metrics (rows: e.g. "Distinct Voters",
+    # "Committee Seats") with columns "mean" and "sd". Later we stack these so that
+    # the row index becomes a MultiIndex (metric, statistic) and the DataFrame columns
+    # become a MultiIndex over (committee_size, group_size).
+    sim_dict = {}
+
+    for comm_size in comm_sizes:
+        print(f"\nCommittee Size = {comm_size}")
+
+        for group_size in group_sizes:
+            print(f"Group Size = {group_size}")
+
+            group_stakes = get_stake_distribution(
+                population,
+                group_size=group_size,
+                num_iter=num_iter,
+                # plot_it=plot_it,  # Turn off
+            )
+
+            committee_results = assign_commitee_plus(
+                group_stakes,
+                committee_size=comm_size,
+                num_iter=num_iter,
+                plot_it=plot_it,
+            )
+            # Extract distinct voters metrics from the tuple
+            distinct_voters_avg, distinct_voters_std = committee_results[
+                "distinct_voters"
+            ]
+
+            # Compute statistics for committee seat counts
+            seat_counts = np.array(committee_results["seat_counts"])
+            committee_seat_mean = seat_counts.mean()
+            committee_seat_std = seat_counts.std()
+
+            # Build the metrics dictionaries for DataFrame construction
+            mean_stats = {
+                "Distinct Voters": distinct_voters_avg,
+                "Committee Seats": committee_seat_mean,
+            }
+            sd_stats = {
+                "Distinct Voters": distinct_voters_std,
+                "Committee Seats": committee_seat_std,
+            }
+
+            # Create a DataFrame with columns for mean and std dev
+            tmp_df = pd.DataFrame({"mean": mean_stats, "sd": sd_stats})
+            # Stack to get a Series with MultiIndex (metric, statistic)
+            sim_dict[(comm_size, group_size)] = tmp_df.stack()
+
+    # Convert the dictionary into a DataFrame.
+    sim_results_df = pd.DataFrame(sim_dict)
+
+    # Create MultiIndex column labels in the desired string format.
+    sim_results_df.columns = pd.MultiIndex.from_tuples(
+        [
+            (f"Committee Size = {cs}", f"Group Size = {gs}")
+            for cs, gs in sim_results_df.columns
+        ],
+        names=["Committee Size", "Group Size"],
+    )
+
+    return sim_results_df
+
+
 # %%
 # Call the function
-sim_results_df = simulate(population, comm_sizes, group_sizes, num_iter, plot_it=False)
-
-# %%
-# Plot the selection counts for each group size
-plot_committee_selection_seat_cutoff(
+sim_results_df = simulate(
+    population,
     comm_sizes,
-    committee_seats_df,
-    first_zero_indices,
+    group_sizes,
+    num_iter,
+    plot_it=True,
 )
-
-# The cutoff stake value is the stake weight of the participant where the
-# committee seat count first goes to zero. This is the point where the
-# pigeonhole principle applies, showing that some participants with smaller
-# stake weights may not get selected for committee seats.
-#
-# This is expected due to the variation in
-# stake weights. The pigeonhole principle helps us understand this
-# uneven distribution of selections based on stake weights.
-
-# %%
-# Plot the selection counts for each group size with log scale
-plot_committee_selection_seat_cutoff(
-    comm_sizes,
-    committee_seats_df,
-    first_zero_indices,
-    log_scale=True,
-)
-# With the log scale you can see that the distribution of committee seats
-# is uneven, with some participants getting selected multiple times while
-# others are not selected at all.
-#
 
 # %%
 # committee_seats_df = committee_seats_df.swaplevel(axis=1).sort_index(axis=1)
@@ -160,8 +218,8 @@ group_sizes = [
     int(col.split("=")[1].strip()) for col in col_index.get_level_values(1).unique()
 ]
 
-# Examine the data for committee size = 300
-committee_size = 300
+# Examine the data for committee size = 100
+committee_size = 100
 
 committee_label = f"Committee Size = {committee_size}"
 committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
@@ -240,3 +298,5 @@ plt.title("Percentage of Group Participants Not Selected for Committee Seats"
 plt.legend()
 plt.grid(True)
 plt.show()
+
+# %%

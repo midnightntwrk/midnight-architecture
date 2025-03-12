@@ -67,7 +67,7 @@ def get_stake_distribution(
     population: pd.DataFrame,
     group_size: int = 300,
     num_iter: int = 1,
-    plot_it: bool = True,
+    plot_it: bool = False,
     figsize: tuple[int, int] = (16, 8),
 ) -> pd.DataFrame:
     """
@@ -115,7 +115,7 @@ def get_stake_distribution(
             marker="o",
             linestyle="-",
             alpha=1,
-            color="red",  # Color for the average curve
+            color="r",  # Color for the average curve
             linewidth=2,
             markersize=3,
             label="Average Stake",
@@ -124,7 +124,7 @@ def get_stake_distribution(
         # Draw a horizontal line at maximum stake value
         plt.axhline(
             y=max_stake,
-            color="blue",
+            color="b",
             linestyle="--",
             alpha=0.6,
             label=f"Max. Stake = {max_stake}",
@@ -133,7 +133,7 @@ def get_stake_distribution(
         # Draw a horizontal line at minimum stake value
         plt.axhline(
             y=min_stake,
-            color="green",
+            color="g",
             linestyle="--",
             alpha=0.6,
             label=f"Min. Stake = {min_stake}",
@@ -156,7 +156,7 @@ def assign_commitee(
     committee_size: int = 300,
     alpha: float = 0.0,
     num_iter: int = 1000,
-    plot_it: bool = True,
+    plot_it: bool = False,
     figsize: tuple[int, int] = (16, 8),
 ) -> tuple[pd.DataFrame, pd.Series, int]:
     """
@@ -279,7 +279,7 @@ def assign_commitee_plus(
     committee_size: int = 300,
     alpha: float = 0.0,
     num_iter: int = 1000,
-    plot_it: bool = True,
+    plot_it: bool = False,
     figsize: tuple[int, int] = (16, 8),
 ) -> dict[pd.DataFrame, pd.Series, float, float, int]:
     """
@@ -362,8 +362,8 @@ def assign_commitee_plus(
     # Standard deviation of the number of distinct voters
     distinct_voters_std = np.std(distinct_voters_lst)
 
-    # Get the index of sum_counts where the value is first zero
-    first_zero_index = group.index[: -seat_counts[seat_counts == 0.0].shape[0]].max()
+    # Get the approximate index when the seat_counts value is first zero
+    first_zero_index = len(seat_counts[seat_counts > 0])
 
     # Let's plot both group and sum_counts with two y-axes,
     # one for each
