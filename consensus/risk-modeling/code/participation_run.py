@@ -209,3 +209,31 @@ plt.grid(True)
 plt.show()
 
 # %%
+sim_results_df.loc["Distinct Voters", :]
+
+# %%
+# Plot the committee selection counts distribution
+fig = plt.figure(figsize=(12, 8))
+
+plot_data = sim_results_df.loc["Committee Seats"].loc["mean"]
+
+for c, g in plot_data.index:
+
+    y = plot_data.loc[(c, g)]
+    x = y.index
+
+    n_c = int(c.split("=")[1].strip())
+    n_g = int(g.split("=")[1].strip())
+
+    colors = sns.color_palette("tab20", len(plot_data.index))
+    color_idx = list(plot_data.index).index((c, g))
+    plt.bar(x, y, alpha=0.7, color=colors[color_idx], label=f"{n_c}, {n_g}")
+
+plt.xlabel("Participant Index")
+plt.ylabel("Committee Seat Count (average)")
+plt.title("Committee Seat Count for Participants")
+plt.legend(title="Committee Size, Group Size")
+plt.xlim(0, 200)
+plt.show()
+
+# %%

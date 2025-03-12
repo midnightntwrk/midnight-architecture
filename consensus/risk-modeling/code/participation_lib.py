@@ -177,7 +177,7 @@ def assign_commitee(
 
     Returns:
     - committee: DataFrame containing the committee members.
-    - seat_counts: Series containing the committee seat relative frequency.
+    - seat_counts: Series containing the committee seat on average.
     - first_zero_index: Index where the seat count first goes to zero.
 
     """
@@ -187,7 +187,7 @@ def assign_commitee(
     # committee seats per participant
     seat_counts = pd.Series(
         np.zeros(group_size, dtype="int64"),
-        name="relative frequency",
+        name="seat counts",
     )
 
     for n in range(num_iter):
@@ -234,16 +234,16 @@ def assign_commitee(
             y=seat_counts.values,
             ax=ax1,
             color="blue",
-            label="Committee Seat Frequency",
+            label="Committee Seats (average)",
         )
         sns.lineplot(
             x=np.arange(len(group.stake_weight)),
             y=group.stake_weight.values,
             ax=ax2,
             color="red",
-            label="Group Stake Weight",
+            label="Participant Group Stake Weight",
         )
-        ax1.set_ylabel("Committee Seats (relative frequency)")
+        ax1.set_ylabel("Committee Seats (average)")
         ax2.set_ylabel("Stake Weight")
         ax1.set_xlabel("Participant Index")
         ax1.legend(loc="upper center")
@@ -302,7 +302,7 @@ def assign_commitee_plus(
 
     Dictionary containing the following key-values:
     - 'committee': DataFrame containing the committee members.
-    - 'seat_counts': Series containing the committee seat relative frequency.
+    - 'seat_counts': Series containing the committee seat average.
     - 'distinct_voters': Average number of distinct voters over the iterations.
     - 'distinct_voters_std': Standard deviation of the number of distinct voters.
     - 'first_zero_index': Index where the seat count first goes to zero.
@@ -314,7 +314,7 @@ def assign_commitee_plus(
     # committee seats per participant as first-order statistics
     seat_counts = pd.Series(
         np.zeros(group_size, dtype="int64"),
-        name="relative frequency",
+        name="seat counts",
     )
 
     # Initialize an array to store the number of distinct voters
@@ -337,24 +337,24 @@ def assign_commitee_plus(
         # for a committee seat
         participant_counts = committee.index.value_counts()
 
-        # Reindex participant_counts to match sum_counts index
-        # and fill missing values with 0
+        # Reindex participant_counts to match seat_counts index and
+        # fill missing values with 0
         participant_counts = participant_counts.reindex(
             seat_counts.index,
             fill_value=0,
         )
 
-        # Add the counts to the sum_counts array
+        # Add the counts to the seat_counts array
         seat_counts += participant_counts
 
         # Count the number of distinct voters
         distinct_voters_lst.append(len(committee.index.unique()))
 
-    # Normalize the sum_counts by total sum of counts
-    seat_counts /= seat_counts.sum()
-
-    # Sort the sum_counts in descending order
-    seat_counts.sort_values(ascending=False, inplace=True)
+    ## Normalize the sum_counts by total sum of counts
+    # seat_counts /= seat_counts.sum()
+    # rather:
+    # Average the seat_counts over the iterations
+    seat_counts /= num_iter
 
     # Average the number of distinct voters over the iterations
     distinct_voters_avg = np.mean(distinct_voters_lst)
@@ -363,28 +363,40 @@ def assign_commitee_plus(
     distinct_voters_std = np.std(distinct_voters_lst)
 
     # Get the approximate index when the seat_counts value is first zero
-    first_zero_index = len(seat_counts[seat_counts > 0])
+    # Sort the sum_counts in descending order
+    counts = seat_counts.sort_values(ascending=False)
+    first_zero_index = len(counts[counts > 0])
 
     # Let's plot both group and sum_counts with two y-axes,
     # one for each
     if plot_it:
         fig, ax1 = plt.subplots(figsize=figsize)
         ax2 = ax1.twinx()
-        sns.lineplot(
+        sns.scatterplot(
             x=np.arange(len(seat_counts)),
             y=seat_counts.values,
             ax=ax1,
+            markers="o",
+            alpha=0.5,
             color="blue",
-            label="Committee Seat Frequency",
+            label="Committee Seat (average)",
+        )
+        ax1.vlines(
+            x=np.arange(len(seat_counts)),
+            ymin=0,
+            ymax=seat_counts.values,
+            colors="blue",
+            linestyles="-",
+            alpha=0.5,
         )
         sns.lineplot(
             x=np.arange(len(group.stake_weight)),
             y=group.stake_weight.values,
             ax=ax2,
             color="red",
-            label="Group Stake Weight",
+            label="Participant Group Stake Weight",
         )
-        ax1.set_ylabel("Committee Seats (relative frequency)")
+        ax1.set_ylabel("Committee Seats (average)")
         ax2.set_ylabel("Stake Weight")
         ax1.set_xlabel("Participant Index")
         ax1.legend(loc="upper center")
@@ -461,7 +473,7 @@ def plot_committee_selection_counts(
 
     Args:
     - committee_size: Size of the committee (k).
-    - selection_counts: DataFrame containing the committee seat relative frequency.
+    - selection_counts: DataFrame containing the committee seats on average.
     - first_zero_indices: Array containing the first zero index for each group size.
     - log_scale: Boolean flag to set the y-axis to log scale.
     - figsize: Size of the figure.
@@ -500,7 +512,7 @@ def plot_committee_selection_counts(
 
     plt.legend(fontsize="small")
     plt.xlabel("Participant Index", fontsize="small")
-    plt.ylabel("Committee Seat Frequency", fontsize="small")
+    plt.ylabel("Committee Seat (average)", fontsize="small")
     plt.title(
         f"Committee Participation from Varying Group Sizes\n"
         f"Committee Size k = {committee_size}",
@@ -676,17 +688,18 @@ def simulate(
 
             # Compute statistics for committee seat counts
             seat_counts = np.array(committee_results["seat_counts"])
-            committee_seat_mean = seat_counts.mean()
-            committee_seat_std = seat_counts.std()
 
             # Build the metrics dictionaries for DataFrame construction
             mean_stats = {
                 "Distinct Voters": distinct_voters_avg,
-                "Committee Seats": committee_seat_mean,
+                "Committee Seats": pd.Series(
+                    seat_counts,
+                    index=group_stakes.index,
+                    name="Committee Seats (average)",
+                ),
             }
             sd_stats = {
                 "Distinct Voters": distinct_voters_std,
-                "Committee Seats": committee_seat_std,
             }
 
             # Create a DataFrame with columns for mean and std dev
