@@ -4,29 +4,36 @@
 """
 Module: participation_lib
 
-This module performs risk modeling for participation distribution in a 
-consensus mechanism. It includes functions to load and normalize SPO data, 
-sample participants based on their stake, and perform Monte Carlo simulations 
-to analyze the committee seat selection process based on stake weight. The 
-module also demonstrates the uneven distribution of selections based on stake 
+This module performs risk modeling for participation distribution in a
+consensus mechanism. It includes functions to load and normalize SPO data,
+sample participants based on their stake, and perform Monte Carlo simulations
+to analyze the committee seat selection process based on stake weight. The
+module also demonstrates the uneven distribution of selections based on stake
 weights and the finite committee.
 
 Functions:
-- sample_group: Uniformly sample from a population of participants without replacement.
-- get_stake_distribution: Collect and plot the stake distribution for a sample group.
-- assign_commitee: Assign participants to a committee using random selection based on stake weight.
-- plot_group_to_committee_index: Scatter plot of group participant index vs. seat selection index.
-- plot_committee_selection_counts: Plot the committee selection counts for varying group sizes.
-- plot_selection_count_vs_stake: Plot the seat assignment count vs. stake for a committee.
+- sample_group: Uniformly sample from a population of participants without
+    replacement.
+- get_stake_distribution: Collect and plot the stake distribution for a sample
+    group.
+- assign_commitee: Assign participants to a committee using random selection
+    based on stake weight.
+- plot_group_to_committee_index: Scatter plot of group participant index vs.
+    seat selection index.
+- plot_committee_selection_counts: Plot the committee selection counts for
+    varying group sizes.
+- plot_selection_count_vs_stake: Plot the seat assignment count vs. stake for
+    a committee.
 
 Author: Rob Jones <robert.jones@shield.io>
-Date: 5 Mar 2025
+Date: 12 Mar 2025
 
 """
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 from data import load_data
 
 
@@ -60,7 +67,7 @@ def get_stake_distribution(
     population: pd.DataFrame,
     group_size: int = 300,
     num_iter: int = 1,
-    plot_it: bool = True,
+    plot_it: bool = False,
     figsize: tuple[int, int] = (16, 8),
 ) -> pd.DataFrame:
     """
@@ -102,12 +109,13 @@ def get_stake_distribution(
     if plot_it:
         # Plot the stake for each participant number 1 to group_size
         plt.figure(figsize=figsize)
-        plt.plot(
-            stakes.stake.values,
-            marker=".",
+        sns.lineplot(
+            x=np.arange(len(stakes)),
+            y=stakes.stake.values,
+            marker="o",
             linestyle="-",
             alpha=1,
-            color="red",  # Color for the average curve
+            color="r",  # Color for the average curve
             linewidth=2,
             markersize=3,
             label="Average Stake",
@@ -116,7 +124,7 @@ def get_stake_distribution(
         # Draw a horizontal line at maximum stake value
         plt.axhline(
             y=max_stake,
-            color="blue",
+            color="b",
             linestyle="--",
             alpha=0.6,
             label=f"Max. Stake = {max_stake}",
@@ -125,7 +133,7 @@ def get_stake_distribution(
         # Draw a horizontal line at minimum stake value
         plt.axhline(
             y=min_stake,
-            color="green",
+            color="g",
             linestyle="--",
             alpha=0.6,
             label=f"Min. Stake = {min_stake}",
@@ -148,7 +156,7 @@ def assign_commitee(
     committee_size: int = 300,
     alpha: float = 0.0,
     num_iter: int = 1000,
-    plot_it: bool = True,
+    plot_it: bool = False,
     figsize: tuple[int, int] = (16, 8),
 ) -> tuple[pd.DataFrame, pd.Series, int]:
     """
@@ -169,7 +177,7 @@ def assign_commitee(
 
     Returns:
     - committee: DataFrame containing the committee members.
-    - seat_counts: Series containing the committee seat relative frequency.
+    - seat_counts: Series containing the committee seat on average.
     - first_zero_index: Index where the seat count first goes to zero.
 
     """
@@ -179,7 +187,7 @@ def assign_commitee(
     # committee seats per participant
     seat_counts = pd.Series(
         np.zeros(group_size, dtype="int64"),
-        name="relative frequency",
+        name="seat counts",
     )
 
     for n in range(num_iter):
@@ -221,9 +229,21 @@ def assign_commitee(
     if plot_it:
         fig, ax1 = plt.subplots(figsize=figsize)
         ax2 = ax1.twinx()
-        ax1.plot(seat_counts.values, color="blue", label="Committee Seat Frequency")
-        ax2.plot(group.stake_weight.values, color="red", label="Group Stake Weight")
-        ax1.set_ylabel("Committee Seats (relative frequency)")
+        sns.lineplot(
+            x=np.arange(len(seat_counts)),
+            y=seat_counts.values,
+            ax=ax1,
+            color="blue",
+            label="Committee Seats (average)",
+        )
+        sns.lineplot(
+            x=np.arange(len(group.stake_weight)),
+            y=group.stake_weight.values,
+            ax=ax2,
+            color="red",
+            label="Participant Group Stake Weight",
+        )
+        ax1.set_ylabel("Committee Seats (average)")
         ax2.set_ylabel("Stake Weight")
         ax1.set_xlabel("Participant Index")
         ax1.legend(loc="upper center")
@@ -252,6 +272,164 @@ def assign_commitee(
         plt.show()
 
     return committee, seat_counts, first_zero_index
+
+
+def assign_commitee_plus(
+    group: pd.DataFrame,
+    committee_size: int = 300,
+    alpha: float = 0.0,
+    num_iter: int = 1000,
+    plot_it: bool = False,
+    figsize: tuple[int, int] = (16, 8),
+) -> dict[pd.DataFrame, pd.Series, float, float, int]:
+    """
+    Assumes participants in a given group of size group_size are assigned to
+    a committee using random selection with replacement based on their stake
+    weight. The committee has a fixed size equal to the group_size. As such,
+    partipants with larger stake-weight will occupy multiple committee seats.
+    We perform Monte Carlo simulation of multiplle committee selections, thus
+    repeated for the given number of iterations.
+
+    Args:
+    - group: DataFrame containing the group of participants, assumed size n.
+    - committee_size: Size of the committee (k).
+    - alpha: Probability of uniform random sampling in a mixture model.
+    - num_iter: Number of iterations for Monte Carlo simulation.
+    - plot_it: Boolean flag to plot the committee seat distribution.
+    - figsize: Size of the figure.
+
+    Returns:
+
+    Dictionary containing the following key-values:
+    - 'committee': DataFrame containing the committee members.
+    - 'seat_counts': Series containing the committee seat average.
+    - 'distinct_voters': Average number of distinct voters over the iterations.
+    - 'distinct_voters_std': Standard deviation of the number of distinct voters.
+    - 'first_zero_index': Index where the seat count first goes to zero.
+
+    """
+    group_size = group.shape[0]  # size n
+
+    # Initialize an array to store the number of
+    # committee seats per participant as first-order statistics
+    seat_counts = pd.Series(
+        np.zeros(group_size, dtype="int64"),
+        name="seat counts",
+    )
+
+    # Initialize an array to store the number of distinct voters
+    distinct_voters_lst = []
+    # for each iteration and fist- and second-moment statistics
+    # collected below
+
+    for n in range(num_iter):  # Monte Carlo simulation loop
+        #
+        # Select a committee based on the stake weight of each
+        # participant stake holder.
+        #
+        committee = group.sample(
+            n=committee_size,
+            weights="stake_weight",
+            replace=True,
+        )
+
+        # Count the number of times each participant is selected
+        # for a committee seat
+        participant_counts = committee.index.value_counts()
+
+        # Reindex participant_counts to match seat_counts index and
+        # fill missing values with 0
+        participant_counts = participant_counts.reindex(
+            seat_counts.index,
+            fill_value=0,
+        )
+
+        # Add the counts to the seat_counts array
+        seat_counts += participant_counts
+
+        # Count the number of distinct voters
+        distinct_voters_lst.append(len(committee.index.unique()))
+
+    ## Normalize the sum_counts by total sum of counts
+    # seat_counts /= seat_counts.sum()
+    # rather:
+    # Average the seat_counts over the iterations
+    seat_counts /= num_iter
+
+    # Average the number of distinct voters over the iterations
+    distinct_voters_avg = np.mean(distinct_voters_lst)
+
+    # Standard deviation of the number of distinct voters
+    distinct_voters_std = np.std(distinct_voters_lst)
+
+    # Get the approximate index when the seat_counts value is first zero
+    # Sort the sum_counts in descending order
+    counts = seat_counts.sort_values(ascending=False)
+    first_zero_index = len(counts[counts > 0])
+
+    # Let's plot both group and sum_counts with two y-axes,
+    # one for each
+    if plot_it:
+        fig, ax1 = plt.subplots(figsize=figsize)
+        ax2 = ax1.twinx()
+        sns.scatterplot(
+            x=np.arange(len(seat_counts)),
+            y=seat_counts.values,
+            ax=ax1,
+            markers="o",
+            alpha=0.5,
+            color="blue",
+            label="Committee Seat (average)",
+        )
+        ax1.vlines(
+            x=np.arange(len(seat_counts)),
+            ymin=0,
+            ymax=seat_counts.values,
+            colors="blue",
+            linestyles="-",
+            alpha=0.5,
+        )
+        sns.lineplot(
+            x=np.arange(len(group.stake_weight)),
+            y=group.stake_weight.values,
+            ax=ax2,
+            color="red",
+            label="Participant Group Stake Weight",
+        )
+        ax1.set_ylabel("Committee Seats (average)")
+        ax2.set_ylabel("Stake Weight")
+        ax1.set_xlabel("Participant Index")
+        ax1.legend(loc="upper center")
+        ax2.legend(loc="upper right")
+        plt.title(
+            f"Committee Participation per Stake Weight\n"
+            f"Committee Size k = {committee_size}\n"
+            f"Participation Group Size n = {group_size}",
+            fontsize="medium",
+        )
+        plt.axhline(y=0, color="gray", linestyle="--", alpha=0.6)
+        # Draw vertical line where the committee seat count first goes to zero
+        plt.axvline(x=first_zero_index, color="green", linestyle="--")
+        # Print the value of this first_zero_index along the center of the
+        # vertical line
+        plt.text(
+            first_zero_index,
+            ax2.get_ylim()[1] / 2.0,
+            f"First Zero Index = {first_zero_index}",
+            rotation=0,
+            verticalalignment="center",
+            horizontalalignment="center",
+            color="green",
+            backgroundcolor="white",
+        )
+        plt.show()
+
+    return dict(
+        committee=committee,
+        seat_counts=seat_counts,
+        distinct_voters=(distinct_voters_avg, distinct_voters_std),
+        first_zero_index=first_zero_index,
+    )
 
 
 def plot_group_to_committee_index(
@@ -295,16 +473,16 @@ def plot_committee_selection_counts(
 
     Args:
     - committee_size: Size of the committee (k).
-    - selection_counts: DataFrame containing the committee seat relative frequency.
+    - selection_counts: DataFrame containing the committee seats on average.
     - first_zero_indices: Array containing the first zero index for each group size.
     - log_scale: Boolean flag to set the y-axis to log scale.
     - figsize: Size of the figure.
 
     """
     plt.figure(figsize=figsize)
-    selection_counts.plot(
-        marker="",
-        linestyle="-",
+    sns.lineplot(
+        data=selection_counts,
+        dashes=False,
         linewidth=1,
         alpha=0.9,
     )
@@ -334,7 +512,7 @@ def plot_committee_selection_counts(
 
     plt.legend(fontsize="small")
     plt.xlabel("Participant Index", fontsize="small")
-    plt.ylabel("Committee Seat Frequency", fontsize="small")
+    plt.ylabel("Committee Seat (average)", fontsize="small")
     plt.title(
         f"Committee Participation from Varying Group Sizes\n"
         f"Committee Size k = {committee_size}",
@@ -380,10 +558,15 @@ def plot_selection_count_vs_stake(
 
     # Plot selection seat count vs. stake
     plt.figure(figsize=figsize)
-    plt.plot(
-        x,
-        y,
-        marker=".",
+    sns.scatterplot(
+        x=x,
+        y=y,
+        marker="o",
+        alpha=0.8,
+    )
+    sns.lineplot(
+        x=x,
+        y=y,
         linestyle="-",
         alpha=0.8,
     )
@@ -449,3 +632,99 @@ def plot_committee_selection_seat_cutoff(
             first_zero_indices=first_zero_indices[i],
             log_scale=log_scale,
         )
+
+
+def simulate(
+    population: pd.DataFrame,
+    comm_sizes: list,
+    group_sizes: list,
+    num_iter: int,
+    plot_it: bool = False,
+) -> pd.DataFrame:
+    """Simulate the committee selection process for varying group sizes
+    and committee sizes and return the results in a DataFrame.
+
+    Args:
+    - population: DataFrame containing the population of SPOs.
+    - comm_sizes: list of committee sizes to simulate.
+    - group_sizes: list of group sizes to simulate.
+    - num_iter: int number of iterations for the Monte Carlo simulation.
+    - plot_it: bool flag to plot the results. Default is False.
+
+    Returns:
+    - results_df: DataFrame containing the results of the simulation.
+
+    """
+    # Dictionary to hold simulation data for each (committee_size, group_size) pair.
+    # For each pair, we compute a DataFrame of metrics (rows: e.g. "Distinct Voters",
+    # "Committee Seats") with columns "mean" and "sd". Later we stack these so that
+    # the row index becomes a MultiIndex (metric, statistic) and the DataFrame columns
+    # become a MultiIndex over (committee_size, group_size).
+    sim_dict = {}
+
+    for comm_size in comm_sizes:
+        print(f"\nCommittee Size = {comm_size}")
+
+        for group_size in group_sizes:
+            print(f"Group Size = {group_size}")
+
+            group_stakes = get_stake_distribution(
+                population,
+                group_size=group_size,
+                num_iter=num_iter,
+                # plot_it=plot_it,  # Turn off
+            )
+
+            committee_results = assign_commitee_plus(
+                group_stakes,
+                committee_size=comm_size,
+                num_iter=num_iter,
+                plot_it=plot_it,
+            )
+            # Extract distinct voters metrics from the tuple
+            distinct_voters_avg, distinct_voters_std = committee_results[
+                "distinct_voters"
+            ]
+
+            # Compute statistics for committee seat counts
+            seat_counts = np.array(committee_results["seat_counts"])
+
+            # Build the metrics dictionaries for DataFrame construction
+            mean_stats = {
+                "Distinct Voters": distinct_voters_avg,
+                "Committee Seats": pd.Series(
+                    seat_counts,
+                    index=group_stakes.index,
+                    name="Committee Seats (average)",
+                ),
+            }
+            sd_stats = {
+                "Distinct Voters": distinct_voters_std,
+            }
+
+            # Create a DataFrame with columns for mean and std dev
+            tmp_df = pd.DataFrame({"mean": mean_stats, "sd": sd_stats})
+            # Stack to get a Series with MultiIndex (metric, statistic)
+            sim_dict[(comm_size, group_size)] = tmp_df.stack()
+
+    # Convert the dictionary into a DataFrame.
+    sim_results_df = pd.DataFrame(sim_dict)
+
+    # Create MultiIndex column labels in the desired string format.
+    sim_results_df.columns = pd.MultiIndex.from_tuples(
+        [
+            (f"Committee Size = {cs}", f"Group Size = {gs}")
+            for cs, gs in sim_results_df.columns
+        ],
+        names=["Committee Size", "Group Size"],
+    )
+
+    return sim_results_df
+
+
+def std_error(data, **kwargs):
+    """Function that returns lower and upper error bounds"""
+    return (
+        data["Percentage Excluded"] - data["Std Dev"],
+        data["Percentage Excluded"] + data["Std Dev"],
+    )
