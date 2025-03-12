@@ -252,7 +252,7 @@ print(
     f" for Committee Seats, k = {committee_size}:"
 )
 
-plot_data
+print(plot_data)
 
 # %%
 # Create upper and lower bounds for the error bands
