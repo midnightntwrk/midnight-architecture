@@ -46,7 +46,8 @@ from participation_lib import (
     load_data,
     get_stake_distribution,
     assign_commitee_plus,
-    # simulate,
+    simulate,
+    std_error,
     plot_group_to_committee_index,
     plot_selection_count_vs_stake,
     plot_committee_selection_counts,
@@ -57,7 +58,8 @@ from participation_lib import (
 # Load the Data: The population of registered SPOs
 
 population = load_data("../data/pooltool-cleaned.csv")
-population.info()
+
+print(population.info())
 
 # %%
 population.describe()
@@ -74,10 +76,10 @@ group_stakes = get_stake_distribution(
     num_iter=1000,
     plot_it=True,
 )
-group_stakes
+print(group_stakes)
 
 # %%
-group_stakes.describe()
+print(group_stakes.describe())
 
 # %%
 # Let's now assign a committee of the fixed group_size
@@ -104,94 +106,6 @@ num_iter = 1000  # Number of iterations for Monte Carlo simulation
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
 # If we have a new epoch per day, then 1000 iterations is about 3 years.
-
-
-# %%
-def simulate(
-    population: pd.DataFrame,
-    comm_sizes: list,
-    group_sizes: list,
-    num_iter: int,
-    plot_it: bool = False,
-) -> pd.DataFrame:
-    """Simulate the committee selection process for varying group sizes
-    and committee sizes and return the results in a DataFrame.
-
-    Args:
-    - population: DataFrame containing the population of SPOs.
-    - comm_sizes: list of committee sizes to simulate.
-    - group_sizes: list of group sizes to simulate.
-    - num_iter: int number of iterations for the Monte Carlo simulation.
-    - plot_it: bool flag to plot the results. Default is False.
-
-    Returns:
-    - results_df: DataFrame containing the results of the simulation.
-
-    """
-    # Dictionary to hold simulation data for each (committee_size, group_size) pair.
-    # For each pair, we compute a DataFrame of metrics (rows: e.g. "Distinct Voters",
-    # "Committee Seats") with columns "mean" and "sd". Later we stack these so that
-    # the row index becomes a MultiIndex (metric, statistic) and the DataFrame columns
-    # become a MultiIndex over (committee_size, group_size).
-    sim_dict = {}
-
-    for comm_size in comm_sizes:
-        print(f"\nCommittee Size = {comm_size}")
-
-        for group_size in group_sizes:
-            print(f"Group Size = {group_size}")
-
-            group_stakes = get_stake_distribution(
-                population,
-                group_size=group_size,
-                num_iter=num_iter,
-                # plot_it=plot_it,  # Turn off
-            )
-
-            committee_results = assign_commitee_plus(
-                group_stakes,
-                committee_size=comm_size,
-                num_iter=num_iter,
-                plot_it=plot_it,
-            )
-            # Extract distinct voters metrics from the tuple
-            distinct_voters_avg, distinct_voters_std = committee_results[
-                "distinct_voters"
-            ]
-
-            # Compute statistics for committee seat counts
-            seat_counts = np.array(committee_results["seat_counts"])
-            committee_seat_mean = seat_counts.mean()
-            committee_seat_std = seat_counts.std()
-
-            # Build the metrics dictionaries for DataFrame construction
-            mean_stats = {
-                "Distinct Voters": distinct_voters_avg,
-                "Committee Seats": committee_seat_mean,
-            }
-            sd_stats = {
-                "Distinct Voters": distinct_voters_std,
-                "Committee Seats": committee_seat_std,
-            }
-
-            # Create a DataFrame with columns for mean and std dev
-            tmp_df = pd.DataFrame({"mean": mean_stats, "sd": sd_stats})
-            # Stack to get a Series with MultiIndex (metric, statistic)
-            sim_dict[(comm_size, group_size)] = tmp_df.stack()
-
-    # Convert the dictionary into a DataFrame.
-    sim_results_df = pd.DataFrame(sim_dict)
-
-    # Create MultiIndex column labels in the desired string format.
-    sim_results_df.columns = pd.MultiIndex.from_tuples(
-        [
-            (f"Committee Size = {cs}", f"Group Size = {gs}")
-            for cs, gs in sim_results_df.columns
-        ],
-        names=["Committee Size", "Group Size"],
-    )
-
-    return sim_results_df
 
 
 # %%
@@ -235,7 +149,12 @@ std_dev_values = committee_voters.loc["sd"]
 not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
 not_selected_percentages.name = "Excluded (%)"
 
-print(pd.concat([mean_values, std_dev_values, not_selected_percentages], axis=1))
+print(
+    pd.concat(
+        [mean_values, std_dev_values, not_selected_percentages],
+        axis=1,
+    )
+)
 
 # %%
 
@@ -253,16 +172,6 @@ print(
 )
 
 print(plot_data)
-
-# %%
-# Create upper and lower bounds for the error bands
-
-def std_error(data, **kwargs):
-    """Function that returns lower and upper error bounds"""
-    return (
-        data["Percentage Excluded"] - data["Std Dev"],
-        data["Percentage Excluded"] + data["Std Dev"],
-    )
 
 # %%
 # Plot the data with seaborn
