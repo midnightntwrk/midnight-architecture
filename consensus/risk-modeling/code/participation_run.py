@@ -237,3 +237,35 @@ plt.xlim(0, 200)
 plt.show()
 
 # %%
+# Distinct Voters
+committee_voters = sim_results_df.loc["Distinct Voters"]
+
+# Create a DataFrame row from the computed percentages
+mean_values = committee_voters.loc["mean"]
+std_dev_values = committee_voters.loc["sd"]
+
+# Calculate the percentage of participants not selected for committee seats
+print("Percentage of Group Participants Not Selected for Committee Seats:")
+committee_participation = pd.concat([mean_values, std_dev_values], axis=1)
+# committee_participation.columns = ["Mean", "Std Dev"]
+
+print(committee_participation)
+
+# %%
+# Prepare the DataFrame for concatenation with the other simulation results
+committee_participation = committee_participation.T
+committee_participation.index = pd.MultiIndex.from_tuples(
+    [("Committee Participation %", "mean"), ("Committee Participation %", "sd")]
+)
+
+# Concatenate this new row to the simulation results DataFrame
+sim_results_df = pd.concat([sim_results_df, committee_participation], axis=0)
+
+sim_results_df
+# %%
+# Save the results to an Excel file
+output_file = "../data/participation_run_results.xlsx"
+sim_results_df.to_excel(output_file)
+print(f"Results saved to {output_file}")
+
+# %%

@@ -186,17 +186,17 @@ print(group_stakes)
 
 
                stake  stake_weight
-    0   7.242328e+07  9.147360e-02
-    1   6.814129e+07  8.606527e-02
-    2   6.435351e+07  8.128115e-02
-    3   5.961341e+07  7.529420e-02
-    4   5.485729e+07  6.928703e-02
+    0   7.237935e+07  9.176386e-02
+    1   6.820048e+07  8.646581e-02
+    2   6.423218e+07  8.143473e-02
+    3   5.934951e+07  7.524439e-02
+    4   5.439758e+07  6.896624e-02
     ..           ...           ...
-    95  1.978800e+01  2.499306e-08
-    96  1.109200e+01  1.400965e-08
-    97  6.138000e+00  7.752548e-09
-    98  3.390000e+00  4.281710e-09
-    99  1.797000e+00  2.269685e-09
+    95  2.024800e+01  2.567078e-08
+    96  1.163000e+01  1.474473e-08
+    97  6.390000e+00  8.101358e-09
+    98  3.352000e+00  4.249727e-09
+    99  1.728000e+00  2.190790e-09
     
     [100 rows x 2 columns]
 
@@ -210,13 +210,13 @@ print(group_stakes.describe())
 
                   stake  stake_weight
     count  1.000000e+02  1.000000e+02
-    mean   7.917397e+06  1.000000e-02
-    std    1.663776e+07  2.101418e-02
-    min    1.797000e+00  2.269685e-09
-    25%    1.831127e+03  2.312789e-06
-    50%    1.492149e+05  1.884646e-04
-    75%    4.851468e+06  6.127605e-03
-    max    7.242328e+07  9.147360e-02
+    mean   7.887566e+06  1.000000e-02
+    std    1.657780e+07  2.101763e-02
+    min    1.728000e+00  2.190790e-09
+    25%    1.943554e+03  2.464073e-06
+    50%    1.605020e+05  2.034873e-04
+    75%    4.789338e+06  6.072009e-03
+    max    7.237935e+07  9.176386e-02
 
 
 
@@ -555,11 +555,11 @@ print(
     Number of distinct voters for Committee Size = 100:
                         mean        sd Excluded (%)
     Group Size                                     
-    Group Size = 100  25.827  2.092623       74.173
-    Group Size = 200  40.283  2.777213      79.8585
-    Group Size = 300  50.234  3.365003    83.255333
-    Group Size = 400  57.559   3.56041     85.61025
-    Group Size = 500  63.074  3.493784      87.3852
+    Group Size = 100  25.833  2.108817       74.167
+    Group Size = 200  40.306  2.874781       79.847
+    Group Size = 300  49.872  3.236915       83.376
+    Group Size = 400  57.572  3.513519       85.607
+    Group Size = 500  63.004  3.586361      87.3992
 
 
 
@@ -585,11 +585,11 @@ print(plot_data)
     Percentage of Group Participants Not Selected for Committee Seats, k = 100:
                       Group Size Percentage Excluded   Std Dev
     Group Size                                                
-    Group Size = 100         100              74.173  2.092623
-    Group Size = 200         200             79.8585  2.777213
-    Group Size = 300         300           83.255333  3.365003
-    Group Size = 400         400            85.61025   3.56041
-    Group Size = 500         500             87.3852  3.493784
+    Group Size = 100         100              74.167  2.108817
+    Group Size = 200         200              79.847  2.874781
+    Group Size = 300         300              83.376  3.236915
+    Group Size = 400         400              85.607  3.513519
+    Group Size = 500         500             87.3992  3.586361
 
 
 
@@ -699,51 +699,51 @@ sim_results_df.loc["Distinct Voters", :]
   <tbody>
     <tr>
       <th>mean</th>
-      <td>25.827</td>
-      <td>40.283</td>
-      <td>50.234</td>
-      <td>57.559</td>
-      <td>63.074</td>
-      <td>31.186</td>
-      <td>50.443</td>
-      <td>66.605</td>
-      <td>79.679</td>
-      <td>90.576</td>
+      <td>25.833</td>
+      <td>40.306</td>
+      <td>49.872</td>
+      <td>57.572</td>
+      <td>63.004</td>
+      <td>31.302</td>
+      <td>50.782</td>
+      <td>66.687</td>
+      <td>79.377</td>
+      <td>90.509</td>
       <td>...</td>
-      <td>36.16</td>
-      <td>61.054</td>
-      <td>82.071</td>
-      <td>100.477</td>
-      <td>117.062</td>
-      <td>37.674</td>
-      <td>63.951</td>
-      <td>86.967</td>
-      <td>106.835</td>
-      <td>125.159</td>
+      <td>36.227</td>
+      <td>60.693</td>
+      <td>81.471</td>
+      <td>100.631</td>
+      <td>117.117</td>
+      <td>37.342</td>
+      <td>63.868</td>
+      <td>86.691</td>
+      <td>107.003</td>
+      <td>125.78</td>
     </tr>
     <tr>
       <th>sd</th>
-      <td>2.092623</td>
-      <td>2.777213</td>
-      <td>3.365003</td>
-      <td>3.56041</td>
-      <td>3.493784</td>
-      <td>2.249312</td>
-      <td>2.904953</td>
-      <td>3.441943</td>
-      <td>4.076022</td>
-      <td>4.447721</td>
+      <td>2.108817</td>
+      <td>2.874781</td>
+      <td>3.236915</td>
+      <td>3.513519</td>
+      <td>3.586361</td>
+      <td>2.21061</td>
+      <td>2.882443</td>
+      <td>3.722235</td>
+      <td>4.152213</td>
+      <td>4.402717</td>
       <td>...</td>
-      <td>2.252643</td>
-      <td>3.018126</td>
-      <td>3.594713</td>
-      <td>4.350571</td>
-      <td>4.736049</td>
-      <td>2.077913</td>
-      <td>3.105575</td>
-      <td>3.688619</td>
-      <td>4.323861</td>
-      <td>4.893028</td>
+      <td>2.188943</td>
+      <td>3.075183</td>
+      <td>3.596548</td>
+      <td>4.085932</td>
+      <td>4.541069</td>
+      <td>2.155235</td>
+      <td>3.127711</td>
+      <td>3.82564</td>
+      <td>4.277264</td>
+      <td>4.615799</td>
     </tr>
   </tbody>
 </table>
@@ -771,7 +771,6 @@ for c, g in plot_data.index:
 
     colors = sns.color_palette("tab20", len(plot_data.index))
     color_idx = list(plot_data.index).index((c, g))
-    # plt.bar(x, y, alpha=0.7, color=colors[color_idx], label=f"{n_c}, {n_g}")
     plt.bar(x, y, alpha=0.7, color=colors[color_idx], label=f"{n_c}, {n_g}")
 
 plt.xlabel("Participant Index")
@@ -786,4 +785,327 @@ plt.show()
     
 ![png](output_15_0.png)
     
+
+
+
+```python
+# %%
+
+# Distinct Voters
+committee_voters = sim_results_df.loc["Distinct Voters"]
+
+# Create a DataFrame row from the computed percentages
+mean_values = committee_voters.loc["mean"]
+std_dev_values = committee_voters.loc["sd"]
+
+# Calculate the percentage of participants not selected for committee seats
+print("Percentage of Group Participants Not Selected for Committee Seats:")
+committee_participation = pd.concat([mean_values, std_dev_values], axis=1)
+# committee_participation.columns = ["Mean", "Std Dev"]
+
+print(committee_participation)
+```
+
+    Percentage of Group Participants Not Selected for Committee Seats:
+                                              mean        sd
+    Committee Size       Group Size                         
+    Committee Size = 100 Group Size = 100   25.833  2.108817
+                         Group Size = 200   40.306  2.874781
+                         Group Size = 300   49.872  3.236915
+                         Group Size = 400   57.572  3.513519
+                         Group Size = 500   63.004  3.586361
+    Committee Size = 200 Group Size = 100   31.302   2.21061
+                         Group Size = 200   50.782  2.882443
+                         Group Size = 300   66.687  3.722235
+                         Group Size = 400   79.377  4.152213
+                         Group Size = 500   90.509  4.402717
+    Committee Size = 300 Group Size = 100   34.074  2.124741
+                         Group Size = 200   56.585  3.050701
+                         Group Size = 300   75.777  3.802272
+                         Group Size = 400   92.031  4.159332
+                         Group Size = 500  105.881  4.540136
+    Committee Size = 400 Group Size = 100   36.227  2.188943
+                         Group Size = 200   60.693  3.075183
+                         Group Size = 300   81.471  3.596548
+                         Group Size = 400  100.631  4.085932
+                         Group Size = 500  117.117  4.541069
+    Committee Size = 500 Group Size = 100   37.342  2.155235
+                         Group Size = 200   63.868  3.127711
+                         Group Size = 300   86.691   3.82564
+                         Group Size = 400  107.003  4.277264
+                         Group Size = 500   125.78  4.615799
+
+
+
+```python
+# %%
+
+# Prepare the DataFrame for concatenation with the other simulation results
+committee_participation = committee_participation.T
+committee_participation.index = pd.MultiIndex.from_tuples(
+    [("Committee Participation %", "mean"), ("Committee Participation %", "sd")]
+)
+
+# Concatenate this new row to the simulation results DataFrame
+sim_results_df = pd.concat([sim_results_df, committee_participation], axis=0)
+
+sim_results_df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Committee Size</th>
+      <th colspan="5" halign="left">Committee Size = 100</th>
+      <th colspan="5" halign="left">Committee Size = 200</th>
+      <th>...</th>
+      <th colspan="5" halign="left">Committee Size = 400</th>
+      <th colspan="5" halign="left">Committee Size = 500</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>Group Size</th>
+      <th>Group Size = 100</th>
+      <th>Group Size = 200</th>
+      <th>Group Size = 300</th>
+      <th>Group Size = 400</th>
+      <th>Group Size = 500</th>
+      <th>Group Size = 100</th>
+      <th>Group Size = 200</th>
+      <th>Group Size = 300</th>
+      <th>Group Size = 400</th>
+      <th>Group Size = 500</th>
+      <th>...</th>
+      <th>Group Size = 100</th>
+      <th>Group Size = 200</th>
+      <th>Group Size = 300</th>
+      <th>Group Size = 400</th>
+      <th>Group Size = 500</th>
+      <th>Group Size = 100</th>
+      <th>Group Size = 200</th>
+      <th>Group Size = 300</th>
+      <th>Group Size = 400</th>
+      <th>Group Size = 500</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">Distinct Voters</th>
+      <th>mean</th>
+      <td>25.833</td>
+      <td>40.306</td>
+      <td>49.872</td>
+      <td>57.572</td>
+      <td>63.004</td>
+      <td>31.302</td>
+      <td>50.782</td>
+      <td>66.687</td>
+      <td>79.377</td>
+      <td>90.509</td>
+      <td>...</td>
+      <td>36.227</td>
+      <td>60.693</td>
+      <td>81.471</td>
+      <td>100.631</td>
+      <td>117.117</td>
+      <td>37.342</td>
+      <td>63.868</td>
+      <td>86.691</td>
+      <td>107.003</td>
+      <td>125.78</td>
+    </tr>
+    <tr>
+      <th>sd</th>
+      <td>2.108817</td>
+      <td>2.874781</td>
+      <td>3.236915</td>
+      <td>3.513519</td>
+      <td>3.586361</td>
+      <td>2.21061</td>
+      <td>2.882443</td>
+      <td>3.722235</td>
+      <td>4.152213</td>
+      <td>4.402717</td>
+      <td>...</td>
+      <td>2.188943</td>
+      <td>3.075183</td>
+      <td>3.596548</td>
+      <td>4.085932</td>
+      <td>4.541069</td>
+      <td>2.155235</td>
+      <td>3.127711</td>
+      <td>3.82564</td>
+      <td>4.277264</td>
+      <td>4.615799</td>
+    </tr>
+    <tr>
+      <th>Committee Seats</th>
+      <th>mean</th>
+      <td>0     9.357
+1     8.754
+2     8.279
+3     7.65...</td>
+      <td>0      4.668
+1      4.540
+2      4.345
+3      ...</td>
+      <td>0      3.199
+1      3.075
+2      3.020
+3      ...</td>
+      <td>0      2.464
+1      2.318
+2      2.328
+3      ...</td>
+      <td>0      1.943
+1      1.831
+2      1.864
+3      ...</td>
+      <td>0     18.122
+1     17.249
+2     16.235
+3     1...</td>
+      <td>0      9.447
+1      9.100
+2      8.849
+3      ...</td>
+      <td>0      6.633
+1      5.995
+2      6.116
+3      ...</td>
+      <td>0      4.866
+1      4.582
+2      4.576
+3      ...</td>
+      <td>0      4.024
+1      3.664
+2      3.692
+3      ...</td>
+      <td>...</td>
+      <td>0     36.526
+1     34.491
+2     32.153
+3     3...</td>
+      <td>0      19.295
+1      18.290
+2      17.839
+3   ...</td>
+      <td>0      13.167
+1      12.259
+2      12.008
+3   ...</td>
+      <td>0      9.767
+1      9.025
+2      8.900
+3      ...</td>
+      <td>0      8.152
+1      7.406
+2      7.323
+3      ...</td>
+      <td>0     46.522
+1     43.832
+2     41.129
+3     3...</td>
+      <td>0      24.073
+1      22.817
+2      22.166
+3   ...</td>
+      <td>0      16.354
+1      15.026
+2      15.002
+3   ...</td>
+      <td>0      12.663
+1      11.467
+2      11.536
+3   ...</td>
+      <td>0      10.278
+1       9.076
+2       9.156
+3   ...</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">Committee Participation %</th>
+      <th>mean</th>
+      <td>25.833</td>
+      <td>40.306</td>
+      <td>49.872</td>
+      <td>57.572</td>
+      <td>63.004</td>
+      <td>31.302</td>
+      <td>50.782</td>
+      <td>66.687</td>
+      <td>79.377</td>
+      <td>90.509</td>
+      <td>...</td>
+      <td>36.227</td>
+      <td>60.693</td>
+      <td>81.471</td>
+      <td>100.631</td>
+      <td>117.117</td>
+      <td>37.342</td>
+      <td>63.868</td>
+      <td>86.691</td>
+      <td>107.003</td>
+      <td>125.78</td>
+    </tr>
+    <tr>
+      <th>sd</th>
+      <td>2.108817</td>
+      <td>2.874781</td>
+      <td>3.236915</td>
+      <td>3.513519</td>
+      <td>3.586361</td>
+      <td>2.21061</td>
+      <td>2.882443</td>
+      <td>3.722235</td>
+      <td>4.152213</td>
+      <td>4.402717</td>
+      <td>...</td>
+      <td>2.188943</td>
+      <td>3.075183</td>
+      <td>3.596548</td>
+      <td>4.085932</td>
+      <td>4.541069</td>
+      <td>2.155235</td>
+      <td>3.127711</td>
+      <td>3.82564</td>
+      <td>4.277264</td>
+      <td>4.615799</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 25 columns</p>
+</div>
+
+
+
+
+```python
+# %%
+
+# Save the results to an Excel file
+output_file = "../data/participation_run_results.xlsx"
+sim_results_df.to_excel(output_file)
+print(f"Results saved to {output_file}")
+```
+
+    Results saved to ../data/participation_run_results.xlsx
 
