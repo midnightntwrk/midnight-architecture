@@ -1,22 +1,22 @@
-Proposal 0018: NIGHT generates DUST
-===================================
+Proposal 0018: cNIGHT generates DUST
+====================================
+
+**NOTE:** We use the term "cNIGHT" to refer to NIGHT tokens located on Cardano,
+to distinguish them from NIGHT tokens on Midnight ("mNIGHT").
 
 The problem, informally
 -----------------------
 
 DUST is a fuel used on Midnight to pay the transaction fees.  DUST is produced
-from the ownership of NIGHT, Midnight's unshielded token.  Over time, every
-NIGHT UTxO on Midnight produces DUST, assigning it to a specific *DUST address*.
-Importantly, the *NIGHT address*, where the NIGHT UTxO resides, and the *DUST
-address*, where DUST is allocated, need not be controlled by the same party.
+from the ownership of mNIGHT, Midnight's unshielded token.  Over time, every
+mNIGHT UTxO on Midnight produces DUST, assigning it to a specific *DUST
+address*.  Importantly, the *NIGHT address*, where the mNIGHT UTxO resides, and
+the *DUST address*, where DUST is allocated, need not be controlled by the same
+party.
 
-NIGHT tokens can exist on Cardano.  These tokens should still be able to produce
-DUST on Midnight if their Cardano owner desires so.  The owner of NIGHT tokens
-may also want to trade DUST produced from their tokens to someone else.
-
-**NOTE:** Henceforth we will use the term "cNIGHT" to refer to NIGHT tokens
-located on Cardano, to distinguish them from NIGHT tokens on Midnight
-("mNIGHT").
+cNIGHT tokens can exist on Cardano.  These tokens should still be able to
+produce DUST on Midnight if their Cardano owner desires so.  The owner of cNIGHT
+tokens may also want to trade DUST produced from their tokens to someone else.
 
 Our goal is to create mechanisms that allow cNIGHT owners to manage DUST
 generation.  By default, cNIGHT tokens do not generate DUST.  cNIGHT owner
@@ -141,6 +141,12 @@ Correctness criteria:
     and only that wallet's owner can later perform a deregistration.
 
   * At most one registration per Cardano wallet address should be permitted.
+
+NOTE: A special case of Scenario 2 is the Glacier Drop, when users can claim
+ownership of cNIGHT tokens but these tokens remain locked in a vesting smart
+contract.  Owners of such cNIGHT tokens should still be able to receive DUST
+from them, even though the tokens are not stored in user's wallet.  This special
+case can be handled entirely in the observability layer.
 
 ### Scenario 3: Self-managed leasing access to DUST production
 
@@ -288,8 +294,9 @@ minting and one for burning.  The minting case checks that:
      that the token was minted by the owner of the key indicated in the datum.
 
 In order to implement the second bullet of the minting case, the minting policy
-must know the address of the mapping validator.  To achieve this we parameterize
-the minting policy with this address.
+must know the address of the mapping validator.  We will achieve this by
+integrating our implementation with the versioning system provided by
+partner-chains.
 
 The burning case checks that:
 
@@ -311,7 +318,7 @@ Correctness discussion:
     register and deregister its address for DUST production.
 
   * Direct modification of existing registration is not possible.  To modify a
-    registration NIGHT owner needs to deregister and then register with a new
+    registration cNIGHT owner needs to deregister and then register with a new
     DUST address.  It is technically possible to add the option to modify a
     registration in a single transaction, but this would come at the expense of
     complicating the scripts.  This extra complication is probably not worth the
@@ -525,8 +532,8 @@ need.  In particular:
     dates need not align.
 
   * It is likely that a cNIGHT Lessee thinks in terms of how much DUST they want
-    to have on Midnight, rather than how much NIGHT tokens they want to lease on
-    Cardano.  Connection between cNIGHT and DUST is not baked in any way into
+    to have on Midnight, rather than how much cNIGHT tokens they want to lease
+    on Cardano.  Connection between cNIGHT and DUST is not baked in any way into
     any of the validators.  Instead, the off-chain code should convert between
     requested DUST and required cNIGHT under the hood.  It is crucial that we do
     not bake the formula for computing DUST into the Cardano validators.  This
@@ -545,7 +552,7 @@ need.  In particular:
 Other explored alternatives (and why they were discarded)
 ---------------------------------------------------------
 
-### Scenario 2: Produce DUST from cNIGHT tokens present during of registration
+### Scenario 2: Produce DUST from cNIGHT tokens present during registration
 
 The original requirements of Scenario 2 assumed, that when a cNIGHT owner
 registers their wallet, all of the cNIGHT tokens they already possess in their
@@ -701,23 +708,6 @@ In the end, this solution seems to be too complicated and costly.  The other
 solution we proposed above, while theoretically allows multiple registrations,
 should work fine if the user does not deliberately try to break it - and in case
 they do break it, they can only harm themselves and not others.
-
-### Scenario 2: Mapping validator address as a dynamic dependency
-
-In the proposed solution for scenario 2, the minting policy for the
-authentication token contains a hard-coded address of the mapping validator.  It
-means that, once deployed, no changes can be made to involved policies.  Also,
-no circular dependencies are allowed since these cannot be achieved statically.
-This is why spending from the mapping validator requires that the outputs don't
-contain any tokens except for Ada, rather than requiring that the outputs don't
-contain authentication tokens - the mapping validator may not know the currency
-symbol of the authentication token because this would introduce a circular
-dependency.
-
-Overcoming these limitations requires a system that enables runtime script
-dependencies, such as the versioning system used by the partner-chains project.
-If, at the time of implementing this, there is also a versioning system it
-should be used instead of static script parameters.
 
 ### Scenario 2: Registrations stored in a wallet vs. central validator
 
