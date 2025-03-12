@@ -83,11 +83,12 @@ Here, some responsibilities lie on both DApp and Wallet:
 4. DApp should always check the `apiVersion` against supported range of versions (following semver semantics) and the DApp must not attempt to connect or present to the user initial APIs that are annotated with an unsupported API version.
 5. Wallet must report exact version of the `@midnight-ntwrk/dapp-connector-api` package it implemented
 6. If the Wallet implements multiple incompatible versions of the API simultanously (which is a possible case during transition period related to a hard-fork), Wallet must provide multiple entries in the `midnight` object.
-7. When connecting:
-   - DApp must provide network id it wants to connect to
-   - Wallet must reject connection request if it can't connect to the network with id provided by the DApp
-   - It is up to wallet to define their approach to different networks, they can support connecting to multiple networks simultanously, they can connect to only single network at a time and ask user to make the switch and then reload the DApp, etc.
-   - Wallet should ask user for the scope of permissions provided to the DApp and indicate what network the DApp wants to connect to. It is up to the wallet implementation to decide how exactly and when exactly user is asked for confirmation
+7. For connecting:
+   - The DApp must provide network id it wants to connect to
+   - The DApp can call `connect` method of the initial API multiple times, e.g. to establish concurrent connections to different networks
+   - The wallet must reject connection request if it can't connect to the network with id provided by the DApp
+   - The wallet should ask user for the scope of permissions provided to the DApp and indicate what network the DApp wants to connect to. It is up to the wallet implementation to decide how exactly and when exactly user is asked for confirmation
+   - The wallet should expect multiple calls to the `connect` method and ensure they are properly separated from each other
 
 ### Connected API
 
@@ -260,9 +261,9 @@ The protocol that comes with this API is as follows:
 2. The wallet might implement various policies like "Ask on first use", as well as "Ask user upfront". In particular - wallets implementing "Ask on first use" policies might add some latency to first calls, in order to collect multiple requests the DApp makes for particular view and only ask the user once.
 3. The DApp should not assume any particular permission system and its granularity being implemented. In particular - The DApp should use as little `ConnectedAPI` surface as possible for its functionality and follow the rules of progressive enhancement/graceful degradation when learning that certain methods are rejected. The DApp can use `hintUsage` method to hint to wallet what methods will be used in the context (be it whole session, single view, or a user flow).
 4. The wallet should expect multiple `hintUsage` calls as they may be related to different parts of a DApp. The wallet can use these calls as an opportunity to ask user for permissions. The wallet should always resolve promise with a void value (`undefined`). The returned promise should be resolved only after the wallet finishes processing (including user interaction, if needed).
-5. To let DApp clearly distinguish it is the case, wallet must return `PermissionRejected` error for a particular method
+5. To let DApp clearly distinguish when permission to use particular API was rejected, wallet must return `PermissionRejected` error for a particular method
 6. The way the API is compartmentalized is a possibility of how wallets can manage permissions, though wallets are free to implement more coarse-grained as well as more fine-grained permissions to limit access to certain actions or data.
-7. When asked returning transaction (in methods `balanceTransaction`, `makeTransfer` or `makeIntent`), wallet must always return a transaction ready to be submitted to the network, that is one that is sealed, contains needed signatures, and contains needed proofs.
+7. When a call returning transaction is made (in methods `balanceTransaction`, `makeTransfer` or `makeIntent`), wallet must always return a transaction ready to be submitted to the network, that is one that is sealed, contains needed signatures, and contains needed proofs.
 8. The DApp, when asking wallet to submit a transaction, needs to provide a transaction ready to be submitted to the network, that is one that is sealed, contains signatures, and contains proofs.
 9. The DApp, when asking wallet to balance a transaction, needs to provide a transaction, which is not sealed and does not contain signatures, but already contains proof, otherwise wallet won't be able to deserialize it and complement with necessary tokens.
 10. The DApp, when asking wallet to balance a transaction, needs to provide a transaction compatible with network id indicated in the configuration object.
@@ -271,7 +272,9 @@ The protocol that comes with this API is as follows:
 13. In the configuration object, the wallet must point to service deployments, which are compatible with network id present, and preferably are the same that the wallet itself uses for particular network.
 14. Wallet must provide data like token types and addresses in format compatible with network id present in the configuration object and following relevant specification, Midnight Wallet specification does define address format.
 15. Wallet can reconcile data like balances from multiple accounts, in such case wallet must ensure data consistency, mostly related to reported balances, so that they can actually be used in a transaction, if only it fits single transaction and user does permits so.
-16. Wallet must ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
+16. Wallet implementing multiple account support must make it clear to the user, which accounts will be used for particular DApp interaction.
+17. Wallet must ensure that balances reported in `getShieldedBalances` and `getUnshieldedBalances` methods are available balances, which means balances wallet is willing to allow spending in transactions. This allows DApps to rely on the balance checks (to certain extent at least since race conditions are a possibility) in their logic.
+18. The DApp can't assume balances, transactions, and the addresses returned by the API are directly related to each other. In particular - in many cases even when using a single BIP-44 account, the data served by an indexer and the wallet might differ because of wallet having more knowledge of its transactions.
 
 
 ### Errors
@@ -309,7 +312,7 @@ There is a notable difference in semantics between `Rejected` and `PermissionRej
 
 ## Future direction
 
-Although not part of the specification at this moment, there are some additions to the API expected in the future. They are not perceived as crucial and are expected to be mostly supplementary improvements.
+Although not part of the specification at this moment, there are some changes to the API considered to be added in the future. Some of them are quality-of-life improvements for DApp developers, others might enable new use cases or user experiences. Some of them are mentioned below. Additionally - current shape of this specification deliberately provides quite a lot of freedom in some behaviors related to connecting and manging permissions, and thus - allows wallet builders to implement what they think is best and experiment. After some time, best practices will likely emerge, and they are expected to be codified into this specification too, so that the integration of DApps and wallets will only be simpler.
 
 ### EIP-6963-like provider installation and discovery
 
@@ -326,3 +329,7 @@ DApp connector's ability to sign arbitrary data is crucial to enable plenty of u
 ### Event listener/observable API
 
 In many cases, DApps might want to be notified when information relevant for them changes - e.g. a DEX might want to be notified whenever balances change. Providing push-based updates would be a welcome quality-of-life improvement. 
+
+### Accounts
+
+It seems that in many practical scenarios delivering good, seamless UX by the DApp needs information about accounts and being able to interact with them.
