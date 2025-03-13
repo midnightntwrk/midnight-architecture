@@ -20,7 +20,7 @@
     "@scure/base": "^1.1.9",
     "@types/node": "^22.0.0",
     "@types/lodash-es": "^4.17.12",
-    "commander": "^12.1.0",
+    "commander": "^13.0.0",
     "jest-diff": "^29.7.0",
     "lodash-es": "^4.17.21",
     "@midnight-ntwrk/zswap": "^3.0.2",
