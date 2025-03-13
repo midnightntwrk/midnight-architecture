@@ -1,61 +1,67 @@
 # Dust and fee payments
 
-> [!WARNING]
-> This section is under construction.
+Dust operates similarly to, but separately from, [Zswap](./zswap.md). It
+operates as the fee payment token of Midnight, but has the following unique
+properties:
 
-### EDITS TO MAKE
+- Dust is generated over time from Night
+- If no Night is generating the Dust, it decays over time
+- Dust is a shielded token, but is not transferable, instead being usable only
+  for fees.
+- Dust is not persistent, the system may redistribute it on hardforks.
 
-- Dust should no longer be allowed to go negative, cooldown should not exist.
-- Instead, it should be possible to back-date dust generation if none existed
-  for that Night UTXO previously, and pay for the back-dating transaction with
-  the Dust resulting.
-- We want a linkage map between Night addresses and Dust addresses, which sets
-  the dust output for any subsequent night sent. Note that the dust back-dating
-  is by necessity a different mechanism.
-- We should be explicit about cNIGHT interaction. Talk about/link to how we're
-  genenerating dust from them, extend the night document with locking/unlocking
-  discussions.
-- Explicitly commit to linear curve right now, and comment on potential for
-  other curves in future.
+## Preliminaries
 
-### Up-to-date code spec
+Similar to Zswap, Dust is built on hashes and the commitment/nullifier
+paradigm. Differently to Zswap, Dust uses ZK-friendly hashes, as the
+non-persistence of Dust allows these to be changed on hardforks.
 
 ```rust
 type DustSecretKey = Fr;
 type DustPublicKey = field::Hash<DustSecretKey>;
+```
 
+Dust does not need any encryption keys, as it is not transferred. This does
+leave a question of wallet recovery, which [will be addressed
+below](#wallet-recovery).
+
+Core to this recovery is a deterministic evolution of nonces in Dust UTXOs. As
+each Dust spend non-transferring, they are 1-to-1. Furthermore, the first Dust
+in a chain always originates uniquely from a Night UTXO. We hash three things
+to determine the nonce of a Dust UTXO:
+- The intent hash and output number identifying its originating Night UTXO.
+- A sequence number, starting at 0, indicating where we are in this chain of
+self-spends.
+- The owners public/secret key. For the first Dust UTXO, as this is created and
+  publicly linked to the originating Night UTXO by necessity, this is the Dust
+  public key. For all subsequent Dust UTXOs, this is the owner's Dust *secret*
+  key, to ensure that only the owner can guess this nonce.
+
+The core `DustOutput` type takes a similar role as Zswap's `CoinInfo`,
+describing a single UTXO as it may appear in a user's wallet.
+
+```rust
+/// Hash uniquely identifying the originating Night UTXO
 type InitialNonce = Hash<(IntentHash, u32)>;
 
 struct DustOutput {
+    /// The amount of atomic Dust units (Specks) held in this UTXO
     value: u128,
+    /// The public key owning the Dust UTXO.
     owner: DustPublicKey,
+    /// The nonce of this Dust UTXO
     nonce: field::Hash<(InitialNonce, u32, Fr)>,
+    /// The current sequence number
     seq: u32,
+    /// The creation time of this Dust UTXO
     ctime: Timestamp,
 }
+```
 
-struct DustGenerationInfo {
-    value: u128,
-    owner: DustPublicKey,
-    nonce: InitialNonce,
-    dtime: Timestamp,
-}
+As with Zswap, Dust UTXOs have commitment and nullifier projections, here
+defined over a variant of `DustOutput`:
 
-struct DustGenerationUniquenessInfo {
-    value: u128,
-    owner: DustPublicKey,
-    nonce: InitialNonce,
-}
-
-struct DustGenerationState {
-    address_delegation: Map<NightAddress, DustPublicKey>,
-    generating_tree: MerkleTree<DustGenerationInfo>,
-    generating_tree_first_free: usize,
-    generating_set: Set<DustGenerationUniquenessInfo>,
-    night_indices: Map<Utxo, u64>,
-    root_history: TimeFilterMap<MerkleTreeRoot>,
-}
-
+```rust
 struct DustPreProjection<T> {
     value: u128,
     owner: T,
@@ -65,25 +71,172 @@ struct DustPreProjection<T> {
 
 type DustCommitment = field::Hash<DustPreProjection<DustPublicKey>>;
 type DustNullifier = field::Hash<DustPreProjection<DustSecretKey>>;
+```
 
+The core state of the Dust subsystem then consists, similarly to Zswap, of a
+commitment Merkle tree, a nullifier set, and a history of valid Merkle tree
+roots for proof verification.
+
+```rust
+struct DustUtxoState {
+    commitments: MerkleTree<DustCommitment>,
+    commitments_first_free: usize,
+    nullifiers: Set<DustNullifier>,
+    root_history: TimeFilterMap<MerkleTreeRoot>,
+}
+```
+
+## Initial Dust parameters
+
+Dust has a handful of fundamental parameters, which are given here both in
+abstract, and in their concrete initial assignment. Fundamentally, these define
+the relation between Night, Dust, and time.
+
+Is is worth also being clear about the atomic units of Night and Dust here.
+- The atomic unit of Night is the Star, with 1 Night = 10^6 Stars
+- The atomic unit of Dust is the Speck, with 1 Dust = 10^15 Specks
+
+Dust has a much higher resolution to allow more fine-grained fee payments,
+while importantly being low enough that the maximum supply of Dust still fits
+comfortably in a `u128`, eliminating (most) overflow concerns.
+
+```rust
 struct DustParameters {
-    /// The ratio between atomic NIGHT units (STARs), and atomic DUST units (SPECKs)
-    /// at their cap
-    /// Note that 1 NIGHT = 10^6 STARs, 1 DUST = 10^15 SPECKs
+    /// The maxmium supply of Specks per Star
     night_dust_ratio: u64,
-    /// The number amount of MOTES per SPEC per second to generate or decay.
+    /// The number amount of Specks per Star per second to generate or decay.
     generation_decay_rate: u32,
-    /// The amount of time that may pass before a DUST spend is forced to time out.
+    /// The amount of time that may pass before a Dust spend is forced to time out.
     dust_grace_period: Duration,
 }
+```
 
+The initial assignment of these is given by the rough guidance of 5 Dust being
+the maximum support per Night, and the generation time of 1 week. The grace
+period is set to 3 hours, to allow for network congestion, but not transactions
+living for days.
+
+```rust
 const INITIAL_DUST_PARAMETERS: DustParameters = {
     night_dust_ratio = 5_000_000_000; // 5 DUST per NIGHT
     generation_rate = 8_267; // Works out to a generation time of approximately 1 week.
     dust_grace_period = Duration::from_hours(3),
 };
+```
 
-fn updated_value(inp: DustOutput, gen: DustGenerationInfo, now: Timestamp, params: DustParameters) -> u128 {
+## Generating Dust
+
+As stated, Dust is generated by Night over time. Technically this poses a
+challenge, as Night uses different key material to Dust. In addition to this, 
+this address should be modifiable over time, to enable the use-case of leasing
+out Dust generation.
+
+This is primarily accomplished with a table linking Night and Dust addresses,
+and additional processing behaviour on processing Night inputs and outputs.
+For each input and output processed, a table of currently active Dust
+generations is updated, this can then be referenced to determine the amount of
+Dust held in any given UTXO. Additionally, each output processed creates a new
+Dust UTXO.
+
+The core information about one currently active Night UTXO generation is
+encapsulated in `DustGenerationInfo`, which captures the amount of Night
+(Stars) generating Dust, the public key they are generating Dust to, the nonce
+at the start of the Dust chain, and finally, the time this Night UTXO was
+spent. The final value is necessary as it's important for determining the value
+of the corresponding Night to know when any decay started. This time may be set
+in the future, and unspent Night will have a generation info with this set to
+`Timestamp::MAX`.
+
+```rust
+struct DustGenerationInfo {
+    value: u128,
+    owner: DustPublicKey,
+    nonce: InitialNonce,
+    dtime: Timestamp,
+}
+```
+
+In order to ensure that Dust generation is unique, a variant of this without
+the timestamp is also kept in the state, preventing duplicate Dust generations.
+
+```rust
+struct DustGenerationUniquenessInfo {
+    value: u128,
+    owner: DustPublicKey,
+    nonce: InitialNonce,
+}
+```
+
+The state related to the Dust generation information has a number of
+components:
+- A mapping from Night to Dust addresses to link new outputs with.
+- A sequential Merkle tree of `DustGenerationInfo`, which can be directly used
+  to provide the presence of a specific Dust generation info in ZK proofs.
+- A corresponding set of the `DustGenerationUniquenessInfo`s, to prevent
+  collisions in these.
+- A mapping from Night UTXOs to their position in the Merkle tree.
+- A history of valid Merkle tree roots (valid for the Dust grace period).
+
+```rust
+struct DustGenerationState {
+    address_delegation: Map<NightAddress, DustPublicKey>,
+    generating_tree: MerkleTree<DustGenerationInfo>,
+    generating_tree_first_free: usize,
+    generating_set: Set<DustGenerationUniquenessInfo>,
+    night_indices: Map<Utxo, u64>,
+    root_history: TimeFilterMap<MerkleTreeRoot>,
+}
+```
+
+The address map itself is updated with 'registrations', signed by a Night
+address (via its signature verifying key), and either linking a specific Dust
+address, or removing the existing link. Registrations may also permit the
+containing transaction from taking some amount from *unclaimed* Dust associated
+with this Night address to be used to cover the transaction's fees.
+
+```rust
+struct DustRegistration<S> {
+    night_key: VerifyingKey,
+    dust_address: Option<DustPublicKey>,
+    /// The amount of fees from owed DUST that this registration will cede to
+    /// fee payments. This *must* be an underestimate of the fees available.
+    allow_fee_payment: u128,
+    Signature,
+}
+
+```
+
+## Dust value & spends
+
+Core to the experience of Dust is the change in value of a Dust UTXO over time.
+If there is a backing Night UTXO (and all Dust UTXOs *initially* have a backing
+Night UTXO), the value of the Dust UTXO will approach a maximum deteremined by
+the Night-Dust ratio, and the value of the backing Night. After the backing
+Night UTXO has been marked as destroyed, its value instead approaches zero over
+time.
+
+When spending a Dust UTXO, it's 'current' value, with respect to a timestamp
+representing the current time has to be computed. This may include both
+generating and decaying phases. Specifically, we split the elapsed time into
+(at most) four linear segments:
+
+1. Generating, from the Dust UTXO's creation time, to the sooner of the time it
+   reaches capacity and the time the backing Night UTXO is spent.
+2. Constant at maximum capacity, from the time reaching maximum capacity (if
+   applicable) to the time the backing Night UTXO is spent.
+3. Decaying, from the latter of the Dust UTXO's creation time, and time the backing Night UTXO is spent, to the time Dust reaches zero value.
+4. Constant at zero, for the rest of time.
+
+This relies on the fact that a Dust UTXO cannot regain a backing Night UTXO;
+that would create a *new* Dust UTXO instead.
+
+```rust
+fn updated_value(
+    inp: DustOutput,
+    gen: DustGenerationInfo,
+    now: Timestamp,
+    params: DustParameters,
+) -> u128 {
     // There are up to four linear segments:
     // 1. Generating (from inp.ctime to tfull, the time dust fills to the cap)
     // 2. Constant full (from tfull to gen.dtime)
@@ -113,27 +266,45 @@ fn updated_value(inp: DustOutput, gen: DustGenerationInfo, now: Timestamp, param
     let value_phase_3 = clamp(value_phase_3_unchecked, 0, value_phase_1);
     value_phase_3
 }
+```
 
-struct DustUtxoState {
-    commitments: MerkleTree<DustCommitment>,
-    commitments_first_free: usize,
-    nullifiers: Set<DustNullifier>,
-    root_history: TimeFilterMap<MerkleTreeRoot>,
-}
+The main means for making use of Dust is by *spending* it. This is in some ways
+similar to a combined Zswap spend and output, with the additional computation
+of the *updated* value using `updated_value`, and a constraint that the owner
+of the input and the owner of the output match. The spend also declares a *fee*
+value, which is subtracted from the created output. This is the amount of fees
+this Dust spend covers.
 
-struct DustState {
-    utxo: DustUtxoState,
-    generation: DustGenerationState,
-    params: DustParameters,
-}
+As opposed to Zswap, the Dust spend does not directly reference the Merkle tree
+root it proves inclusion in. This is because Dust already has a strong
+requirement on time, which needs to be within the `dust_grace_period`, and is
+already used to calculate the updated value. As a result, this timestamp is
+used as a key to retrieve the corresponding Merkle tree, rather than including
+this in the transaction.
 
+```rust
 struct DustSpend<P> {
     v_fee: u128,
     nullifier: DustNullifier,
     commitment: DustCommitment,
     proof: P::Proof,
 }
+```
 
+The zero-knowledge proof in the Dust spend is then validated against not just the spend itself, but also:
+- The declared timestamp
+- The dust parameters to use
+- The Merkle tree roots associated with the Dust commitment tree, and the
+  generation information tree, corresponding to the declared timestamp.
+
+Locally, users need to supply:
+- The Dust UTXO that is being spent
+- The Dust secret key demonstrating ownership
+- The backing generation info
+- The paths to both the Dust commitment being spent, and the generation info.
+- The nonce and sequence number of the new output.
+
+```rust
 fn dust_spend_valid(
     dust_spend: Public<DustSpend<()>>,
     tnow: Public<Timestamp>,
@@ -181,6 +352,19 @@ fn dust_spend_valid(
     });
     assert!(dust_spend.commitment == post_commitment);
 }
+```
+
+Well-formedness for dust spends is just proof verification, using the parent
+intent's binding commitment to bind to, and a parent timestamp to look up
+Merkle trees in the dust state. Said dust state is defined simply to consist of
+the parameters, Dust UTXO state, and Dust generation state.
+
+```rust
+struct DustState {
+    utxo: DustUtxoState,
+    generation: DustGenerationState,
+    params: DustParameters,
+}
 
 impl<P> DustSpend<P> {
     fn well_formed(self, ref_state: DustState, segment: u16, binding: Pedersen, tparent: Timestamp) -> Result<()> {
@@ -198,15 +382,11 @@ impl<P> DustSpend<P> {
         ));
     }
 }
+```
 
-struct DustRegistration<S> {
-    night_key: VerifyingKey,
-    dust_address: Option<DustPublicKey>,
-    /// The amount of fees from owed DUST that this registration will cede to
-    /// fee payments. This *must* be an underestimate of the fees available.
-    allow_fee_payment: u128,
-    Signature,
-}
+## Dust actions
+
+```rust
 
 struct DustActions<S, P> {
     spends: Vec<DustSpend<P>>,
@@ -219,7 +399,7 @@ struct DustActions<S, P> {
     ///   computed as `dust_in`
     /// - The fee still owed in the transaction `fee_remaining` is mutably
     ///   processed by:
-    ///   - Seetting the amount paid `fee_paid := min(fee_remaining, allow_fee_payment, dust_in)`
+    ///   - Setting the amount paid `fee_paid := min(fee_remaining, allow_fee_payment, dust_in)`
     ///   - Setting `fee_remaining := fee_remaining - fee_paid`
     /// - The remaining `dust_out := dust_in - fee_paid` DUST is distributed to
     ///   the output UTXOs for the same owner in proportion to their balance
@@ -424,15 +604,6 @@ impl DustState {
         Ok((self, remaining_fees))
     }
 
-    // Need to process night inputs and outputs. Where to put the linking operation?
-    // The link needs to be signed by the relevant night addr, but doesn't
-    // make sense as an input. A separate field, or extending ContractAction?
-    // The latter would question why this isn't used more for unshielded tokens
-    // though.
-
-    // Let's just have it be a separate signed action, part of the dust
-    // payments segment.
-
     fn post_block_update(mut self, tblock: Timestamp) -> Self {
         self.utxo.root_history = self.utxo.root_history.insert(
             tblock,
@@ -447,197 +618,22 @@ impl DustState {
 }
 ```
 
-### Old prose to rewrite or recycle
+## Wallet recovery
 
-# Dust and fee payments
+For wallet recovery, the first step is to find owned Night UTXOs. This informs
+the wallet of the *start* of any Dust UTXO chains, and the wallet can now
+search linearly for the commitments associated with each sequence number in the
+chain. The last such sequence number *should* be unspent.
 
-> Midnight's fees are payed with the *Dust* token. This token is generated over
-> time by Night, but also decays over time to compensate. Dust is unique in the
-> Midnight system, and is not transferable.
-> 
-> Dust is designed to be *resettable*. That is, the entire Dust subsystem state
-> can be deleted without significant impact on users. Note that some impact is
-> likely unavoidable, but this is considered an acceptable cost.
-> 
-> Due to this, Dust makes heavy use of SNARK friendly cryptography;
-> Dust public keys are a (snark-friendly) hash of dust secret keys:
+Note that as this *does* link the given commitments to the indexing service
+used, we suggest instead a stochastic privacy approach. Instead of quering
+whether commitments are in the state, the wallet should query commitments
+*starting with* a specific bit prefix, with the indexing service returning the
+list of matching commitments, which the wallet can filter locally. The prefix
+length should be determined from the number of total commitments, such that the
+response includes however many commitments are sufficiently statistically
+hiding for this wallet user.
 
-
-> A dust output consists of its value, owner, nonce, and creation time. Note
-> that, unusually, negative values *are permitted* here. This is used to allow
-> redirection of dust generation for free, by effectively incurring a debt. In
-> all other cases, created outputs must have a positive value.
-
-> The nonce is defined as `nonce = field::hash((initial_nonce, n, key))`, `initial_nonce = hash(night_utxo.intent_hash, night_utxo.output_no)` where `night_utxo` is the corresponding Night
-> UTXO that created this Dust output, and `n` is the sequence number `seq` in
-> this Dust evolution (0 at the initial creation), and `key` is the owner's
-> public key if `n = 0`, and the owner's *secret* key otherwise. This ensures
-> that the `DustOutput` is publicly computable if and only if it is the initially
-> created one, and is only computable by the owner otherwise.
-
-### Dust generation
-
-> In addition to dust outputs, dust generation information is needed to compute
-> the balance of the dust output at the time it is spent. This consists of a
-> Merkle tree with leaves containing the (Dust) owner of a UTXO, the *initial*
-> (Night) nonce, the value of corresponding Night UTXO, and the time the Night
-> UTXO was spent. The final value is set to `Timestamp::MAX` if it *has not yet
-> been spent*.
-
-> Additionally, a set of `(value, owner, nonce)` tuples is maintained, to prevent
-> creation of multiple outputs with the same nonce, which could constitute a
-> faerie-gold-like attack.
-
-```rust
-```
-
-> `historic_roots` tracks past versions of `generating_tree` that are still permitted
-> to prove against. This is regularly filtered, so only the most recent roots are
-> valid, within a validity window `dust_validity`. `night_indices` tracks the
-> position of each Night utxo in the `generating_tree`, allowing these to be
-> updated with the correct `dtime` when the corresponding Night utxo is spent.
-
-### Spending Dust
-
-> Dust will follow Zerocash commitment/nullifier structure. Each `DustOutput` has
-> two projections, a `DustNullifier` and a `DustCommitment`, both produced using
-> the `field::hash`. The nullifier set is a set of the former, and the commitment set
-> a Merkle tree of the latter. As the dust *generation* set has faerie-gold
-> attack mitigation, no mitigation is needed for Dust itself.
-
-> A Dust transaction will always be a 1-to-1 transfer, consuming one `DustOutput`
-> and producing another. The transaction must be associated with a time `t`, and
-> output a public fee payment `v_fee`. The input `inp: DustOutput`'s value must
-> be recomputed for time `t`, and the associated `gen: DustGenerationInfo`. The
-> function to compute this will be discussed separately, and is assumed here,
-> it's result is `v_in: i128`.
-> 
-> The output `out: DustOutput` is defined as (where the output `value` *must* be
-> non-negative):
-
-> ```rust
-> out = DustOutput {
->     value: updated_value(inp, gen) - v_fee,
->     owner: inp.owner,
->     nonce: transient_hash(gen.nonce, inp.seq + 1, dust_sk),
->     seq: inp.seq + 1,
->     ctime: t,
-> }
-> ```
-
-> The public state of Dust is simply a commitment Merkle tree, a nullifier set,
-> and the historic roots & first f(Note that this needs to be tracked
-> separately, as in our implementation the tree itself has no policy on order of
-> insertions for flexibility. In practice we insert in order). To simplify the
-> fee payment transaction
-> fragment, the timestamps used in the Dust historic roots, and the generation
-> historic roots should be the same.
-
-> A Dust payment then consists of:
-> - Some data to sign over
-> - A timestamp `t`
-> - A value `v_fee`
-> - A Dust nullifier (for the spent Dust)
-> - A Dust commitment (for the new Dust output)
-> - A ZK proof (more on that below)
-
-> When applying this, the proof is checked against `transient_hash(sign_over)`,
-> `t`, `dust_root = <dust state>.historic_roots[t]`, `gen_root = <gen
-> state>.historic_roots[t]`, `v_fee`, `nullifier`, and `commitment`. *Private*
-> inputs to the proof are:
-> 
-> - The secret key `sk`
-> - The input `inp: DustOutput` and its Merkle path `inp_path`
-> - The relevant `gen: DustGenerationInfo`, and its Merkle path `gen_path`
-> 
-> Then the proof asserts that:
-> - `gen` is under `gen_root` at `gen_path`
-> - `inp` is under `inp_root` at `inp_path`
-> - `inp`'s nullifier is `nullifier`
-> - `out` is computed as above
-> - `out`'s commitment is `commitment`
-> 
-> When applying, the nullifier is inserted into `<dust state>.nullifiers`, with a
-> transaction failure if it already exists.
-
-> ### Spending Night
-> 
-> The spending of Night should affect the `DustGenerationState`. This requires a
-> change to the semantics of UTXO outputs, and a change to the transaction, as
-> this must nominate an output `DustPublicKey`. Night transfers should still be
-> able to operate solely on Night addresses, which implies that even regular Dust
-> transfers need to de-register any generation from spent UTXOs.
-
->> FIXME: This is not longer correct.
-
-> ```rust
-> struct GeneratingUtxoOutput {
->     regular: UtxoOutput,
->     generation_owner: DustPublicKey,
-> }
-> ```
-> 
-> This can be used over `UtxoOutput` to also update `DustGenerationState`, by
-> inserting a new generation information corresponding to the new UTXO output.
-> Finally, any spend where `type_ == NIGHT` should try to update the
-> `DustGenerationState` to set the `dtime` of any corresponding generation
-> information (if this does not exist, this is a no-op).
-> 
-> In order to permit Night to be transferable *without* having Dust, a basic
-> {1,2}-to-{1,2} UTXO transfer will be permitted to *not* have Dust funding it.
-> The output Night will be placed in 'cooldown', where any attempt to spend it
-> will be considered invalid for as much time as it would take to generate the
-> fees. The output Dust (if any) will be given a negative balance to account for
-> these fees. The cooldown period must be less than a given threshold to prevent
-> spending of small UTXOs that will not cover their own fees in any reasonable
-> amount of time (suggestion: 1 month).
-> 
-> This consists of a new `CooldownState`, tracking Night UTXOs and when they
-> become spendable:
-> 
-> ```rust
-> struct CooldownState {
->     time_spendable: Map<Utxo, Timestamp>,
-> }
-> ```
-> 
-> This is updated if an unfunded transaction is deemed eligible for cooldown by
-> adding its outputs to the cooldown set, with the same timestamp computed to
-> when they jointly can cover the unfunded transaction's fees.
-> 
-> It is checked and updated on a Night spend, by ensuring that if the spent UTXO
-> is a key in the map, that it's timestamp is in the past. If so, the entry is
-> removed. If the timestamp is in the future, the transaction is invalid.
-> 
-> #### Updating the Dust states
-> 
-> When a Night UTXO `utxo` is spent, the generation state `gen:
-> DustGenerationState` is updated by setting
-> `gen.generating_tree[gen.night_indices[utxo]].dtime` (if it exists) to the current block's
-> time.
-> 
-> When a new *generating* Night UTXO `utxo` is created, the generation state `gen:
-> DustGenerationState` is updated by:
-> 
-> - Inserting `DustGenerationInfo { value: utxo.regular.value, owner: utxo.generation_owner, nonce: utxo.regular.nonce, dtime: Timestamp::MAX }` into `gen.generating_tree[gen.generating_tree_first_free]`
-> - Inserting `DustGenerationuniquenessInfo { value: utxo.regular.value, owner: utxo.generation_owner, nonce: utxo.regular.nonce }` into `gen.generating_set`, failing if it is already present
-> - Setting `gen.night_indices[utxo.regular] = gen.generating_tree_first_free`
-> - Incrementing `gen.generating_tree_first_free`
-> 
-> (`historic_roots` should be updated at a block level, not a transaction level, so is left out here)
-> 
-> A new Dust output is also created, and its commitment inserted into the `DustState`. This output is defined as:
-> 
-> ```rust
-> utxo = DustOutput {
->     value: value,
->     owner: utxo.generation_owner,
->     nonce: transient_hash(utxo.regular.nonce, 0, utxo.generation_owner),
->     seq: 0,
->     ctime: t,
-> }
-> ```
-> 
-> where `t` is the block time, and `value` is `0`, unless the output is a
-> cooldown output, in which case it is `-fee`, where `fee` is the (part of) the
-> transaction fee this Dust output covers.
+For instance, if there are $2^14$ commitments in the state, and the wallet
+wants an anonymity set of $2^7$, then it should send prefixes of $14 - 7 = 7$
+bits.
