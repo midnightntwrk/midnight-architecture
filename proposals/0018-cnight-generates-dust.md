@@ -335,10 +335,10 @@ Correctness discussion:
     - While the above solution should prevent double-registration in majority of
       the cases, it does not guarantee that a double (or multiple) registration
       is not made.  Thus, the observability layer must be able to handle such
-      situations, presumably by ignoring all registrations.  Another way of
-      handling such a case would be to use the latest registration and ignore
-      the previous ones, though this could be problematic if two transactions
-      were submitted in a single block.
+      situations, presumably by treating Cardano wallets with multiple
+      registrations as unregistered.  Another way of handling such case would be
+      to use the latest registration and ignore the previous ones, though this
+      could be problematic if two transactions were submitted in a single block.
 
     See "Other explored alternatives" section below for a discussion of another
     solution to scenario 2 that does guarantee uniqueness of registrations, but
