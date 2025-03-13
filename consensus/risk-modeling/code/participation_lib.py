@@ -362,29 +362,38 @@ def assign_commitee_plus(
     # Standard deviation of the number of distinct voters
     distinct_voters_std = np.std(distinct_voters_lst)
 
-    # Get the approximate index when the seat_counts value is first zero
-    # Sort the sum_counts in descending order
-    counts = seat_counts.sort_values(ascending=False)
-    first_zero_index = len(counts[counts > 0])
+    # Get the index when the seat_counts value is first zero
+    reversed_seat_count = seat_counts.loc[::-1]
+    # which sorts the sum_counts in descending order to determine
+    # the index when seat count first transitions from zero to non-zero
+    first_zero_index = reversed_seat_count[reversed_seat_count > 0].index[0]
 
     # Let's plot both group and sum_counts with two y-axes,
     # one for each
     if plot_it:
         fig, ax1 = plt.subplots(figsize=figsize)
         ax2 = ax1.twinx()
+
+        x = np.arange(len(seat_counts))
+        y = seat_counts.values
+        # Plot only the participants with non-zero seat counts
+        mask = y > 0
+        x = x[mask]
+        y = y[mask]
+
         sns.scatterplot(
-            x=np.arange(len(seat_counts)),
-            y=seat_counts.values,
-            ax=ax1,
+            x=x,
+            y=y,
             markers="o",
             alpha=0.5,
             color="blue",
             label="Committee Seat (average)",
+            ax=ax1,
         )
         ax1.vlines(
-            x=np.arange(len(seat_counts)),
+            x=x,
             ymin=0,
-            ymax=seat_counts.values,
+            ymax=y,
             colors="blue",
             linestyles="-",
             alpha=0.5,
@@ -392,9 +401,9 @@ def assign_commitee_plus(
         sns.lineplot(
             x=np.arange(len(group.stake_weight)),
             y=group.stake_weight.values,
-            ax=ax2,
             color="red",
             label="Participant Group Stake Weight",
+            ax=ax2,
         )
         ax1.set_ylabel("Committee Seats (average)")
         ax2.set_ylabel("Stake Weight")
@@ -555,6 +564,10 @@ def plot_selection_count_vs_stake(
 
     x = committee_members.stake_weight.values
     y = participant_counts.values
+    # Plot only the participants with non-zero seat counts
+    mask = y > 0
+    x = x[mask]
+    y = y[mask]
 
     # Plot selection seat count vs. stake
     plt.figure(figsize=figsize)

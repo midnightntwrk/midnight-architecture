@@ -101,7 +101,7 @@ results = assign_commitee_plus(
 # group_sizes = [100]  # vary over group size, n
 comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
 group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
-num_iter = 1000  # Number of iterations for Monte Carlo simulation
+num_iter = 30  # Number of iterations for Monte Carlo simulation
 
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
@@ -131,80 +131,48 @@ commitee_sizes = [
 group_sizes = [
     int(col.split("=")[1].strip()) for col in col_index.get_level_values(1).unique()
 ]
-
-# Examine the data for committee size = 100
-committee_size = 100
-
-committee_label = f"Committee Size = {committee_size}"
-committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
-committee_seats = sim_results_df.loc["Committee Seats", committee_label]
-
 # %%
-# Distinct Voters
-print(f"Number of distinct voters for {committee_label}:")
-mean_values = committee_voters.loc["mean"]
-std_dev_values = committee_voters.loc["sd"]
+# Plot the percentage of group participants excluded from a committee
+# of a given size vs. different group sizes
 
-# Calculate the percentage of participants not selected for committee seats
-not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
-not_selected_percentages.name = "Excluded (%)"
+fig, ax = plt.subplots(figsize=(12, 8))
 
-print(
-    pd.concat(
-        [mean_values, std_dev_values, not_selected_percentages],
-        axis=1,
-    )
-)
-
-# %%
-
-# Create a DataFrame for easier plotting with seaborn
-plot_data = pd.DataFrame(
-    {
-        "Group Size": group_sizes,
-        "Percentage Excluded": not_selected_percentages,
-        "Std Dev": std_dev_values,
-    }
-)
-print(
-    "Percentage of Group Participants Not Selected"
-    f" for Committee Seats, k = {committee_size}:"
-)
-
-print(plot_data)
-
-# %%
-# Plot the data with seaborn
-plt.figure(figsize=(12, 8))
 sns.set(style="whitegrid")
 
-# Plot the main line without error bars
-sns.lineplot(
-    x="Group Size",
-    y="Percentage Excluded",
-    data=plot_data,
-    errorbar=std_error,
-    err_style="band",
-    marker="o",
-    color="b",
-    label="Percentage Excluded",
-)
-# Add error bands using plt.errorbar
-plt.errorbar(
-    plot_data["Group Size"],
-    plot_data["Percentage Excluded"],
-    yerr=plot_data["Std Dev"],
-    fmt="none",  # No connecting line
-    ecolor="r",
-    capsize=5,
-    alpha=0.6,
-    label="Error (±1 std dev)"
-)
-plt.xlabel("Group Size")
-plt.ylabel("Percentage Excluded")
-plt.title("Percentage of Group Participants Not Selected for Committee Seats"
-          f"\n(Committee Seats k = {committee_size})")
-plt.legend()
+for committee_size in commitee_sizes:
+    committee_label = f"Committee Size = {committee_size}"
+    committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
+
+    mean_values = committee_voters.loc["mean"]
+    std_dev_values = committee_voters.loc["sd"]
+
+    # Calculate the percentage of participants not selected for committee seats
+    not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
+    not_selected_percentages.name = "Excluded (%)"
+
+    # Create a DataFrame for easier plotting with seaborn
+    plot_data = pd.DataFrame(
+        {
+            "Group Size": group_sizes,
+            "Percentage Excluded": not_selected_percentages,
+            "Std Dev": std_dev_values,
+        }
+    )
+
+    # Plot the main line without error bars
+    sns.lineplot(
+        x="Group Size",
+        y="Percentage Excluded",
+        data=plot_data,
+        marker="o",
+        label=committee_label,
+        ax=ax,
+    )
+
+ax.set_ylabel("Percentage Excluded")
+ax.set_xlabel("Group Size")
+ax.legend(title="Committee Size")
+plt.title("Percentage of Group Participants Not Selected for Committee Seats")
 plt.grid(True)
 plt.show()
 
