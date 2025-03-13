@@ -12,9 +12,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
     "@scure/base": "^1.1.9",
