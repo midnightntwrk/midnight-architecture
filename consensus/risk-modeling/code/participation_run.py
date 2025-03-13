@@ -45,13 +45,14 @@ from participation_lib import (
     sns,
     load_data,
     get_stake_distribution,
-    assign_commitee_plus,
+    assign_commitee,
     simulate,
     std_error,
     plot_group_to_committee_index,
     plot_selection_count_vs_stake,
     plot_committee_selection_counts,
     plot_committee_selection_seat_cutoff,
+    plot_participation,
 )
 
 # %%
@@ -73,7 +74,7 @@ group_size = 100
 group_stakes = get_stake_distribution(
     population,
     group_size=group_size,
-    num_iter=1000,
+    num_iter=100,
     plot_it=True,
 )
 print(group_stakes)
@@ -85,10 +86,11 @@ print(group_stakes.describe())
 # Let's now assign a committee of the fixed group_size
 # based on the stake weight of each
 
-results = assign_commitee_plus(
+results = assign_commitee(
     group_stakes,
     committee_size=group_size,
-    num_iter=1000,
+    num_iter=1,
+    plot_it=True,
 )
 
 # %%
@@ -99,15 +101,13 @@ results = assign_commitee_plus(
 # Initialize Parameters:
 # comm_sizes = [100]  # vary over committee size, k
 # group_sizes = [100]  # vary over group size, n
-comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
-group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
-num_iter = 30  # Number of iterations for Monte Carlo simulation
+comm_sizes = range(100, 1201, 100)  # vary over committee size, k
+group_sizes = range(100, 1201, 100)  # vary over group size, n
+num_iter = 100  # Number of iterations for Monte Carlo simulation
 
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
 # If we have a new epoch per day, then 1000 iterations is about 3 years.
-
-
 # %%
 # Call the function
 sim_results_df = simulate(
@@ -119,9 +119,6 @@ sim_results_df = simulate(
 )
 
 # %%
-# committee_seats_df = committee_seats_df.swaplevel(axis=1).sort_index(axis=1)
-
-# %%
 # Extract the data for plotting
 
 col_index = sim_results_df.columns
@@ -131,53 +128,9 @@ commitee_sizes = [
 group_sizes = [
     int(col.split("=")[1].strip()) for col in col_index.get_level_values(1).unique()
 ]
-# %%
-# Plot the percentage of group participants excluded from a committee
-# of a given size vs. different group sizes
 
-fig, ax = plt.subplots(figsize=(12, 8))
-
-sns.set(style="whitegrid")
-
-for committee_size in commitee_sizes:
-    committee_label = f"Committee Size = {committee_size}"
-    committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
-
-    mean_values = committee_voters.loc["mean"]
-    std_dev_values = committee_voters.loc["sd"]
-
-    # Calculate the percentage of participants not selected for committee seats
-    not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
-    not_selected_percentages.name = "Excluded (%)"
-
-    # Create a DataFrame for easier plotting with seaborn
-    plot_data = pd.DataFrame(
-        {
-            "Group Size": group_sizes,
-            "Percentage Excluded": not_selected_percentages,
-            "Std Dev": std_dev_values,
-        }
-    )
-
-    # Plot the main line without error bars
-    sns.lineplot(
-        x="Group Size",
-        y="Percentage Excluded",
-        data=plot_data,
-        marker="o",
-        label=committee_label,
-        ax=ax,
-    )
-
-ax.set_ylabel("Percentage Excluded")
-ax.set_xlabel("Group Size")
-ax.legend(title="Committee Size")
-plt.title("Percentage of Group Participants Not Selected for Committee Seats")
-plt.grid(True)
-plt.show()
-
-# %%
-sim_results_df.loc["Distinct Voters", :]
+# Plot the percentage of group participants not selected for committee seats
+plot_participation(sim_results_df, commitee_sizes, group_sizes, num_iter)
 
 # %%
 # Plot the committee selection counts distribution

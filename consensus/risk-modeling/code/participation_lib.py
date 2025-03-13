@@ -158,129 +158,6 @@ def assign_commitee(
     num_iter: int = 1000,
     plot_it: bool = False,
     figsize: tuple[int, int] = (16, 8),
-) -> tuple[pd.DataFrame, pd.Series, int]:
-    """
-    Assumes participants in a given group of size group_size are assigned to
-    a committee using random selection with replacement based on their stake
-    weight. The committee has a fixed size equal to the group_size. As such,
-    partipants with larger stake-weight will occupy multiple committee seats.
-    We perform Monte Carlo simulation of multiplle committee selections, thus
-    repeated for the given number of iterations.
-
-    Args:
-    - group: DataFrame containing the group of participants, assumed size n.
-    - committee_size: Size of the committee (k).
-    - alpha: Probability of uniform random sampling in a mixture model.
-    - num_iter: Number of iterations for Monte Carlo simulation.
-    - plot_it: Boolean flag to plot the committee seat distribution.
-    - figsize: Size of the figure.
-
-    Returns:
-    - committee: DataFrame containing the committee members.
-    - seat_counts: Series containing the committee seat on average.
-    - first_zero_index: Index where the seat count first goes to zero.
-
-    """
-    group_size = group.shape[0]  # size n
-
-    # Initialize an array to store the number of
-    # committee seats per participant
-    seat_counts = pd.Series(
-        np.zeros(group_size, dtype="int64"),
-        name="seat counts",
-    )
-
-    for n in range(num_iter):
-        #
-        # Select a committee based on the stake weight of each
-        # participant stake holder.
-        #
-        committee = group.sample(
-            n=committee_size,
-            weights="stake_weight",
-            replace=True,
-        )
-
-        # Count the number of times each participant is selected
-        # for a committee seat
-        participant_counts = committee.index.value_counts()
-
-        # Reindex participant_counts to match sum_counts index
-        # and fill missing values with 0
-        participant_counts = participant_counts.reindex(
-            seat_counts.index,
-            fill_value=0,
-        )
-
-        # Add the counts to the sum_counts array
-        seat_counts += participant_counts
-
-    # Normalize the sum_counts by total sum of counts
-    seat_counts /= seat_counts.sum()
-
-    # Sort the sum_counts in descending order
-    seat_counts.sort_values(ascending=False, inplace=True)
-
-    # Get the index of sum_counts where the value is first zero
-    first_zero_index = group.index[: -seat_counts[seat_counts == 0.0].shape[0]].max()
-
-    # Let's plot both group and sum_counts with two y-axes,
-    # one for each
-    if plot_it:
-        fig, ax1 = plt.subplots(figsize=figsize)
-        ax2 = ax1.twinx()
-        sns.lineplot(
-            x=np.arange(len(seat_counts)),
-            y=seat_counts.values,
-            ax=ax1,
-            color="blue",
-            label="Committee Seats (average)",
-        )
-        sns.lineplot(
-            x=np.arange(len(group.stake_weight)),
-            y=group.stake_weight.values,
-            ax=ax2,
-            color="red",
-            label="Participant Group Stake Weight",
-        )
-        ax1.set_ylabel("Committee Seats (average)")
-        ax2.set_ylabel("Stake Weight")
-        ax1.set_xlabel("Participant Index")
-        ax1.legend(loc="upper center")
-        ax2.legend(loc="upper right")
-        plt.title(
-            f"Committee Participation per Stake Weight\n"
-            f"Committee Size k = {committee_size}\n"
-            f"Participation Group Size n = {group_size}",
-            fontsize="medium",
-        )
-        plt.axhline(y=0, color="gray", linestyle="--", alpha=0.6)
-        # Draw vertical line where the committee seat count first goes to zero
-        plt.axvline(x=first_zero_index, color="green", linestyle="--")
-        # Print the value of this first_zero_index along the center of the
-        # vertical line
-        plt.text(
-            first_zero_index,
-            ax2.get_ylim()[1] / 2.0,
-            f"First Zero Index = {first_zero_index}",
-            rotation=0,
-            verticalalignment="center",
-            horizontalalignment="center",
-            color="green",
-            backgroundcolor="white",
-        )
-        plt.show()
-
-    return committee, seat_counts, first_zero_index
-
-
-def assign_commitee_plus(
-    group: pd.DataFrame,
-    committee_size: int = 300,
-    alpha: float = 0.0,
-    num_iter: int = 1000,
-    plot_it: bool = False,
-    figsize: tuple[int, int] = (16, 8),
 ) -> dict[pd.DataFrame, pd.Series, float, float, int]:
     """
     Assumes participants in a given group of size group_size are assigned to
@@ -647,6 +524,102 @@ def plot_committee_selection_seat_cutoff(
         )
 
 
+def plot_participation(
+    sim_results_df: pd.DataFrame,
+    commitee_sizes: list,
+    group_sizes: list,
+    num_iter: int,
+):
+    """
+    Plot the percentage of group participants excluded from a committee
+    of a given size vs. different group sizes.
+
+    Args:
+    - sim_results_df (pd.DataFrame): The simulation results DataFrame.
+    - commitee_sizes (list): The list of committee sizes.
+    - group_sizes (list): The list of group sizes.
+    - num_iter (int): The number of iterations for the simulation.
+
+    Returns:
+        None
+    """
+    fig, (ax2, ax1) = plt.subplots(1, 2, figsize=(16, 8))
+    sns.set(style="whitegrid")
+
+    for committee_size in commitee_sizes:
+        committee_label = f"Committee Size = {committee_size}"
+        # Extract the distinct voters data for the given committee size
+        committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
+
+        # These are the mean committee seat counts and associated standard deviations
+        mean_values = committee_voters.loc["mean"]
+        std_dev_values = committee_voters.loc["sd"]
+
+        # Calculate the percentage of participants not selected for committee seats
+        not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
+
+        # Prepare data for plotting the percentage excluded on ax1
+        plot_data = pd.DataFrame(
+            {
+                "Participant Group Size": group_sizes,
+                "Percentage of Participants Excluded": not_selected_percentages,
+                "Std Dev": std_dev_values,
+            }
+        )
+
+        # Plot the percentage excluded on ax1
+        sns.lineplot(
+            x="Participant Group Size",
+            y="Percentage of Participants Excluded",
+            data=plot_data,
+            marker="o",
+            # label=committee_label,
+            ax=ax1,
+        )
+
+        # Prepare data for plotting the mean committee seat counts on ax2
+        plot_data2 = pd.DataFrame(
+            {
+                "Participant Group Size": group_sizes,
+                "Distinct Number of Committee Members": mean_values.values,
+            }
+        )
+
+        # Plot the mean committee seat counts on ax2
+        sns.lineplot(
+            x="Participant Group Size",
+            y="Distinct Number of Committee Members",
+            data=plot_data2,
+            marker="o",
+            label=committee_label,
+            ax=ax2,
+        )
+
+    ax1.set_ylabel("Percentage of Participants Excluded from Committee")
+    ax1.set_xlabel("Participant Group Size")
+    ax1.set_title("Percentage of Group Not Selected for Committee Seats")
+    # ax1.legend(title="Committee Size", loc="lower right")
+    ax1.grid(True)
+
+    ax2.set_ylabel("Distinct Number of Committee Members")
+    ax2.set_xlabel("Participant Group Size")
+    ax2.set_title(
+        f"Distinct Number of Committee Members Averaged over {num_iter} Epochs"
+    )
+    ax2.legend(title="Committee Size", loc="upper left")
+    ax2.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+def std_error(data, **kwargs):
+    """Function that returns lower and upper error bounds"""
+    return (
+        data["Percentage Excluded"] - data["Std Dev"],
+        data["Percentage Excluded"] + data["Std Dev"],
+    )
+
+
 def simulate(
     population: pd.DataFrame,
     comm_sizes: list,
@@ -688,7 +661,7 @@ def simulate(
                 # plot_it=plot_it,  # Turn off
             )
 
-            committee_results = assign_commitee_plus(
+            committee_results = assign_commitee(
                 group_stakes,
                 committee_size=comm_size,
                 num_iter=num_iter,
@@ -733,11 +706,3 @@ def simulate(
     )
 
     return sim_results_df
-
-
-def std_error(data, **kwargs):
-    """Function that returns lower and upper error bounds"""
-    return (
-        data["Percentage Excluded"] - data["Std Dev"],
-        data["Percentage Excluded"] + data["Std Dev"],
-    )

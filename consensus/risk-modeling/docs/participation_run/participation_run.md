@@ -48,13 +48,14 @@ from participation_lib import (
     sns,
     load_data,
     get_stake_distribution,
-    assign_commitee_plus,
+    assign_commitee,
     simulate,
     std_error,
     plot_group_to_committee_index,
     plot_selection_count_vs_stake,
     plot_committee_selection_counts,
     plot_committee_selection_seat_cutoff,
+    plot_participation,
 )
 ```
 
@@ -173,7 +174,7 @@ group_size = 100
 group_stakes = get_stake_distribution(
     population,
     group_size=group_size,
-    num_iter=1000,
+    num_iter=100,
     plot_it=True,
 )
 print(group_stakes)
@@ -185,18 +186,18 @@ print(group_stakes)
     
 
 
-               stake  stake_weight
-    0   7.283987e+07  9.217518e-02
-    1   6.846427e+07  8.663808e-02
-    2   6.461900e+07  8.177208e-02
-    3   5.964222e+07  7.547422e-02
-    4   5.455957e+07  6.904238e-02
-    ..           ...           ...
-    95  1.986700e+01  2.514069e-08
-    96  1.168200e+01  1.478298e-08
-    97  6.484000e+00  8.205175e-09
-    98  3.224000e+00  4.079809e-09
-    99  1.600000e+00  2.024719e-09
+              stake  stake_weight
+    0   71397500.00  8.753869e-02
+    1   67897900.00  8.324792e-02
+    2   64359600.00  7.890970e-02
+    3   60630500.00  7.433754e-02
+    4   55516400.00  6.806727e-02
+    ..          ...           ...
+    95        17.54  2.150536e-08
+    96        10.50  1.287379e-08
+    97         5.98  7.331929e-09
+    98         3.50  4.291263e-09
+    99         1.75  2.145631e-09
     
     [100 rows x 2 columns]
 
@@ -210,13 +211,13 @@ print(group_stakes.describe())
 
                   stake  stake_weight
     count  1.000000e+02  1.000000e+02
-    mean   7.902330e+06  1.000000e-02
-    std    1.665953e+07  2.108180e-02
-    min    1.600000e+00  2.024719e-09
-    25%    1.837206e+03  2.324892e-06
-    50%    1.513475e+05  1.915227e-04
-    75%    4.831149e+06  6.113575e-03
-    max    7.283987e+07  9.217518e-02
+    mean   8.156108e+06  1.000000e-02
+    std    1.687489e+07  2.068988e-02
+    min    1.750000e+00  2.145631e-09
+    25%    1.981992e+03  2.430072e-06
+    50%    1.456142e+05  1.785339e-04
+    75%    5.105425e+06  6.259634e-03
+    max    7.139750e+07  8.753869e-02
 
 
 
@@ -226,12 +227,19 @@ print(group_stakes.describe())
 # Let's now assign a committee of the fixed group_size
 # based on the stake weight of each
 
-results = assign_commitee_plus(
+results = assign_commitee(
     group_stakes,
     committee_size=group_size,
-    num_iter=1000,
+    num_iter=1,
+    plot_it=True,
 )
 ```
+
+
+    
+![png](output_6_0.png)
+    
+
 
 
 ```python
@@ -244,8 +252,8 @@ results = assign_commitee_plus(
 # Initialize Parameters:
 # comm_sizes = [100]  # vary over committee size, k
 # group_sizes = [100]  # vary over group size, n
-comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
-group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
+comm_sizes = range(200, 501, 100)  # vary over committee size, k
+group_sizes = range(200, 501, 100)  # vary over group size, n
 num_iter = 1  # Number of iterations for Monte Carlo simulation
 
 # Note that the number of iterations here can be interpreted as the number
@@ -268,8 +276,8 @@ sim_results_df = simulate(
 ```
 
     
-    Committee Size = 100
-    Group Size = 100
+    Committee Size = 200
+    Group Size = 200
 
 
 
@@ -278,7 +286,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 200
+    Group Size = 300
 
 
 
@@ -287,7 +295,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 300
+    Group Size = 400
 
 
 
@@ -296,7 +304,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 400
+    Group Size = 500
 
 
 
@@ -305,7 +313,9 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 500
+    
+    Committee Size = 300
+    Group Size = 200
 
 
 
@@ -314,9 +324,7 @@ sim_results_df = simulate(
     
 
 
-    
-    Committee Size = 200
-    Group Size = 100
+    Group Size = 300
 
 
 
@@ -325,7 +333,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 200
+    Group Size = 400
 
 
 
@@ -334,7 +342,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 300
+    Group Size = 500
 
 
 
@@ -343,7 +351,9 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 400
+    
+    Committee Size = 400
+    Group Size = 200
 
 
 
@@ -352,7 +362,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 500
+    Group Size = 300
 
 
 
@@ -361,9 +371,7 @@ sim_results_df = simulate(
     
 
 
-    
-    Committee Size = 300
-    Group Size = 100
+    Group Size = 400
 
 
 
@@ -372,7 +380,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 200
+    Group Size = 500
 
 
 
@@ -381,7 +389,9 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 300
+    
+    Committee Size = 500
+    Group Size = 200
 
 
 
@@ -390,7 +400,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 400
+    Group Size = 300
 
 
 
@@ -399,7 +409,7 @@ sim_results_df = simulate(
     
 
 
-    Group Size = 500
+    Group Size = 400
 
 
 
@@ -408,9 +418,7 @@ sim_results_df = simulate(
     
 
 
-    
-    Committee Size = 400
-    Group Size = 100
+    Group Size = 500
 
 
 
@@ -418,96 +426,6 @@ sim_results_df = simulate(
 ![png](output_8_31.png)
     
 
-
-    Group Size = 200
-
-
-
-    
-![png](output_8_33.png)
-    
-
-
-    Group Size = 300
-
-
-
-    
-![png](output_8_35.png)
-    
-
-
-    Group Size = 400
-
-
-
-    
-![png](output_8_37.png)
-    
-
-
-    Group Size = 500
-
-
-
-    
-![png](output_8_39.png)
-    
-
-
-    
-    Committee Size = 500
-    Group Size = 100
-
-
-
-    
-![png](output_8_41.png)
-    
-
-
-    Group Size = 200
-
-
-
-    
-![png](output_8_43.png)
-    
-
-
-    Group Size = 300
-
-
-
-    
-![png](output_8_45.png)
-    
-
-
-    Group Size = 400
-
-
-
-    
-![png](output_8_47.png)
-    
-
-
-    Group Size = 500
-
-
-
-    
-![png](output_8_49.png)
-    
-
-
-
-```python
-# %%
-
-# committee_seats_df = committee_seats_df.swaplevel(axis=1).sort_index(axis=1)
-```
 
 
 ```python
@@ -522,176 +440,15 @@ commitee_sizes = [
 group_sizes = [
     int(col.split("=")[1].strip()) for col in col_index.get_level_values(1).unique()
 ]
-```
 
-
-```python
-# %%
-
-# Plot the percentage of group participants excluded from a committee
-# of a given size vs. different group sizes
-
-fig, ax = plt.subplots(figsize=(12, 8))
-
-sns.set(style="whitegrid")
-
-for committee_size in commitee_sizes:
-    committee_label = f"Committee Size = {committee_size}"
-    committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
-
-    mean_values = committee_voters.loc["mean"]
-    std_dev_values = committee_voters.loc["sd"]
-
-    # Calculate the percentage of participants not selected for committee seats
-    not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
-    not_selected_percentages.name = "Excluded (%)"
-
-    # Create a DataFrame for easier plotting with seaborn
-    plot_data = pd.DataFrame(
-        {
-            "Group Size": group_sizes,
-            "Percentage Excluded": not_selected_percentages,
-            "Std Dev": std_dev_values,
-        }
-    )
-
-    # Plot the main line without error bars
-    sns.lineplot(
-        x="Group Size",
-        y="Percentage Excluded",
-        data=plot_data,
-        marker="o",
-        label=committee_label,
-        ax=ax,
-    )
-
-ax.set_ylabel("Percentage Excluded")
-ax.set_xlabel("Group Size")
-ax.legend(title="Committee Size")
-plt.title("Percentage of Group Participants Not Selected for Committee Seats")
-plt.grid(True)
-plt.show()
+# Plot the percentage of group participants not selected for committee seats
+plot_participation(sim_results_df, commitee_sizes, group_sizes, num_iter)
 ```
 
 
     
-![png](output_11_0.png)
+![png](output_9_0.png)
     
-
-
-
-```python
-# %%
-
-sim_results_df.loc["Distinct Voters", :]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead tr th {
-        text-align: left;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr>
-      <th>Committee Size</th>
-      <th colspan="5" halign="left">Committee Size = 100</th>
-      <th colspan="5" halign="left">Committee Size = 200</th>
-      <th>...</th>
-      <th colspan="5" halign="left">Committee Size = 400</th>
-      <th colspan="5" halign="left">Committee Size = 500</th>
-    </tr>
-    <tr>
-      <th>Group Size</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>...</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>mean</th>
-      <td>25.0</td>
-      <td>37.0</td>
-      <td>50.0</td>
-      <td>52.0</td>
-      <td>58.0</td>
-      <td>31.0</td>
-      <td>51.0</td>
-      <td>71.0</td>
-      <td>81.0</td>
-      <td>91.0</td>
-      <td>...</td>
-      <td>35.0</td>
-      <td>66.0</td>
-      <td>85.0</td>
-      <td>95.0</td>
-      <td>103.0</td>
-      <td>39.0</td>
-      <td>68.0</td>
-      <td>76.0</td>
-      <td>121.0</td>
-      <td>123.0</td>
-    </tr>
-    <tr>
-      <th>sd</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>2 rows × 25 columns</p>
-</div>
-
 
 
 
@@ -725,7 +482,7 @@ plt.show()
 
 
     
-![png](output_13_0.png)
+![png](output_10_0.png)
     
 
 
@@ -751,302 +508,22 @@ print(committee_participation)
     Percentage of Group Participants Not Selected for Committee Seats:
                                             mean   sd
     Committee Size       Group Size                  
-    Committee Size = 100 Group Size = 100   25.0  0.0
-                         Group Size = 200   37.0  0.0
-                         Group Size = 300   50.0  0.0
-                         Group Size = 400   52.0  0.0
-                         Group Size = 500   58.0  0.0
-    Committee Size = 200 Group Size = 100   31.0  0.0
-                         Group Size = 200   51.0  0.0
-                         Group Size = 300   71.0  0.0
-                         Group Size = 400   81.0  0.0
-                         Group Size = 500   91.0  0.0
-    Committee Size = 300 Group Size = 100   40.0  0.0
-                         Group Size = 200   45.0  0.0
+    Committee Size = 200 Group Size = 200   52.0  0.0
+                         Group Size = 300   64.0  0.0
+                         Group Size = 400   80.0  0.0
+                         Group Size = 500   92.0  0.0
+    Committee Size = 300 Group Size = 200   57.0  0.0
+                         Group Size = 300   75.0  0.0
+                         Group Size = 400   84.0  0.0
+                         Group Size = 500   99.0  0.0
+    Committee Size = 400 Group Size = 200   58.0  0.0
                          Group Size = 300   76.0  0.0
-                         Group Size = 400   91.0  0.0
-                         Group Size = 500  109.0  0.0
-    Committee Size = 400 Group Size = 100   35.0  0.0
-                         Group Size = 200   66.0  0.0
-                         Group Size = 300   85.0  0.0
-                         Group Size = 400   95.0  0.0
-                         Group Size = 500  103.0  0.0
-    Committee Size = 500 Group Size = 100   39.0  0.0
-                         Group Size = 200   68.0  0.0
-                         Group Size = 300   76.0  0.0
-                         Group Size = 400  121.0  0.0
-                         Group Size = 500  123.0  0.0
-
-
-
-```python
-# %%
-
-# Prepare the DataFrame for concatenation with the other simulation results
-committee_participation = committee_participation.T
-committee_participation.index = pd.MultiIndex.from_tuples(
-    [("Committee Participation %", "mean"), ("Committee Participation %", "sd")]
-)
-
-# Concatenate this new row to the simulation results DataFrame
-sim_results_df = pd.concat([sim_results_df, committee_participation], axis=0)
-
-sim_results_df
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead tr th {
-        text-align: left;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Committee Size</th>
-      <th colspan="5" halign="left">Committee Size = 100</th>
-      <th colspan="5" halign="left">Committee Size = 200</th>
-      <th>...</th>
-      <th colspan="5" halign="left">Committee Size = 400</th>
-      <th colspan="5" halign="left">Committee Size = 500</th>
-    </tr>
-    <tr>
-      <th></th>
-      <th>Group Size</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>...</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="2" valign="top">Distinct Voters</th>
-      <th>mean</th>
-      <td>25.0</td>
-      <td>37.0</td>
-      <td>50.0</td>
-      <td>52.0</td>
-      <td>58.0</td>
-      <td>31.0</td>
-      <td>51.0</td>
-      <td>71.0</td>
-      <td>81.0</td>
-      <td>91.0</td>
-      <td>...</td>
-      <td>35.0</td>
-      <td>66.0</td>
-      <td>85.0</td>
-      <td>95.0</td>
-      <td>103.0</td>
-      <td>39.0</td>
-      <td>68.0</td>
-      <td>76.0</td>
-      <td>121.0</td>
-      <td>123.0</td>
-    </tr>
-    <tr>
-      <th>sd</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>Committee Seats</th>
-      <th>mean</th>
-      <td>0      7.0
-1      6.0
-2     15.0
-3      5.0
-4 ...</td>
-      <td>0      5.0
-1      3.0
-2      5.0
-3      5.0
-4 ...</td>
-      <td>0      4.0
-1      1.0
-2      3.0
-3      3.0
-4 ...</td>
-      <td>0      5.0
-1      2.0
-2      3.0
-3      3.0
-4 ...</td>
-      <td>0      7.0
-1      0.0
-2      1.0
-3      2.0
-4 ...</td>
-      <td>0     19.0
-1     18.0
-2     16.0
-3     21.0
-4 ...</td>
-      <td>0       3.0
-1      10.0
-2      10.0
-3       9....</td>
-      <td>0       5.0
-1       8.0
-2       7.0
-3      13....</td>
-      <td>0      5.0
-1      4.0
-2      4.0
-3      4.0
-4 ...</td>
-      <td>0      4.0
-1      3.0
-2      6.0
-3      3.0
-4 ...</td>
-      <td>...</td>
-      <td>0     50.0
-1     46.0
-2     42.0
-3     37.0
-4 ...</td>
-      <td>0      12.0
-1      20.0
-2      17.0
-3      21....</td>
-      <td>0      16.0
-1       8.0
-2      11.0
-3       9....</td>
-      <td>0       8.0
-1      12.0
-2      13.0
-3      13....</td>
-      <td>0       4.0
-1      10.0
-2      14.0
-3       7....</td>
-      <td>0     41.0
-1     41.0
-2     43.0
-3     40.0
-4 ...</td>
-      <td>0      29.0
-1      29.0
-2      20.0
-3      17....</td>
-      <td>0      22.0
-1      21.0
-2      13.0
-3      14....</td>
-      <td>0      11.0
-1      12.0
-2       7.0
-3       7....</td>
-      <td>0      13.0
-1       8.0
-2       9.0
-3       8....</td>
-    </tr>
-    <tr>
-      <th rowspan="2" valign="top">Committee Participation %</th>
-      <th>mean</th>
-      <td>25.0</td>
-      <td>37.0</td>
-      <td>50.0</td>
-      <td>52.0</td>
-      <td>58.0</td>
-      <td>31.0</td>
-      <td>51.0</td>
-      <td>71.0</td>
-      <td>81.0</td>
-      <td>91.0</td>
-      <td>...</td>
-      <td>35.0</td>
-      <td>66.0</td>
-      <td>85.0</td>
-      <td>95.0</td>
-      <td>103.0</td>
-      <td>39.0</td>
-      <td>68.0</td>
-      <td>76.0</td>
-      <td>121.0</td>
-      <td>123.0</td>
-    </tr>
-    <tr>
-      <th>sd</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 25 columns</p>
-</div>
-
+                         Group Size = 400  103.0  0.0
+                         Group Size = 500  121.0  0.0
+    Committee Size = 500 Group Size = 200   65.0  0.0
+                         Group Size = 300   81.0  0.0
+                         Group Size = 400  101.0  0.0
+                         Group Size = 500  127.0  0.0
 
 
 
@@ -1060,9 +537,9 @@ sim_results_df
 # Initialize Parameters:
 # comm_sizes = [100]  # vary over committee size, k
 # group_sizes = [100]  # vary over group size, n
-comm_sizes = [100, 200, 300, 400, 500]  # vary over committee size, k
-group_sizes = [100, 200, 300, 400, 500]  # vary over group size, n
-num_iter = 30  # Number of iterations for Monte Carlo simulation
+comm_sizes = range(100, 1201, 100)  # vary over committee size, k
+group_sizes = range(100, 1201, 100)  # vary over group size, n
+num_iter = 100  # Number of iterations for Monte Carlo simulation
 
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
@@ -1090,7 +567,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_1.png)
+![png](output_13_1.png)
     
 
 
@@ -1099,7 +576,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_3.png)
+![png](output_13_3.png)
     
 
 
@@ -1108,7 +585,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_5.png)
+![png](output_13_5.png)
     
 
 
@@ -1117,7 +594,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_7.png)
+![png](output_13_7.png)
     
 
 
@@ -1126,7 +603,70 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_9.png)
+![png](output_13_9.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_11.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_13.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_15.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_17.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_19.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_21.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_23.png)
     
 
 
@@ -1137,7 +677,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_11.png)
+![png](output_13_25.png)
     
 
 
@@ -1146,7 +686,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_13.png)
+![png](output_13_27.png)
     
 
 
@@ -1155,7 +695,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_15.png)
+![png](output_13_29.png)
     
 
 
@@ -1164,7 +704,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_17.png)
+![png](output_13_31.png)
     
 
 
@@ -1173,7 +713,70 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_19.png)
+![png](output_13_33.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_35.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_37.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_39.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_41.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_43.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_45.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_47.png)
     
 
 
@@ -1184,7 +787,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_21.png)
+![png](output_13_49.png)
     
 
 
@@ -1193,7 +796,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_23.png)
+![png](output_13_51.png)
     
 
 
@@ -1202,7 +805,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_25.png)
+![png](output_13_53.png)
     
 
 
@@ -1211,7 +814,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_27.png)
+![png](output_13_55.png)
     
 
 
@@ -1220,7 +823,70 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_29.png)
+![png](output_13_57.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_59.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_61.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_63.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_65.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_67.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_69.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_71.png)
     
 
 
@@ -1231,7 +897,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_31.png)
+![png](output_13_73.png)
     
 
 
@@ -1240,7 +906,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_33.png)
+![png](output_13_75.png)
     
 
 
@@ -1249,7 +915,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_35.png)
+![png](output_13_77.png)
     
 
 
@@ -1258,7 +924,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_37.png)
+![png](output_13_79.png)
     
 
 
@@ -1267,7 +933,70 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_39.png)
+![png](output_13_81.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_83.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_85.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_87.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_89.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_91.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_93.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_95.png)
     
 
 
@@ -1278,7 +1007,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_41.png)
+![png](output_13_97.png)
     
 
 
@@ -1287,7 +1016,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_43.png)
+![png](output_13_99.png)
     
 
 
@@ -1296,7 +1025,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_45.png)
+![png](output_13_101.png)
     
 
 
@@ -1305,7 +1034,7 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_47.png)
+![png](output_13_103.png)
     
 
 
@@ -1314,16 +1043,842 @@ sim_results_df = simulate(
 
 
     
-![png](output_17_49.png)
+![png](output_13_105.png)
     
 
 
+    Group Size = 600
 
-```python
-# %%
 
-# committee_seats_df = committee_seats_df.swaplevel(axis=1).sort_index(axis=1)
-```
+
+    
+![png](output_13_107.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_109.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_111.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_113.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_115.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_117.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_119.png)
+    
+
+
+    
+    Committee Size = 600
+    Group Size = 100
+
+
+
+    
+![png](output_13_121.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_123.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_125.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_127.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_129.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_131.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_133.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_135.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_137.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_139.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_141.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_143.png)
+    
+
+
+    
+    Committee Size = 700
+    Group Size = 100
+
+
+
+    
+![png](output_13_145.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_147.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_149.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_151.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_153.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_155.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_157.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_159.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_161.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_163.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_165.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_167.png)
+    
+
+
+    
+    Committee Size = 800
+    Group Size = 100
+
+
+
+    
+![png](output_13_169.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_171.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_173.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_175.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_177.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_179.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_181.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_183.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_185.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_187.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_189.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_191.png)
+    
+
+
+    
+    Committee Size = 900
+    Group Size = 100
+
+
+
+    
+![png](output_13_193.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_195.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_197.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_199.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_201.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_203.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_205.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_207.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_209.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_211.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_213.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_215.png)
+    
+
+
+    
+    Committee Size = 1000
+    Group Size = 100
+
+
+
+    
+![png](output_13_217.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_219.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_221.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_223.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_225.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_227.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_229.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_231.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_233.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_235.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_237.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_239.png)
+    
+
+
+    
+    Committee Size = 1100
+    Group Size = 100
+
+
+
+    
+![png](output_13_241.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_243.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_245.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_247.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_249.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_251.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_253.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_255.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_257.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_259.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_261.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_263.png)
+    
+
+
+    
+    Committee Size = 1200
+    Group Size = 100
+
+
+
+    
+![png](output_13_265.png)
+    
+
+
+    Group Size = 200
+
+
+
+    
+![png](output_13_267.png)
+    
+
+
+    Group Size = 300
+
+
+
+    
+![png](output_13_269.png)
+    
+
+
+    Group Size = 400
+
+
+
+    
+![png](output_13_271.png)
+    
+
+
+    Group Size = 500
+
+
+
+    
+![png](output_13_273.png)
+    
+
+
+    Group Size = 600
+
+
+
+    
+![png](output_13_275.png)
+    
+
+
+    Group Size = 700
+
+
+
+    
+![png](output_13_277.png)
+    
+
+
+    Group Size = 800
+
+
+
+    
+![png](output_13_279.png)
+    
+
+
+    Group Size = 900
+
+
+
+    
+![png](output_13_281.png)
+    
+
+
+    Group Size = 1000
+
+
+
+    
+![png](output_13_283.png)
+    
+
+
+    Group Size = 1100
+
+
+
+    
+![png](output_13_285.png)
+    
+
+
+    Group Size = 1200
+
+
+
+    
+![png](output_13_287.png)
+    
+
 
 
 ```python
@@ -1338,176 +1893,15 @@ commitee_sizes = [
 group_sizes = [
     int(col.split("=")[1].strip()) for col in col_index.get_level_values(1).unique()
 ]
-```
 
-
-```python
-# %%
-
-# Plot the percentage of group participants excluded from a committee
-# of a given size vs. different group sizes
-
-fig, ax = plt.subplots(figsize=(12, 8))
-
-sns.set(style="whitegrid")
-
-for committee_size in commitee_sizes:
-    committee_label = f"Committee Size = {committee_size}"
-    committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
-
-    mean_values = committee_voters.loc["mean"]
-    std_dev_values = committee_voters.loc["sd"]
-
-    # Calculate the percentage of participants not selected for committee seats
-    not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
-    not_selected_percentages.name = "Excluded (%)"
-
-    # Create a DataFrame for easier plotting with seaborn
-    plot_data = pd.DataFrame(
-        {
-            "Group Size": group_sizes,
-            "Percentage Excluded": not_selected_percentages,
-            "Std Dev": std_dev_values,
-        }
-    )
-
-    # Plot the main line without error bars
-    sns.lineplot(
-        x="Group Size",
-        y="Percentage Excluded",
-        data=plot_data,
-        marker="o",
-        label=committee_label,
-        ax=ax,
-    )
-
-ax.set_ylabel("Percentage Excluded")
-ax.set_xlabel("Group Size")
-ax.legend(title="Committee Size")
-plt.title("Percentage of Group Participants Not Selected for Committee Seats")
-plt.grid(True)
-plt.show()
+# Plot the percentage of group participants not selected for committee seats
+plot_participation(sim_results_df, commitee_sizes, group_sizes, num_iter)
 ```
 
 
     
-![png](output_20_0.png)
+![png](output_14_0.png)
     
-
-
-
-```python
-# %%
-
-sim_results_df.loc["Distinct Voters", :]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead tr th {
-        text-align: left;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr>
-      <th>Committee Size</th>
-      <th colspan="5" halign="left">Committee Size = 100</th>
-      <th colspan="5" halign="left">Committee Size = 200</th>
-      <th>...</th>
-      <th colspan="5" halign="left">Committee Size = 400</th>
-      <th colspan="5" halign="left">Committee Size = 500</th>
-    </tr>
-    <tr>
-      <th>Group Size</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>...</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>mean</th>
-      <td>25.466667</td>
-      <td>40.6</td>
-      <td>50.5</td>
-      <td>57.2</td>
-      <td>63.733333</td>
-      <td>31.366667</td>
-      <td>50.9</td>
-      <td>66.966667</td>
-      <td>79.133333</td>
-      <td>91.133333</td>
-      <td>...</td>
-      <td>37.2</td>
-      <td>61.566667</td>
-      <td>81.166667</td>
-      <td>99.766667</td>
-      <td>118.466667</td>
-      <td>37.8</td>
-      <td>62.766667</td>
-      <td>86.466667</td>
-      <td>108.366667</td>
-      <td>125.966667</td>
-    </tr>
-    <tr>
-      <th>sd</th>
-      <td>2.692376</td>
-      <td>2.332381</td>
-      <td>2.459675</td>
-      <td>3.673327</td>
-      <td>3.604935</td>
-      <td>2.316367</td>
-      <td>2.785079</td>
-      <td>3.25047</td>
-      <td>4.514667</td>
-      <td>4.709801</td>
-      <td>...</td>
-      <td>1.83303</td>
-      <td>3.58407</td>
-      <td>3.387067</td>
-      <td>4.038839</td>
-      <td>4.68852</td>
-      <td>2.181742</td>
-      <td>3.018646</td>
-      <td>2.629744</td>
-      <td>4.370228</td>
-      <td>5.552677</td>
-    </tr>
-  </tbody>
-</table>
-<p>2 rows × 25 columns</p>
-</div>
-
 
 
 
@@ -1539,9 +1933,13 @@ plt.xlim(0, 200)
 plt.show()
 ```
 
+    /usr/local/lib/python3.11/site-packages/IPython/core/pylabtools.py:170: UserWarning: Creating legend with loc="best" can be slow with large amounts of data.
+      fig.canvas.print_figure(bytes_io, **kw)
+
+
 
     
-![png](output_22_0.png)
+![png](output_15_1.png)
     
 
 
@@ -1565,33 +1963,21 @@ print(committee_participation)
 ```
 
     Percentage of Group Participants Not Selected for Committee Seats:
-                                                 mean        sd
-    Committee Size       Group Size                            
-    Committee Size = 100 Group Size = 100   25.466667  2.692376
-                         Group Size = 200        40.6  2.332381
-                         Group Size = 300        50.5  2.459675
-                         Group Size = 400        57.2  3.673327
-                         Group Size = 500   63.733333  3.604935
-    Committee Size = 200 Group Size = 100   31.366667  2.316367
-                         Group Size = 200        50.9  2.785079
-                         Group Size = 300   66.966667   3.25047
-                         Group Size = 400   79.133333  4.514667
-                         Group Size = 500   91.133333  4.709801
-    Committee Size = 300 Group Size = 100        33.2  2.181742
-                         Group Size = 200   57.033333   3.25047
-                         Group Size = 300        75.5  3.442383
-                         Group Size = 400   90.666667  3.486482
-                         Group Size = 500       108.1  5.127377
-    Committee Size = 400 Group Size = 100        37.2   1.83303
-                         Group Size = 200   61.566667   3.58407
-                         Group Size = 300   81.166667  3.387067
-                         Group Size = 400   99.766667  4.038839
-                         Group Size = 500  118.466667   4.68852
-    Committee Size = 500 Group Size = 100        37.8  2.181742
-                         Group Size = 200   62.766667  3.018646
-                         Group Size = 300   86.466667  2.629744
-                         Group Size = 400  108.366667  4.370228
-                         Group Size = 500  125.966667  5.552677
+                                               mean        sd
+    Committee Size        Group Size                         
+    Committee Size = 100  Group Size = 100    25.91  2.025315
+                          Group Size = 200    40.26   2.55194
+                          Group Size = 300    50.18  3.191802
+                          Group Size = 400    57.87  3.306524
+                          Group Size = 500    62.37  3.110161
+    ...                                         ...       ...
+    Committee Size = 1200 Group Size = 800   223.17  5.921241
+                          Group Size = 900   244.46   6.25527
+                          Group Size = 1000  261.56  5.846914
+                          Group Size = 1100  279.83  6.926839
+                          Group Size = 1200   298.7  7.054786
+    
+    [144 rows x 2 columns]
 
 
 
@@ -1632,11 +2018,9 @@ sim_results_df
     <tr>
       <th></th>
       <th>Committee Size</th>
-      <th colspan="5" halign="left">Committee Size = 100</th>
-      <th colspan="5" halign="left">Committee Size = 200</th>
+      <th colspan="10" halign="left">Committee Size = 100</th>
       <th>...</th>
-      <th colspan="5" halign="left">Committee Size = 400</th>
-      <th colspan="5" halign="left">Committee Size = 500</th>
+      <th colspan="10" halign="left">Committee Size = 1200</th>
     </tr>
     <tr>
       <th></th>
@@ -1646,192 +2030,212 @@ sim_results_df
       <th>Group Size = 300</th>
       <th>Group Size = 400</th>
       <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
+      <th>Group Size = 600</th>
+      <th>Group Size = 700</th>
+      <th>Group Size = 800</th>
+      <th>Group Size = 900</th>
+      <th>Group Size = 1000</th>
       <th>...</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
       <th>Group Size = 300</th>
       <th>Group Size = 400</th>
       <th>Group Size = 500</th>
-      <th>Group Size = 100</th>
-      <th>Group Size = 200</th>
-      <th>Group Size = 300</th>
-      <th>Group Size = 400</th>
-      <th>Group Size = 500</th>
+      <th>Group Size = 600</th>
+      <th>Group Size = 700</th>
+      <th>Group Size = 800</th>
+      <th>Group Size = 900</th>
+      <th>Group Size = 1000</th>
+      <th>Group Size = 1100</th>
+      <th>Group Size = 1200</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th rowspan="2" valign="top">Distinct Voters</th>
       <th>mean</th>
-      <td>25.466667</td>
-      <td>40.6</td>
-      <td>50.5</td>
-      <td>57.2</td>
-      <td>63.733333</td>
-      <td>31.366667</td>
-      <td>50.9</td>
-      <td>66.966667</td>
-      <td>79.133333</td>
-      <td>91.133333</td>
+      <td>25.91</td>
+      <td>40.26</td>
+      <td>50.18</td>
+      <td>57.87</td>
+      <td>62.37</td>
+      <td>67.58</td>
+      <td>70.66</td>
+      <td>73.86</td>
+      <td>75.84</td>
+      <td>77.15</td>
       <td>...</td>
-      <td>37.2</td>
-      <td>61.566667</td>
-      <td>81.166667</td>
-      <td>99.766667</td>
-      <td>118.466667</td>
-      <td>37.8</td>
-      <td>62.766667</td>
-      <td>86.466667</td>
-      <td>108.366667</td>
-      <td>125.966667</td>
+      <td>106.02</td>
+      <td>131.7</td>
+      <td>156.54</td>
+      <td>179.34</td>
+      <td>201.49</td>
+      <td>223.17</td>
+      <td>244.46</td>
+      <td>261.56</td>
+      <td>279.83</td>
+      <td>298.7</td>
     </tr>
     <tr>
       <th>sd</th>
-      <td>2.692376</td>
-      <td>2.332381</td>
-      <td>2.459675</td>
-      <td>3.673327</td>
-      <td>3.604935</td>
-      <td>2.316367</td>
-      <td>2.785079</td>
-      <td>3.25047</td>
-      <td>4.514667</td>
-      <td>4.709801</td>
+      <td>2.025315</td>
+      <td>2.55194</td>
+      <td>3.191802</td>
+      <td>3.306524</td>
+      <td>3.110161</td>
+      <td>3.672002</td>
+      <td>3.663932</td>
+      <td>3.487177</td>
+      <td>3.801894</td>
+      <td>3.235352</td>
       <td>...</td>
-      <td>1.83303</td>
-      <td>3.58407</td>
-      <td>3.387067</td>
-      <td>4.038839</td>
-      <td>4.68852</td>
-      <td>2.181742</td>
-      <td>3.018646</td>
-      <td>2.629744</td>
-      <td>4.370228</td>
-      <td>5.552677</td>
+      <td>4.14</td>
+      <td>4.670118</td>
+      <td>5.485289</td>
+      <td>5.680176</td>
+      <td>5.356295</td>
+      <td>5.921241</td>
+      <td>6.25527</td>
+      <td>5.846914</td>
+      <td>6.926839</td>
+      <td>7.054786</td>
     </tr>
     <tr>
       <th>Committee Seats</th>
       <th>mean</th>
-      <td>0     8.600000
-1     9.900000
-2     8.900000
-3...</td>
-      <td>0      4.666667
-1      4.266667
-2      4.33333...</td>
-      <td>0      3.000000
-1      2.800000
-2      2.96666...</td>
-      <td>0      2.866667
-1      2.333333
-2      1.90000...</td>
-      <td>0      2.166667
-1      1.700000
-2      2.10000...</td>
-      <td>0     16.433333
-1     15.400000
-2     15.86666...</td>
-      <td>0      9.233333
-1      9.266667
-2      8.30000...</td>
-      <td>0      6.433333
-1      6.466667
-2      7.03333...</td>
-      <td>0      4.933333
-1      4.033333
-2      4.23333...</td>
-      <td>0      4.766667
-1      3.966667
-2      3.86666...</td>
+      <td>0     9.41
+1     9.02
+2     7.95
+3     7.48
+4 ...</td>
+      <td>0      4.96
+1      4.66
+2      4.39
+3      4.6...</td>
+      <td>0      3.52
+1      3.26
+2      2.93
+3      2.8...</td>
+      <td>0      2.38
+1      2.25
+2      2.13
+3      2.2...</td>
+      <td>0      1.99
+1      1.92
+2      2.09
+3      1.7...</td>
+      <td>0      1.61
+1      1.70
+2      1.44
+3      1.7...</td>
+      <td>0      1.52
+1      1.54
+2      1.34
+3      1.2...</td>
+      <td>0      1.09
+1      1.12
+2      1.17
+3      1.1...</td>
+      <td>0      1.02
+1      1.10
+2      0.94
+3      1.0...</td>
+      <td>0      1.14
+1      0.77
+2      0.93
+3      1.0...</td>
       <td>...</td>
-      <td>0     40.033333
-1     37.800000
-2     33.30000...</td>
-      <td>0      19.433333
-1      17.933333
-2      19.00...</td>
-      <td>0      14.200000
-1      11.833333
-2      13.03...</td>
-      <td>0      11.300000
-1       8.266667
-2       9.26...</td>
-      <td>0      7.833333
-1      7.966667
-2      7.23333...</td>
-      <td>0     47.366667
-1     43.133333
-2     41.26666...</td>
-      <td>0      24.500000
-1      23.533333
-2      21.13...</td>
-      <td>0      17.533333
-1      15.033333
-2      16.13...</td>
-      <td>0      12.066667
-1      11.800000
-2      11.53...</td>
-      <td>0       9.800000
-1      10.366667
-2       8.80...</td>
+      <td>0      40.01
+1      37.14
+2      35.08
+3      ...</td>
+      <td>0      30.26
+1      28.63
+2      27.42
+3      ...</td>
+      <td>0      24.62
+1      21.44
+2      22.21
+3      ...</td>
+      <td>0      20.25
+1      19.13
+2      18.96
+3      ...</td>
+      <td>0      18.26
+1      16.15
+2      15.52
+3      ...</td>
+      <td>0      15.72
+1      14.02
+2      13.68
+3      ...</td>
+      <td>0      13.70
+1      12.88
+2      12.31
+3      ...</td>
+      <td>0      13.71
+1      11.20
+2      11.49
+3      ...</td>
+      <td>0       11.90
+1       10.62
+2        9.77
+3   ...</td>
+      <td>0       10.77
+1        9.28
+2        9.51
+3   ...</td>
     </tr>
     <tr>
       <th rowspan="2" valign="top">Committee Participation %</th>
       <th>mean</th>
-      <td>25.466667</td>
-      <td>40.6</td>
-      <td>50.5</td>
-      <td>57.2</td>
-      <td>63.733333</td>
-      <td>31.366667</td>
-      <td>50.9</td>
-      <td>66.966667</td>
-      <td>79.133333</td>
-      <td>91.133333</td>
+      <td>25.91</td>
+      <td>40.26</td>
+      <td>50.18</td>
+      <td>57.87</td>
+      <td>62.37</td>
+      <td>67.58</td>
+      <td>70.66</td>
+      <td>73.86</td>
+      <td>75.84</td>
+      <td>77.15</td>
       <td>...</td>
-      <td>37.2</td>
-      <td>61.566667</td>
-      <td>81.166667</td>
-      <td>99.766667</td>
-      <td>118.466667</td>
-      <td>37.8</td>
-      <td>62.766667</td>
-      <td>86.466667</td>
-      <td>108.366667</td>
-      <td>125.966667</td>
+      <td>106.02</td>
+      <td>131.7</td>
+      <td>156.54</td>
+      <td>179.34</td>
+      <td>201.49</td>
+      <td>223.17</td>
+      <td>244.46</td>
+      <td>261.56</td>
+      <td>279.83</td>
+      <td>298.7</td>
     </tr>
     <tr>
       <th>sd</th>
-      <td>2.692376</td>
-      <td>2.332381</td>
-      <td>2.459675</td>
-      <td>3.673327</td>
-      <td>3.604935</td>
-      <td>2.316367</td>
-      <td>2.785079</td>
-      <td>3.25047</td>
-      <td>4.514667</td>
-      <td>4.709801</td>
+      <td>2.025315</td>
+      <td>2.55194</td>
+      <td>3.191802</td>
+      <td>3.306524</td>
+      <td>3.110161</td>
+      <td>3.672002</td>
+      <td>3.663932</td>
+      <td>3.487177</td>
+      <td>3.801894</td>
+      <td>3.235352</td>
       <td>...</td>
-      <td>1.83303</td>
-      <td>3.58407</td>
-      <td>3.387067</td>
-      <td>4.038839</td>
-      <td>4.68852</td>
-      <td>2.181742</td>
-      <td>3.018646</td>
-      <td>2.629744</td>
-      <td>4.370228</td>
-      <td>5.552677</td>
+      <td>4.14</td>
+      <td>4.670118</td>
+      <td>5.485289</td>
+      <td>5.680176</td>
+      <td>5.356295</td>
+      <td>5.921241</td>
+      <td>6.25527</td>
+      <td>5.846914</td>
+      <td>6.926839</td>
+      <td>7.054786</td>
     </tr>
   </tbody>
 </table>
-<p>5 rows × 25 columns</p>
+<p>5 rows × 144 columns</p>
 </div>
 
 
