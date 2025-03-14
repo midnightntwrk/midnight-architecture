@@ -48,11 +48,13 @@ from participation_lib import (
     assign_commitee,
     simulate,
     std_error,
+    swap_column_levels,
     plot_group_to_committee_index,
     plot_selection_count_vs_stake,
     plot_committee_selection_counts,
     plot_committee_selection_seat_cutoff,
     plot_participation,
+    plot_participation_3d,
 )
 
 # %%
@@ -107,30 +109,63 @@ num_iter = 100  # Number of iterations for Monte Carlo simulation
 
 # Note that the number of iterations here can be interpreted as the number
 # of selection rounds for the committee, which we call an epoch.
-# If we have a new epoch per day, then 1000 iterations is about 3 years.
+
 # %%
 # Call the function
+print("Simulating the committee selection process...")
+
 sim_results_df = simulate(
     population,
     comm_sizes,
     group_sizes,
     num_iter,
-    plot_it=True,
+    plot_it=False,
 )
 
 # %%
-# Extract the data for plotting
+# Swap the levels of the columns for the next steps
+sim_results_df, level0, level1 = swap_column_levels(sim_results_df)
 
-col_index = sim_results_df.columns
-commitee_sizes = [
-    int(col.split("=")[1].strip()) for col in col_index.get_level_values(0).unique()
-]
-group_sizes = [
-    int(col.split("=")[1].strip()) for col in col_index.get_level_values(1).unique()
-]
-
+# %%
 # Plot the percentage of group participants not selected for committee seats
-plot_participation(sim_results_df, commitee_sizes, group_sizes, num_iter)
+plot_participation(
+    sim_results_df,
+    group_labels=level0,
+    committee_labels=level1,
+    num_iter=num_iter,
+)
+
+# %%
+
+fig, ax = plot_participation_3d(
+    sim_results_df,
+    group_labels=level0,
+    committee_labels=level1,
+    num_iter=num_iter,
+)
+
+# %%
+# Disable interactive mode
+plt.ioff()
+plt.ion()
+
+# Show the figure in a new window
+fig.show()
+
+# Optionally, add a small pause to force a UI refresh
+plt.pause(0.001)
+# %%
+# Save the figure to a file
+filename = "participation_3d_plot.png"
+fig.savefig(filename)
+print(f"Figure saved to {filename}")
+
+# %%
+# Swap the levels of the columns again for the next steps
+sim_results_df, level0, level1 = swap_column_levels(sim_results_df)
+
+committee_labels = level0
+group_labels = level1
 
 # %%
 # Plot the committee selection counts distribution

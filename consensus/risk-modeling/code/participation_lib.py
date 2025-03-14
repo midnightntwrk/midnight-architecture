@@ -524,10 +524,42 @@ def plot_committee_selection_seat_cutoff(
         )
 
 
+# %%
+def swap_column_levels(df):
+    """Sort the 2-level column labels based on the numeric values
+    in the labels and swap the levels of the columns for the next steps.
+
+    Args:
+    - df (DataFrame): The DataFrame with 2-level column labels
+
+    Returns:
+    - tuple: A tuple containing the following:
+        - df (DataFrame): The DataFrame with sorted and swapped column levels
+        - l0 (list): The sorted level 0 column labels
+        - l1 (list): The sorted level 1 column labels
+
+    """
+    # Swap the levels of the columns for the next steps
+    df = df.swaplevel(0, 1, axis=1).sort_index(axis=1)
+
+    l0 = sorted(
+        df.columns.get_level_values(0).unique(),
+        key=lambda c: int(c.split("=")[1].strip()),
+    )
+    l1 = sorted(
+        df.columns.get_level_values(1).unique(),
+        key=lambda c: int(c.split("=")[1].strip()),
+    )
+    # Reorder df columns according to the sorted levels
+    df = df.reindex(columns=pd.MultiIndex.from_product([l0, l1]))
+
+    return df, l0, l1
+
+
 def plot_participation(
     sim_results_df: pd.DataFrame,
-    commitee_sizes: list,
-    group_sizes: list,
+    group_labels: list,
+    committee_labels: list,
     num_iter: int,
 ):
     """
@@ -536,32 +568,42 @@ def plot_participation(
 
     Args:
     - sim_results_df (pd.DataFrame): The simulation results DataFrame.
-    - commitee_sizes (list): The list of committee sizes.
-    - group_sizes (list): The list of group sizes.
+    - committee_labels (list): The labels for the committee sizes.
+    - group_labels (list): The labels for the group sizes.
     - num_iter (int): The number of iterations for the simulation.
 
     Returns:
         None
     """
+    # Extract the numerical value of group and committee sizes from the labels
+    group_sizes = [int(c.split("=")[1].strip()) for c in group_labels]
+    committee_sizes = [int(c.split("=")[1].strip()) for c in committee_labels]
+
     fig, (ax2, ax1) = plt.subplots(1, 2, figsize=(16, 8))
     sns.set(style="whitegrid")
 
-    for committee_size in commitee_sizes:
-        committee_label = f"Committee Size = {committee_size}"
-        # Extract the distinct voters data for the given committee size
-        committee_voters = sim_results_df.loc["Distinct Voters", committee_label]
+    for group_size, label in zip(group_sizes, group_labels):
+
+        # Extract the distinct voters data for the given group size
+        committee_voters = sim_results_df.loc["Distinct Voters", label]
 
         # These are the mean committee seat counts and associated standard deviations
         mean_values = committee_voters.loc["mean"]
         std_dev_values = committee_voters.loc["sd"]
 
         # Calculate the percentage of participants not selected for committee seats
-        not_selected_percentages = (1.0 - mean_values / group_sizes) * 100
+        not_selected_percentages = (1.0 - mean_values / group_size) * 100
 
         # Prepare data for plotting the percentage excluded on ax1
+        # The code `plot_data` appears to be a function or method call to plot some data. However,
+        # without seeing the implementation of the `plot_data` function or method, it is not possible
+        # to determine exactly what the code is doing.
+        # The code `plot_data` appears to be a function or method call to plot some data. However,
+        # without seeing the implementation of the `plot_data` function or method, it is not possible
+        # to determine exactly what the code is doing.
         plot_data = pd.DataFrame(
             {
-                "Participant Group Size": group_sizes,
+                "Committee Sizes": committee_sizes,
                 "Percentage of Participants Excluded": not_selected_percentages,
                 "Std Dev": std_dev_values,
             }
@@ -569,48 +611,124 @@ def plot_participation(
 
         # Plot the percentage excluded on ax1
         sns.lineplot(
-            x="Participant Group Size",
+            x="Committee Sizes",
             y="Percentage of Participants Excluded",
             data=plot_data,
             marker="o",
-            # label=committee_label,
+            label=label,
             ax=ax1,
         )
 
         # Prepare data for plotting the mean committee seat counts on ax2
         plot_data2 = pd.DataFrame(
             {
-                "Participant Group Size": group_sizes,
+                "Committee Sizes": committee_sizes,
                 "Distinct Number of Committee Members": mean_values.values,
             }
         )
 
         # Plot the mean committee seat counts on ax2
         sns.lineplot(
-            x="Participant Group Size",
+            x="Committee Sizes",
             y="Distinct Number of Committee Members",
             data=plot_data2,
             marker="o",
-            label=committee_label,
+            label=label,
             ax=ax2,
         )
 
     ax1.set_ylabel("Percentage of Participants Excluded from Committee")
-    ax1.set_xlabel("Participant Group Size")
+    ax1.set_xlabel("Committee Size, k")
     ax1.set_title("Percentage of Group Not Selected for Committee Seats")
-    # ax1.legend(title="Committee Size", loc="lower right")
+    ax1.legend(title="Participant Group Size, n", loc="upper right")
     ax1.grid(True)
 
     ax2.set_ylabel("Distinct Number of Committee Members")
-    ax2.set_xlabel("Participant Group Size")
+    ax2.set_xlabel("Committee Size, k")
     ax2.set_title(
         f"Distinct Number of Committee Members Averaged over {num_iter} Epochs"
     )
-    ax2.legend(title="Committee Size", loc="upper left")
+    ax2.legend(title="Participant Group Size, n", loc="upper left")
     ax2.grid(True)
     plt.tight_layout()
     plt.show()
 
+
+# %%
+# Let's define a new function like plot_participation above that
+# will plot the results in a 3D plot instead of two charts.
+def plot_participation_3d(
+    sim_results_df: pd.DataFrame,
+    group_labels: list,
+    committee_labels: list,
+    num_iter: int,
+):
+    """
+    Plot the percentage of group participants excluded from a committee
+    of a given size vs. different group sizes in an interactive 3D plot,
+    and connect the points with a mesh.
+
+    Args:
+    - sim_results_df (pd.DataFrame): The simulation results DataFrame.
+    - committee_labels (list): The labels for the committee sizes.
+    - group_labels (list): The labels for the group sizes.
+    - num_iter (int): The number of iterations for the simulation.
+
+    Returns:
+        (fig, ax): Matplotlib figure and 3D axes objects for further interaction.
+    """
+    # Extract numerical values from labels.
+    group_sizes = [int(c.split("=")[1].strip()) for c in group_labels]
+    committee_sizes = [int(c.split("=")[1].strip()) for c in committee_labels]
+
+    fig = plt.figure(figsize=(16, 8))
+    ax = fig.add_subplot(111, projection="3d")
+
+    # Prepare a mesh grid for the 3D surface.
+    committee_sizes_arr = np.array(committee_sizes)
+    group_sizes_arr = np.array(group_sizes)
+    X, Y = np.meshgrid(committee_sizes_arr, group_sizes_arr)
+    Z = np.empty(X.shape, dtype=float)
+
+    # Loop over each group to compute the percentage excluded.
+    for i, label in enumerate(group_labels):
+        group_size = group_sizes[i]
+        # Extract distinct voters metrics for the current group label.
+        committee_voters = sim_results_df.loc["Distinct Voters", label]
+        mean_values = committee_voters.loc["mean"]
+        # Calculate the percentage of participants not selected.
+        not_selected_percentages = (1.0 - mean_values / group_size) * 100
+        # Store in the mesh grid array.
+        Z[i, :] = not_selected_percentages.values
+
+        # Also scatter the points.
+        ax.scatter(
+            committee_sizes_arr,
+            [group_size] * len(committee_sizes_arr),
+            not_selected_percentages.values,
+            label=label,
+            marker="o",
+        )
+
+    # Connect the points with a mesh (wireframe).
+    ax.plot_wireframe(X, Y, Z, color="grey", linewidth=1, alpha=0.5)
+
+    ax.set_xlabel("Committee Size, k")
+    ax.set_ylabel("Participant Group Size, n")
+    ax.set_zlabel("Percentage of Participants Excluded from Committee")
+    ax.set_title("Percentage of Group Not Selected for Committee Seats")
+    ax.legend(
+        title="Participant Group Size, n",
+        loc="center left",
+        bbox_to_anchor=(-0.25, 0.55),
+    )
+    plt.tight_layout()
+    plt.show()
+    # Return the figure and axes for further interaction.
+    return fig, ax
+
+
+# %%
 
 def std_error(data, **kwargs):
     """Function that returns lower and upper error bounds"""
@@ -649,11 +767,13 @@ def simulate(
     sim_dict = {}
 
     for comm_size in comm_sizes:
+        print("_" * 50)
         print(f"\nCommittee Size = {comm_size}")
+        print("=" * 50)
+        print("Group Size | Distinct Voters (mean, std dev)")
+        print("-" * 50)
 
         for group_size in group_sizes:
-            print(f"Group Size = {group_size}")
-
             group_stakes = get_stake_distribution(
                 population,
                 group_size=group_size,
@@ -671,6 +791,10 @@ def simulate(
             distinct_voters_avg, distinct_voters_std = committee_results[
                 "distinct_voters"
             ]
+
+            print(
+                f"{group_size:>6d} | {distinct_voters_avg:.1f}, {distinct_voters_std:.1f}"
+            )
 
             # Compute statistics for committee seat counts
             seat_counts = np.array(committee_results["seat_counts"])
@@ -690,6 +814,7 @@ def simulate(
 
             # Create a DataFrame with columns for mean and std dev
             tmp_df = pd.DataFrame({"mean": mean_stats, "sd": sd_stats})
+
             # Stack to get a Series with MultiIndex (metric, statistic)
             sim_dict[(comm_size, group_size)] = tmp_df.stack()
 
