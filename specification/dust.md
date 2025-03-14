@@ -701,3 +701,16 @@ hiding for this wallet user.
 For instance, if there are $2^14$ commitments in the state, and the wallet
 wants an anonymity set of $2^7$, then it should send prefixes of $14 - 7 = 7$
 bits.
+
+## Interaction with cNight
+
+The principle for interacting with cNight is straightforward: Cardano
+periodically informs the Midnight ledger to:
+1. Create new `DustGenerationInfo` entries with `nonce` values determined from
+   the corresponding Cardano UTXO, such that it is collision resistant with
+   those created on Midnight, as well as creating corresponding Dust UTXOs.
+2. Set the destruction time of previously created `DustGenerationInfo` entries.
+
+The Midnight ledger will validate that the dust generation instructed from
+Cardano does not exceed the amount of Night intended to be in cNight
+circulation, but otherwise deploys it as instructed.
