@@ -631,10 +631,15 @@ impl<S, P, B> Transaction<S, P, B> {
 
 Transaction application roughly follows the following procedure:
 1. Apply the guaranteed section of all intents, and the guaranteed offer.
+  1. When applying fee payments, first all `DustSpend`s are processed
+  2. Then all `DustRegistration`s are processed sequentially.
+  3. Contract calls and both shielded/unshielded offers are independent of
+     this, although contract calls are processed sequentially themselves.
 2. Check if each fallible Zswap offer is applicable in isolation. That is:
 (that is: are the Merkle trees valid and the nullifiers unspent?).
 3. In order of sequence IDs, apply the fallible sections of contracts, and the
    fallible offers (both Zswap and unshielded).
+
 
 If any one sequence in 3. fails, this sequence, and this sequence only, is
 rolled back. If any part of 1. or 2. fails, the transaction fails in its
