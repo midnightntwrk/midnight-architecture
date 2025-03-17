@@ -260,8 +260,8 @@ impl<S, P, B> Transaction<S, P, B> {
                 intent.fallible_unshielded_offer,
             ].into_iter());
         for offer in unshielded_offers {
-            assert!(unshielded_inputs.disjoint(inputs));
-            unshielded_inputs += inputs;
+            assert!(unshielded_inputs.disjoint(offer.inputs));
+            unshielded_inputs += offer.inputs;
         }
     }
 }
@@ -283,8 +283,11 @@ impl<S, P, B> Transaction<S, P, B> {
             // If a calls b, a causally precedes b.
             // Also, if a contract is in two intents, the prior precedes the latter
             for ((cid1, call1), (cid2, call2)) in intent1.actions.iter()
+                .enumerate()
                 .filter_map(ContractAction::as_call)
-                .product(intent2.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent2.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
             {
                 if sid1 == sid2 && cid1 == cid2 {
                     continue;
@@ -298,9 +301,14 @@ impl<S, P, B> Transaction<S, P, B> {
         // that of c, then b must precede c in the intent.
         for (_, intent) in self.intents.iter() {
             for ((cid1, call1), (cid2, call2), (cid3, call3)) in intent.actions.iter()
+                .enumerate()
                 .filter_map(ContractAction::as_call)
-                .product(intent.actions.iter().filter_map(ContractAction::as_call))
-                .product(intent.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
+                .product(intent.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
             {
                 if let (Some((_, s1)), Some((_, s2))) = (call1.calls_with_seq(call2), call1.calls_with_seq(call3)) {
                     assert!(cid1 < cid2);
@@ -705,9 +713,12 @@ impl LedgerState {
                 tx,
                 block_context.seconds_since_epoch,
             )?;
-            if let Some(offer) = tx.guaranteed_offer {
-                self.zswap = self.zswap.apply(offer)?;
-            }
+            let com_indicies = if let Some(offer) = tx.guaranteed_offer {
+                (self.zswap, indicies) = self.zswap.apply(offer)?;
+                indicies
+            } else {
+                Map::new()
+            };
             // Make sure all fallible offers *can* be applied
             assert!(tx.fallible_offer.values()
                 .fold(Ok(self.zswap), |st, offer| st?.apply(offer))
@@ -724,10 +735,17 @@ impl LedgerState {
                         true,
                         block_context,
                         erased,
+                        com_indicies,
                     )?;
                 }
             }
         } else {
+            let com_indicies = if let Some(offer) = tx.fallible_offer.get(segment) {
+                (self.zswap, indicies) = self.zswap.apply(offer)?;
+                indicies
+            } else {
+                Map::new()
+            };
             if let Some(intent) = tx.intents.get(segment) {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.fallible_unshielded_offer {
@@ -739,11 +757,9 @@ impl LedgerState {
                         false,
                         block_context,
                         erased,
+                        com_indicies,
                     )?;
                 }
-            }
-            if let Some(offer) = tx.fallible_offer.get(segment) {
-                self.zswap = self.zswap.apply(offer)?;
             }
         }
         Ok(self)

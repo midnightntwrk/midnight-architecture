@@ -205,14 +205,15 @@ impl ZswapState {
         assert!(self.commitment_tree_history.contains(inp.merkle_tree_root));
         assert!(!self.nullifiers.contains(inp.nullifier));
         self.nullifiers = self.nullifiers.insert(inp.nullifier);
-        return self;
+        self
     }
 
-    fn apply_output<P>(mut self, out: ZswapOutput<P>) -> Result<Self> {
+    fn apply_output<P>(mut self, out: ZswapOutput<P>) -> Result<(Self, CoinCommitment, u64)> {
         assert!(!self.commitment_set.contains(out.commitment));
         self.commitment_set = self.commitment_set.insert(out.commitment);
         self.commitment_tree = self.commitment_tree.insert(self.commitment_tree_first_free, out.commitment);
         self.commitment_tree_first_free = self.commitment_tree_first_free + 1;
+        (self, out.commitment, self.commitment_tree_first_free - 1)
     }
 }
 
@@ -282,14 +283,14 @@ impl<P> ZswapTransient<P> {
 }
 
 impl ZswapState {
-    fn apply_transient<P>(self, trans: ZswapTransient<P>) -> Result<Self> {
+    fn apply_transient<P>(self, trans: ZswapTransient<P>) -> Result<(Self, CoinCommitment, u64)> {
         assert!(!self.commitment_set.contains(trans.commitment));
         assert!(!self.nullifiers.contains(trans.nullifier));
         self.commitment_set = self.commitment_set.insert(trans.commitment);
         self.commitment_tree = self.commitment_tree.insert(self.commitment_tree_first_free, trans.commitment);
         self.commitment_tree_first_free = self.commitment_tree_first_free + 1;
         self.nullifiers = self.nullifiers.insert(trans.nullifier);
-        return self;
+        (self, trans.commitment, self.commitment_tree_first_free - 1)
     }
 }
 ```
@@ -318,11 +319,20 @@ impl<P> ZswapOffer<P> {
 }
 
 impl ZswapState {
-    fn apply<P>(mut self, offer: ZswapOffer<P>) -> Result<Self> {
+    fn apply<P>(mut self, offer: ZswapOffer<P>) -> Result<(Self, Map<CoinCommitment, u64>)> {
+        let mut com_indicies = Map::new();
         self = offer.inputs.fold(self, ZswapState::apply_input)?;
-        self = offer.outputs.fold(self, ZswapState::apply_output)?;
-        self = offer.transients.fold(self, ZswapState::apply_transient)?;
-        return self;
+        (self, com_indicies) = offer.outputs.fold((self, com_indicies),
+            |(state, indicies), output| {
+                (state, com, index) = state.apply_output(output)?;
+                (state, indicies.insert(com, index))
+            })?;
+        (self, com_indicies) = offer.transients.fold((self, com_indicies),
+            |(state, indicies), trans| {
+                (state, com, index) = state.apply_transient(trans)?;
+                (state, indicies.insert(com, index))
+            })?;
+        (self, com_indicies)
     }
 }
 ```
