@@ -392,12 +392,12 @@ impl<S, P, B> Transaction<S, P, B> {
                         .map(|t| (segment, t)));
                 for (segment, transcript) in transcripts {
                     for (pre_token, val) in transcript.effects.shielded_mints {
-                        let tt = TokenType::Shielded(hash((transcript.address, pre_token)));
+                        let tt = TokenType::Shielded(hash((call.address, pre_token)));
                         let bal = res.get_mut_or_default((tt, segment));
                         *bal = (*bal).checked_add(val)?;
                     }
                     for (pre_token, val) in transcript.effects.unshielded_mints {
-                        let tt = TokenType::Unshielded(hash((transcript.address, pre_token)));
+                        let tt = TokenType::Unshielded(hash((call.address, pre_token)));
                         let bal = res.get_mut_or_default((tt, segment));
                         *bal = (*bal).checked_add(val)?;
                     }
