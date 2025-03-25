@@ -5,34 +5,27 @@ title Midnight.js Deployment Diagram
 
 node "Client Device" <<device>> {
     component Browser <<EE>> {
-        database "Private Store"
+        artifact DappConnector
+        database "IndexedDB" as IDB
         component GUI
         artifact "Web Page" as WP {
-            artifact Contract
-            artifact Witnesses
-            artifact "UI Components" as UC
-            folder "Prover Keys"
-            folder "Verifier Keys"
-            folder ZKIR
         }
         artifact MidnightJS {
             artifact Contracts
-            artifact WalletProvider
-            artifact PublicDataProvider
-            artifact PrivateDataProvider
-            artifact ZKConfigProvider
-            artifact NodeProvider
-            artifact ProofProvider
+            artifact WalletProvider <<client>>
+            artifact PublicDataProvider <<client>>
+            artifact PrivateStateProvider <<client>>
+            artifact ZKConfigProvider <<client>>
+            artifact NodeProvider <<client>>
+            artifact ProofProvider <<client>>
         }
         node Extensions <<EE>> {
-            component "Lace Wallet" as LW {
-                artifact Wallet
+            component "Wallet" as LW {
             }
         }
-        artifact DappConnector
         artifact Ledger
         artifact "Compact Runtime" as CR
-        artifact "Impact Runtime" as IR
+        artifact "Impact VM" as IR
     }
     component "Proof Server" as PS {
     }
@@ -42,35 +35,43 @@ node "Client Device" <<device>> {
 
 node Indexer <<device>>
 node "Substrate Node" <<device>> as SN
+node "Web Server" <<device>> as WS {
+    folder "Prover Keys"
+    folder "Verifier Keys"
+    folder "ZKIRs"
+    artifact "foo.js" as Contract
+    artifact "witnesses.js" as Witnesses
+    artifact "UI Components" as UC
+}
 
 
 Contract --> Witnesses
-UC --> Contract
-UC --> MidnightJS
+Contract --> CR
+WP --> MidnightJS
 Contracts -> PublicDataProvider
-Contracts --> PrivateDataProvider
+Contracts --> PrivateStateProvider
 Contracts --> ZKConfigProvider
 Contracts --> WalletProvider
 Contracts --> NodeProvider
 Contracts --> ProofProvider
 Contracts --> Ledger
 Contracts --> CR
-IR <-u- CR
+CR --> IR
 LW --> Indexer
 
 Ledger --> IR
 compactc -[dashed]-> Contract: produces
+LW --> Ledger
 NodeProvider --> DappConnector
 WalletProvider --> DappConnector
-LW <-u- DappConnector
+DappConnector --> LW
 PublicDataProvider --> Indexer
-SN <-- Indexer
+Indexer --> SN
 SN --> Ledger
-PrivateDataProvider --> "Private Store"
-ProofProvider -d-> PS
-ZKConfigProvider --> "Prover Keys"
-ZKConfigProvider --> "Verifier Keys"
-ZKConfigProvider --> "ZKIR"
 LW --> SN
-GUI --> UC
+PrivateStateProvider --> IDB
+ProofProvider --> PS
+ZKConfigProvider --> WS
+GUI --> WP
+WS -[dashed]-> WP: serves
 @enduml
