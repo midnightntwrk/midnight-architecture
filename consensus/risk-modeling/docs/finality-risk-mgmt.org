@@ -1,6 +1,33 @@
 #+TITLE: Committee Selection Risks in Midnight
 #+AUTHOR: Jon Rossie
-#+DATE: v.\docversion{}, \today
+#+DATE: 
+
+#+LATEX_HEADER: \usepackage{titling}
+#+LATEX_HEADER: \pretitle{\begin{center}\LARGE\bfseries}
+#+LATEX_HEADER: \posttitle{\par\vskip 1em {\large Version \docversion{} | \today}\end{center}}
+#+LATEX_HEADER: \predate{}
+#+LATEX_HEADER: \postdate{}
+#+LATEX_HEADER: \preauthor{\begin{center}\large}
+#+LATEX_HEADER: \postauthor{\end{center}}
+
+#+LATEX_HEADER: \renewcommand{\maketitlehookc}{
+#+LATEX_HEADER:   \vspace{2em}
+#+LATEX_HEADER:   \begin{quote}\small
+#+LATEX_HEADER:     This document is actively maintained. See \textbf{Status \& Changes},
+#+LATEX_HEADER:     Section~\ref{sec:status-changes}, for recent updates and roadmap.
+#+LATEX_HEADER:   \end{quote}
+#+LATEX_HEADER: }
+
+#+LATEX_HEADER: \renewcommand{\maketitlehookd}{
+#+LATEX_HEADER:   \vfill
+#+LATEX_HEADER:   \begin{center}\small
+#+LATEX_HEADER:     Copyright © 2025 Input Output Global\\
+#+LATEX_HEADER:     Confidential – For Internal Use Only
+#+LATEX_HEADER:   \end{center}
+#+LATEX_HEADER: \thispagestyle{empty}
+#+LATEX_HEADER: }
+
+
 #+OPTIONS: tex:dvipng
 #+OPTIONS: num:t ':t
 #+OPTIONS: minted:t
@@ -21,7 +48,7 @@
 #+LATEX_HEADER: \setminted{frame=single}
 #+LATEX_HEADER: \newcommand{\aura}[0]{\textsf{AURA}}
 #+LATEX_HEADER: \newcommand{\grandpa}[0]{\textsf{GRANDPA}}
-#+LATEX_HEADER: \newcommand{\docversion}{1.2}
+#+LATEX_HEADER: \newcommand{\docversion}{1.2.2}
 
 #+STARTUP: nolatexpreview
 
@@ -47,25 +74,10 @@
 #+PROPERTY: header-args:python :exports both :results output
 
 
-* Document Status and Version
-:PROPERTIES:
-:UNNUMBERED: t
-:END:
-
-#+BEGIN_QUOTE
-This document is actively maintained. See **Status & Changes**,  Section
-\ref{sec:status-changes}, for recent updates and roadmap.
-#+END_QUOTE
-
-- **Document Date**: This export was created on \today.
-- **Document Version**: This export is based on version \docversion{}
-  of the document source.
-
-#+LATEX: \thispagestyle{empty}
-#+LATEX:\newpage
 
 
-
+#+LATEX: \clearpage
+#+LATEX: \pagestyle{customfooter}
 
 * Table of Contents
 :PROPERTIES:
@@ -73,8 +85,6 @@ This document is actively maintained. See **Status & Changes**,  Section
 :END:
 
 #+TOC: headlines 2
-
-# #+LATEX: \thispagestyle{empty}
 #+LATEX: \newpage
 
 # #+LATEX: \clearpage
@@ -97,7 +107,7 @@ for people interacting with the chain, so Midnight's commitment to
 fast finality is never likely to decrease.
 
 Figure [[fig:arch]] shows a simplified set of Midnight components.  The
-Midnight Node observes its Cardano Node via DB Sync, and does so at a
+Midnight Node observes its Cardano Node via DBSync, and does so at a
 delay of 12 hours because that is Cardano's longest-chain finality
 window.  But most Midnight clients are more concerned with the
 finality delay for transactions they post to the Midnight Node.
@@ -155,20 +165,13 @@ Midnight uses a proof-of-stake consensus where the amount of control
 wielded by a community member is proportional to their stake relative
 to the stake of other participants.  Unlike Cardano's Ouroboros proof
 of stake, which is a longest-chain model, Midnight uses quorum-based
-consensus to achieve consensus with faster finality.  Quorum-based
-consensus in the presence of adversarial actors is a well-studied
-problem, often called /classical BFT/, where /BFT/ means /Byzantine
-fault tolerance./ A /Byzantine/ fault is any fault other than a crash
-fault, so it encompasses both malicious behaviors and faults that
-cause a well-intentioned participant to participate incorrectly in the
-protocol.
+consensus to achieve consensus with faster finality.
 
-A key research result is that quorum-based BFT consensus requires
-$3f+1$ participants to survive $f$ concurrent Byzantine faults.
-Longest-chain protocols like Ouroboros have a weaker assumption of
-only $2f+1$ participants (also known as a 51% honest majority), but at
-the cost of much longer finality times. Quorum-based voting can achieve
-finality in minutes or seconds, while longest chain requires hours.
+Quorum-based consensus in the presence of adversarial actors is a well-studied problem, often termed /classical Byzantine Fault Tolerance/ (BFT). A /Byzantine fault/ encompasses any fault presenting different symptoms to different observers, including both malicious behaviors and inadvertent faults or network conditions causing a well-intentioned participant to deviate from correct protocol behavior.
+
+A fundamental result in this area is that quorum-based BFT consensus requires at least $3f + 1$ participants to tolerate $f$ concurrent Byzantine faults. In contrast, longest-chain protocols such as Ouroboros operate under a weaker assumption, necessitating only $2f + 1$ participants (commonly referred to as a 51% honest majority). However, this comes at the expense of longer finality times. Quorum-based voting can achieve finality in seconds to minutes, whereas longest-chain protocols may require hours to confirm transaction immutability.
+
+Throughout this discussion, we distinguish between crash faults and Byzantine faults. While crash faults represent a subset of Byzantine faults from the perspective of the overall network—since other participants typically cannot distinguish between a crashed node and a Byzantine node—the distinction is significant for node operators. Operators can quickly detect and respond to crash faults using simple process monitoring. In contrast, Byzantine faults may be subtle or concealed, causing the operator to remain unaware of their node’s faulty behavior and thus delaying diagnosis and recovery.
 
 
 ** Committee Selection
@@ -446,6 +449,11 @@ conflicting finality decisions.  While /Byzantine/ faults refer to any
 non-crash faults, equivocation is the key safety risk and is therefore
 the primary focus of Byzantine fault tolerance.
 
+
+** Protocol Specification and Implementation Risks
+
+The remainder of this document makes two critical assumptions, neither of which can be verified.  First, it assumes the \grandpa{} protocol's specification describes a system than can maintain safety and liveness as long as there is a 2/3 honest majority.  Second, it assumes that the \grandpa{} implementation does not introduce defects that cause safety or liveness failures even when a 2/3 honest majority are present.  In fact, \grandpa{} is not a verified protocol, so its actual ability to provide safety and liveness within the assumed security tolerances is unknown.  Moreover, the \grandpa{} implementation deviates from the specification in ways that have defeated efforts to establish its actual safety or liveness guarantees.  Thus, every assertion in the rest of this document comes with a caveat that the true situation might be worse than we describe.  For this reason, the Midnight team are actively supporting the development of a fully formalized replacement consensus system based on the Jolteon BFT protocol.
+
 * Objectives and Measures
 
 Before we manage a risk, it is useful to quantify it.  In this section
@@ -624,7 +632,9 @@ with low fault tolerance. This provides the baseline data shown in
 Figure [[fig:inherent]].  In this chart, 1.0 means 100% of the simulations
 tolerated the given number of faults.
 
+** Limitations
 
+Although our simulations are based on real data from ~pooltool.io~, we make a naive assumption that /every SPO is equally likely to participate in the Midnight network./ This is surely untrue, but we currently lack data to justify an alternative model. Therefore, we use a flat distribution in our Monte Carlo simulations. We can also construct interactive models to allow experiments where SPOs are grouped (e.g., into deciles), and allow users to specify participation assumptions for each group. While these assumptions cannot be validated in advance, they may still prove valuable for scenario-based risk analysis. The most accurate results will become available once Midnight is live on Cardano, allowing us to employ iterative Bayesian analysis to estimate the probability of various distributions, conditional on the SPOs already participating in the Midnight network.
 
 ** Analysis
 
@@ -755,6 +765,9 @@ We keep two important parameters fixed:
 2. We fix the committee size at 300, as it has little effect on the
    outcomes (as discovered in prior experimentation). 
 
+
+
+
 ** Simulation Results
 
 Here we present our results as a series of charts, each showing the
@@ -853,7 +866,8 @@ they also become the weakest link in the fault tolerance story.
 These simulations show that Ariadne is not a set-and-forget system.
 It must be continuously monitored and updated to ensure it is a net
 benefit to the fault tolerance of the system, or else it can become a
-significant detriment.  The best way to make the right changes is to
+significant detriment.  Tuning Ariadne's parameters is a governance
+action, not autonomic.  The best way to make the right changes is to
 track actual participating SPOs and potential non-participating ones,
 and to run simulations like those used here to ensure the current
 $\varphi$ is still advantageous.  In the early stages of the network
@@ -891,7 +905,7 @@ reduction that can be achieved using Ariadne.
 ** The Risk of $f$ Faults Occurring at Once
 
 This risk is outside the scope of the current document.  It's
-essentially open-ended problem with a great deal of nuance.  We cannot
+essentially an open-ended problem with a great deal of nuance.  We cannot
 do justice to the topic here, but it might be useful to consider some
 of the factors to consider in such a model.  For most of this
 discussion we are concerned with improving the /honest uptime/ of
@@ -918,7 +932,7 @@ nodes to reliably detect a Byzantine fault in another node, but it's
 also hard for an operator to detect a Byzantine fault in their own
 node.  Since nodes and components suffering Byzantine faults continue
 to attempt protocol interactions, but do so incorrectly, fault
-detection requires someone to monitor KPIs related to successful
+detection requires someone to monitor key performance indicators (KPIs) related to successful
 protocol interactions.  Even when those KPIs indicate an issue, the
 node operator must determine whether they are at fault or whether they
 are witnessing faults in other nodes.  The longer it takes a node
@@ -938,35 +952,54 @@ in which all nodes are in recovery at the same time.  If MTBF is much
 greater, it helps reduce the probability of concurrent faults.
 
 
-*** DB Sync Example
+*** DBSync Example
 
-Every Midnight node has, for example, a DB Sync instance it relies on
-for information about Cardano.  While it may be possible to replace DB
-Sync with a different technology, current nodes can fail simply
-because DB Sync fails.  DB Sync instances are known to fail silently,
-producing incorrect data rather than crashing.  By definition, these
-are Byzantine faults.  They manifest as incorrect participation in the
-protocol, causing the node's votes and block-production opportunities
-to be wasted, and preventing the node from validating correct traffic
-from the rest of the network.
+As a Cardano partnerchain, Midnight relies on real-time information
+from Cardano.  Every Midnight node is configured with a DBSync
+instance that provides a continually updated source of Cardano facts
+required by the Midnight node for correct operation.  If a DB Sync
+instance fails to keep up with Cardano, missing its real-time targets,
+then any Midnight nodes that depend on it are faulty.  Similarly, if a
+DB Sync crashes or begins producing incorrect results, its dependent
+Midnight nodes are faulty.  While crash faults of DB Sync seem to be
+rare, it's not unusual for a DB Sync node to exhibit Byzantine faults
+such as silently failing its real-time targets.
+
+While it may be possible to replace DBSync with a different
+technology, current nodes can fail simply because DBSync fails.  If
+the DBSync fault is Byzantine, neither the node software nor the node
+operator will detect the problem until it manifests as incorrect
+participation in the Midnight protocol.  In the meantime, the node's
+votes and block-production opportunities are wasted, and preventing
+the node from validating correct traffic from the rest of the network.
+Worse, as long as a block producer is running in this failed state,
+the overall fault tolerance of the network is degraded.
 
 The honest uptime of a node can be improved by a number of approaches,
 including:
-1. Raising DB Sync's MTBF (through hardening engineering on that codebase).
-2. Reducing the node's MTTD for DB Sync.
+1. Raising DBSync's MTBF (through hardening engineering on that codebase).
+2. Reducing the node's MTTD for DBSync.
 3. Reducing the MTTR to get the node back into service.
-4. Replacing DB Sync with a component whose MTBF is higher and/or
+4. Replacing DBSync with a component whose MTBF is higher and/or
    whose MTTD+MTTR is lower.
 
 One possible mechanism, as an illustration, would be for a set of
 trusted nodes to operate a small fault-tolerant cluster that
-periodically votes on the current hash of the important elements of DB
-Sync's state and publishes a signed outcome of their agreed value to
+periodically votes on the current hash of the important elements of
+DBSync's state and publishes a signed outcome of their agreed value to
 Midnight's gossip network.  This would allow Midnight nodes to
-automatically self-check against a known-good finterprint to greatly
+automatically self-check against a known-good fingerprint to greatly
 reduce MTTD.  Such a cluster could also publish full state snapshots
-of their DB Sync instances (using, say ~psql_dump~) to provide fast
+of their DBSync instances (using, say ~psql_dump~) to provide fast
 recovery, reducing MTTR.
+
+*** Abandonment Scenario
+
+Midnight considers all registered SPOs to be active participants in the network. If an SPO registers but later chooses not to participate, they are expected to withdraw their registration. However, if an SPO simply abandons Midnight without de-registering, they will appear faulty whenever selected for a committee. Midnight currently has no mechanism to avoid selecting SPOs who have not participated in block production or voting. As abandoned registrations accumulate, the network’s fault tolerance deteriorates.
+
+Addressing this issue is non-trivial, as the protocol must avoid unjustly penalizing SPOs. For instance, if an SPO is temporarily offline due to network issues or a denial-of-service attack, or is experiencing node software failures, should they be suspended? How long must an absence last before suspension is justified?
+
+In the absence of a fully autonomic protocol to manage these edge cases, it may be more practical for Midnight to treat suspension as a governance decision. This would allow the community to define participation standards and adopt rules for suspending SPOs whose behavior does not meet those standards.
 
 
 *** Common Cause Analysis
@@ -996,7 +1029,7 @@ decentralized chain.
 
 Suppose we can quantify these risks as probabilities, where
 $P(\text{not tolerated})_f$ is the probability of selecting a
-committee cannot tolerate $f$ concurrent faults, and
+committee that cannot tolerate $f$ concurrent faults, and
 $P(\text{occur})_f$ is the probability that $f$ faults might occur
 simultaneously.  If these turn out to be independent probabilities, we
 can compute the probability of both arising as the product of their
@@ -1018,7 +1051,7 @@ It's not always easy to see whether a risk is in one pillar or
 another, although they are often easily distinguished.  Consider a
 scenario in which the single operator of several large stakepools
 participates in Midnight for a period of time and then simply stops
-without de-registering.  There is a real risk the committee-selection
+without de-registering.  There is a real risk that the committee-selection
 protocol will continue to add them to committees despite their lack of
 activity, since selection does not consider such factors.  The result
 could be a persistent state in which all their committee members
@@ -1052,7 +1085,14 @@ tolerate is a significant part of risk management.
 #+LATEX: \label{sec:status-changes}
 
 ** Version History
-- **\docversion{} (\today)**: Significant update after early feedback.
+- **1.2.2 (2025-03-24)**:
+  - Clarify Byzantine vs. crash faults
+  - Explain protocol specification and implementation risks for \grandpa{}
+  - Explain limitations of flat sampling the SPOs in our simulations
+  - Clarify DBSync risks
+  - Identify "abandonment" risks
+  - Clarify the role of governance in updating consensus parameters
+- **1.2.1 (2025-02-19)**: Significant update after early feedback.
   - New title more reflective of the focus of the document within a larger risk model.
   - New section "Toward a Full Model of Finality Risk" that
     contextualizes this document's contribution within a larger risk
@@ -1069,8 +1109,6 @@ tolerate is a significant part of risk management.
   should revisit the graphs and wording to be more clear.
 - **Incorporate Unused Charts**: Find the right place to include the
   unused charts in section [[Unused Charts]].
-- **Simulation Details**: Improve description of the residual risk
-  simulation setup.
 - **Simulation Details**: Improve description of the residual risk
   simulation setup.
 - **Improved Analysis and Recommendations for Ariadne**: That section
