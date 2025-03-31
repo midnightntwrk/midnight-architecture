@@ -2,9 +2,13 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "noEmit": true,
+    "strict": true,
+    "isolatedModules": true
   },
   "ts-node": {
     "esm": true
-  }
+  },
+  "include": ["src/**.ts"]
 }

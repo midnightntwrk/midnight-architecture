@@ -1,4 +1,4 @@
-import * as zswap from "@midnight-ntwrk/zswap";
+import * as ledger from "@midnight-ntwrk/ledger";
 import { bech32m } from "@scure/base";
 
 export const Bech32m: unique symbol = Symbol("Bech32m");
@@ -94,10 +94,10 @@ export class ShieldedAddress {
 export class ShieldedEncryptionSecretKey {
   static codec = new Bech32mCodec<ShieldedEncryptionSecretKey>(
     "shield-esk",
-    (esk) => Buffer.from(esk.zswap.yesIKnowTheSecurityImplicationsOfThis_serialize(zswap.NetworkId.Undeployed).subarray(1)),
+    (esk) => Buffer.from(esk.ledger.yesIKnowTheSecurityImplicationsOfThis_serialize(ledger.NetworkId.Undeployed).subarray(1)),
     (repr) =>
       new ShieldedEncryptionSecretKey(
-        zswap.EncryptionSecretKey.deserialize(Buffer.concat([Buffer.of(0), repr]), zswap.NetworkId.Undeployed),
+        ledger.EncryptionSecretKey.deserialize(Buffer.concat([Buffer.of(0), repr]), ledger.NetworkId.Undeployed),
       ),
   );
 
@@ -105,7 +105,7 @@ export class ShieldedEncryptionSecretKey {
 
   // There are some bits in serialization of field elements and elliptic curve points, that are hard to replicate
   // Thus using zswap implementation directly for serialization purposes
-  constructor(public readonly zswap: zswap.EncryptionSecretKey) {}
+  constructor(public readonly ledger: ledger.EncryptionSecretKey) {}
 }
 
 export class ShieldedCoinPublicKey {
