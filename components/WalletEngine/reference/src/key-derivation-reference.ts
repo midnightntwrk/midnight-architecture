@@ -17,7 +17,12 @@ function sampleBytes(bytes: number, domainSeparator: Buffer, seed: Buffer): Buff
   return result;
 }
 
-export function sampleKey(seed: Buffer, margin: number, domainSeparator: Buffer, field: Field): { intermediateBytes: Buffer; key: bigint } {
+export function sampleKey(
+  seed: Buffer,
+  margin: number,
+  domainSeparator: Buffer,
+  field: Field,
+): { intermediateBytes: Buffer; key: bigint } {
   // Generating some more bytes is important to get a better distribution of keys
   const sampledBytes = sampleBytes(field.bytes + margin, domainSeparator, seed);
   return {
