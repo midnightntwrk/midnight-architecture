@@ -3,7 +3,8 @@
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "strict": true
+    "strict": true,
+    "noEmit": true
   },
   "ts-node": {
     "esm": true

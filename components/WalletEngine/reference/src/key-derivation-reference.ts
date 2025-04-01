@@ -56,17 +56,17 @@ export function coinKeys(seed: Buffer): {
   };
 }
 
-export function unshieldedKeyPairFromSecretKey(secretKey: Buffer): {
+export function unshieldedKeyPairFromUniformBytes(secretKeyBytes: Buffer): {
   secretKey: Buffer | null;
   publicKey: Buffer | null;
 } {
   try {
     return {
-      secretKey,
-      publicKey: Buffer.from(schnorr.getPublicKey(secretKey)),
+      secretKey: secretKeyBytes,
+      publicKey: Buffer.from(schnorr.getPublicKey(secretKeyBytes)),
     };
   } catch (e) {
-    // Got error in deriving unshielded key pair from seed returning null
+    // Got error in deriving unshielded key pair from seed - returning null
     return {
       secretKey: null,
       publicKey: null,

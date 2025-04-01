@@ -362,7 +362,7 @@ A system transaction can be issued by Midnight nodes to mint certain amount of t
 The claim includes:
 - Information about the coin created as a result of the claim.
 - The recipient's address.
-- The proof that the recipient is eligible for the claim.
+- The signature proving that the recipient is eligible for the claim.
 
 Possible uses of mint transactions are - assigning rewards to SPOs, assigning rewards to SPO delegators, minting tokens for faucet in testnets.
 

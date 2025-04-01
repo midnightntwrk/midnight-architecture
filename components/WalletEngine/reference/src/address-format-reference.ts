@@ -84,7 +84,7 @@ export class UnshieldedAddress {
   [Bech32m] = UnshieldedAddress.codec;
 
   constructor(public readonly data: Buffer) {
-    if (data.length != ShieldedCoinPublicKey.length) {
+    if (data.length != UnshieldedAddress.length) {
       throw new Error("Unshielded address needs to be 32 bytes long");
     }
   }

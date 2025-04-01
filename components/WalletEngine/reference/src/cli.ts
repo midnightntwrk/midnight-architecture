@@ -22,7 +22,7 @@ import {
   UnshieldedAddress,
 } from "./address-format-reference.js";
 import { ErisScalar, fromScalar, PlutoScalar } from "./field.js";
-import { coinKeys, dustSecretKey, encryptionSecretKey, unshieldedKeyPairFromSecretKey } from "./key-derivation-reference.js";
+import { coinKeys, dustSecretKey, encryptionSecretKey, unshieldedKeyPairFromUniformBytes } from "./key-derivation-reference.js";
 
 const networkIds = [null, "my-private-net", "dev", "test", "my-private-net-5"]; //null stands for mainnet
 const seeds = [
@@ -55,7 +55,7 @@ function generateKeyDerivationTestVectors(seeds: Buffer[]) {
     const esk = encryptionSecretKey(seed);
     const dsk = dustSecretKey(seed);
     const coinKeyPair = coinKeys(seed);
-    const unshieldedKeyPair = unshieldedKeyPairFromSecretKey(seed); //In this case the seed is the secret key, matching HD Wallet behavior
+    const unshieldedKeyPair = unshieldedKeyPairFromUniformBytes(seed); //In this case the seed is the secret key, matching HD Wallet behavior
     return {
       seed: seed.toString("hex"),
       unshielded: {
@@ -106,7 +106,7 @@ function generateAddressFormattingTestVectors(seeds: Buffer[]) {
     // @ts-ignore
     const state: zswap.LocalState = zswap.LocalState.fromSeedSpec(seed);
     const coinKeyPair = coinKeys(seed);
-    const unshieldedKeyPair = unshieldedKeyPairFromSecretKey(seed);
+    const unshieldedKeyPair = unshieldedKeyPairFromUniformBytes(seed);
 
     const shieldedAddressFormatter = mkFormatter({ networkId }, ShieldedAddress);
     const shieldedESKFormatter = mkFormatter({ networkId }, ShieldedEncryptionSecretKey);
@@ -369,7 +369,7 @@ program
     };
 
     const unshieldedAddr = (seed: Buffer) => {
-      const keys = unshieldedKeyPairFromSecretKey(seed);
+      const keys = unshieldedKeyPairFromUniformBytes(seed);
       return keys.publicKey != null ? new UnshieldedAddress(crypto.hash("sha-256", keys.publicKey, "buffer")) : null;
     };
 
