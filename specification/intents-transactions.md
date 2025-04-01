@@ -321,8 +321,8 @@ impl<S, P, B> Transaction<S, P, B> {
                 .filter_map(ContractAction::as_call)
                 .product(intent.actions.iter().filter_map(ContractAction::as_call))
             {
-                if let Some((segment, _)) = call1.calls_with_seq(call2) {
-                    if segment {
+                if let Some((guaranteed, _)) = call1.calls_with_seq(call2) {
+                    if guaranteed {
                         assert!(call2.fallible_transcript.is_none());
                     } else {
                         assert!(call2.guaranteed_transcript.is_none());
@@ -334,7 +334,7 @@ impl<S, P, B> Transaction<S, P, B> {
         let mut prev = Vec::new();
         while causal_precs != prev {
             prev = causal_precs;
-            for ((a, b), (c, d)) in prev.iter().zip(prev.iter()) {
+            for ((a, b), (c, d)) in prev.iter().product(prev.iter()) {
                 if b == c && !prev.contains((a, d)) {
                     causal_precs = causal_precs.insert((a, d));
                 }
@@ -412,7 +412,8 @@ impl<S, P, B> Transaction<S, P, B> {
             .chain(self.guaranteed_offer.iter().map(|o| (0, o)))
         {
             for (tt, val) in offer.deltas {
-                res.set((TokenType::Shielded(tt), segment), val);
+                let bal = res.get_mut_or_default((TokenType::Shielded(tt), segment));
+                *bal = (*bal).checked_add(val)?;
             }
         }
         Ok(res)
