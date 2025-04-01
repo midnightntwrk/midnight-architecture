@@ -1,0 +1,5 @@
+*_diff.*
+*_old.*
+.venv/
+__pycache__/
+*.pyc

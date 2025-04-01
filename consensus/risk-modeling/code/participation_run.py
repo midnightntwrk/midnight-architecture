@@ -54,6 +54,7 @@ from participation_lib import (
     plot_committee_selection_counts,
     plot_committee_selection_seat_cutoff,
     plot_participation,
+    plot_participation_plus,
     plot_participation_3d,
 )
 
@@ -103,8 +104,8 @@ results = assign_commitee(
 # Initialize Parameters:
 # comm_sizes = [100]  # vary over committee size, k
 # group_sizes = [100]  # vary over group size, n
-comm_sizes = range(100, 1201, 100)  # vary over committee size, k
-group_sizes = range(100, 1201, 100)  # vary over group size, n
+comm_sizes = range(100, 501, 100)  # vary over committee size, k
+group_sizes = range(100, 1001, 100)  # vary over group size, n
 num_iter = 100  # Number of iterations for Monte Carlo simulation
 
 # Note that the number of iterations here can be interpreted as the number
@@ -136,7 +137,14 @@ plot_participation(
 )
 
 # %%
+plot_participation_plus(
+    sim_results_df,
+    group_labels=level0,
+    committee_labels=level1,
+    num_iter=num_iter,
+)
 
+# %%
 fig, ax = plot_participation_3d(
     sim_results_df,
     group_labels=level0,
@@ -145,52 +153,62 @@ fig, ax = plot_participation_3d(
 )
 
 # %%
-# Disable interactive mode
-plt.ioff()
-plt.ion()
-
-# Show the figure in a new window
-fig.show()
-
-# Optionally, add a small pause to force a UI refresh
-plt.pause(0.001)
-# %%
-# Save the figure to a file
-filename = "participation_3d_plot.png"
-fig.savefig(filename)
-print(f"Figure saved to {filename}")
-
-# %%
 # Swap the levels of the columns again for the next steps
 sim_results_df, level0, level1 = swap_column_levels(sim_results_df)
 
 committee_labels = level0
 group_labels = level1
 
+
 # %%
-# Plot the committee selection counts distribution
-fig = plt.figure(figsize=(12, 8))
+def plot_distributions(
+    sim_results_df: pd.DataFrame,
+    group_labels: list,
+    committee_labels: list,
+):
+    """Plot the committee selection counts distribution for each group size.
 
-plot_data = sim_results_df.loc["Committee Seats"].loc["mean"]
+    Args:
+        sim_results_df (pd.DataFrame): The simulation results DataFrame.
+        group_labels (list): The group size labels.
+        committee_labels (list): The committee size labels.
 
-for c, g in plot_data.index:
+    Returns:
+        None
 
-    y = plot_data.loc[(c, g)]
-    x = y.index
+    """
+    plt.figure(figsize=(12, 8))
+    plot_data = sim_results_df.loc["Committee Seats"].loc["mean"]
 
-    n_c = int(c.split("=")[1].strip())
-    n_g = int(g.split("=")[1].strip())
+    for c, g in plot_data.index:
+        y = plot_data.loc[(c, g)]
+        x = y.index
+        n_c = int(c.split("=")[1].strip())
+        n_g = int(g.split("=")[1].strip())
+        colors = sns.color_palette("tab20", len(plot_data.index))
+        color_idx = list(plot_data.index).index((c, g))
+        plt.bar(x, y, alpha=0.7, color=colors[color_idx], label=f"{n_c}, {n_g}")
 
-    colors = sns.color_palette("tab20", len(plot_data.index))
-    color_idx = list(plot_data.index).index((c, g))
-    plt.bar(x, y, alpha=0.7, color=colors[color_idx], label=f"{n_c}, {n_g}")
+    plt.xlabel("Participant Index")
+    plt.ylabel("Committee Seat Count (average)")
+    plt.title("Committee Seat Count for Participants")
+    plt.xlim(0, 200)
 
-plt.xlabel("Participant Index")
-plt.ylabel("Committee Seat Count (average)")
-plt.title("Committee Seat Count for Participants")
-plt.legend(title="Committee Size, Group Size")
-plt.xlim(0, 200)
-plt.show()
+    # Place the legend outside the plot to the right and centered vertically
+    plt.legend(
+        bbox_to_anchor=(1.05, 0.5),
+        loc="center left",
+        borderaxespad=0.0,
+    )
+    plt.show()
+
+
+# %%
+plot_distributions(
+    sim_results_df,
+    group_labels=group_labels,
+    committee_labels=committee_labels,
+)
 
 # %%
 # Distinct Voters

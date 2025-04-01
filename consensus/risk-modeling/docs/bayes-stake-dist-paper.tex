@@ -1,0 +1,1967 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{parskip}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyfoot{\footnotesize Copyright © 2025 Input Output Global | Confidential \hfill \thepage}
+\renewcommand{\headrulewidth}{0pt}  % Remove the header rule
+\renewcommand{\footrulewidth}{0.5pt}  
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{A Bayesian Model for Committee Selection in Blockchain Consensus Protocols}
+\author{Rob Jones}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This paper presents a Bayesian model for committee selection in blockchain consensus protocols, with a focus on estimating participant selection probabilities and optimizing committee composition. Key contributions include: (1) a hierarchical Bayesian framework using Dirichlet priors and multinomial sampling to model participant selection; (2) mathematical derivations for expected seat counts and their variances; (3) analysis of Byzantine Fault Tolerance (BFT) thresholds in the context of weighted participants; (4) an optimization approach for committee size determination based on stake distribution; and (5) application of Chernoff bounds to quantify the probability of Byzantine coalitions exceeding critical thresholds. The paper demonstrates how Bayesian inference can enhance our understanding of committee selection mechanics and improve security guarantees in blockchain systems where participants have heterogeneous influences based on stake.
+
+Blockchain consensus algorithms often require committees of participants to validate transactions, contribute to governance, and ensure system reliability. In this context, Stake Pool Operators (SPOs) are grouped into committees of size $ k $, drawn from a pool of $ n $ participants. Uniquely, participants can occupy multiple seats in the committee due to the sampling process, which introduces randomness into the selection mechanism. This randomness can be effectively modeled using hierarchical Bayesian inference, leveraging Dirichlet priors for the probability distribution of participants and posterior updates to refine predictions about committee seat assignments.
+
+
+Committee members are chosen through random sampling with replacement from a pool of participants, and the probability of each participant being selected is governed by a probability distribution that is aligned with the multinomial distribution. Here's why:
+
+\begin{itemize}
+    \item The \textbf{multinomial distribution} is an extension of the binomial distribution and deals with outcomes of experiments where there are more than two categories (or participants, in this case).
+    \item Each ``draw'' or ``trial'' corresponds to a selection, and since sampling is done \emph{with replacement}, the probability distribution over participants remains constant across trials.
+    \item The result is that the counts of how many times each participant is chosen follow a multinomial distribution.
+\end{itemize}
+This paper presents a Bayesian model for estimating the selection probabilities of participants in a committee selection process, using Dirichlet priors and multinomial sampling. The model allows for the incorporation of prior beliefs about participant selection probabilities and updates these beliefs based on observed data.
+
+\section{The Problem Setup}
+The committee selection process is described as follows:
+\begin{enumerate}
+    \item \textbf{Participants ($ n $)}: 
+    \begin{itemize}
+        \item Represent distinct SPOs in the blockchain consensus algorithm.
+        \item Each participant has an associated probability of selection.
+    \end{itemize}
+    \item \textbf{Committee Size ($ k $)}:
+    \begin{itemize}
+        \item Defines the number of seats in the committee.
+        \item Sampling is conducted \emph{with replacement}, meaning a participant can occupy multiple seats.
+    \end{itemize}
+    \item \textbf{Stake Values}:
+    \begin{itemize}
+        \item Each participant has a normalized stake value, influencing their probability of selection.
+    \end{itemize}
+\end{enumerate}
+This process involves generating a probability distribution $ \mathbf{p} $ over the participants, sampling $ k $ seats based on $ \mathbf{p} $, and iteratively refining our understanding of the probabilities $ \mathbf{p} $ using Bayesian inference.
+
+\section{Marginalizing Over $\mathbf{p}$}
+In the context of the multinomial distribution, we often have a prior belief about the probabilities $\mathbf{p}$ of selecting each participant. This prior is typically modeled using a Dirichlet distribution, which is conjugate to the multinomial distribution. We want to treat the observed counts $\mathbf{X}$ as a summary of the process and integrate over the unknown probabilities $\mathbf{p}$ entirely. That makes sense if we're aiming for a fully Bayesian approach to marginalize out $\mathbf{p}$, rather than conditioning directly on it.
+
+\section{Model Specification}
+Given observed committee counts $ \mathbf{X} $, we can perform posterior inference for the Dirichlet hyperparameters $ \boldsymbol{\alpha} = (\alpha_1, \alpha_2, \dots, \alpha_n) $ by adopting a fully Bayesian approach. 
+
+In this case, the likelihood function is the multinomial probability mass function 
+$ P(\mathbf{X} | \mathbf{p}) $, but our interest lies in the \emph{marginal likelihood}, which integrates out $ \mathbf{p} $ by combining it with the prior distribution (Dirichlet). 
+This results in a \textbf{Dirichlet-Multinomial} distribution, also known as the \textbf{Polya distribution}. The reasoning is as follows:
+
+We place a prior on $ \boldsymbol{\alpha} $ 
+(for example, using a Gamma distribution for each $ \alpha_i $) 
+and estimate it using Markov Chain Monte Carlo (MCMC) or variational Bayes inference. 
+The MCMC approach can be implemented using the Python library PyMC.
+The problem is described mathematically with the following components:
+
+\subsection*{1. Prior on Hyperparameters}
+
+In this framework, we assign each $ \alpha_i $ a Gamma prior:
+\[
+\alpha_i \sim \text{Gamma}(\text{shape}, \text{rate}),
+\]
+where the "shape" and "rate" parameters reflect our prior beliefs about the concentration of each participant's selection probability.
+
+\subsection*{2. Dirichlet Prior}
+A participant's probability of being selected is modeled as
+\begin{equation}
+\mathbf{p} = (p_1, p_2, \dots, p_n) \sim \text{Dirichlet}(\boldsymbol{\alpha}),
+\end{equation}
+where
+\[
+\boldsymbol{\alpha} = (\alpha_1, \alpha_2, \dots, \alpha_n)
+\]
+are concentration parameters representing prior beliefs about the selection probabilities.
+
+\subsection*{3. Sampling from the Committee}
+The number of times each participant occupies a seat in the committee is modeled as
+\begin{equation}
+\mathbf{X} = (X_1, X_2, \dots, X_n) \sim \text{Multinomial}(k, \mathbf{p}),
+\end{equation}
+where $ \mathbf{X} $ represents the counts for each participant and $ k = \sum_{i=1}^n X_i $ is the total committee size.
+
+\subsection*{4. Bayesian Updating}
+After observing committee compositions $ \mathbf{X} $, the prior $ \boldsymbol{\alpha} $ is updated to a posterior distribution:
+\begin{equation}
+p(\boldsymbol{\alpha} \mid \mathbf{X}) \propto p(\mathbf{X} \mid \boldsymbol{\alpha}) \cdot p(\boldsymbol{\alpha}).
+\end{equation}
+
+\subsection*{5. Posterior Inference}
+
+With these conjugate priors\footnote{Conjugate priors simplify Bayesian inference by ensuring that the posterior distribution is in the same family as the prior, which makes analytical and computational procedures more tractable.} and updates in place, MCMC methods are used to sample from the posterior distribution $ p(\boldsymbol{\alpha} \mid \mathbf{X}) $. This sampling process allows us to estimate the full posterior distributions for $ \boldsymbol{\alpha} $ and, consequently, enables the computation of expected committee seat counts and their variances. In particular, the expected count for participant $ i $ is given by:
+\[
+E[X_i] = k \cdot \frac{\alpha_i}{\sum_{j=1}^{n} \alpha_j},
+\]
+where $ k $ is the total number of committee seats. This Bayesian procedure thoroughly captures the uncertainty in the selection probabilities, providing a robust foundation for further inference and decision-making.
+
+
+\section{Mathematical Insights}
+\subsection*{Expected Seat Count}
+The expected number of seats assigned to participant $ i $ is computed as:
+\begin{equation}
+E[X_i] = k \cdot \frac{\alpha_i}{\sum_{j=1}^{n} \alpha_j}.
+\end{equation}
+
+\subsection*{Variance of Seat Count}
+The variance of the seat count for participant $ i $ is given by:
+\begin{equation}
+\begin{split}
+\operatorname{Var}(X_i) &= k \left( \frac{\alpha_i}{\sum_{j=1}^{n} \alpha_j} - \frac{\alpha_i (\alpha_i + 1)}{\left(\sum_{j=1}^{n}\alpha_j\right) \left(\sum_{j=1}^{n}\alpha_j + 1\right)} \right)\\[1ex]
+&\quad + k^2 \cdot \frac{\alpha_i \left(\sum_{j=1}^{n}\alpha_j - \alpha_i\right)}{\left(\sum_{j=1}^{n}\alpha_j\right)^2 \left(\sum_{j=1}^{n}\alpha_j + 1\right)}.
+\end{split}
+\end{equation}
+
+
+\section{Implementation}
+
+The following script outlines the steps for Bayesian Committee Selection using Dirichlet priors and multinomial sampling. The algorithm is designed to be flexible, allowing for the incorporation of prior beliefs about participant selection probabilities and updating these beliefs based on observed data.
+
+\begin{lstlisting}[language=Python, caption={Bayesian Model for Committee Seat Counts}, basicstyle=\small\fontfamily{pcr}\selectfont, tabsize=4]
+import pymc as pm
+import numpy as np
+import arviz as az
+
+# Observed data (committee seat counts) 
+# where each instance sums to the total committee size, 50
+observed_counts = np.array(
+    [[5, 10, 7, 13, 15],
+     [5, 10, 8, 12, 15],
+     [8, 12, 15, 8, 7]]
+)  # Replace with actual data
+
+k = observed_counts.sum(axis=1)  # total committee size
+
+# Bayesian Model
+with pm.Model() as model:
+    # Gamma prior on Dirichlet parameters (alpha)
+    alpha = pm.Gamma(
+        "alpha", alpha=2.0, beta=1.0, shape=n_categories
+    )
+    # Dirichlet distribution for probabilities
+    p = pm.Dirichlet("p", a=alpha)
+    
+    # Multinomial likelihood for observed data
+    observed = pm.Multinomial(
+        "observed", k, p=p, observed=observed_counts
+    )
+    # MCMC sampling
+    trace = pm.sample(
+        2000, tune=1000, return_inferencedata=True
+    )
+
+# Posterior Analysis
+posterior_mean_alpha = (
+    trace.posterior["alpha"]
+    .mean(dim=("chain", "draw"))
+    .values
+)
+print("Posterior Mean of Alpha:", posterior_mean_alpha)
+expected_seat_counts = committee_size * \
+    (posterior_mean_alpha / posterior_mean_alpha.sum())
+print("Expected Seat Counts:", expected_seat_counts)
+
+# Visualize posterior distributions
+az.plot_trace(trace, var_names=["alpha"])
+\end{lstlisting}
+
+\section{Results and Discussion}
+
+The complete implementation of the algorithm is provided in Appendix~\ref{sec:computer_code} 
+and is available in the repository as {\ttfamily bayes\_stake\_dist.py}.
+The code uses the PyMC library for Bayesian modeling and sampling, and ArviZ for posterior analysis and visualization. The model allows for flexible prior specifications and can be adapted to different committee selection scenarios.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/Distribution_of_the_Stake_Weights.png}
+    \caption{Distribution of stake weights across participants in a typical stake pool group. The x-axis represents individual participants, while the y-axis shows their normalized stake weight. This visualization demonstrates the heterogeneity in stake distribution, which directly influences the probability of selection to the committee according to our Bayesian model.}
+    \label{fig:Distribution_of_the_Stake_Weights}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/Committee_Participation_per_Stake_Weight.png}
+    \caption{Committee participation of size $k = 100$ per stake weight sampled from a typical group of ~ 50. The x-axis represents the stake weight of each participant, while the y-axis shows the number of times each participant is selected to the committee. The plot illustrates how the stake weight influences the likelihood of selection, with higher stake weights leading to more frequent committee participation.}
+    \label{fig:Committee_Participation_per_Stake_Weight}
+    
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/Gamma_hyperparm_prior.png}
+    \caption{Gamma distribution used as the prior on the Dirichlet concentration parameters. The plot illustrates how the Gamma distribution with shape parameter $\alpha=2.0$ and rate parameter $\beta=1.0$ controls the prior beliefs about the concentration parameters of the Dirichlet distribution. This hyperprior influences the expected variation in selection probabilities among participants, with higher concentration values leading to more uniform distributions.}
+    \label{fig:Gamma_hyperparm_prior}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/Bayes_update_params.png}
+    \caption{Bayesian update of Dirichlet parameters based on observed committee selection data. The plot illustrates how the prior distribution (blue) is updated through the likelihood of observed data to form the posterior distribution. This visualization demonstrates the core principle of our approach: as committee selections are observed, our belief about the underlying selection probabilities evolves, leading to more refined estimates of participant influence. The updated (posterior) Dirichlet parameters provide the foundation for calculating expected seat counts and their variances in future committee selections. \\ 
+    {\bf TODO: make a better plot of this.}
+    }
+    \label{fig:Bayes_update_params}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/Posterior_Predictive_Check.png}
+    \caption{Posterior predictive check of the Bayesian model. This visualization compares data simulated from the posterior distribution of the model against the observed data, allowing assessment of model fit. The densities represent the distribution of committee seat allocations under the model's posterior (blue and orange lines), while the observed data (black line) should fall within the high-density regions if the model is capturing the underlying process well. Good alignment between simulated and observed data indicates that the model effectively captures the stake-based selection dynamics in the committee formation process.}
+    \label{fig:Posterior_Predictive_Check}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/Bayesia_inferencing.png}
+    \caption{Bayesian inferencing process for the Dirichlet distribution parameters. The figure illustrates the Markov Chain Monte Carlo (MCMC) simulation used to calculate the $\boldsymbol{\alpha}$ vector parameters. Left panels show the trace plots of individual $\alpha_i$ parameters across MCMC iterations, demonstrating convergence of the chains to the posterior distribution. Right panels display the posterior distributions of these parameters after convergence. This visualization captures how our model updates beliefs about participant selection probabilities through iteration, starting from prior assumptions and incorporating observed committee selection data to form reliable posterior estimates of the Dirichlet concentration parameters.}
+    \label{fig:Bayesia_inferencing}
+\end{figure}
+
+
+The model's output provides a posterior distribution of the Dirichlet parameters, which can be interpreted as the expected number of times each participant is selected to the committee. The posterior mean of the Dirichlet parameters gives us the expected seat counts for each participant, which can be used to inform decisions about committee composition and selection mechanisms. The results of the Bayesian model can be summarized in Appendix~\ref{sec:computation_results}, Table~\ref{tab:mean_probability}, which provides insights into the expected seat counts for each participant based on their prior beliefs and observed data. The table lists the mean probability distribution, $\boldsymbol{m} = [m_1, m_2, \ldots, m_n]$, for columns $1, 2, \ldots, n$ over the probabilities of committee selection, $\boldsymbol{p}$, for different stake sizes and group sizes, $n$. These parameters can be multiplied by the committee size $k$ to calculate the expected number of times the associated participant is selected to the committee.
+ 
+\newpage
+\section{Deeper Dive on the Fully Bayesian Approach}
+
+\subsection{Why Fully Bayesian?}
+In the context of the multinomial distribution, a fully Bayesian approach allows us to treat the selection probabilities $ \mathbf{p} $ as random variables rather than fixed parameters. This means we can incorporate prior beliefs about these probabilities and update them as we observe data.
+This is particularly useful when we have limited data or when we want to account for uncertainty in our estimates. By using a Dirichlet prior on $ \mathbf{p} $, we can model the selection probabilities as a distribution rather than point estimates.
+This allows us to capture the uncertainty in our estimates and make probabilistic statements about the selection process.
+The Dirichlet distribution is a conjugate prior for the multinomial distribution, meaning that if we assume a Dirichlet prior on $ \mathbf{p} $, the posterior distribution of $ \mathbf{p} $ given observed counts $ \mathbf{X} $ will also be a Dirichlet distribution. This property simplifies the Bayesian updating process and allows us to easily compute posterior distributions.
+
+This means that the concentration parameters $ \alpha_i $ can ben use the multinomial model to calculate probabilities $\boldsymbol{p}$ interpreted as prior counts or pseudo-observations for each participant. For example, if we have $ \alpha_1 = 2 $, $ \alpha_2 = 3 $, and $ \alpha_3 = 1 $, this implies that we have prior beliefs of having observed 2, 3, and 1 counts for participants 1, 2, and 3, respectively.
+This allows us to incorporate prior knowledge or beliefs about the selection probabilities into our model. The posterior distribution of $ \mathbf{p} $ given observed counts $ \mathbf{X} $ will be a Dirichlet distribution with updated concentration parameters:
+
+\begin{equation}
+\boldsymbol{\alpha}_{\text{post}} = \boldsymbol{\alpha}_{\text{prior}} + \mathbf{X} = (\alpha_1 + x_1, \alpha_2 + x_2, \dots, \alpha_n + x_n). 
+\end{equation}
+and then the posterior becomes the prior for the next iteration (because of the conjugate prior property):
+\begin{equation}
+\boldsymbol{\alpha}_{\text{prior}} \leftarrow \boldsymbol{\alpha}_{\text{post}}   
+\end{equation}
+
+This means that the posterior distribution of $ \mathbf{p} $ will be a Dirichlet distribution with parameters $ \boldsymbol{\alpha}_{\text{post}} $, which can be interpreted as having observed $ x_i $ additional counts for each participant.
+This Bayesian updating process allows us to refine our estimates of the selection probabilities as we observe more data. The posterior distribution can be used to make probabilistic statements about the selection process, such as predicting the likelihood of selecting a particular participant in future trials.
+This is particularly useful in scenarios where we want to make decisions based on uncertain probabilities, such as in committee selection processes or other decision-making contexts.
+
+Once we infer the Dirchlet distribution parameters $\boldsymbol{\alpha}$ 
+we can marginalize out $\mathbf{p}$ and compute the marginal likelihood of the observed data $\mathbf{X}$.
+This is done by integrating over the Dirichlet distribution, which leads to the Dirichlet-Multinomial distribution. The steps are as follows:   
+
+\begin{enumerate}
+    \item \textbf{Prior}: 
+    \[
+    \mathbf{p} \sim \text{Dirichlet}(\boldsymbol{\alpha}), \quad \text{with } \boldsymbol{\alpha} = (\alpha_1, \alpha_2, \dots, \alpha_n).
+    \]
+    
+    \item \textbf{Likelihood}: Given $\mathbf{p}$, the likelihood for $\mathbf{X}$ (committee counts) is
+    \begin{equation}
+    P(\mathbf{X} \mid \mathbf{p}) = \frac{k!}{x_1! x_2! \dots x_n!} \prod_{i=1}^n p_i^{x_i},
+    \end{equation}
+    where $ \mathbf{X} = (x_1, x_2, \dots, x_n) $ and $ k = \sum_{i=1}^n x_i $ is the total number of selections.
+    
+    \item \textbf{Integrate Over $\mathbf{p}$}: Combine the prior and likelihood, then integrate $\mathbf{p}$ out:
+    \begin{equation}
+    P(\mathbf{X} \mid \boldsymbol{\alpha}) = \int_{\mathbf{p}} P(\mathbf{X} \mid \mathbf{p}) \, P(\mathbf{p} \mid \boldsymbol{\alpha}) \, d\mathbf{p}.
+    \end{equation}
+    
+    The resulting marginal likelihood is given by the Dirichlet-Multinomial distribution:
+    \begin{equation}
+    P(\mathbf{X} \mid \boldsymbol{\alpha}) = \frac{k!}{x_1! x_2! \dots x_n!} \frac{\Gamma\left(\sum_{i=1}^n \alpha_i\right)}{\Gamma\left(k + \sum_{i=1}^n \alpha_i\right)} \prod_{i=1}^n \frac{\Gamma(x_i + \alpha_i)}{\Gamma(\alpha_i)}.
+    \end{equation}
+\end{enumerate}
+
+This marginal likelihood captures the uncertainty in the selection probabilities and allows us to make probabilistic statements about the committee selection process. The Dirichlet-Multinomial distribution is particularly useful in scenarios where we want to make decisions based on uncertain probabilities, such as in committee selection processes or other decision-making contexts.
+
+\textbf{Key Advantages of This Approach}
+
+\begin{itemize}
+    \item \textbf{No Direct Dependence on $ \mathbf{p} $}: By marginalizing $ \mathbf{p} $, the model directly considers the uncertainty in $ \mathbf{p} $ through the Dirichlet prior.
+    \item \textbf{Closed-Form Marginal Likelihood}: The Dirichlet-Multinomial distribution gives a tractable form for the marginal likelihood, avoiding the need for numerical integration.
+    \item \textbf{Flexibility for Hyperparameter Estimation}: If we're uncertain about 
+    $ \boldsymbol{\alpha} $, we can place a prior on it (e.g., $ \alpha_i \sim \textrm{Gamma} $) and use MCMC to estimate it from the data.
+\end{itemize}
+
+
+To recap, why do we need a fully Bayesian approach for our multinomial committee selection model? Here are several compelling reasons:
+
+\begin{itemize}
+    \item \textbf{Handling Parameter Uncertainty:} In most real-world scenarios, the true selection probabilities, represented by $\mathbf{p}$, are unknown. A Bayesian framework allows us to specify a prior belief (via a Dirichlet distribution) about these probabilities and update this belief as data accumulates.
+    \item \textbf{Propagation of Uncertainty:} Rather than providing just point estimates, the fully Bayesian approach produces a posterior distribution over the probabilities. This distribution captures the uncertainty inherent in the estimation process and informs decisions under uncertainty.
+    \item \textbf{Hierarchical Modeling Capabilities:} In complex scenarios, probabilities might themselves be generated from higher-level processes. A Bayesian framework permits the specification of hyperpriors on the parameters (e.g., through a hierarchical Dirichlet model), enabling a richer, multi-level understanding of uncertainty.
+    \item \textbf{Robust Predictive Inference:} By integrating over the uncertainties in $\mathbf{p}$, the marginal likelihood (or predictive distribution) derived in the Dirichlet-Multinomial model is more robust. This integration accounts for all plausible values of $\mathbf{p}$, leading to more reliable probabilistic predictions about future observations.
+\end{itemize}
+
+
+
+\section{Application to Blockchain Consensus}
+By modeling the committee selection process using Dirichlet priors, one can:
+\begin{itemize}
+    \item Reflect the stake-based influence of participants on their likelihood of selection.
+    \item Incorporate observed data to refine the understanding of the selection probabilities.
+    \item Use the posterior estimates of $ \boldsymbol{\alpha} $ to predict future committee compositions and ensure fairness, or adjust selection mechanisms.
+\end{itemize}
+This approach combines both flexibility and rigor, providing a robust framework for modeling the inherent randomness in blockchain consensus protocols.
+
+\subsection*{Customizations and Extensions}
+\begin{itemize}
+        \item Adjust the prior distributions for $ \alpha_i $ if we have specific beliefs (e.g., using narrower Gamma priors or a uniform distribution).
+        \item Modify the number of trials $ n $ in the multinomial likelihood according to how the normalized data were scaled.
+        \item Consider adding prior predictive checks or posterior predictive sampling to validate the model's performance against observed data.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\textbf{Byzantine Fault Tolerance and Dirichlet Priors}}
+
+\subsection{Byzantine Fault Tolerance (BFT) in Standard Systems}
+In traditional (uniform-weight) BFT, a system can tolerate up to $f$ faulty nodes out of a 
+total of $n$ nodes as long as
+\begin{equation}
+    f < \frac{n}{3},
+\end{equation}
+which ensures that the honest nodes control more than two‐thirds of the votes. When decisions require a $2/3$ supermajority, this also ensures liveness.
+
+\subsection{Translating to the Weighted Case}  
+In a weighted setting, the analogous condition is that the \textit{total voting power} of the faulty participants (in the worst-case scenario) must be less than $1/3$ of the total committee weight, or the number of seats out of the total of $k$ seats in the committee. If we assume that an adversary can choose the most influential participants, 
+then we sort participants in descending order by their $E[X_i]$.
+
+\subsubsection*{Weighted Committee Model}  
+Each participant $i$ in a committee of size $k$ has an expected number of seats (or voting power)
+\begin{equation}
+E[X_i] = k \cdot \frac{\alpha_i}{\sum_{j=1}^n \alpha_j},
+\end{equation}
+where the $\alpha_i$ come from our Dirichlet model (and higher $\alpha_i$ indicate higher stake).
+
+\subsubsection*{Define the Cumulative Measure}
+\begin{equation}
+C(f) = \sum_{i=1}^{f} E[X_{(i)}],
+\end{equation}
+where 
+$f$ is the number of faulty participants and $E[X_{(i)}]$ is the expected number of seats for the $i$-th participant in the sorted order. The notation $X_{(i)}$ indicates the $i$-th order statistic, which is the $i$-th largest value in a sorted list.
+$E[X_{(1)}] \ge E[X_{(2)}] \ge \cdots \ge E[X_{(n)}]$.
+
+\subsection{The Critical Thresholds}
+
+\subsubsection*{Safety (Agreement)}
+To avoid conflicting decisions (i.e. to maintain safety), the total voting power controlled by the faulty participants should be less than one-third of the committee weight. In other words, if $f$ is the maximum number of faulty participants that can be tolerated, then the worst-case cumulative voting power must satisfy:
+\begin{equation}
+C(f) < \frac{k}{3}.
+\end{equation}
+If the coalition of the top $f$ participants exceeds $k/3$ in weight, then they could, in principle, prevent the honest nodes (which would then have less than $2k/3$) from reaching consensus on a unique decision.
+
+\subsubsection*{Liveness (Progress)}  
+Liveness requires that the honest participants be able to make progress, which in many protocols is ensured by requiring at least a $2/3$ majority for decisions. 
+If the faulty nodes control less than $k/3$ of the weight, then the honest nodes naturally control more than $2k/3$, which supports liveness. 
+
+Thus, instead of associating one threshold with safety and the other separately with liveness, the fundamental requirement is that the adversary's total weight remains under one-third of the total voting power. In a uniform system, this is equivalent to $f < n/3$, but with heterogeneous weights it becomes:
+\begin{equation}
+C(f) = \sum_{i=1}^{f} E[X_{(i)}] < \frac{k}{3}.
+\end{equation}
+Then, automatically, the remaining (honest) weight is more than $\frac{2k}{3}$.
+
+\subsection{Maximum Faulty Participants}
+
+If we define $f$ to be the \textbf{maximum number of faulty participants} that our system can tolerate, then a correct interpretation is that the system will remain \emph{both safe and live} if the worst-case (i.e. the highest weighted) $f$ participants collectively hold \emph{less than} $k/3$ of the total vote weight. Conversely, if their cumulative influence reaches or exceeds $k/3$, then the system is \textbf{at risk}—safety (agreement) may be compromised and liveness (ability to progress) may stall.
+
+In practice, we can determine the maximum tolerable $f$ by computing the cumulative sums $C(1), C(2), \ldots$ until we find the largest $f$ such that:
+\begin{equation}
+C(f) < \frac{k}{3}.
+\end{equation}
+
+\subsubsection*{Applying This to Our Bayesian Model with Dirichlet Priors}
+
+Recall that in our model, the expected number of seats for participant $i$ is given by
+
+\begin{equation}
+E[X_i] = k \cdot \frac{\alpha_i}{\sum_{j=1}^n \alpha_j},
+\end{equation}
+
+which serves as a proxy for that participant's influence (or voting power).
+
+
+
+\subsubsection*{Sorting by Influence} 
+Since the $\alpha_i$ may vary and so do $E[X_i]$, we want to rank the participants in descending order by $E[X_i]$. This order tells us which participants have the most influence.
+
+
+\subsubsection*{Cumulative Voting Power} 
+Define the cumulative voting power of the top $m$ participants as
+
+\begin{equation}
+C(m) = \sum_{i=1}^{m} E[X]_{(i)},
+\end{equation}
+
+where $E[X]_{(1)} \ge E[X]_{(2)} \ge \cdots \ge E[X]_{(n)}$ are the ordered expected seat counts.
+
+
+\subsubsection*{Fault Tolerance Threshold} 
+The system will be secure (safe and live) 
+as long as no colluding adversarial coalition can muster at least $1/3$ of the total voting power.
+In other words, if we can identify the smallest integer $m$ for which
+\begin{equation}
+C(m) \geq \frac{k}{3},
+\end{equation}
+then if those top $m$ participants were malicious, the Byzantine voting weight would meet or exceed the critical threshold for breaking the consensus guarantees.
+
+Thus, while the decision rule in many protocols is to require $2/3$ of votes to commit (ensuring that honest voting power is above that level), the ultimate fault-tolerance limit is based on keeping the Byzantine fraction below $1/3$ of the total weight. our intuition is exactly right: by applying order statistics (ranking by stake/$\alpha$), we can quantify precisely how many---or rather, which---participants would need to be malicious before compromising the system.
+
+\subsection{Algorithm for BFT Analysis}
+The following algorithm outlines the steps to compute the maximum tolerable Byzantine participants for safety and liveness in a weighted committee selection process. The algorithm takes as input the Dirichlet parameters (stake distribution), committee size, and number of participants, and outputs the maximum tolerable Byzantine participants for both safety and liveness.
+
+\begin{algorithm}
+\caption{Byzantine Fault Tolerance Analysis}
+\begin{algorithmic}[1]
+    \State \textbf{Input:} 
+          \State \quad $\boldsymbol{\alpha}$: Dirichlet parameters (stake distribution)
+          \State \quad $k$: Committee size
+          \State \quad $n$: Number of participants
+    \State \textbf{Output:} $m_s$, $m_l$: Maximum tolerable Byzantine participants for safety and liveness
+    
+    \State \textbf{Step 1:} Calculate expected seat counts
+    \For{each participant $i \in \{1,2,\ldots,n\}$}
+        \State Compute $E[X_i] \gets k \cdot \frac{\alpha_i}{\sum_{j=1}^n \alpha_j}$
+    \EndFor
+    
+    \State \textbf{Step 2:} Sort participants by expected seat counts
+    \State Sort $\{E[X_i]\}_{i=1}^n$ in descending order to get $E[X]_{(1)} \geq E[X]_{(2)} \geq \dots \geq E[X]_{(n)}$
+    
+    \State \textbf{Step 3:} Compute cumulative voting power
+    \For{$m = 1$ to $n$}
+        \State Compute $C(m) \gets \sum_{i=1}^m E[X]_{(i)}$
+    \EndFor
+    
+    \State \textbf{Step 4:} Determine fault thresholds
+    \State $m_s \gets 0$
+    \State $m_l \gets 0$
+    \For{$m = 1$ to $n$}
+        \If{$C(m) \geq \frac{k}{3}$ \textbf{and} $m_s = 0$}
+            \State $m_s \gets m$  \Comment{Safety threshold reached}
+        \EndIf
+        \If{$C(m) \geq \frac{2k}{3}$ \textbf{and} $m_l = 0$}
+            \State $m_l \gets m$  \Comment{Liveness threshold reached}
+        \EndIf
+    \EndFor
+    
+    \State \textbf{return} $m_s-1$ as maximum Byzantine participants for safety
+    \State \textbf{return} $m_l-1$ as maximum Byzantine participants for liveness
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Implications}
+
+\subsubsection*{Byzantine Resilience} 
+If $m_s$ is small, even a small number of adversaries with high stake can compromise safety. Conversely, a large $m_s$ indicates that the system is resilient to faults spread across many participants.
+
+\subsubsection*{Stake Distribution Sensitivity} 
+Systems with concentrated stake (few participants dominating $E[X_i]$) are more vulnerable compared to systems with evenly distributed influence.
+
+\subsubsection*{Final Thoughts} Incorporating order statistics is crucial to determine the resilience of the system because the impact of faults depends on both the relative and cumulative influence of participants. This approach gives a precise framework for analyzing fault tolerance thresholds in heterogeneous systems like blockchain consensus protocols.
+
+
+\section{Optimal Committee Size Approximation}
+
+It is possible to optimize $k$ given $\boldsymbol{\alpha}$, $n$, and $f$. 
+By considering order statistics and iteratively evaluating cumulative voting power thresholds, we can derive the smallest $k$ that ensures desired BFT guarantees.
+While exact optimization depends on factors like computational constraints and nuances of the blockchain protocol, we can derive an approximate method to balance system resilience and efficiency.
+
+\subsection{Key Quantities}
+\subsubsection*{Inputs:}
+\begin{enumerate}
+    \item \textbf{BFT Threshold} ($f$): Desired fraction of tolerated Byzantine faults (e.g., $f = 1/3$ for traditional safety and liveness guarantees).
+    \item \textbf{Group Size} ($n$): Total number of participants (SPOs) eligible for committee selection.
+    \item \textbf{Dirichlet $\boldsymbol{\alpha}$:} A vector representing stake distribution among $n$ participants. Participants with larger $\alpha_i$ have higher expected influence.
+\end{enumerate}
+
+\subsubsection*{Outputs:}
+\begin{itemize}
+    \item \textbf{Optimal Committee Size} ($k$): The number of seats in the committee ensuring desired BFT guarantees while minimizing computational and communication overhead.
+\end{itemize}
+
+\subsection{Decision Criteria}
+The optimal $k$ must satisfy:
+\begin{enumerate}
+    \item \textbf{Safety Constraint:} The system should tolerate Byzantine participants controlling up to $f$ of total committee influence. This requires:
+    \begin{equation}
+    C(m_s) < f \cdot k,
+    \end{equation}
+    where $C(m_s)$ is the cumulative voting power of the top $m_s$ participants.
+    
+    \item \textbf{Liveness Constraint:} Honest participants must hold at least $(1-f)$ of the voting power:
+    \begin{equation}
+    C(m_h) \geq (1-f) \cdot k,
+    \end{equation}
+    where $C(m_h)$ is the cumulative influence of the top $m_h$ honest participants.
+    
+    \item \textbf{Stake Distribution Sensitivity:} A larger $k$ dilutes the relative weight of high-stake participants (reducing the influence of top-ranked $\alpha_i$), improving fairness and resilience.
+    
+    \item \textbf{Efficiency:} Smaller $k$ minimizes computational and communication overhead. $k$ should balance security and efficiency.
+\end{enumerate}
+
+\subsection{Optimum $k$ Approximation Algorithm}
+We aim to determine the smallest $k$ meeting the BFT thresholds. 
+The algorithm iteratively computes expected seat counts, sorts participants by influence, and checks cumulative voting power against the safety and liveness constraints. The process continues until both constraints are satisfied.
+The algorithm is as follows:
+
+\begin{algorithm}
+\caption{Optimal Committee Size Determination}
+\begin{algorithmic}[1]
+    \State \textbf{Input:} 
+        \State \quad $\boldsymbol{\alpha}$: Dirichlet parameters (stake distribution)
+        \State \quad $n$: Number of participants
+        \State \quad $f$: Byzantine fraction threshold
+        \State \quad $k_{\text{min}}$: Minimum committee size
+    \State \textbf{Output:} $k_{\text{optimal}}$: Optimal committee size
+    
+    \State $k \gets k_{\text{min}}$
+    \State $\text{constraints\_satisfied} \gets \text{false}$
+    
+    \While{$\text{not}$ $\text{constraints\_satisfied}$}
+        \For{$i = 1$ to $n$}
+            \State $E[X_i] \gets k \cdot \frac{\alpha_i}{\sum_{j=1}^n \alpha_j}$
+        \EndFor
+        
+        \State Sort participants in descending order of $E[X_i]$ to get $E[X]_{(1)} \geq E[X]_{(2)} \geq \ldots \geq E[X]_{(n)}$
+        
+        \State $C(m_s) \gets \sum_{i=1}^{m_s} E[X]_{(i)}$ \Comment{Cumulative voting power for safety}
+        \State $C(m_h) \gets \sum_{i=1}^{m_h} E[X]_{(i)}$ \Comment{Cumulative voting power for liveness}
+        
+        \If{$C(m_s) < f \cdot k$ \textbf{and} $C(m_h) \geq (1-f) \cdot k$}
+            \State $\text{constraints\_satisfied} \gets \text{true}$
+        \Else
+            \State $k \gets k + 1$
+        \EndIf
+    \EndWhile
+    
+    \State \textbf{return} $k$ as $k_{\text{optimal}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Factors Affecting Optimization}
+\subsubsection*{Impact of $\boldsymbol{\alpha}$}
+\begin{itemize}
+    \item \textbf{Highly unequal $\boldsymbol{\alpha}$:} (few dominant participants): Requires larger $k$ to reduce adversarial influence and achieve fairness.
+    \item \textbf{Uniform $\boldsymbol{\alpha}$:} Smaller $k$ suffices, as influence is evenly distributed.
+\end{itemize}
+
+\subsubsection*{Group Size $n$}
+\begin{itemize}
+    \item Larger $n$: Requires larger $k$ to accommodate diverse participants while maintaining fault tolerance.
+    \item Smaller $n$: Can tolerate smaller $k$, as fewer participants contribute to total influence.
+\end{itemize}
+
+\subsubsection*{Desired Byzantine Fraction $f$}
+\begin{itemize}
+    \item Lower $f$: Requires larger $k$ to dilute adversarial influence.
+    \item Higher $f$: Smaller $k$ might suffice, but with reduced fault tolerance.
+\end{itemize}
+
+\subsection{Approximation Formula}
+While iterative computation is more precise, a heuristic formula for $k$ can be derived as:
+\begin{equation}
+k_{\text{optimal}} \approx \frac{\max(C_{\text{top}}, C_{\text{honest}})}{f},
+\end{equation}
+where:
+\begin{itemize}
+    \item $C_{\text{top}}$: Influence of top-ranked participants representing $f \cdot k$.
+    \item $C_{\text{honest}}$: Influence of honest participants needed for $(1-f)$ resilience.
+\end{itemize}
+
+Below is an algorithm outline of how we might approximately “optimize” the committee size given a target number of Byzantine faults $f$ (that is, the committee should tolerate up to $f$ adversaries), a total number $n$ of participants (with associated Dirichlet parameters $\boldsymbol{\alpha}$) and the ensuing expected vote shares.
+
+\begin{algorithm}
+\caption{OptimalCommitteeSize}
+\begin{algorithmic}[1]
+    \State \textbf{Input:} 
+          \State \quad $\boldsymbol{\alpha}$: Dirichlet parameters (stake distribution)
+          \State \quad $n$: Group size
+          \State \quad $f$: Byzantine Fault Tolerance fraction
+          \State \quad $k_{0}$: Initial guess for committee size
+    \State \textbf{Output:} $k_{\text{optimal}}$: Optimal committee size
+
+    \State \textbf{Initialize:} 
+          \State \quad Sort $\alpha\_vector$ in descending order 
+          \State \quad $k \gets k_{0}$
+    \While{True}
+        \For{each participant $i$}
+            \State $E[X_i] \gets k \cdot \dfrac{\alpha_i}{\sum_{j=1}^{n}{\alpha\_vector_j}}$
+        \EndFor
+        \State Compute $C_{\text{top}}$: sum of $E[X_i]$ for top $m_s$ participants \Comment{Safety constraint}
+        \State Compute $C_{\text{honest}}$: sum of $E[X_i]$ for top $m_h$ honest participants \Comment{Liveness constraint}
+        \If{$C_{\text{top}} < f \cdot k$ \textbf{and} $C_{\text{honest}} \geq (1-f) \cdot k$}
+            \State \textbf{break}
+        \EndIf
+        \State $k \gets k+1$
+    \EndWhile
+    \State \textbf{return} $k$ as $k_{\text{optimal}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection*{Explanation of the Algorithm}
+
+The algorithm iteratively computes the expected seat counts for each participant based on the current committee size $k$. It then checks if the cumulative voting power of the top $m_s$ participants (representing the worst-case Byzantine coalition) is less than $f \cdot k$, and if the cumulative voting power of the top $m_h$ honest participants is greater than or equal to $(1-f) \cdot k$. If both conditions are satisfied, it breaks out of the loop and returns the optimal committee size.
+
+In many traditional BFT systems, when every participant is equally weighted, the well‐known bound is that a committee (or network) of size $k$ can tolerate up to $f$ Byzantine faults provided that
+\begin{equation}
+k \ge 3f + 1.
+\end{equation}
+
+When weights are unequal---say, derived from stake or (in our Bayesian model) proportional to $\alpha_i$---the situation is more subtle. Now each participant’s influence is given by its expected seat count
+\begin{equation}
+E[X_i] = k \cdot \frac{\alpha_i}{\sum_{j=1}^n \alpha_j}\,.
+\end{equation}
+A coalition that comprises the $f$ most influential (highest $\alpha_i$ or equivalently highest $E[X_i]$) participants is our worst-case Byzantine adversary. In that case, we want their cumulative weight not to exceed $\frac{k}{3}$ (so that honest participants hold more than two-thirds of the voting power).
+
+Because the Dirichlet model yields expected seat counts that scale linearly with $k$, the relative weights are fixed. If we took only expectations, the condition for safety (in expectation) would be
+\begin{equation}
+\sum_{i=1}^{f} \frac{\alpha_{(i)}}{\sum_{j=1}^n \alpha_j} < \frac{1}{3}\,,
+\end{equation}
+where $\alpha_{(1)} \ge \alpha_{(2)} \ge \dots \ge \alpha_{(n)}$ is the sorted order. Notice that if this inequality is satisfied, then the weighted adversary’s share is below the threshold for compromise on average. In an “idealized” setup, then, any $k$ would do.  
+
+However, real committee selection via multinomial sampling introduces random variation. Even if the expected fraction of voting power held by the worst-case $f$ nodes is below $\frac{1}{3}$, fluctuations (variance) may produce an outcome in which that faction exceeds the critical threshold. In other words, a larger committee size $k$ means that the relative fluctuations (by the law of large numbers) shrink, and the actual vote shares concentrate more tightly around their expectations.
+
+\subsubsection*{Optimization Strategy}
+
+Our goal is to choose $k$ as the (approximately) minimal committee size so that with high probability the Byzantine (worst-case) faction does not exceed $\frac{k}{3}$ of the total committee votes.
+
+\subsection*{1. Define the “Adversary Weight”}
+
+Let
+\begin{equation}
+q = \sum_{i=1}^{f} \frac{\alpha_{(i)}}{\sum_{j=1}^n \alpha_j}\,.
+\end{equation}
+Then the expected cumulative seats for the worst-case $f$ is:
+\begin{equation}
+\mu = k \cdot q\,.
+\end{equation}
+
+\subsection*{2. Safety Condition (in the Presence of Sampling Variance)}
+
+We require that the probability that the actual number of seats $X_b$ held by these $f$ participants exceeds $\frac{k}{3}$ is below a small error threshold $\epsilon$. That is,
+\begin{equation}
+P\Bigl(X_b \ge \frac{k}{3}\Bigr) \le \epsilon\,.
+\end{equation}
+(Here $X_b$ is the random sum of the seats for the adversarial set, and its expectation is $\mu$.)
+
+\subsection*{3. Using Concentration Inequalities}
+
+Because $X_b$ is a sum of multinomial counts (which, under mild conditions, can be approximated by a sum of independent (or weakly correlated) bounded variables), we can use Chernoff-type bounds to say:
+\begin{equation}
+P\Bigl(X_b \ge (1+\delta)\mu\Bigr) \le \exp\Bigl(-\frac{\delta^2\,\mu}{2+\delta}\Bigr)\,.
+\end{equation}
+We wish to set
+\begin{equation}
+(1+\delta)\mu = \frac{k}{3}\,.
+\end{equation}
+Since $\mu = kq$, this equation becomes:
+\begin{equation}
+1+\delta = \frac{k}{3kq} = \frac{1}{3q}\,,
+\end{equation}
+or
+\begin{equation}
+\delta = \frac{1}{3q} - 1\,.
+\end{equation}
+Then, requiring
+\begin{equation}
+\exp\Bigl(-\frac{\delta^2\, kq}{2+\delta}\Bigr) \le \epsilon\,,
+\end{equation}
+we solve for $k$:
+\begin{equation}
+k \ge \frac{(2+\delta)(-\ln \epsilon)}{\delta^2\, q}\,.
+\end{equation}
+In words, for a given tolerance level $\epsilon$ (say, $\epsilon=0.01$ for 99\% confidence) and the “adversarial expected fraction” $q$ (which is determined from our sorted $\alpha$ vector and our target $f$), we obtain a lower bound on $k$.
+
+\subsection*{4. Trade-Off}
+
+\begin{itemize}
+    \item \textbf{Smaller $k$:} Lower overhead, but higher relative variance in seat allocation, which might allow unlikely—but possible—fluctuations that violate the $\frac{1}{3}$ safety rule.
+    \item \textbf{Larger $k$:} Reduces variance so that the actual fraction of Byzantine control will concentrate near $q$, thus enforcing security with high probability. However, $k$ cannot be made arbitrarily large due to practical constraints (communication overhead, latency, etc.).
+\end{itemize}
+
+\section*{Putting It Together}
+
+The following algorithm summarizes the steps to compute the minimum committee size $k_{\text{min}}$ that satisfies the safety condition with high probability, given the Dirichlet parameters $\boldsymbol{\alpha}$, the number of participants $n$, the number of Byzantine participants $f$, and the error tolerance $\epsilon$.
+
+\begin{algorithm}
+\caption{Committee Size Optimization using Chernoff Bounds}
+\begin{algorithmic}[1]
+    \State \textbf{Input:} 
+        \State \quad $\boldsymbol{\alpha}$: Dirichlet parameters (stake distribution)
+        \State \quad $n$: Number of participants
+        \State \quad $f$: Number of Byzantine participants to tolerate
+        \State \quad $\epsilon$: Error tolerance (e.g., 0.01)
+    \State \textbf{Output:} $k_{\text{min}}$: Minimal committee size
+    
+    \State Sort $\boldsymbol{\alpha}$ in descending order to get $\alpha_{(1)} \geq \alpha_{(2)} \geq \cdots \geq \alpha_{(n)}$
+    
+    \State Compute $q \gets \sum_{i=1}^{f} \frac{\alpha_{(i)}}{\sum_{j=1}^n \alpha_j}$ \Comment{Adversary weight fraction}
+    
+    \State Compute $\delta \gets \frac{1}{3q} - 1$ \Comment{Deviation parameter}
+    
+    \State Compute $k_{\text{min}} \gets \lceil\frac{(2+\delta)(-\ln \epsilon)}{\delta^2 \, q}\rceil$ \Comment{Ceiling function ensures integer result}
+    
+    \State \textbf{return} $k_{\text{min}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Discussion}
+
+\subsubsection*{Model Assumptions}
+    (a) We assume that the expected values are a good proxy for actual vote shares when $k$ is large, and (b) that the Chernoff bound gives a reasonable approximation to the tail probability of the multinomial sum.
+
+\subsubsection*{Optimization Complexity}
+    In a real implementation, we might want to simulate the committee selection process (using the full hierarchical Bayesian model) to validate these approximations. We can also adjust $k$ iteratively until simulation results show that the probability of crossing the $1/3$ threshold falls below $\epsilon$.
+
+\subsubsection*{Balancing Other Factors}
+    This procedure optimizes $k$ with respect to fault tolerance. In a complete system design, we may also need to consider liveness conditions and trade-offs concerning communication complexity and latency in addition to safety.
+
+
+\section{Conclusion}
+
+This paper presented a comprehensive Bayesian framework for modeling committee selection in blockchain consensus protocols with heterogeneous participant influence. Through a Dirichlet-Multinomial approach, we derived closed-form expressions for the expected seat counts and their variances, enabling precise analysis of committee composition dynamics.
+
+We established a rigorous methodology for Byzantine fault tolerance analysis in weighted committee settings, demonstrating how order statistics can identify worst-case adversarial coalitions. By examining cumulative voting power thresholds, we determined the maximum number of Byzantine participants a system can tolerate while maintaining both safety and liveness guarantees.
+
+A key contribution is our algorithm for optimizing committee size based on stake distribution. Using Chernoff bounds, we derived a principled approach to calculate the minimum committee size needed to ensure that with high probability $(1-\epsilon)$, the cumulative weight of Byzantine participants remains below critical thresholds. This approach balances security requirements with operational efficiency, as larger committees provide stronger security guarantees but introduce additional communication overhead.
+
+The framework developed here is directly applicable to proof-of-stake blockchain systems where committee selection is weighted by stake. By applying our optimization algorithm, designers can determine the optimal committee size that provides robust Byzantine fault tolerance based on specific stake distributions, desired security levels, and performance constraints.
+
+This approach represents a significant advancement over traditional uniform-weight BFT analysis by accounting for the heterogeneous influence of participants in realistic blockchain deployments, offering a mathematical foundation for secure and efficient committee-based consensus mechanisms.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\appendix
+
+\section{Bayesian Statistics Calculations}\label{sec:bayesian_calculations}
+
+Let's recap this step by step to compute the expected value $E[X_i]$ for a fixed $i$ in the context of the hierarchical model.
+In the context of the hierarchical model, we want to compute the expected value of $X_i$, which represents the number of times participant $i$ is selected for the committee.
+The expected value of $X_i$ is a crucial quantity in the context of the Dirichlet-Multinomial model. It provides insight into how many times we expect participant $i$ to be selected based on their latent probability $p_i$ and the total number of draws $k$.
+This expected value is particularly useful for understanding the distribution of committee members and can inform decision-making processes regarding participant selection.
+The expected value of $X_i$ can be derived from the properties of the Dirichlet-Multinomial distribution. The expected value of a random variable $X_i$ that follows a multinomial distribution with parameters $k$ and $\mathbf{p}$ is given by:
+
+\begin{itemize}
+    \item $X_i$: The number of times participant $i$ is selected for the committee.
+    \item $\mathbf{p} = (p_1, p_2, \dots, p_n)$: The latent probabilities of selecting each participant, drawn from a Dirichlet distribution:
+    \begin{equation}
+        \mathbf{p} \sim \text{Dirichlet}(\boldsymbol{\alpha}).
+    \end{equation}
+    \item $\mathbf{X} = (X_1, X_2, \dots, X_n)$: The committee composition follows a multinomial distribution:
+    \begin{equation}
+        \mathbf{X} \sim \text{Multinomial}(k, \mathbf{p}),
+    \end{equation}
+    where 
+    \begin{equation}
+        k = \sum_{i=1}^{n} X_i
+    \end{equation}
+    is the total number of committee seats.
+\end{itemize}
+
+\section*{Expected Value of $X_i$}
+
+The expected value $E[X_i]$ is given by
+\begin{equation}
+    E[X_i] = E\bigl[E[X_i \mid \mathbf{p}]\bigr],
+\end{equation}
+where the outer expectation integrates over the distribution of $\mathbf{p}$, and the inner expectation is conditional on $\mathbf{p}$.
+
+\subsection*{Step 1: Conditional Expectation}
+
+Given the multinomial distribution, the expected value of $X_i$ conditioned on $\mathbf{p}$ is
+\begin{equation}
+    E[X_i \mid \mathbf{p}] = k \cdot p_i,
+\end{equation}
+where $p_i$ is the probability of selecting participant $i$.
+
+\subsection*{Step 2: Marginalize Over $\mathbf{p}$}
+
+Since $\mathbf{p}$ follows a Dirichlet distribution
+\begin{equation}
+    \mathbf{p} \sim \text{Dirichlet}(\boldsymbol{\alpha}),
+\end{equation}
+the marginal expectation of $p_i$ is
+\begin{equation}
+    E[p_i] = \frac{\alpha_i}{\displaystyle \sum_{j=1}^{n} \alpha_j}.
+\end{equation}
+
+Now, combining these,
+\begin{equation}
+    E[X_i] = E\bigl[E[X_i \mid \mathbf{p}]\bigr] = k \cdot E[p_i] = k \cdot \frac{\alpha_i}{\displaystyle \sum_{j=1}^{n} \alpha_j}.
+\end{equation}
+
+\section*{Final Result}
+
+The expected value of $X_i$ is
+\begin{equation}
+    E[X_i] = k \cdot \frac{\alpha_i}{\displaystyle \sum_{j=1}^{n} \alpha_j}.
+\end{equation}
+
+\section*{Intuition}
+
+This result makes sense intuitively:
+\begin{itemize}
+    \item $k$ is the total number of draws (committee seats).
+    \item $\displaystyle \frac{\alpha_i}{\sum_{j=1}^{n} \alpha_j}$ represents the proportion of "weight" assigned to participant $i$ in the Dirichlet distribution, which acts as a prior belief about their likelihood of being selected.
+\end{itemize}
+
+
+Let's calculate the variance $ \text{Var}(X_i) $ for a fixed $ i $ in our model, building on the expected value we derived earlier.
+
+\section{Variance Calculations}
+The variance of $ X_i $ in the context of the Dirichlet-Multinomial model can be derived using the law of total variance. The variance captures the uncertainty in the number of times participant $ i $ is selected for the committee, accounting for both the multinomial distribution and the uncertainty in the selection probabilities $ p_i $.
+The variance of $ X_i $ is given by:
+\begin{equation}
+    \text{Var}(X_i) = E[\text{Var}(X_i \mid \mathbf{p})] + \text{Var}(E[X_i \mid \mathbf{p}]).
+\end{equation}
+This equation states that the total variance of $ X_i $ can be decomposed into two components:
+\begin{itemize}
+    \item The expected value of the conditional variance of $ X_i $ given $ \mathbf{p} $.
+    \item The variance of the conditional expectation of $ X_i $ given $ \mathbf{p} $.
+\end{itemize}
+This decomposition is useful because it allows us to separately analyze the variability due to the multinomial distribution and the variability due to the uncertainty in the selection probabilities $ p_i $.
+The variance of $ X_i $ can be derived from the properties of the Dirichlet-Multinomial distribution. The variance of a random variable $ X_i $ that follows a multinomial distribution with parameters $ k $ and $ \mathbf{p} $ is given by:
+\begin{equation}
+    \text{Var}(X_i \mid \mathbf{p}) = k \cdot p_i \cdot (1 - p_i).
+\end{equation}
+This equation captures the variability of $ X_i $ given the selection probabilities $ p_i $. The term $ k \cdot p_i \cdot (1 - p_i) $ reflects the variance of a binomial distribution, scaled by the total number of draws $ k $.
+
+We now integrate over the Dirichlet distribution to calculate the expected conditional variance and the variance of the conditional mean.
+
+\textbf{First Term:} $ E[\text{Var}(X_i | \mathbf{p})] $:
+   Substitute $ p_i $ into the Dirichlet expectation $ E[p_i] $:
+   \[
+   E[\text{Var}(X_i | \mathbf{p})] = k \cdot \left( E[p_i] - E[p_i^2] \right).
+   \]
+
+   Using properties of the Dirichlet distribution:
+   - $ E[p_i] = \frac{\alpha_i}{\sum_{j=1}^n \alpha_j} $,
+   - $ E[p_i^2] = \frac{\alpha_i(\alpha_i + 1)}{\left(\sum_{j=1}^n \alpha_j\right)\left(\sum_{j=1}^n \alpha_j + 1\right)} $.
+
+   Thus:
+   \[
+   E[\text{Var}(X_i | \mathbf{p})] = k \cdot \left( \frac{\alpha_i}{\sum_{j=1}^n \alpha_j} - \frac{\alpha_i(\alpha_i + 1)}{\left(\sum_{j=1}^n \alpha_j\right)\left(\sum_{j=1}^n \alpha_j + 1\right)} \right).
+   \]
+
+\textbf{Second Term:} $ \text{Var}(E[X_i | \mathbf{p}]) $:
+   The conditional mean $ E[X_i | \mathbf{p}] = k \cdot p_i $. The variance of $ p_i $ under the Dirichlet distribution is:
+   \[
+   \text{Var}(p_i) = \frac{\alpha_i \left(\sum_{j=1}^n \alpha_j - \alpha_i \right)}{\left(\sum_{j=1}^n \alpha_j\right)^2 \cdot \left(\sum_{j=1}^n \alpha_j + 1\right)}.
+   \]
+
+   Multiply by $ k^2 $ to get:
+   \[
+   \text{Var}(E[X_i | \mathbf{p}]) = k^2 \cdot \text{Var}(p_i).
+   \]
+
+   Substitute $ \text{Var}(p_i) $:
+   \[
+   \text{Var}(E[X_i | \mathbf{p}]) = k^2 \cdot \frac{\alpha_i \left(\sum_{j=1}^n \alpha_j - \alpha_i \right)}{\left(\sum_{j=1}^n \alpha_j\right)^2 \cdot \left(\sum_{j=1}^n \alpha_j + 1\right)}.
+   \]
+
+\textbf{Final Formula:} Combining both terms, the total variance is:
+\[
+\text{Var}(X_i) = k \cdot \left( \frac{\alpha_i}{\sum_{j=1}^n \alpha_j} - \frac{\alpha_i(\alpha_i + 1)}{\left(\sum_{j=1}^n \alpha_j\right)\left(\sum_{j=1}^n \alpha_j + 1\right)} \right)
++ k^2 \cdot \frac{\alpha_i \left(\sum_{j=1}^n \alpha_j - \alpha_i \right)}{\left(\sum_{j=1}^n \alpha_j\right)^2 \cdot \left(\sum_{j=1}^n \alpha_j + 1\right)}.
+\]
+
+\textbf{Intuition Behind the Variance}
+
+\begin{itemize}
+    \item The first term reflects the variability within the multinomial distribution when $ p_i $ is fixed.
+    \item The second term accounts for the uncertainty in $ p_i $ due to its Dirichlet prior, which adds additional variance.
+\end{itemize}
+
+
+\section{Chernoff Bounds in the Context of BFT}\label{sec:chernoff_bounds}
+
+Chernoff bounds are a powerful tool in probability theory used to bound the tail probabilities of random variables. They provide a way to quantify how far a sum of random variables is likely to deviate from its expected value. Below is a detailed explanation in the context of our Bayesian model and BFT optimization.
+
+\subsection{Context of Chernoff Bounds}
+
+In our model:
+\begin{itemize}
+    \item The total number of seats $k$ is fixed, and these seats are assigned to participants according to a Multinomial distribution.
+    \item Let $X_b$ represent the total number of seats held by the worst-case $f$ participants (the colluding Byzantine adversaries).
+    \item The expected value of $X_b$ is given by
+        \begin{equation}
+            \mu = E[X_b] = k \cdot q,
+        \end{equation}
+        where 
+        \begin{equation}
+            q = \sum_{i=1}^f \frac{\alpha_{(i)}}{\sum_{j=1}^n \alpha_j}
+        \end{equation}
+        is the expected cumulative fraction of influence of the adversarial participants.
+\end{itemize}
+
+While $X_b$ is expected to stay close to $\mu$, there is some probability that it deviates significantly due to the randomness of the sampling process. Chernoff bounds help us bound the probability of $X_b$ exceeding a critical threshold, such as $\frac{k}{3}$, which would compromise safety.
+
+Chernoff bounds apply to the sum of independent (or weakly dependent) random variables. For our case, the Multinomial distribution can be viewed as assigning $k$ independent, weighted “votes” to the participants, distributed according to the probabilities 
+
+\begin{equation}
+    \mathbf{p} \sim \text{Dirichlet}(\boldsymbol{\alpha}).
+\end{equation}
+
+Let 
+\begin{equation}
+    X_b = \sum_{i=1}^f X_i,
+\end{equation}
+where $X_i$ is the number of seats held by the $i$-th participant. For $\mu = E[X_b]$, Chernoff bounds provide a way to calculate
+\begin{equation}
+    P(X_b \geq (1+\delta)\mu),
+\end{equation}
+which is the probability of $X_b$ exceeding $(1+\delta)\mu$ by a multiplicative factor $1+\delta$. This represents the \emph{upper tail probability}.
+
+\subsection{The Chernoff Bound Formula}
+
+The bound can be written as
+\begin{equation}
+    P(X_b \geq (1+\delta)\mu) \leq \exp\left(-\frac{\delta^2 \mu}{2+\delta}\right).
+\end{equation}
+Here,
+\begin{itemize}
+    \item $\delta > 0$ quantifies the degree of deviation above $\mu$,
+    \item $\mu = kq$, the expected weight of the adversaries.
+\end{itemize}
+This inequality tells us that the probability of a large deviation decreases exponentially with the size of $\mu$ (and hence $k$).
+
+\subsection{Safety Requirement}
+
+To ensure safety, we require that
+\begin{equation}
+    P(X_b \geq \frac{k}{3}) \leq \epsilon,
+\end{equation}
+where $\epsilon$ is a small failure tolerance (for example, $\epsilon = 0.01$, corresponding to 99\% confidence).
+
+Let
+\begin{equation}
+    \frac{k}{3} = (1+\delta)\mu.
+\end{equation}
+Then,
+\begin{equation}
+    1+\delta = \frac{\frac{k}{3}}{\mu} = \frac{\frac{k}{3}}{kq} = \frac{1}{3q}.
+\end{equation}
+This yields
+\begin{equation}
+    \delta = \frac{1}{3q} - 1.
+\end{equation}
+
+Substituting $\delta$ into the Chernoff bound gives:
+\begin{equation}
+    P(X_b \geq \frac{k}{3}) \leq \exp\left(-\frac{\delta^2 \mu}{2+\delta}\right).
+\end{equation}
+
+Rewriting the inequality in terms of $k$, we obtain:
+\begin{equation}
+    k \geq \frac{(2+\delta)(-\ln \epsilon)}{\delta^2 q}.
+\end{equation}
+
+\subsection{Interpretation}
+
+This result tells us how large the committee size $k$ must be to ensure that the probability of a Byzantine coalition controlling more than $\frac{k}{3}$ seats is below $\epsilon$. Larger $k$ reduces the variability in seat allocations, making the likelihood of exceeding the threshold exponentially small.
+
+\subsection{Key Properties of Chernoff Bounds}
+
+\begin{enumerate}
+    \item \textbf{Exponentially Decaying Tail Probabilities:} \\
+        The probability of large deviations decreases exponentially with $\mu$, meaning that as $k$ increases the variance in the random sampling diminishes and the actual seat distribution concentrates around its expected value.
+        
+    \item \textbf{Applicability to Independent or Weakly Dependent Variables:} \\
+        While Chernoff bounds strictly apply to sums of independent random variables, they are often good approximations for weakly dependent variables, such as those from a Multinomial distribution.
+        
+    \item \textbf{Confidence Tuning ($\epsilon$):} \\
+        We can adjust $\epsilon$ to control the likelihood of an adversarial coalition exceeding the threshold. A smaller $\epsilon$ requires a larger $k$, improving fault tolerance at the cost of larger committees.
+\end{enumerate}
+
+In optimizing $k$ for our BFT analysis, Chernoff bounds allow us to:
+
+\begin{itemize}
+    \item Quantify the probability of unsafe configurations.
+    \item Translate a safety margin (represented by the failure tolerance $\epsilon$) into a concrete requirement for the committee size $k$.
+    \item Ensure that the actual voting power distribution aligns closely with the expectations derived from the $\alpha$ vector and the desired BFT properties.
+\end{itemize}
+
+\section{Computer Code}\label{sec:computer_code}
+
+The following code implements the Bayesian model for committee selection and the optimization of committee size based on the Dirichlet distribution. 
+The code is structured to load data, sample from the Dirichlet distribution, and visualize the results. It also includes functions for saving and loading models and traces.
+The code is designed to be modular and reusable, allowing for easy integration into larger projects or systems. It includes functions for loading data, sampling from the Dirichlet distribution, and visualizing the results.
+The code is written in Python and uses the PyMC library for probabilistic modeling and ArviZ for visualization. It includes functions for loading data, sampling from the Dirichlet distribution, and visualizing the results. The code is designed to be modular and reusable, allowing for easy integration into larger projects or systems.
+
+\begin{lstlisting}[language=Python, caption={Computer Code in Python using PyMC}, basicstyle=\small\fontfamily{pcr}\selectfont, tabsize=4]
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Module: bayes_stake_dist.py
+
+Created on 2025-03-23 by Rob Jones <robert.jones@shielded.io>
+
+This script calculates the group stake distribution using a Bayesian approach.
+It uses a Dirichlet distribution as a generative model of the probabilities of
+different participants being selected for a committee, based on their stake
+sizes. The model is implemented using PyMC and ArviZ for sampling and
+visualization.
+
+The script includes:
+- Bayesian model definition using PyMC
+- Sampling from the posterior distribution
+- Posterior predictive checks
+- Visualization of the results
+- Saving and loading the model and trace
+- Saving and loading posterior predictive samples
+
+"""
+import random
+import matplotlib.pyplot as plt
+from scipy.stats import gamma
+import pymc as pm
+import arviz as az
+from data import load_data
+from participation_lib import get_stake_distribution, assign_commitee
+from typing import List, Dict, Any, Union
+import numpy as np
+import pandas as pd
+import argparse
+from pathlib import Path
+from joblib import Parallel, delayed
+
+
+def load_population(input_data_file):
+    """
+    Load and clean the data from the specified CSV file.
+
+    Args:
+        input_data_file (Path or str): The path to the CSV data file.
+
+    Returns:
+        pd.DataFrame: The cleaned DataFrame containing SPO information.
+    """
+    print("Loading data...")
+    population = load_data(input_data_file)
+    print(population.info())
+    print(population.describe())
+    return population
+
+# The get_stake_distribution function is used to simulate the stake distribution
+# of the population. It takes the following parameters:
+# - `population`: The DataFrame containing the population data.
+# - `group_size`: The size of the group to be sampled.
+# - `num_iter`: The number of iterations for the simulation.
+# - `plot_it`: A boolean flag indicating whether to plot the distribution.
+#
+# The function returns a DataFrame containing the simulated stake distribution.
+# The function simulates the stake distribution by randomly sampling from the
+# population and calculating the stake weights for each participant.
+# The stake weights are normalized to sum to 1, representing the relative stake
+# of each participant in the group.
+
+
+def sample_group(
+    population: pd.DataFrame,
+    stake_size: List[int],
+    group_size: int,
+    plot_it: bool = False,
+    num_ticks: int = 10,
+) -> pd.DataFrame:
+    """Sample a group of participants ensuring
+    one has the given stake size(s).
+
+    Args:
+        population (pd.DataFrame): The population of registered SPOs.
+        stake_size (List[int]): The stake size(s) to include in the group.
+        group_size (int): The number of participants in the group.
+        plot_it (bool): Whether to plot the distribution of stake weights.
+        num_ticks (int): The number of ticks to display on the x-axis.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the group of participants.
+    """
+    # Sample a group of participants with the chosen stake size
+    # at the beginning of the group (starting from index 1)
+    group = pd.DataFrame()
+    for stake in stake_size:
+        # Find rows with the given stake value
+        subset = population[population["stake"] == stake]
+        if not subset.empty:
+            # If present, sample one matching record
+            selected = subset.sample(1, replace=False)
+        else:
+            # If not present, sample one record and set
+            # its stake values to the given stake size
+            selected = population.sample(1, replace=False).copy()
+            selected["stake"] = stake
+            selected["stake_weight"] = stake
+        # Add the selected record to the group
+        group = pd.concat([group, selected], ignore_index=True)
+    if len(group) == 0:
+        # No participants found with stake value, so add it artifically
+        group = population.sample(1, replace=False)
+        group["stake"] = stake
+        group["stake_weight"] = stake
+        group.index = [0]
+    # Add to that group the remaining participants
+    # sampled from the population, excluding the selected participant
+    # and sort the group by stake value from highest to lowest
+    other_participants = get_stake_distribution(
+        population,
+        group_size=group_size - 1,
+        num_iter=1000,  # 1 for exact instance, >> 1 for smoothed
+        plot_it=False,
+    ).sort_values(by="stake", ascending=False)
+
+    # Concatenate the selected participant with the other participants
+    group = pd.concat([group, other_participants], ignore_index=True)
+    # Reindex the group to start from 1
+    group.index = group.index + 1
+    # and sort the group by stake value from highest to lowest,
+    # save for the selected stake in the first position and finally
+    # normalize the stake values as "stake_weight"
+    group["stake_weight"] = group.stake / group.stake.sum()
+
+    # Plot the distribution of the stake weights
+    if plot_it:
+        plt.figure("Distribution of the Stake Weights", figsize=(10, 6))
+        plt.bar(group.index, group.stake_weight, color="skyblue")
+        # Choose a fixed number of ticks (e.g., 10) based on domain size
+        tick_positions = np.linspace(
+            group.index.min(),
+            group.index.max(),
+            num_ticks,
+            dtype=int,
+        )
+        plt.xticks(tick_positions)
+        plt.xlabel("Participant ID")
+        plt.ylabel("Stake Weight")
+        plt.title("Stake Weights of Sampled Participants")
+        plt.show()
+
+    return group
+
+
+def predictive_checks(
+    trace: az.InferenceData,
+    model: pm.Model,
+    plot_it: bool = False,
+) -> pd.DataFrame:
+    """Perform posterior predictive checks and return the results.
+
+    Args:
+        trace (az.InferenceData): The posterior samples.
+        model (pm.Model): The PyMC model.
+        plot_it (bool): Whether to plot the posterior predictive checks.
+            Default is False.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the posterior predictive samples.
+    """
+    with model:
+        ppc = pm.sample_posterior_predictive(
+            trace=trace,
+            var_names=["observed"],
+            random_seed=42,
+        )
+    # The arviz library is used to visualize the posterior trace and summarize
+    # the results (posterior means, credible intervals, etc.).
+    print(pm.summary(trace, hdi_prob=0.95))
+    if plot_it:
+        pm.plot_trace(trace)
+        pm.plot_posterior(trace)
+
+    # Posterior predictive checks
+    with model:
+        ppc = pm.sample_posterior_predictive(
+            trace=trace,
+            var_names=["observed"],
+            random_seed=42,
+        )
+    print(az.summary(ppc, hdi_prob=0.95))
+
+    if plot_it:
+        # Visualize posterior predictive checks
+        fig = plt.figure("Posterior Predictive Check", figsize=(12, 6))
+        ax = fig.add_subplot(111)
+        az.plot_ppc(ppc, kind="kde", ax=ax)
+        # az.plot_ppc(ppc, kind="scatter", ax=ax)
+        plt.title("Posterior Predictive Check (Cumulative)")
+        plt.xlabel("observed", fontsize="small")
+        plt.ylabel("Cumulative Probability", fontsize="small")
+        plt.legend(title="Posterior Predictive Checks", fontsize="small")
+        plt.show()
+
+    return ppc
+
+
+def save_trace(trace: az.InferenceData, filename: str) -> None:
+    """
+    Save the posterior trace to a NetCDF file.
+
+    Args:
+        trace (az.InferenceData): The trace from posterior sampling.
+        filename (str): The filename for saving the trace.
+
+    Returns:
+        None
+    """
+    # Save the trace to a NetCDF file
+    trace_filename = Path(filename).with_suffix(".nc")
+    az.to_netcdf(trace, trace_filename)
+
+
+def load_trace(filename: str) -> az.InferenceData:
+    """
+    Load the trace from a NetCDF file.
+
+    Args:
+        filename (str): Filename for the trace data.
+    Returns:
+        az.InferenceData: The loaded trace.
+    """
+    trace_filename = Path(filename).with_suffix(".nc")
+    # Load the trace from a NetCDF file
+    trace = az.from_netcdf(trace_filename)
+    return trace
+
+
+def compute_and_adjust_seat_counts(
+    group: pd.DataFrame,
+    committee_size: int,
+    plot_it: bool = False,
+) -> np.ndarray:
+    """
+    Compute and adjust seat counts for a given group and committee size.
+
+    This function assigns committee seats using the assign_commitee function,
+    rounds the seat counts using floor, allocates any remaining seats based on
+    the decimal remainders, and verifies that the total equals the committee size.
+
+    Args:
+        group (pd.DataFrame): DataFrame containing the group of participants.
+        committee_size (int): Total number of committee seats.
+        plot_it (bool): Whether to plot the seat assignment (default is False).
+
+    Returns:
+        np.ndarray: Adjusted seat counts as an integer array.
+    """
+    # Observed data (counts of committee seats for each participant)
+    seats = assign_commitee(
+        group,
+        committee_size=committee_size,
+        plot_it=plot_it,
+    )
+    seat_counts = seats["seat_counts"]
+
+    # Initial integer allocation using floor
+    rounded_seats = np.floor(seat_counts).astype(int)
+    remainder = committee_size - rounded_seats.sum()
+
+    if remainder > 0:
+        # Compute decimal remainders
+        decimals = seat_counts - np.floor(seat_counts)
+        # Get indices sorted by descending order of remainders
+        indices = decimals.sort_values(ascending=False).index
+        # Allocate the remaining seats to those with highest decimals
+        for idx in indices[:remainder]:
+            rounded_seats[idx] += 1
+    elif remainder < 0:
+        # If over-allocated, subtract seats from those with smallest remainders
+        decimals = seat_counts - np.floor(seat_counts)
+        indices = decimals.sort_values(ascending=True).index
+        for idx in indices[: abs(remainder)]:
+            rounded_seats[idx] -= 1
+
+    seat_counts = rounded_seats
+    # Confirm the sum equals committee_size
+    assert (
+        seat_counts.sum() == committee_size
+    ), f"Sum of seats {seat_counts.sum()} does not equal committee size {committee_size}"
+
+    print("Sum of seats:", seat_counts.sum())
+    return seat_counts
+
+
+def plot_gamma_prior(
+    group_size: int,
+    alpha_param: float = 2.0,
+    beta_param: float = 1.0,
+    num_points: int = 1000,
+):
+    """
+    Visualize the Gamma distribution used as a prior for the Dirichlet hyperparameter.
+
+    Args:
+        group_size (int): Maximum x-axis value (e.g., size of the group).
+        alpha_param (float): Shape parameter of the Gamma distribution (default: 2.0).
+        beta_param (float): Rate parameter of the Gamma distribution (default: 1.0).
+            In scipy's gamma, scale = 1/beta.
+        num_points (int): Number of points to generate for the x-axis (default: 1000).
+    """
+    scale_param = 1.0 / beta_param  # convert beta to scale for scipy's gamma
+    x = np.linspace(0, group_size, num_points)
+    y = gamma.pdf(x, a=alpha_param, scale=scale_param)
+    plt.figure("Gamma Distribution", figsize=(10, 6))
+    plt.plot(x, y, label=f"Gamma($\alpha$={alpha_param}, $\beta$={beta_param})")
+    plt.title(f"Gamma Distribution ($\alpha$={alpha_param}, $\beta$={beta_param})")
+    plt.xlabel("x")
+    plt.ylabel("Probability Density")
+    plt.legend()
+    plt.show()
+
+
+def run_bayesian_model(
+    committee_size: int,
+    seat_counts: np.ndarray,
+    group: pd.DataFrame,
+    target_accept: float = 0.98,
+    gamma_alpha=2.0,
+    gamma_beta=1.0,
+) -> Dict[str, Any]:
+    """
+    Run the hierarchical Bayesian model using a Dirichlet-Multinomial framework.
+
+    Args:
+        committee_size (int): Number of committee seats (k).
+        seat_counts (np.ndarray): Observed counts of seats per participant.
+        group (pd.DataFrame): DataFrame containing the group of participants.
+        target_accept : float in [0, 1]. The step size is tuned such that we
+                approximate this acceptance rate. Higher values like 0.9 or 0.98
+                often work better for problematic posteriors. This argument is
+                passed directly to sample. Default is 0.98.
+        gamma_alpha (float): Shape hyper-parameter of the Gamma distribution,
+            which is used as the hyper-prior on the Dirichlet distribution.
+            Default is 2.0.
+        gamma_beta (float): Rate hypter-parameter of the Gamma distribution.
+            Default is 1.0.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the the following key:values
+        - "concentration": The concentration of the Dirichlet distribution.
+        - "mean_prob": The mean probability of each participant.
+        - "model": The PyMC model object.
+        - "trace": The posterior samples obtained from the MCMC sampling.
+    """
+    k: int = committee_size  # number of committee seats
+    n: int = len(group)  # number of participants in the group
+    X: np.ndarray = (
+        seat_counts  # observed data: counts of committee seats per participant
+    )
+    with pm.Model() as model:
+        # Priors for Dirichlet hyperparameters (Gamma prior)
+        alpha = pm.Gamma("alpha", alpha=2.0, beta=1.0, shape=n)
+
+        # Dirichlet distribution for probabilities (p)
+        p = pm.Dirichlet("p", a=alpha)
+
+        # Multinomial likelihood for observed counts
+        pm.Multinomial("observed", n=k, p=p, observed=X)
+
+        # Sampling from the posterior
+        trace = pm.sample(
+            return_inferencedata=True,
+            target_accept=target_accept,
+        )
+    # Analyze Posterior Samples of Alpha
+    posterior_mean_alpha: np.ndarray = (
+        trace.posterior["alpha"].mean(dim=("chain", "draw")).values
+    )
+    # Concentration of the Dirichlet distribution:
+    concentration = posterior_mean_alpha.sum()
+
+    # Mean probability of each participant, which normalizes
+    # the posterior mean of alpha by the concentration so it sums to 1:
+    mean_prob = posterior_mean_alpha / concentration
+
+    # Extend the mean probabilities to include the concentration
+    # at the first position (index 0) of the array
+    # and the mean probabilities at the remaining positions
+    # (index 1 to n).
+    extended_array = np.empty(mean_prob.shape[0] + 1)
+    extended_array[0] = concentration
+    extended_array[1:] = mean_prob
+
+    return {
+        "mean_prob": extended_array,
+        "model": model,
+        "trace": trace,
+    }
+
+
+def main_model(
+    population: pd.DataFrame,
+    stake_size: Union[int, List[int]],
+    group_size: int = 50,
+    committee_size: int = 10,
+    plot_it: bool = False,
+    debug_it: bool = False,
+    verbose: bool = False,
+) -> Dict[str, Any]:
+    """
+    Test the Bayesian model by running it and performing posterior
+    predictive checks.
+
+    Args:
+        population (pd.DataFrame): The population of registered SPOs.
+        stake_size (Union[int, List[int]]): The stake size(s) to include
+            in the group. If an integer, it will be converted to a list.
+        group_size (int): The number of participants in the group. Default
+            is 50 for testing.
+        committee_size (int): The number of committee seats. Default is 10
+            for testing.
+        plot_it (bool): Whether to plot the distribution of stake weights.
+            Default is False.
+        debug_it (bool): Whether to debug the model. Default is False.
+        verbose (bool): Whether to print debug information. Default is False.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the the following key:values
+        - "concentration": The concentration of the Dirichlet distribution.
+        - "mean_prob": The mean probability of each participant.
+        - "model": The PyMC model object.
+        - "trace": The posterior samples obtained from the MCMC sampling.
+    """
+    print("Running the Bayesian model for stake sizes:", stake_size)
+    print("Group size:", group_size)
+    print("Committee size:", committee_size)
+
+    # Ensure stake_size is a list even if an integer is provided
+    if isinstance(stake_size, int):
+        stake_size = [stake_size]
+
+    # Sample a group of participants with the chosen stake size
+    # at the beginning of the group (at index 1)
+    group = sample_group(
+        population,
+        stake_size,
+        group_size,
+        plot_it=plot_it,
+    )
+    if verbose:
+        print("Sampled group of participants:")
+        print(group.head(10))
+
+    seat_counts = compute_and_adjust_seat_counts(
+        group,
+        committee_size=committee_size,
+        plot_it=plot_it,
+    )
+
+    # Plot the Gamma distribution used as a prior distribution
+    # on the Dirichlet hyperparameter $\alpha$
+    if plot_it:
+        plot_gamma_prior(group_size=group_size)
+
+    # Run the Bayesian model
+    result = run_bayesian_model(
+        committee_size=committee_size,
+        seat_counts=seat_counts,
+        group=group,
+    )
+    model = result["model"]
+
+    # Optional: Debug the model (if debugging is needed)
+    if debug_it:
+        # Perform posterior predictive checks
+        print("Performing posterior predictive checks...")
+        trace = result["trace"]
+        result["ppc"] = predictive_checks(trace, model, plot_it)
+
+    return result
+
+
+def main(
+    population: pd.DataFrame,
+    stake_size: List[int],
+    committee_size: int = 200,
+    group_size: List[int] = [100, 200, 300],
+    downsample: float = 1.0,
+    debug_it: bool = False,
+    plot_it: bool = False,
+    verbose: bool = False,
+) -> Dict[int, Dict[int, np.ndarray]]:
+    """
+    Main function to run the Bayesian model for different stake sizes
+    and group sizes.
+
+    Args:
+        population (pd.DataFrame): The population of registered SPOs.
+        stake_size (List[int]): The stake size(s) to include in the group.
+            If empty list, a random selection of a stake size is chosen
+            from the observed data.
+        committee_size (int): The number of committee seats. Default is 200.
+        group_size (List[int]): List of group sizes to sample. Default is
+            [100, 200, 300].
+        downsample (float): Fraction of the observed stake sizes to sample.
+            Default is 1.0 (100%).
+        debug_it (bool): Whether to debug the model. Default is False.
+        plot_it (bool): Whether to plot the distribution of stake weights.
+            Default is False.
+        verbose (bool): Whether to print debug information. Default is False.
+
+    Note:
+        Without loss of generality, the committee size can be set to the
+        group size to ensure that the model is not sensitive to the committee
+        size and avoid overfitting. We are inferring the pseudo counts of
+        committee seats for each participant based on their stake size (weight).
+        Once inferred, the pseudo counts can be used to compute the
+        expected number of committee seats for each participant in the group
+        by normalizing the pseudo counts to sum to 1 and multiplying by
+        the committee size, k.
+
+    Returns:
+        dict: A dictionary containing the psuedo counts for different
+        stake sizes and group sizes.
+    """
+    print("Simulating model for different stake and group sizes...")
+    print("Committee size:", committee_size)
+    print("Group sizes:", group_size)
+    print("Stake sizes:", stake_size)
+    print("Downsample:", downsample)
+    # =============================================================
+    # Get the unique stake sizes in the population and and sort in
+    # descending order. If stake_size is not provided, sample from
+    # the population
+    if len(stake_size) > 0:
+        # Use the provided stake size list
+        unique_stakes = np.array(stake_size)
+    else:
+        # Get the stake size from the population
+        unique_stakes = population["stake"].unique()
+    # Downsample the stake sizes if needed
+    num_stakes = int(len(unique_stakes) * downsample)
+    assert num_stakes > 0, "No stake size found in the population."
+    # Randomly sample the stake size from the population
+    stake_sizes = np.random.choice(unique_stakes, num_stakes, replace=False)
+    stake_sizes = np.sort(stake_sizes)[::-1]  # sort in descending order
+    print(
+        "Number of unique stake sizes in the population:\n"
+        f"\t{num_stakes} out of {len(unique_stakes)} "
+        f"({num_stakes/len(unique_stakes):.1%})"
+    )
+    # =============================================================
+    # Parallelize the computation using joblib and run the model
+    # for each combination of stake and group size
+
+    def process_stake_group(s, n):
+        """Function to execute for each combination of stake and group size"""
+        print(f"Stake size: {s}")
+        print(f"Group size: {n}")
+        result = main_model(
+            population,
+            stake_size=[s],
+            group_size=n,
+            committee_size=committee_size,
+            plot_it=plot_it,
+            debug_it=debug_it,
+            verbose=verbose,
+        )
+        return s, n, result
+
+    print("Running the model in parallel...")
+    results = Parallel()(  
+        # Process each combination of stake size and group size 
+        delayed(process_stake_group)(s, n) for s in stake_sizes for n in group_size
+    )
+    # =================================================================
+    # Store the results in a dictionary
+    # where the keys are the stake sizes and group sizes
+    # and the values are the result dictionaries
+    result_dict = {}
+    for stake, group, data in results:
+        if stake not in result_dict:
+            result_dict[stake] = {}
+        result_dict[stake][group] = data
+    
+    return result_dict
+
+
+def convert_results_to_dataframe(result: dict) -> pd.DataFrame:
+    """
+    Convert a nested results dictionary into a DataFrame with a MultiIndex for rows.
+    Each row corresponds to a (stake size, group size, data key) triple.
+
+    Args:
+        result (dict): Nested dictionary with structure:
+            {stake_size: {group_size: {data_key: data_value, ...}, ...}, ...}
+
+    Returns:
+        pd.DataFrame: DataFrame with MultiIndex rows ("Stake Size", "Group Size", "Data").
+                    The DataFrame columns are set to range based on the number of pseudo counts.
+    """
+    rows = []
+    cols = []
+    data = []
+    for stake_size_key, groups in result.items():
+        for group_size_key, result_dict in groups.items():
+            for data_key, data_val in result_dict.items():
+                if data_key in ["model", "trace", "ppc"]:
+                    continue
+                rows.append((stake_size_key, group_size_key, data_key))
+                cols.append(data_key)
+                data.append(data_val)
+    multi_index = pd.MultiIndex.from_tuples(
+        rows, names=["Stake Size", "Group Size", "Data"]
+    )
+    results_df = pd.DataFrame(data, index=multi_index)
+    # Set the column names to [0, 1, ..., max_index] based on the length of data.
+    results_df.columns = range(results_df.shape[1])
+    return results_df
+
+
+# %%
+# Example usage during testing:
+if __name__ == "__main__":
+
+    # ====================================================================
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run the group stake distribution calculation with "
+            "optional input/output file paths."
+        )
+    )
+    default_data_dir = Path(__file__).parent.parent / "data"
+    parser.add_argument(
+        "--input-data-file",
+        type=Path,
+        default=default_data_dir / "pooltool-cleaned.csv",
+        help="Path to the input CSV data file (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--output-data-file",
+        type=Path,
+        default=default_data_dir / "bayes_stake_dist_output.csv",
+        help="Path to the output CSV file (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--downsample",
+        type=float,
+        default=1.0,
+        help="Percentage of the population to sample (0.0-1.0).",
+    )
+    parser.add_argument(
+        "--group-size",
+        type=int,
+        nargs="+",
+        default=100,
+        help="Number of participants in the group (default: 100)",
+    )
+    parser.add_argument(
+        "--committee-size",
+        type=int,
+        default=50,
+        help="Number of seats in the committee (default: 50)",
+    )
+    parser.add_argument(
+        "--stake-size",
+        type=int,
+        nargs="+",
+        default=None,
+        help="List of stake sizes to analyze (default: None)",
+    )
+    parser.add_argument(
+        "--all-in",
+        action="store_true",
+        default=False,
+        help=(
+            "Process all stake sizes specified in '--stake-size' "
+            "simultaneously instead of individually."
+        ),
+    )
+    parser.add_argument(
+        "--plot",
+        action="store_true",
+        default=False,
+        help="Enable plotting of data (default: False)",
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        default=False,
+        help="Run in test mode",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random number generator seed (default: None)",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Enable verbose output (default: False)",
+    )
+    args = parser.parse_args()
+    # ====================================================================
+    # Initialize variables
+    INPUT_DATA_FILE = args.input_data_file
+    OUTPUT_DATA_FILE = args.output_data_file
+    TEST_IT = args.test
+    PLOT_IT = args.plot
+    VERBOSE = args.verbose
+    DOWNSAMPLE = args.downsample
+    GROUP_SIZE = args.group_size
+    COMMITTEE_SIZE = args.committee_size
+    STAKE_SIZE = args.stake_size
+    ALL_IN = args.all_in
+    # ====================================================================
+    # Set the random seed for reproducibility
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+    # ====================================================================
+    # Load the population data
+    print(f"Input data file: {INPUT_DATA_FILE}")
+    population = load_population(INPUT_DATA_FILE)
+    if DOWNSAMPLE < 1.0:
+        print(f"Downsampling population to {DOWNSAMPLE:.1%} of original size.")
+        population_size = int(len(population) * DOWNSAMPLE)
+    else:
+        print("Using full population size.")
+        population_size = len(population)
+    print(f"Population size: {population_size}")
+    # Get the smoothed stake distribution of the population
+    # and downsample and plot it if if desired
+    population = get_stake_distribution(
+        population,
+        group_size=population_size,
+        num_iter=1,  # 1 for exact instance, >> 1 for smoothed
+        plot_it=PLOT_IT,
+    )
+    # ====================================================================
+    # Prepare the stake sizes for processing
+    if isinstance(STAKE_SIZE, list):
+        # If stake size is a list, convert to a list of integers
+        stake_size = [int(s) for s in STAKE_SIZE]
+    elif STAKE_SIZE is None:
+        stake_size = []
+    if ALL_IN:
+        # If all-in mode is enabled, convert to a list of lists so that
+        # all stake sizes are processed at once in a batch
+        stake_size = [stake_size]
+    # ====================================================================
+    if TEST_IT:
+        # Test the model with a specific stake, group, and committee sizes
+        print(
+            f"Testing with stake size {stake_size}",
+            f"and group size {GROUP_SIZE}.",
+        )
+        # Run the model for each combination of stake and group size
+        # and accumulate the psuedo counts.
+        result = {}
+        for stake in stake_size:
+            for group in GROUP_SIZE:
+                result_sg = main_model(
+                    population=population,
+                    stake_size=stake,
+                    group_size=group,
+                    committee_size=COMMITTEE_SIZE,
+                    plot_it=PLOT_IT,
+                    debug_it=TEST_IT,
+                    verbose=VERBOSE,
+                )
+                # Append the result dictionary to the result
+                if isinstance(stake, list):
+                    for s in stake:
+                        result[s] = {group: result_sg}
+                else:
+                    result[stake] = {group: result_sg}
+    # ====================================================================
+    else:
+        # Main function to run the model
+        result = main(
+            population,
+            stake_size=stake_size,
+            committee_size=COMMITTEE_SIZE,
+            group_size=GROUP_SIZE,
+            downsample=DOWNSAMPLE,
+            debug_it=TEST_IT,
+            plot_it=PLOT_IT,
+            verbose=VERBOSE,
+        )
+    # ====================================================================
+    # Convert the results to a DataFrame and save to a CSV file
+    results_df = convert_results_to_dataframe(result)
+    
+    OUTPUT_DATA_FILE = Path(args.output_data_file)
+    OUTPUT_DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure the output file has the correct suffix
+    if OUTPUT_DATA_FILE.suffix != ".csv":
+        OUTPUT_DATA_FILE = OUTPUT_DATA_FILE.with_suffix(".csv")
+    try:
+        # Save the DataFrames to a CSV file
+        results_df.to_csv(OUTPUT_DATA_FILE, index=True)
+        print(f"Psuedo counts prediction saved to file {OUTPUT_DATA_FILE}.")
+
+    except Exception as e:
+        print(f"Error saving result: {e}")
+    if VERBOSE:
+        print("Predictions DataFrame:")
+        print(results_df.head(10))
+    print("Done.")
+    # ====================================================================
+    # End of script    
+\end{lstlisting}
+
+
+The usage of the script is as follows:
+\begin{lstlisting}[language=bash, caption={Command to run the script}]
+usage: 
+
+bayes_stake_dist.py [-h] [--input-data-file INPUT_DATA_FILE] 
+[--output-data-file OUTPUT_DATA_FILE] [--downsample DOWNSAMPLE] 
+[--group-size GROUP_SIZE [GROUP_SIZE ...]] [--committee-size COMMITTEE_SIZE]
+[--stake-size STAKE_SIZE [STAKE_SIZE ...]] [--all-in] [--plot] [--test] 
+[--seed SEED] [--verbose]
+
+Run the group stake distribution calculation with optional 
+input/output file paths.
+
+options:
+-h, --help            show this help message and exit
+
+--input-data-file INPUT_DATA_FILE
+Path to the input CSV data file 
+(default: /Users/rjones/Desktop/Work/Shielded/Midnight/midnight-architecture/consensus/risk-modeling/data/pooltool-cleaned.csv)
+
+--output-data-file OUTPUT_DATA_FILE
+Path to the output CSV file 
+(default: /Users/rjones/Desktop/Work/Shielded/Midnight/midnight-architecture/consensus/risk-modeling/data/bayes_stake_dist_output.csv)
+
+--downsample DOWNSAMPLE
+Percentage of the population to sample (0.0-1.0).
+
+--group-size GROUP_SIZE [GROUP_SIZE ...]
+Number of participants in the group (default: 100)
+
+--committee-size COMMITTEE_SIZE
+Number of seats in the committee (default: 50)
+
+--stake-size STAKE_SIZE [STAKE_SIZE ...]
+List of stake sizes to analyze (default: None)
+
+--all-in              Process all stake sizes specified in '--stake-size' simultaneously instead of individually.
+--plot                Enable plotting of data (default: False)
+--test                Run in test mode
+--seed SEED           Random number generator seed (default: None)
+--verbose             Enable verbose output (default: False)
+\end{lstlisting}
+
+
+A helper script to run the Bayesian model with various parameters is provided below. This script can be executed in a terminal or command line interface.
+
+\begin{lstlisting}[language=bash, caption={Script to execute the Bayesian model with various parameters}]
+#!/bin/bash
+# Script to execute the participation_gen.py script
+# with various parameters for committee size, group size, and stake.
+
+./bayes_stake_dist.py \
+    --committee-size 350 \
+    --group-size 100 200 300 400 500 600 \
+    --stake-size 10 100 1_000 10_000 100_000 1_000_000 10_000_000 100_000_000 \
+    --seed 123 \
+    --verbose
+
+echo "Participation generation completed."
+\end{lstlisting}
+
+
+
+
+
+\section{Computation Results}\label{sec:computation_results}
+
+The results of the Bayesian model for different stake sizes and group sizes are stored in a nested dictionary. The keys are the stake sizes and group sizes, and the values are the result dictionaries containing the posterior samples, model, and other relevant data.
+
+The table lists the mean probability distribution, $\boldsymbol{m} = [m_1, m_2, \ldots, m_n]$, for columns $1, 2, \ldots, n$ over the probabilities of committee selection, $\boldsymbol{p}$, for different stake sizes and group sizes, $n$. These parameters can be multiplied by the committee size $k$ to calculate the expected number of times the associated participant is selected to the committee.
+
+The role of the parameter $m_0$ at column $0$ can be interpreted as a measure of the \emph{sharpness} (or precision)
+of the distribution characterized by parameters $\boldsymbol{m}$. That is, while the $m_i: i \in \{1, 2, \ldots, n\}$ 
+parameters represent the expected probabilities of selection for each participant, such that
+\begin{equation}
+    \sum_{i=1}^n m_i = 1
+\end{equation}
+the $m_0$ measures how diﬀerent we expect typical samples $\boldsymbol{p}$ 
+to be from the mean $\boldsymbol{m}$. A large value of $m_0$ produces a distribution over $\boldsymbol{p}$ 
+that is sharply peaked around $\boldsymbol{m}$.
+
+\begin{table}[htbp]
+    \label{tab:mean_probability}
+    \centering
+    \caption{Mean Probability by Stake Size, Group Size, and Posterior Predictions}
+    \begin{tabular}{rrccccccc}
+    \toprule
+    \multicolumn{2}{c}{\textbf{Parameters}} & \multicolumn{6}{c}{\textbf{Mean Concentration of Probability}} \\
+    \cmidrule(lr){1-2} \cmidrule(lr){3-9}
+    \textbf{Stake Size} & \textbf{Group Size} & \textbf{0} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} \\
+    \midrule
+    $10^8$ & 600 & 1176.23 & 0.0046 & 0.0038 & 0.0038 & 0.0038 & 0.0038 & 0.0038 \\
+    $10^7$ & 600 & 1176.97 & 0.0021 & 0.0038 & 0.0038 & 0.0038 & 0.0038 & 0.0035 \\
+    $10^6$ & 600 & 1176.56 & 0.0014 & 0.0038 & 0.0038 & 0.0038 & 0.0038 & 0.0034 \\
+    $10^5$ & 600 & 1176.04 & 0.0014 & 0.0037 & 0.0038 & 0.0038 & 0.0038 & 0.0038 \\
+    $10^4$ & 600 & 1175.74 & 0.0014 & 0.0039 & 0.0038 & 0.0038 & 0.0039 & 0.0038 \\
+    $10^3$ & 600 & 1175.24 & 0.0014 & 0.0038 & 0.0038 & 0.0038 & 0.0038 & 0.0038 \\
+    % $10^1$ & 600 & 1175.74 & 0.0014 & 0.0038 & 0.0038 & 0.0038 & 0.0038 & 0.0038 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+
+
+\end{document}

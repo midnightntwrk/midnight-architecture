@@ -29,6 +29,10 @@ black = "*"
 scikit-learn = "*"
 notebook = "*"
 openpyxl = "*"
+arviz = "*"
+pymc = "*"
+torchvision = "*"
+torchaudio = "*"
 
 [dev-packages]
 black = "*"
