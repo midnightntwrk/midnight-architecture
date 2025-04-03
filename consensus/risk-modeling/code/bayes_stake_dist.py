@@ -260,6 +260,7 @@ def compute_and_adjust_seat_counts(
     seats = assign_commitee(
         group,
         committee_size=committee_size,
+        num_iter=1000,  # 1 for exact instance, >> 1 for smoothed
         plot_it=plot_it,
     )
     seat_counts = seats["seat_counts"]
