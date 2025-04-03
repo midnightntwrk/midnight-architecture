@@ -2,9 +2,17 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "noEmit": true,
+    "strict": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "lib": ["es2022"],
+    "erasableSyntaxOnly": true
   },
   "ts-node": {
     "esm": true
-  }
+  },
+  "include": ["src/**.ts"]
 }

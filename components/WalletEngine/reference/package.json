@@ -5,7 +5,8 @@
   "scripts": {
     "gen": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts gen --dir ../test-vectors",
     "test-vectors": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts test-vectors --dir ../test-vectors",
-    "test-addr": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts test-addr"
+    "test-addr": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts test-addr",
+    "find-seeds": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds"
   },
   "type": "module",
   "author": "",
@@ -23,7 +24,7 @@
     "commander": "^13.0.0",
     "jest-diff": "^29.7.0",
     "lodash-es": "^4.17.21",
-    "@midnight-ntwrk/zswap": "^3.0.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@midnight-ntwrk/ledger": "4.0.0-beta.1"
   }
 }

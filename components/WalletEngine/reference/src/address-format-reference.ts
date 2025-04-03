@@ -1,4 +1,4 @@
-import * as zswap from "@midnight-ntwrk/zswap";
+import * as ledger from "@midnight-ntwrk/ledger";
 import { bech32m } from "@scure/base";
 
 export const Bech32m: unique symbol = Symbol("Bech32m");
@@ -25,6 +25,9 @@ export class MidnightBech32m {
     if (prefix != MidnightBech32m.prefix) {
       throw new Error(`Expected prefix ${MidnightBech32m.prefix}`);
     }
+    if (type == undefined) {
+      throw new Error(`Did not find address type information`);
+    }
     MidnightBech32m.validateSegment("type", type);
     if (network != null) {
       MidnightBech32m.validateSegment("network", network);
@@ -33,29 +36,41 @@ export class MidnightBech32m {
     return new MidnightBech32m(type, network, Buffer.from(bech32parsed.bytes));
   }
 
-  constructor(
-    public readonly type: string,
-    public readonly network: string | null,
-    public readonly data: Buffer,
-  ) {
+  public readonly type: string;
+  public readonly network: string | null;
+  public readonly data: Buffer;
+
+  constructor(type: string, network: string | null, data: Buffer) {
     MidnightBech32m.validateSegment("type", type);
     if (network != null) {
       MidnightBech32m.validateSegment("network", network);
     }
+
+    this.type = type;
+    this.network = network;
+    this.data = data;
   }
 
   toString(): string {
     const networkSegment = this.network == null ? "" : `_${this.network}`;
-    return bech32m.encode(`${MidnightBech32m.prefix}_${this.type}${networkSegment}`, bech32m.toWords(this.data), false);
+    return bech32m.encode(
+      `${MidnightBech32m.prefix}_${this.type}${networkSegment}`,
+      bech32m.toWords(this.data),
+      false,
+    );
   }
 }
 
 export class Bech32mCodec<T> {
-  constructor(
-    public readonly type: string,
-    public readonly dataToBytes: (data: T) => Buffer,
-    public readonly dataFromBytes: (bytes: Buffer) => T,
-  ) {}
+  public readonly type: string;
+  public readonly dataToBytes: (data: T) => Buffer;
+  public readonly dataFromBytes: (bytes: Buffer) => T;
+
+  constructor(type: string, dataToBytes: (data: T) => Buffer, dataFromBytes: (bytes: Buffer) => T) {
+    this.type = type;
+    this.dataToBytes = dataToBytes;
+    this.dataFromBytes = dataFromBytes;
+  }
 
   encode(context: FormatContext, data: T): MidnightBech32m {
     return new MidnightBech32m(this.type, context.networkId, this.dataToBytes(data));
@@ -66,7 +81,9 @@ export class Bech32mCodec<T> {
       throw new Error(`Expected type ${this.type}, got ${repr.type}`);
     }
     if (context.networkId != repr.network) {
-      throw new Error(`Expected ${context.networkId ?? "mainnet"} address, got ${repr.network ?? "mainnet"} one`);
+      throw new Error(
+        `Expected ${context.networkId ?? "mainnet"} address, got ${repr.network ?? "mainnet"} one`,
+      );
     }
     return this.dataFromBytes(repr.data);
   }
@@ -77,7 +94,9 @@ export class ShieldedAddress {
     "shield-addr",
     (addr) => Buffer.concat([addr.coinPublicKey.data, addr.encryptionPublicKey]),
     (bytes) => {
-      const coinPublicKey = new ShieldedCoinPublicKey(bytes.subarray(0, ShieldedCoinPublicKey.length));
+      const coinPublicKey = new ShieldedCoinPublicKey(
+        bytes.subarray(0, ShieldedCoinPublicKey.length),
+      );
       const encryptionPublicKey = bytes.subarray(ShieldedCoinPublicKey.length);
       return new ShieldedAddress(coinPublicKey, encryptionPublicKey);
     },
@@ -85,27 +104,45 @@ export class ShieldedAddress {
 
   [Bech32m] = ShieldedAddress.codec;
 
-  constructor(
-    public readonly coinPublicKey: ShieldedCoinPublicKey,
-    public readonly encryptionPublicKey: Buffer,
-  ) {}
+  public readonly coinPublicKey: ShieldedCoinPublicKey;
+  public readonly encryptionPublicKey: Buffer;
+
+  constructor(coinPublicKey: ShieldedCoinPublicKey, encryptionPublicKey: Buffer) {
+    this.encryptionPublicKey = encryptionPublicKey;
+    this.coinPublicKey = coinPublicKey;
+  }
 }
 
 export class ShieldedEncryptionSecretKey {
   static codec = new Bech32mCodec<ShieldedEncryptionSecretKey>(
     "shield-esk",
-    (esk) => Buffer.from(esk.zswap.yesIKnowTheSecurityImplicationsOfThis_serialize(zswap.NetworkId.Undeployed).subarray(1)),
+    (esk) => esk.serialize(),
     (repr) =>
       new ShieldedEncryptionSecretKey(
-        zswap.EncryptionSecretKey.deserialize(Buffer.concat([Buffer.of(0), repr]), zswap.NetworkId.Undeployed),
+        ledger.EncryptionSecretKey.deserialize(
+          Buffer.concat([Buffer.of(0), repr]),
+          ledger.NetworkId.Undeployed,
+        ),
       ),
   );
 
   [Bech32m] = ShieldedEncryptionSecretKey.codec;
 
+  private wrapped: ledger.EncryptionSecretKey;
+
   // There are some bits in serialization of field elements and elliptic curve points, that are hard to replicate
   // Thus using zswap implementation directly for serialization purposes
-  constructor(public readonly zswap: zswap.EncryptionSecretKey) {}
+  constructor(toWrap: ledger.EncryptionSecretKey) {
+    this.wrapped = toWrap;
+  }
+
+  serialize(): Buffer {
+    return Buffer.from(
+      this.wrapped
+        .yesIKnowTheSecurityImplicationsOfThis_serialize(ledger.NetworkId.Undeployed)
+        .subarray(1),
+    );
+  }
 }
 
 export class ShieldedCoinPublicKey {
@@ -119,9 +156,13 @@ export class ShieldedCoinPublicKey {
 
   [Bech32m] = ShieldedCoinPublicKey.codec;
 
-  constructor(public readonly data: Buffer) {
+  public readonly data: Buffer;
+
+  constructor(data: Buffer) {
     if (data.length != ShieldedCoinPublicKey.length) {
       throw new Error("Coin public key needs to be 32 bytes long");
     }
+
+    this.data = data;
   }
 }
