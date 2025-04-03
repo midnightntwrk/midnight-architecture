@@ -5,12 +5,26 @@ export type Field = {
 
 export const ErisScalar: Field = {
   bytes: 56,
-  modulus: BigInt("0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001"),
+  modulus: BigInt(
+    "0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001",
+  ),
 };
 
 export const PlutoScalar: Field = {
   bytes: 56,
-  modulus: BigInt("0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001"),
+  modulus: BigInt(
+    "0x24000000000024000130e0000d7f70e4a803ca76f439266f443f9a5cda8a6c7be4a7a5fe8fadffd6a2a7e8c30006b9459ffffcd300000001",
+  ),
+};
+
+export const JubJubScalar: Field = {
+  bytes: 32,
+  modulus: BigInt("0x0e7db4ea6533afa906673b0101343b00a6682093ccc81082d0970e5ed6f72cb7"),
+};
+
+export const BLSScalar: Field = {
+  bytes: 32,
+  modulus: BigInt("0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001"),
 };
 
 // Take little endian bytes representation and convert to a bigint
@@ -21,6 +35,7 @@ export function toScalar(bytes: Buffer): bigint {
 // A little-endian bytes representation of a field element
 export function fromScalar(scalar: bigint, padToField?: Field): Buffer {
   const stringified = scalar.toString(16);
-  const padded = padToField != undefined ? stringified.padStart(padToField.bytes * 2, "0") : stringified;
+  const padded =
+    padToField != undefined ? stringified.padStart(padToField.bytes * 2, "0") : stringified;
   return Buffer.from(padded, "hex").reverse();
 }

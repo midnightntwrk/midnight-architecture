@@ -88,7 +88,7 @@ It is often the case, that for user's convenience, wallets also collect all the 
 
 Zswap, as a protocol for privacy-preserving tokens, has 3 major goals:
 1. Maintain privacy of transfers, so that it is impossible to tell:
-   - who the input provider (sender) is, unless one is the provider themself
+   - who the input provider (sender) is, unless one is the provider themselves
    - who the output recipient is, unless one created that output or is the recipient
    - what amounts were moved, unless one is sender or receiver of particular output
    - what kinds of tokens were moved, unless one is sender or receiver of the token
@@ -193,10 +193,10 @@ That makes a private key derived at certain path, the private key for Night. The
 
 ### Dust keys
 
-Dust uses SNARK-friendly cryptography, where the secret key is an element of the main curve's (Pluto) scalar field, and public key a Poseidon hash of the secret key (so it is also an element of the scalar field). A Dust secret key is derived using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 8, and domain separator being `midnight:dsk`. That is:
+Dust uses SNARK-friendly cryptography, where the secret key is an element of the main curve's (BLS12-381) scalar field, and public key a Poseidon hash of the secret key (so it is also an element of the scalar field). A Dust secret key is derived using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 32, and domain separator being `midnight:dsk`. That is:
 ```ts
 function dustSecretKey(seed: Buffer): BigInt {
-    return sampledSecretKey(seed, "midnight:dsk", 8, PlutoScalar);
+    return sampledSecretKey(seed, "midnight:dsk", 32, BLSScalar);
 }
 ```
 
@@ -210,16 +210,16 @@ A secret 32 bytes, which allow to generate all the other Zswap keys. Rest of key
 
 #### Output encryption keys
 
-Encryption secret key is an element of the embedded curve's (Eris) scalar field, generated using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 8, and domain separator being `midnight:esk`. That is:
+Encryption secret key is an element of the embedded curve's (JubJub) scalar field, generated using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 32, and domain separator being `midnight:esk`. That is:
 ```ts
 function encryptionSecretKey(seed: Buffer): BigInt {
-    return sampledSecretKey(seed, "midnight:esk", 8, ErisScalar);
+    return sampledSecretKey(seed, "midnight:esk", 32, JubJubScalar);
 }
 ```
 
 Although it is a secret key, so it should be treated with a special care, there is one situation, where it can be shared - as a key letting a trusted backend service index wallet transactions - in such context it acts as a viewing key.
 
-Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the Eris curve), that is $esk \cdot G$, where $G$ is Eris's generator point and $esk$ the encryption secret key.
+Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve), that is $esk \cdot G$, where $G$ is JubJub's generator point and $esk$ the encryption secret key.
 
 #### Coin keys
 

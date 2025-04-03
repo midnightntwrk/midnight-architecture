@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import { schnorr } from "@noble/curves/secp256k1";
-import { ErisScalar, Field, PlutoScalar, toScalar } from "./field.js";
+import { BLSScalar, Field, JubJubScalar, toScalar } from "./field.js";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
   return crypto.createHash("sha-256").update(a).update(b).digest();
@@ -18,7 +18,12 @@ function sampleBytes(bytes: number, domainSeparator: Buffer, seed: Buffer): Buff
   return result;
 }
 
-export function sampleKey(seed: Buffer, margin: number, domainSeparator: Buffer, field: Field): { intermediateBytes: Buffer; key: bigint } {
+export function sampleKey(
+  seed: Buffer,
+  margin: number,
+  domainSeparator: Buffer,
+  field: Field,
+): { intermediateBytes: Buffer; key: bigint } {
   // Generating some more bytes is important to get a better distribution of keys
   const sampledBytes = sampleBytes(field.bytes + margin, domainSeparator, seed);
   return {
@@ -31,18 +36,18 @@ export function encryptionSecretKey(seed: Buffer): {
   intermediateBytes: Buffer;
   key: bigint;
 } {
-  const field = ErisScalar;
+  const field = JubJubScalar;
   const domainSeparator = Buffer.from("midnight:esk", "utf-8");
-  return sampleKey(seed, 8, domainSeparator, field);
+  return sampleKey(seed, 32, domainSeparator, field);
 }
 
 export function dustSecretKey(seed: Buffer): {
   intermediateBytes: Buffer;
   key: bigint;
 } {
-  const field = PlutoScalar;
+  const field = BLSScalar;
   const domainSeparator = Buffer.from("midnight:dsk", "utf-8");
-  return sampleKey(seed, 8, domainSeparator, field);
+  return sampleKey(seed, 32, domainSeparator, field);
 }
 
 export function coinKeys(seed: Buffer): {

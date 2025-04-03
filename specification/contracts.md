@@ -214,7 +214,7 @@ struct BlockContext {
 }
 
 impl ContractCall {
-    fn context(self, block: BlockContext, intent: Intent<(), ()>, state: ContractState) -> CallContext {
+    fn context(self, block: BlockContext, intent: ErasedIntent, state: ContractState) -> CallContext {
         let caller = intent.calls.iter()
             .find_map(|action| match action {
                 ContractAction::Call(caller) if caller.calls(self) =>
@@ -265,13 +265,21 @@ impl ContractCall {
 
 ### Call well-formedness
 
-A contract call is considered 'well-formed` with respect to a reference state
+A contract call is considered 'well-formed' with respect to a reference state
 if the proof verifies against the key recorded at the location in the reference
-state. The binding input for the proof is the parent intent hash.
+state. The binding input for the proof is the parent intent's binding
+commitment. Using this over the intent hash allows the intent to be modified
+after the zero-knowledge proof is carried out, but not after the Pedersen
+commitment is finalized.
 
 ```rust
 impl ContractCall {
-    fn well_formed(self, ref_state: LedgerContractState, parent_hash: IntentHash) -> Result<()> {
+    fn well_formed(
+        self,
+        ref_state: LedgerContractState,
+        segment_id: u16,
+        parent: ErasedIntent,
+    ) -> Result<()> {
         let circuit = ref_state.contract.get(self.address)?.operations.get(self.entry_point)?;
         zk_verify(
             circuit,
@@ -279,7 +287,7 @@ impl ContractCall {
                 self.guaranteed_transcript.map(|t| t.program),
                 self.fallible_transcript.map(|t| t.program),
             ),
-            parent_hash.into(),
+            (segment_id, parent.binding_input),
             self.proof,
         )?;
     }
@@ -298,7 +306,7 @@ impl LedgerContractState {
         call: ContractCall,
         guaranteed: bool,
         block_context: BlockContext,
-        parent_intent: Intent<(), ()>,
+        parent_intent: ErasedIntent,
     ) -> Result<Self> {
         let transcript = if guaranteed {
             call.guaranteed_transcript
@@ -363,7 +371,7 @@ impl LedgerContractState {
         action: ContractAction,
         guaranteed: bool,
         block_context: BlockContext,
-        parent_intent: Intent<(), ()>,
+        parent_intent: ErasedIntent,
     ) -> Result<Self> {
         match action {
             ContractAction::Deploy(deploy) if !guaranteed =>
