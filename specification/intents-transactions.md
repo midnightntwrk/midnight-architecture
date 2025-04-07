@@ -352,6 +352,8 @@ The balance check depends on fee calculations (out of scope), and the overall
 balance of the transaction, which is per token type, per segment ID:
 
 ```rust
+const FEE_TOKEN: TokenType = TokenType::Shielded(
+
 impl<S, P, B> Transaction<S, P, B> {
     fn fees(self) -> Result<u128> {
         // Out of scope of this spec
@@ -359,6 +361,8 @@ impl<S, P, B> Transaction<S, P, B> {
 
     fn balance(self) -> Result<Map<(TokenType, u16), i128>> {
         let mut res = Map::new();
+        let fees = res.get_mut_or_default((DUST, 0));
+        *fees = (*fees).checked_sub(self.fees()?);
         for (segment, intent) in self.intents {
             for (segment, offer) in [
                 (0, intent.guaranteed_unshielded_offer),
