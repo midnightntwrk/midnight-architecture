@@ -283,7 +283,7 @@ impl<P> ZswapTransient<P> {
 }
 
 impl ZswapState {
-    fn apply_transient<P>(self, trans: ZswapTransient<P>) -> Result<(Self, CoinCommitment, u64)> {
+    fn apply_transient<P>(mut self, trans: ZswapTransient<P>) -> Result<(Self, CoinCommitment, u64)> {
         assert!(!self.commitment_set.contains(trans.commitment));
         assert!(!self.nullifiers.contains(trans.nullifier));
         self.commitment_set = self.commitment_set.insert(trans.commitment);
