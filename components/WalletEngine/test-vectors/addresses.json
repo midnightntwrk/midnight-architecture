@@ -2,6 +2,10 @@
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f670300b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
       "bech32m": "mn_shield-addr1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdansxq9jvwnvru5l3hxlzhm34tqg53qcjzdawcrnv3slpeq5v0k92g3r6qek02al"
@@ -18,6 +22,10 @@
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f670300b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
       "bech32m": "mn_shield-addr_my-private-net1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdansxq9jvwnvru5l3hxlzhm34tqg53qcjzdawcrnv3slpeq5v0k92g3r6qknqa5g"
@@ -34,6 +42,10 @@
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f670300b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
       "bech32m": "mn_shield-addr_dev1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdansxq9jvwnvru5l3hxlzhm34tqg53qcjzdawcrnv3slpeq5v0k92g3r6qu2mpku"
@@ -50,6 +62,10 @@
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f670300b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
       "bech32m": "mn_shield-addr_test1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdansxq9jvwnvru5l3hxlzhm34tqg53qcjzdawcrnv3slpeq5v0k92g3r6qcpw55y"
@@ -66,6 +82,10 @@
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f670300b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
       "bech32m": "mn_shield-addr_my-private-net-51qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdansxq9jvwnvru5l3hxlzhm34tqg53qcjzdawcrnv3slpeq5v0k92g3r6qwtzeh2"
@@ -82,6 +102,10 @@
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
+      "bech32m": "mn_addr1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9s6e0fs3"
+    },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e030054612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
       "bech32m": "mn_shield-addr13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqxqz5vyk0vh6mwhn0qv7e0edlelpw6x6uke4erfur2s87tayttf08ayey5th0"
@@ -98,6 +122,10 @@
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
+      "bech32m": "mn_addr_my-private-net1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9sj8jm9g"
+    },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e030054612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
       "bech32m": "mn_shield-addr_my-private-net13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqxqz5vyk0vh6mwhn0qv7e0edlelpw6x6uke4erfur2s87tayttf08aykpmu7c"
@@ -114,6 +142,10 @@
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
+      "bech32m": "mn_addr_dev1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9scrztfp"
+    },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e030054612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
       "bech32m": "mn_shield-addr_dev13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqxqz5vyk0vh6mwhn0qv7e0edlelpw6x6uke4erfur2s87tayttf08ayucqquv"
@@ -130,6 +162,10 @@
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
+      "bech32m": "mn_addr_test1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9s2hekw9"
+    },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e030054612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
       "bech32m": "mn_shield-addr_test13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqxqz5vyk0vh6mwhn0qv7e0edlelpw6x6uke4erfur2s87tayttf08aycn4475"
@@ -146,6 +182,10 @@
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
+      "bech32m": "mn_addr_my-private-net-51asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9s5tz2ey"
+    },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e030054612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
       "bech32m": "mn_shield-addr_my-private-net-513adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqxqz5vyk0vh6mwhn0qv7e0edlelpw6x6uke4erfur2s87tayttf08ayweeca6"
@@ -162,6 +202,10 @@
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
+      "bech32m": "mn_addr1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zstya9lg"
+    },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da030006d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
       "bech32m": "mn_shield-addr1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqxqqx6308gsl35cpeqr7zn4p2tfjh75ffn5r9gtmn4n5wn3gwgjuhgsdv77w6"
@@ -178,6 +222,10 @@
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
+      "bech32m": "mn_addr_my-private-net1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zsr6qh23"
+    },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da030006d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
       "bech32m": "mn_shield-addr_my-private-net1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqxqqx6308gsl35cpeqr7zn4p2tfjh75ffn5r9gtmn4n5wn3gwgjuhgszf3f8d"
@@ -194,6 +242,10 @@
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
+      "bech32m": "mn_addr_dev1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zsf7s8xc"
+    },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da030006d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
       "bech32m": "mn_shield-addr_dev1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqxqqx6308gsl35cpeqr7zn4p2tfjh75ffn5r9gtmn4n5wn3gwgjuhgsgs249e"
@@ -210,6 +262,10 @@
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
+      "bech32m": "mn_addr_test1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zsm2t6pu"
+    },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da030006d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
       "bech32m": "mn_shield-addr_test1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqxqqx6308gsl35cpeqr7zn4p2tfjh75ffn5r9gtmn4n5wn3gwgjuhgsvmlq8p"
@@ -226,6 +282,10 @@
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
+      "bech32m": "mn_addr_my-private-net-51gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zs9ksxka"
+    },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da030006d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
       "bech32m": "mn_shield-addr_my-private-net-51ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqxqqx6308gsl35cpeqr7zn4p2tfjh75ffn5r9gtmn4n5wn3gwgjuhgs63ndy0"
@@ -242,6 +302,10 @@
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
+      "bech32m": "mn_addr1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgq7d0acr"
+    },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead503000f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
       "bech32m": "mn_shield-addr1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2sxqq0wu43wj8637arj5fjnpev8acnm25qdn3dqrueacl0prxk6z46tysf2cuj"
@@ -258,6 +322,10 @@
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
+      "bech32m": "mn_addr_my-private-net1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgqknj0d6"
+    },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead503000f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
       "bech32m": "mn_shield-addr_my-private-net1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2sxqq0wu43wj8637arj5fjnpev8acnm25qdn3dqrueacl0prxk6z46tylv9049"
@@ -274,6 +342,10 @@
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
+      "bech32m": "mn_addr_dev1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgquhzlpn"
+    },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead503000f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
       "bech32m": "mn_shield-addr_dev1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2sxqq0wu43wj8637arj5fjnpev8acnm25qdn3dqrueacl0prxk6z46ty447nh3"
@@ -290,6 +362,10 @@
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
+      "bech32m": "mn_addr_test1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgqwrezxh"
+    },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead503000f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
       "bech32m": "mn_shield-addr_test1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2sxqq0wu43wj8637arj5fjnpev8acnm25qdn3dqrueacl0prxk6z46ty37tx4f"
@@ -306,6 +382,10 @@
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
+      "bech32m": "mn_addr_my-private-net-51d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgqslz73k"
+    },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead503000f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
       "bech32m": "mn_shield-addr_my-private-net-51pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2sxqq0wu43wj8637arj5fjnpev8acnm25qdn3dqrueacl0prxk6z46ty858tk8"
@@ -322,6 +402,10 @@
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
+      "bech32m": "mn_addr1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqxsuya9"
+    },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba530300df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
       "bech32m": "mn_shield-addr1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsxqxlzuha6a6ltxqpg80w9djjv6j9ea8060mywpfnypg0nsujgsyszq3wnzeu"
@@ -338,6 +422,10 @@
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
+      "bech32m": "mn_addr_my-private-net1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqwwpkgu"
+    },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba530300df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
       "bech32m": "mn_shield-addr_my-private-net1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsxqxlzuha6a6ltxqpg80w9djjv6j9ea8060mywpfnypg0nsujgsyszq7tu4st"
@@ -354,6 +442,10 @@
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
+      "bech32m": "mn_addr_dev1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqy23xy4"
+    },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba530300df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
       "bech32m": "mn_shield-addr_dev1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsxqxlzuha6a6ltxqpg80w9djjv6j9ea8060mywpfnypg0nsujgsyszq5j8fjl"
@@ -370,6 +462,10 @@
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
+      "bech32m": "mn_addr_test1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqk72mr3"
+    },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba530300df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
       "bech32m": "mn_shield-addr_test1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsxqxlzuha6a6ltxqpg80w9djjv6j9ea8060mywpfnypg0nsujgsyszqsejus8"
@@ -386,6 +482,10 @@
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
+      "bech32m": "mn_addr_my-private-net-51gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqgz385s"
+    },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba530300df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
       "bech32m": "mn_shield-addr_my-private-net-51au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsxqxlzuha6a6ltxqpg80w9djjv6j9ea8060mywpfnypg0nsujgsyszqxn73nf"
@@ -402,6 +502,10 @@
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
+      "bech32m": "mn_addr1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvs4p3n4u"
+    },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f03007e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
       "bech32m": "mn_shield-addr1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sxqr7rruxq24fhytc06gxna87djwzxfedgj374qa29tj7lljrsp9m5cf8majq"
@@ -418,6 +522,10 @@
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
+      "bech32m": "mn_addr_my-private-net1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvsalvpq9"
+    },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f03007e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
       "bech32m": "mn_shield-addr_my-private-net1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sxqr7rruxq24fhytc06gxna87djwzxfedgj374qa29tj7lljrsp9m5cxz52mh"
@@ -434,6 +542,10 @@
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
+      "bech32m": "mn_addr_dev1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvshmu3vv"
+    },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f03007e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
       "bech32m": "mn_shield-addr_dev1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sxqr7rruxq24fhytc06gxna87djwzxfedgj374qa29tj7lljrsp9m5cvm0ker"
@@ -450,6 +562,10 @@
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
+      "bech32m": "mn_addr_test1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvs908vtg"
+    },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f03007e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
       "bech32m": "mn_shield-addr_test1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sxqr7rruxq24fhytc06gxna87djwzxfedgj374qa29tj7lljrsp9m5cgs6rmm"
@@ -466,6 +582,10 @@
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
+      "bech32m": "mn_addr_my-private-net-51x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvsmnusuf"
+    },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f03007e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
       "bech32m": "mn_shield-addr_my-private-net-51m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sxqr7rruxq24fhytc06gxna87djwzxfedgj374qa29tj7lljrsp9m5c76kwc4"
@@ -482,6 +602,10 @@
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
+      "bech32m": "mn_addr1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nq6w22uc"
+    },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba0300d8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
       "bech32m": "mn_shield-addr1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqxqxcdy7q7rp9ngm86rdhrdy8p06yxe6spm7rvwvy2d7hd88mhatguy20d964"
@@ -498,6 +622,10 @@
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
+      "bech32m": "mn_addr_my-private-net1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nqjshcfp"
+    },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba0300d8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
       "bech32m": "mn_shield-addr_my-private-net1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqxqxcdy7q7rp9ngm86rdhrdy8p06yxe6spm7rvwvy2d7hd88mhatguy92zjnz"
@@ -514,6 +642,10 @@
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
+      "bech32m": "mn_addr_dev1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nqc58g9g"
+    },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba0300d8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
       "bech32m": "mn_shield-addr_dev1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqxqxcdy7q7rp9ngm86rdhrdy8p06yxe6spm7rvwvy2d7hd88mhatguy0new3k"
@@ -530,6 +662,10 @@
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
+      "bech32m": "mn_addr_test1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nq2qu4zv"
+    },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba0300d8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
       "bech32m": "mn_shield-addr_test1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqxqxcdy7q7rp9ngm86rdhrdy8p06yxe6spm7rvwvy2d7hd88mhatguytcvmnw"
@@ -546,6 +682,10 @@
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
+      "bech32m": "mn_addr_my-private-net-51mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nq5u8f4d"
+    },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba0300d8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
       "bech32m": "mn_shield-addr_my-private-net-51z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqxqxcdy7q7rp9ngm86rdhrdy8p06yxe6spm7rvwvy2d7hd88mhatguyajqksq"
@@ -562,6 +702,10 @@
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
+      "bech32m": "mn_addr106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fq7463tv"
+    },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa4203004e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
       "bech32m": "mn_shield-addr1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqxqzwxmw4pqjkw7n9c2y556k4yldxhmg444pqghdzuz6g79a6ld59as4zef2g"
@@ -578,6 +722,10 @@
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
+      "bech32m": "mn_addr_my-private-net106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqkt8r74"
+    },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa4203004e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
       "bech32m": "mn_shield-addr_my-private-net1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqxqzwxmw4pqjkw7n9c2y556k4yldxhmg444pqghdzuz6g79a6ld59as68k7rl"
@@ -594,6 +742,10 @@
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
+      "bech32m": "mn_addr_dev106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqu0hnju"
+    },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa4203004e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
       "bech32m": "mn_shield-addr_dev1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqxqzwxmw4pqjkw7n9c2y556k4yldxhmg444pqghdzuz6g79a6ld59ass7dzpt"
@@ -610,6 +762,10 @@
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
+      "bech32m": "mn_addr_test106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqwmvw4c"
+    },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa4203004e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
       "bech32m": "mn_shield-addr_test1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqxqzwxmw4pqjkw7n9c2y556k4yldxhmg444pqghdzuz6g79a6ld59as54chrn"
@@ -626,6 +782,10 @@
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
+      "bech32m": "mn_addr_my-private-net-5106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqs8hjze"
+    },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa4203004e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
       "bech32m": "mn_shield-addr_my-private-net-51kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqxqzwxmw4pqjkw7n9c2y556k4yldxhmg444pqghdzuz6g79a6ld59aszl56qa"
@@ -642,6 +802,10 @@
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d0300e8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
       "bech32m": "mn_shield-addr19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7sxq8gzk97kl5ymhw5hdt4ga708z0wtmsnssr0j2tkuas60e4g9mmvdgyy3yek"
@@ -658,6 +822,10 @@
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d0300e8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
       "bech32m": "mn_shield-addr_my-private-net19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7sxq8gzk97kl5ymhw5hdt4ga708z0wtmsnssr0j2tkuas60e4g9mmvdgtp7nsp"
@@ -674,6 +842,10 @@
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d0300e8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
       "bech32m": "mn_shield-addr_dev19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7sxq8gzk97kl5ymhw5hdt4ga708z0wtmsnssr0j2tkuas60e4g9mmvdgpc90j4"
@@ -690,6 +862,10 @@
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d0300e8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
       "bech32m": "mn_shield-addr_test19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7sxq8gzk97kl5ymhw5hdt4ga708z0wtmsnssr0j2tkuas60e4g9mmvdg9ns6sd"
@@ -706,6 +882,10 @@
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": null,
+      "bech32m": null
+    },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d0300e8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
       "bech32m": "mn_shield-addr_my-private-net-519pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7sxq8gzk97kl5ymhw5hdt4ga708z0wtmsnssr0j2tkuas60e4g9mmvdgneuhnr"
@@ -722,6 +902,10 @@
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
+      "bech32m": "mn_addr1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqas532jwt"
+    },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d030081757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
       "bech32m": "mn_shield-addr1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97sxqypw479uxdvf48386urhyndrty9vmpkjlydmdcur78rr3lw345kg5zzgk33"
@@ -738,6 +922,10 @@
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
+      "bech32m": "mn_addr_my-private-net1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqasu0hqmj"
+    },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d030081757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
       "bech32m": "mn_shield-addr_my-private-net1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97sxqypw479uxdvf48386urhyndrty9vmpkjlydmdcur78rr3lw345kg5d88pcx"
@@ -754,6 +942,10 @@
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
+      "bech32m": "mn_addr_dev1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqaskt8shm"
+    },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d030081757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
       "bech32m": "mn_shield-addr_dev1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97sxqypw479uxdvf48386urhyndrty9vmpkjlydmdcur78rr3lw345kg587ua6j"
@@ -770,6 +962,10 @@
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
+      "bech32m": "mn_addr_test1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqasyludsl"
+    },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d030081757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
       "bech32m": "mn_shield-addr_test1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97sxqypw479uxdvf48386urhyndrty9vmpkjlydmdcur78rr3lw345kg5r4fgc2"
@@ -786,6 +982,10 @@
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
+      "bech32m": "mn_addr_my-private-net-51pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqas6r8387"
+    },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d030081757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
       "bech32m": "mn_shield-addr_my-private-net-51quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97sxqypw479uxdvf48386urhyndrty9vmpkjlydmdcur78rr3lw345kg54l99my"
@@ -802,6 +1002,10 @@
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
+      "bech32m": "mn_addr1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eus6kphv7"
+    },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c90300a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
       "bech32m": "mn_shield-addr1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysxq9qrz8anqdd35yxglea0pecql5f23pmkvnvjgvpvwyca3k5w9l4hs6tc0sx"
@@ -818,6 +1022,10 @@
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
+      "bech32m": "mn_addr_my-private-net1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eusjgu9e8"
+    },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c90300a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
       "bech32m": "mn_shield-addr_my-private-net1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysxq9qrz8anqdd35yxglea0pecql5f23pmkvnvjgvpvwyca3k5w9l4hs4whce3"
@@ -834,6 +1042,10 @@
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
+      "bech32m": "mn_addr_dev1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6euscvv44w"
+    },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c90300a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
       "bech32m": "mn_shield-addr_dev1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysxq9qrz8anqdd35yxglea0pecql5f23pmkvnvjgvpvwyca3k5w9l4hslhvym9"
@@ -850,6 +1062,10 @@
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
+      "bech32m": "mn_addr_test1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eus2chgj2"
+    },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c90300a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
       "bech32m": "mn_shield-addr_test1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysxq9qrz8anqdd35yxglea0pecql5f23pmkvnvjgvpvwyca3k5w9l4hsmue3ea"
@@ -866,6 +1082,10 @@
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
+      "bech32m": "mn_addr_my-private-net-51ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eus5yv59t"
+    },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c90300a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
       "bech32m": "mn_shield-addr_my-private-net-51axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysxq9qrz8anqdd35yxglea0pecql5f23pmkvnvjgvpvwyca3k5w9l4hsdk4u6n"
@@ -882,6 +1102,10 @@
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
+      "bech32m": "mn_addr1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rsxz6lpr"
+    },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f703006a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
       "bech32m": "mn_shield-addr1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msxqr2jce9c4fz7c3f4rqf5r05t9pmljggg4xusrqv0kat7rfg6s2r4qdfdtll"
@@ -898,6 +1122,10 @@
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
+      "bech32m": "mn_addr_my-private-net1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rswu8d56"
+    },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f703006a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
       "bech32m": "mn_shield-addr_my-private-net1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msxqr2jce9c4fz7c3f4rqf5r05t9pmljggg4xusrqv0kat7rfg6s2r4qzvzukg"
@@ -914,6 +1142,10 @@
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
+      "bech32m": "mn_addr_dev1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rsychacn"
+    },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f703006a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
       "bech32m": "mn_shield-addr_dev1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msxqr2jce9c4fz7c3f4rqf5r05t9pmljggg4xusrqv0kat7rfg6s2r4qg4eq5u"
@@ -930,6 +1162,10 @@
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
+      "bech32m": "mn_addr_test1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rskvvqlh"
+    },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f703006a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
       "bech32m": "mn_shield-addr_test1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msxqr2jce9c4fz7c3f4rqf5r05t9pmljggg4xusrqv0kat7rfg6s2r4qv7v4ky"
@@ -946,6 +1182,10 @@
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
+      "bech32m": "mn_addr_my-private-net-51s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rsgshugk"
+    },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f703006a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
       "bech32m": "mn_shield-addr_my-private-net-51wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msxqr2jce9c4fz7c3f4rqf5r05t9pmljggg4xusrqv0kat7rfg6s2r4q65qc42"
@@ -962,6 +1202,10 @@
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
+      "bech32m": "mn_addr1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvms3gl7f0"
+    },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c303008a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
       "bech32m": "mn_shield-addr1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsxqy2qxgas9uqxjtkj72kqf079yvm9hkcmafeupmyhkkd49mp0uglwg6hujlw"
@@ -978,6 +1222,10 @@
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
+      "bech32m": "mn_addr_my-private-net1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvmsekzvuk"
+    },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c303008a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
       "bech32m": "mn_shield-addr_my-private-net1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsxqy2qxgas9uqxjtkj72kqf079yvm9hkcmafeupmyhkkd49mp0uglwg4jn9ke"
@@ -994,6 +1242,10 @@
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
+      "bech32m": "mn_addr_dev1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvmsnjjusl"
+    },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c303008a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
       "bech32m": "mn_shield-addr_dev1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsxqy2qxgas9uqxjtkj72kqf079yvm9hkcmafeupmyhkkd49mp0uglwgltge5d"
@@ -1010,6 +1262,10 @@
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
+      "bech32m": "mn_addr_test1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvmspxfphm"
+    },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c303008a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
       "bech32m": "mn_shield-addr_test1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsxqy2qxgas9uqxjtkj72kqf079yvm9hkcmafeupmyhkkd49mp0uglwgmqavk4"
@@ -1026,6 +1282,10 @@
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
+      "bech32m": "mn_addr_my-private-net-51e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvmsl6jaq6"
+    },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c303008a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
       "bech32m": "mn_shield-addr_my-private-net-51eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsxqy2qxgas9uqxjtkj72kqf079yvm9hkcmafeupmyhkkd49mp0uglwgd23p4m"
@@ -1042,6 +1302,10 @@
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
+      "bech32m": "mn_addr1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsj5sjx9"
+    },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f03000d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
       "bech32m": "mn_shield-addr1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sxqqd0rx6j3hrgvx7re8fvn9unhcnf5ad8jl3zp8pl0tpmn2qx2ppfgrsjf5h"
@@ -1058,6 +1322,10 @@
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
+      "bech32m": "mn_addr_my-private-net1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2js62dqnu"
+    },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f03000d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
       "bech32m": "mn_shield-addr_my-private-net1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sxqqd0rx6j3hrgvx7re8fvn9unhcnf5ad8jl3zp8pl0tpmn2qx2ppfgv4a7aq"
@@ -1074,6 +1342,10 @@
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
+      "bech32m": "mn_addr_dev1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsswasl4"
+    },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f03000d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
       "bech32m": "mn_shield-addr_dev1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sxqqd0rx6j3hrgvx7re8fvn9unhcnf5ad8jl3zp8pl0tpmn2qx2ppfgxvxzl5"
@@ -1090,6 +1362,10 @@
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
+      "bech32m": "mn_addr_test1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsz6xdc3"
+    },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f03000d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
       "bech32m": "mn_shield-addr_test1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sxqqd0rx6j3hrgvx7re8fvn9unhcnf5ad8jl3zp8pl0tpmn2qx2ppfgz8nhav"
@@ -1106,6 +1382,10 @@
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
+      "bech32m": "mn_addr_my-private-net-51syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsuxa30s"
+    },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f03000d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
       "bech32m": "mn_shield-addr_my-private-net-51cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sxqqd0rx6j3hrgvx7re8fvn9unhcnf5ad8jl3zp8pl0tpmn2qx2ppfg5dl67z"
@@ -1122,6 +1402,10 @@
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
+      "bech32m": "mn_addr1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqsuh55d"
+    },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658030043b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
       "bech32m": "mn_shield-addr1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqxqzrkmfce4k7mtjsndmrgmp4rskmpj0qqrzcaxhs4y9mddy6ngmauc94ls7c"
@@ -1138,6 +1422,10 @@
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
+      "bech32m": "mn_addr_my-private-net1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqcz2xp5"
+    },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658030043b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
       "bech32m": "mn_shield-addr_my-private-net1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqxqzrkmfce4k7mtjsndmrgmp4rskmpj0qqrzcaxhs4y9mddy6ngmauc2ss8h0"
@@ -1154,6 +1442,10 @@
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
+      "bech32m": "mn_addr_dev1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqjx6kda"
+    },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658030043b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
       "bech32m": "mn_shield-addr_dev1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqxqzrkmfce4k7mtjsndmrgmp4rskmpj0qqrzcaxhs4y9mddy6ngmaucqftm4m"
@@ -1170,6 +1462,10 @@
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
+      "bech32m": "mn_addr_test1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqqjpt2e"
+    },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658030043b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
       "bech32m": "mn_shield-addr_test1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqxqzrkmfce4k7mtjsndmrgmp4rskmpj0qqrzcaxhs4y9mddy6ngmaucyz7whr"
@@ -1186,6 +1482,10 @@
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
+      "bech32m": "mn_addr_my-private-net-51swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nq7w6hac"
+    },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658030043b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
       "bech32m": "mn_shield-addr_my-private-net-51ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqxqzrkmfce4k7mtjsndmrgmp4rskmpj0qqrzcaxhs4y9mddy6ngmaucjgjr5d"
@@ -1202,6 +1502,10 @@
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
     "networkId": null,
+    "unshieldedAddress": {
+      "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
+      "bech32m": "mn_addr14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xq7j9ueq"
+    },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e03005cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
       "bech32m": "mn_shield-addr1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qxqzuafz8zyhqvk59qaap9pnlwxngacysmfeqdjl974xz92q7ajmesv4qdj29"
@@ -1218,6 +1522,10 @@
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
     "networkId": "my-private-net",
+    "unshieldedAddress": {
+      "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
+      "bech32m": "mn_addr_my-private-net14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqkvcwve"
+    },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e03005cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
       "bech32m": "mn_shield-addr_my-private-net1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qxqzuafz8zyhqvk59qaap9pnlwxngacysmfeqdjl974xz92q7ajmesv69z9rj"
@@ -1234,6 +1542,10 @@
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
     "networkId": "dev",
+    "unshieldedAddress": {
+      "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
+      "bech32m": "mn_addr_dev14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqugg7qs"
+    },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e03005cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
       "bech32m": "mn_shield-addr_dev1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qxqzuafz8zyhqvk59qaap9pnlwxngacysmfeqdjl974xz92q7ajmesvsueepx"
@@ -1250,6 +1562,10 @@
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
     "networkId": "test",
+    "unshieldedAddress": {
+      "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
+      "bech32m": "mn_addr_test14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqwunr85"
+    },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e03005cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
       "bech32m": "mn_shield-addr_test1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qxqzuafz8zyhqvk59qaap9pnlwxngacysmfeqdjl974xz92q7ajmesv5hvvr7"
@@ -1266,6 +1582,10 @@
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
     "networkId": "my-private-net-5",
+    "unshieldedAddress": {
+      "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
+      "bech32m": "mn_addr_my-private-net-514n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqsqgls4"
+    },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e03005cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
       "bech32m": "mn_shield-addr_my-private-net-51xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qxqzuafz8zyhqvk59qaap9pnlwxngacysmfeqdjl974xz92q7ajmesvzaqpqs"

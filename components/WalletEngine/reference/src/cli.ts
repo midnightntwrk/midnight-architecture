@@ -19,9 +19,15 @@ import {
   ShieldedAddress,
   ShieldedCoinPublicKey,
   ShieldedEncryptionSecretKey,
+  UnshieldedAddress,
 } from "./address-format-reference.js";
 import { ErisScalar, fromScalar, PlutoScalar } from "./field.js";
-import { coinKeys, dustSecretKey, encryptionSecretKey } from "./key-derivation-reference.js";
+import {
+  coinKeys,
+  dustSecretKey,
+  encryptionSecretKey,
+  unshieldedKeyPairFromUniformBytes,
+} from "./key-derivation-reference.js";
 
 const networkIds = [null, "my-private-net", "dev", "test", "my-private-net-5"]; //null stands for mainnet
 const seeds = [
@@ -48,8 +54,13 @@ function generateKeyDerivationTestVectors(seeds: Buffer[]) {
     const esk = encryptionSecretKey(seed);
     const dsk = dustSecretKey(seed);
     const coinKeyPair = coinKeys(seed);
+    const unshieldedKeyPair = unshieldedKeyPairFromUniformBytes(seed); //In this case the seed is the secret key, matching HD Wallet behavior
     return {
       seed: seed.toString("hex"),
+      unshielded: {
+        secretKey: unshieldedKeyPair.secretKey?.toString("hex") ?? null,
+        publicKey: unshieldedKeyPair.publicKey?.toString("hex") ?? null,
+      },
       encryption: {
         secretKeyRepr: fromScalar(esk.key, ErisScalar).toString("hex"),
         secretKeyDecimal: esk.key.toString(10),
@@ -69,6 +80,12 @@ function generateKeyDerivationTestVectors(seeds: Buffer[]) {
 }
 
 function generateAddressFormattingTestVectors(seeds: Buffer[]) {
+  const mkFormatterNullable =
+    <T>(formatter: (item: T) => { hex: string; bech32m: string }) =>
+    (item: null | T): { hex: string | null; bech32m: string | null } => {
+      return item == null ? { hex: null, bech32m: null } : formatter(item);
+    };
+
   const mkFormatter =
     <T>(
       context: FormatContext,
@@ -87,14 +104,23 @@ function generateAddressFormattingTestVectors(seeds: Buffer[]) {
   return contexts.map(({ seed, networkId }) => {
     const keys = ledger.SecretKeys.fromSeed(seed);
     const coinKeyPair = coinKeys(seed);
+    const unshieldedKeyPair = unshieldedKeyPairFromUniformBytes(seed);
 
     const shieldedAddressFormatter = mkFormatter({ networkId }, ShieldedAddress);
     const shieldedESKFormatter = mkFormatter({ networkId }, ShieldedEncryptionSecretKey);
     const shieldedCPKFormatter = mkFormatter({ networkId }, ShieldedCoinPublicKey);
+    const unshieldedAddressFormatter = mkFormatterNullable(
+      mkFormatter({ networkId }, UnshieldedAddress),
+    );
 
     return {
       seed: seed.toString("hex"),
       networkId,
+      unshieldedAddress: unshieldedAddressFormatter(
+        unshieldedKeyPair.publicKey
+          ? new UnshieldedAddress(crypto.hash("sha-256", unshieldedKeyPair.publicKey, "buffer"))
+          : null,
+      ),
       shieldedAddress: shieldedAddressFormatter(
         new ShieldedAddress(
           new ShieldedCoinPublicKey(coinKeyPair.publicKey),
@@ -225,7 +251,7 @@ program
     };
 
     const testRoundtrip =
-      <T extends { [Bech32m]: Bech32mCodec<T> }>(implementation: (seed: Buffer) => T) =>
+      <T extends { [Bech32m]: Bech32mCodec<T> }>(implementation: (seed: Buffer) => T | null) =>
       (seeds: Observable<Buffer>) => {
         type Keys = {
           seed: Buffer;
@@ -236,14 +262,19 @@ program
 
         return rx.firstValueFrom(
           seeds.pipe(
-            rx.map((seed) => {
+            rx.concatMap((seed) => {
               const data = implementation(seed);
+
+              if (data == null) {
+                return [];
+              }
+
               const asBech32 = toBech32(data).toString();
               const fromBech32 = data[Bech32m].decode(
                 { networkId: null },
                 MidnightBech32m.parse(asBech32),
               );
-              return { seed, data, asBech32, fromBech32 };
+              return [{ seed, data, asBech32, fromBech32 }];
             }),
             rx.filter((keys) => {
               return !equals(keys.data, keys.fromBech32);
@@ -254,7 +285,7 @@ program
       };
 
     const testWrongCredentialType =
-      <T extends { [Bech32m]: Bech32mCodec<T> }>(implementation: (seed: Buffer) => T) =>
+      <T extends { [Bech32m]: Bech32mCodec<T> }>(implementation: (seed: Buffer) => T | null) =>
       (seeds: Observable<Buffer>) => {
         type Keys = {
           seed: Buffer;
@@ -265,15 +296,20 @@ program
 
         return rx.firstValueFrom(
           seeds.pipe(
-            rx.map((seed) => {
+            rx.concatMap((seed) => {
               const data = implementation(seed);
+
+              if (data == null) {
+                return [];
+              }
+
               const asBech32 = toBech32(data);
               const withChangedCredential = new MidnightBech32m(
                 "foo",
                 asBech32.network,
                 asBech32.data,
               ).toString();
-              return { seed, data, asBech32, withChangedCredential };
+              return [{ seed, data, asBech32, withChangedCredential }];
             }),
             rx.filter((keys) => {
               try {
@@ -292,7 +328,7 @@ program
       };
 
     const testWrongNetwork =
-      <T extends { [Bech32m]: Bech32mCodec<T> }>(implementation: (seed: Buffer) => T) =>
+      <T extends { [Bech32m]: Bech32mCodec<T> }>(implementation: (seed: Buffer) => T | null) =>
       (seeds: Observable<Buffer>) => {
         type Keys = {
           seed: Buffer;
@@ -303,15 +339,20 @@ program
 
         return rx.firstValueFrom(
           seeds.pipe(
-            rx.map((seed) => {
+            rx.concatMap((seed) => {
               const data = implementation(seed);
+
+              if (data == null) {
+                return [];
+              }
+
               const asBech32 = toBech32(data);
               const withChangedNetwork = new MidnightBech32m(
                 asBech32.type,
                 "foo",
                 asBech32.data,
               ).toString();
-              return { seed, data, asBech32, withChangedNetwork };
+              return [{ seed, data, asBech32, withChangedNetwork }];
             }),
             rx.filter((keys) => {
               try {
@@ -387,6 +428,13 @@ program
       return new ShieldedEncryptionSecretKey(keys.keys.encryptionSecretKey);
     };
 
+    const unshieldedAddr = (seed: Buffer) => {
+      const keys = unshieldedKeyPairFromUniformBytes(seed);
+      return keys.publicKey != null
+        ? new UnshieldedAddress(crypto.hash("sha-256", keys.publicKey, "buffer"))
+        : null;
+    };
+
     const seeds = generateSeeds(initial(), 1_000);
 
     await doTest("Shielded address parity", testParity(saddrSpec, saddrZswap), seeds);
@@ -434,6 +482,15 @@ program
       seeds,
     );
     await doTest("Shielded encryption secret key wrong network", testWrongNetwork(sesk), seeds);
+
+    // TODO: add parity test once ledger releases version with unshielded tokens implementation
+    await doTest("Unshielded address roundtrip", testRoundtrip(unshieldedAddr), seeds);
+    await doTest(
+      "Unshielded address wrong credential type",
+      testWrongCredentialType(unshieldedAddr),
+      seeds,
+    );
+    await doTest("Unshielded address wrong network", testWrongNetwork(unshieldedAddr), seeds);
 
     console.log(`Test result: ${gotFailure ? "FAILURE" : "PASS"}`);
 

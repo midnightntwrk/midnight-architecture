@@ -1,4 +1,5 @@
 import * as crypto from "node:crypto";
+import { schnorr } from "@noble/curves/secp256k1";
 import { BLSScalar, Field, JubJubScalar, toScalar } from "./field.js";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
@@ -58,4 +59,22 @@ export function coinKeys(seed: Buffer): {
     secretKey,
     publicKey: sha256(secretKey, Buffer.from("mdn:pk", "utf-8")),
   };
+}
+
+export function unshieldedKeyPairFromUniformBytes(secretKeyBytes: Buffer): {
+  secretKey: Buffer | null;
+  publicKey: Buffer | null;
+} {
+  try {
+    return {
+      secretKey: secretKeyBytes,
+      publicKey: Buffer.from(schnorr.getPublicKey(secretKeyBytes)),
+    };
+  } catch (e) {
+    // Got error in deriving unshielded key pair from seed - returning null
+    return {
+      secretKey: null,
+      publicKey: null,
+    };
+  }
 }

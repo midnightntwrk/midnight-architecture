@@ -18,9 +18,11 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "@midnight-ntwrk/zswap": "^3.0.2",
+    "@noble/curves": "^1.8.1",
     "@scure/base": "^1.1.9",
-    "@types/node": "^22.0.0",
     "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.0.0",
     "commander": "^13.0.0",
     "jest-diff": "^29.7.0",
     "lodash-es": "^4.17.21",

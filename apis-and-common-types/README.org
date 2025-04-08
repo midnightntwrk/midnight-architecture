@@ -12,6 +12,7 @@ A change is minor iff it modifies the intended or actual interpretation of the A
 ** [[./event-log][Node/ledger event log]]
 ** [[./proving-server][Proving server REST API]]
 ** [[./hoarfrost][Hoarfrost Storage API and Data Layout]]
+** [[./dapp-connector][DApp Connector]]
 * Data Types
 ** [[./field-aligned-binary][Field-Aligned Binary (FAB)]]
 ** [[./onchain-runtime][On-chain Virtual Machine and Runtime]]
