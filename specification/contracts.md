@@ -189,7 +189,7 @@ key hash.
 
 ```rust
 struct CallContext {
-    own_address: ContratAddress,
+    own_address: ContractAddress,
     com_indicies: Map<CoinCommitment, u64>,
     seconds_since_epoch: Timestamp,
     seconds_since_epoch_err: Duration,
