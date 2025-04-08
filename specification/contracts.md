@@ -262,15 +262,15 @@ impl ContractCall {
     }
 
     fn calls_with_seq(self, callee: ContractCall) -> Option<(bool, u64)> {
-        let calls = self.guaranteed_transcript.iter()
-            .chain(self.fallible_transcript.iter())
-            .flat_map(|t| t.claimed_contract_calls.iter());
-        calls.find(|(seq, addr, ep, cc)|
+        let calls = self.guaranteed_transcript.iter().map(|t| (t, true))
+            .chain(self.fallible_transcript.iter().map(|t| (t, false))
+            .flat_map(|(t, guaranteed)| t.effects.claimed_contract_calls.iter().map(|cc| (cc, guaranteed)));
+        calls.find(|((seq, addr, ep, cc), guaranteed)|
             if addr == callee.address &&
                ep == hash(callee.entry_point) &&
                cc == callee.communication_commitment
             {
-                Some(seq)
+                Some((guaranteed, seq))
             } else {
                 None
             })

@@ -329,8 +329,8 @@ impl<S, P, B> Transaction<S, P, B> {
                 .filter_map(ContractAction::as_call)
                 .product(intent.actions.iter().filter_map(ContractAction::as_call))
             {
-                if let Some((segment, _)) = call1.calls_with_seq(call2) {
-                    if segment {
+                if let Some((guaranteed, _)) = call1.calls_with_seq(call2) {
+                    if guaranteed {
                         assert!(call2.fallible_transcript.is_none());
                     } else {
                         assert!(call2.guaranteed_transcript.is_none());
@@ -342,7 +342,7 @@ impl<S, P, B> Transaction<S, P, B> {
         let mut prev = Vec::new();
         while causal_precs != prev {
             prev = causal_precs;
-            for ((a, b), (c, d)) in prev.iter().zip(prev.iter()) {
+            for ((a, b), (c, d)) in prev.iter().product(prev.iter()) {
                 if b == c && !prev.contains((a, d)) {
                     causal_precs = causal_precs.insert((a, d));
                 }
@@ -360,6 +360,8 @@ The balance check depends on fee calculations (out of scope), and the overall
 balance of the transaction, which is per token type, per segment ID:
 
 ```rust
+const FEE_TOKEN: TokenType = TokenType::Shielded(
+
 impl<S, P, B> Transaction<S, P, B> {
     fn fees(self) -> Result<u128> {
         // Out of scope of this spec
@@ -367,6 +369,8 @@ impl<S, P, B> Transaction<S, P, B> {
 
     fn balance(self) -> Result<Map<(TokenType, u16), i128>> {
         let mut res = Map::new();
+        let fees = res.get_mut_or_default((DUST, 0));
+        *fees = (*fees).checked_sub(self.fees()?);
         for (segment, intent) in self.intents {
             for (segment, offer) in [
                 (0, intent.guaranteed_unshielded_offer),
@@ -420,7 +424,8 @@ impl<S, P, B> Transaction<S, P, B> {
             .chain(self.guaranteed_offer.iter().map(|o| (0, o)))
         {
             for (tt, val) in offer.deltas {
-                res.set((TokenType::Shielded(tt), segment), val);
+                let bal = res.get_mut_or_default((TokenType::Shielded(tt), segment));
+                *bal = (*bal).checked_add(val)?;
             }
         }
         Ok(res)
