@@ -13,20 +13,20 @@ import { Observable } from "rxjs";
 import * as rx from "rxjs";
 import {
   Bech32m,
-  Bech32mCodec,
+  Bech32mCodec, DustAddress,
   FormatContext,
   MidnightBech32m,
   ShieldedAddress,
   ShieldedCoinPublicKey,
   ShieldedEncryptionSecretKey,
-  UnshieldedAddress,
+  UnshieldedAddress
 } from "./address-format-reference.js";
 import { ErisScalar, fromScalar, PlutoScalar } from "./field.js";
 import {
   coinKeys,
   dustSecretKey,
-  encryptionSecretKey,
-  unshieldedKeyPairFromUniformBytes,
+  encryptionSecretKey, fakeDustPKFromSeed,
+  unshieldedKeyPairFromUniformBytes
 } from "./key-derivation-reference.js";
 
 const networkIds = [null, "my-private-net", "dev", "test", "my-private-net-5"]; //null stands for mainnet
@@ -105,10 +105,12 @@ function generateAddressFormattingTestVectors(seeds: Buffer[]) {
     const keys = ledger.SecretKeys.fromSeed(seed);
     const coinKeyPair = coinKeys(seed);
     const unshieldedKeyPair = unshieldedKeyPairFromUniformBytes(seed);
+    const dustPK = fakeDustPKFromSeed(seed);
 
     const shieldedAddressFormatter = mkFormatter({ networkId }, ShieldedAddress);
     const shieldedESKFormatter = mkFormatter({ networkId }, ShieldedEncryptionSecretKey);
     const shieldedCPKFormatter = mkFormatter({ networkId }, ShieldedCoinPublicKey);
+    const dustAddressFormatter = mkFormatter({ networkId }, DustAddress);
     const unshieldedAddressFormatter = mkFormatterNullable(
       mkFormatter({ networkId }, UnshieldedAddress),
     );
@@ -127,6 +129,7 @@ function generateAddressFormattingTestVectors(seeds: Buffer[]) {
           Buffer.from(keys.encryptionPublicKey, "hex"),
         ),
       ),
+      dustAddress: dustAddressFormatter(new DustAddress(dustPK)),
       shieldedESK: shieldedESKFormatter(new ShieldedEncryptionSecretKey(keys.encryptionSecretKey)),
       shieldedCPK: shieldedCPKFormatter(new ShieldedCoinPublicKey(coinKeyPair.publicKey)),
     };
@@ -435,6 +438,11 @@ program
         : null;
     };
 
+    const dustAddr = (seed: Buffer) => {
+      const pk = fakeDustPKFromSeed(seed);
+      return new DustAddress(pk);
+    }
+
     const seeds = generateSeeds(initial(), 1_000);
 
     await doTest("Shielded address parity", testParity(saddrSpec, saddrZswap), seeds);
@@ -491,6 +499,11 @@ program
       seeds,
     );
     await doTest("Unshielded address wrong network", testWrongNetwork(unshieldedAddr), seeds);
+
+    // TODO: add parity tests once ledger releases version allowing to derive dust addresses
+    await doTest("Dust address roundtrip", testRoundtrip(dustAddr), seeds);
+    await doTest("Dust address wrong network", testWrongNetwork(dustAddr), seeds);
+    await doTest("Dust address wrong credential", testWrongCredentialType(dustAddr), seeds);
 
     console.log(`Test result: ${gotFailure ? "FAILURE" : "PASS"}`);
 

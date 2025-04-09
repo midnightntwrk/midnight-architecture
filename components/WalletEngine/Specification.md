@@ -336,7 +336,9 @@ Example human-readable parts:
 
 ### Dust address
 
-It is Dust public key. It represents recipient of Dust generation.
+It is a Ledger-serialized Dust public key, without network id: versioning header (2 
+bytes), length information (1 byte), and contents of the key itself (up to 32 bytes).
+It represents recipient of Dust generation.
 
 Its credential type is `dust-addr`.
 
