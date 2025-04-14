@@ -27,3 +27,4 @@ File names should use `kebab-case` without any non-ASCII characters.
 - [0016: Governed Parameters and Their Update Mechanics: Phase 1](./0016-governed-parameters-and-their-updates-phase-1.md) for mechanics of enacting governed parameters updates
 - [0017: Flexible Network Identifier](./0017-flexible-network-id.md) for change network id structure and usage
 - [0018: cNIGHT generates DUST](./0018-cnight-generates-dust.md) for DUST generation from NIGHT tokens on Cardano
+- [0019: Cost Model](./0019-cost-model.md) for ledger cost model methodology
