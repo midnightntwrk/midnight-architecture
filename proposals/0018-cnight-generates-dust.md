@@ -294,9 +294,8 @@ minting and one for burning.  The minting case checks that:
      that the token was minted by the owner of the key indicated in the datum.
 
 In order to implement the second bullet of the minting case, the minting policy
-must know the address of the mapping validator.  We will achieve this by
-integrating our implementation with the versioning system provided by
-partner-chains.
+must know the address of the mapping validator.  We achieve this by integrating
+our implementation with the versioning system provided by partner-chains.
 
 The burning case checks that:
 
@@ -547,6 +546,85 @@ need.  In particular:
     submit forged Lessor registration with zero asking price, allowing to lease
     cNIGHT tokens for free.  One solution to this would be to use the
     authentication tokens, described in scenario 2.
+
+
+Updateability of cNIGHT generates DUST scripts
+----------------------------------------------
+
+We want to be able to change the logic of any of the scripts involved in cNIGHT
+generates DUST functionality during system's lifetime.  At the same time, we
+require that all addresses and currency symbols remain constant; any change
+equals discarding previously existing data or tokens.  To achieve these
+conflicting goals we use script versioning system developed by Partner Chains.
+
+Adapting the design described above to work with the versioning system requires
+that each validator is split into two components:
+
+  1. A constant proxy validator that delegates its spend logic to a versioned
+     minting policy, called the _spend policy_.  A spend from the proxy
+     validator is allowed, if a spend policy stored in the versioning system
+     mints a single token.  The proxy validator also holds datums, if required
+     by the spend logic.
+
+  2. Versioned and updatable spend policy.  This minting policy checks the spend
+     conditions previously checked by the validator.  If the spend condition
+     holds, the policy mints a single token, which signalizes to the proxy
+     validator a permission to spend.
+
+_Example_: In Scenario 2 above, we store the user registration UTxOs, together
+with their required authentication tokens and registration datums, on a proxy
+validator.  Deregistration conditions are checked by the versioned spend policy,
+which accesses the datum stored on the proxy validator by inspecting the
+spending transaction inputs.
+
+Notes:
+
+  * Spend policy must be written in such a way that no extra spends are allowed
+    aside from the ones approved by the policy.  What this means is that the
+    minting policy must inspect all transaction inputs and make sure that no
+    unauthorized spends are being conducted in addition to authorized spends.
+
+  * Tokens minted by the spend policy are only relevant for the transaction they
+    are minted in.  After that they serve no purpose, and are effectively
+    garbage in the user's wallet.  Therefore, the minting policy for spend
+    tokens should permit to burn these tokens unconditionally.  This allows
+    garbage collection of unneeded tokens.
+
+To adapt a minting policy to work with the versioning system it has be split
+into three components:
+
+  * A proxy minting policy that delegates mint logic to a versioned minting
+    policy, and burn logic to another minting policy.  This minting policy
+    remains constant throughout the system's lifetime.
+
+  * Versioned and updatable minting policy.  This policy checks the minting
+    condition previously checked by the mint case of the policy.  If the
+    condition holds, minting policy mints a positive amount of tokens.  Amount
+    of tokens minted defines the number of tokens allowed to be minted by the
+    proxy minting policy.
+
+  * Versioned and updatable burning policy.  This policy checks the burning
+    condition previously checked by the burn case of the main policy.  If the
+    condition holds it mints a positive amount of tokens.  Amount of tokens
+    minted defines the number of tokens allowed to be burned by the proxy
+    minting policy.
+
+_Example_: In Scenario 2, we split the authentication token minting policy into
+three component.  Minting and burning conditions for the authentication token
+are checked by their own separate minting policies stored in the versioning
+system.  The proxy policy for authentication tokens delegates its mint and burn
+checks to the two versioned policies, as appropriate.
+
+Notes:
+
+  * The reason why there are separate policies for checking mint and burn
+    conditions is to prevent a 1-to-1 relationship between the proxy tokens and
+    the versioned tokens.  In particular, we must not require that the user owns
+    the versioned tokens in order to burn the proxy tokens.
+
+  * Similarly to the validator case, mint and burn tokens don't serve any
+    purpose outside the transaction that creates them.  It should be possible to
+    burn both tokens unconditionally.
 
 
 Other explored alternatives (and why they were discarded)
