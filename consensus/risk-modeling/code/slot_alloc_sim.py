@@ -474,18 +474,7 @@ committee_seats = run_simulation(
 
 # %%
 committee_seats
-# %%
-prob_fault_tolerance = {}
-for f in range(5):
-    p = calculate_fault_tolerance_probability(committee_seats, fault_tolerance=f)
-    print("P{tolerating", f, "faults} =", p)
-    prob_fault_tolerance[f] = p
 
-prob_fault_tolerance = pd.DataFrame.from_dict(
-    prob_fault_tolerance,
-    orient="index",
-    columns=["probability"],
-    )
 # %%
 registered_candidates = {
     "R1": 100,
@@ -529,26 +518,62 @@ committee_seats_federated = pd.concat(committee_list, keys=range(num_epochs), ax
 
 committee_seats_federated
 # %%
-prob_fault_tolerance_federated = {}
-for f in range(5):
-    p = calculate_fault_tolerance_probability(committee_seats_federated, fault_tolerance=f)
-    print("P{tolerating", f, "faults} =", p)
-    prob_fault_tolerance_federated[f] = p
+def compare_fault_tolerance_probabilities(
+    committee_seats: pd.DataFrame,
+    committee_seats_federated: pd.DataFrame,
+    max_faults: int = 5,
+    first_name: str = "Proposed Algo",
+    second_name: str = "Federated Algo"
+    ) -> pd.DataFrame:
+    """
+    Compares fault tolerance probabilities between two committee seat allocation methods.
 
-prob_fault_tolerance_federated = pd.DataFrame.from_dict(
-    prob_fault_tolerance_federated,
-    orient="index",
-    columns=["probability"],
-    )
+    Args:
+        committee_seats: DataFrame of the first committee seat allocation
+        committee_seats_federated: DataFrame of the second committee seat allocation
+        max_faults: Maximum number of faults to evaluate (default: 5)
+        first_name: Label for the first algorithm (default: "Proposed Algo")
+        second_name: Label for the second algorithm (default: "Federated Algo")
+
+    Returns:
+        DataFrame comparing fault tolerance probabilities of both approaches
+    """
+    # Calculate fault tolerance probabilities for the first algorithm
+    prob_fault_tolerance = {}
+    for f in range(max_faults):
+        p = calculate_fault_tolerance_probability(committee_seats, fault_tolerance=f)
+        prob_fault_tolerance[f] = p
+    
+    prob_fault_tolerance = pd.DataFrame.from_dict(
+        prob_fault_tolerance,
+        orient="index",
+        columns=["probability"],
+        )
+    
+    # Calculate fault tolerance probabilities for the second algorithm
+    prob_fault_tolerance_federated = {}
+    for f in range(max_faults):
+        p = calculate_fault_tolerance_probability(committee_seats_federated, fault_tolerance=f)
+        prob_fault_tolerance_federated[f] = p
+    
+    prob_fault_tolerance_federated = pd.DataFrame.from_dict(
+        prob_fault_tolerance_federated,
+        orient="index",
+        columns=["probability"],
+        )
+    
+    # Combine the results
+    prob_fault_tolerance_compared = pd.concat(
+        [prob_fault_tolerance, prob_fault_tolerance_federated],
+        keys=[first_name, second_name],
+        axis=1,
+        names=["faults"],
+        )
+    
+    return prob_fault_tolerance_compared
 # %%
-prob_fault_tolerance_compared = pd.concat(
-    [prob_fault_tolerance, prob_fault_tolerance_federated],
-    keys=["Proposed Algo", "Federated Algo"],
-    axis=1,
-    names=["faults"],
-    )
-prob_fault_tolerance_compared
-
+compare_fault_tolerance_probabilities(committee_seats, committee_seats_federated)
+# %%
 # Output:
 # faults Proposed Algo Federated Algo
 #          probability    probability
@@ -559,7 +584,3 @@ prob_fault_tolerance_compared
 # 4             0.0000         0.0000
 
 # %%
-
-
-
-
