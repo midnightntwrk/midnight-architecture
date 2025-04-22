@@ -263,6 +263,14 @@ track of this, i.e. record the fact that there are now two registrations.  This
 is relevant when processing UTxOs sent to and spent from registered wallet
 addresses - see below.
 
+It is also possible that dust address provided in the registration datum is not
+valid.  The node should validate dust addresses of submitted registrations.
+Only registrations with valid dust addresses are considered valid.
+Additionally, presence of a registration with invalid dust address prevents
+having a valid registration for the wallet.  In other words, if a wallet submits
+one registration with a valid dust address, and another with invalid dust
+address, that wallet is considered unregistered.
+
 #### Deregistration of a registered wallet
 
 To spot new deregistrations, block producer checks if a transaction spends UTxOs
@@ -444,6 +452,10 @@ one.  To effectively spot the fact that a single registration remains, it is
 probably best that a block producer maintains a map from Cardano wallet
 `PubKeyHash` to an `Int` that stores number of registrations.  Alternatively, we
 might wish to map to a list of UTxOs to identify registering transactions.
+
+Moreover, the node should maintain information on validity of dust addresses of
+submitted registrations and make that information available via external API for
+the purposes of DUST production DApp.
 
 Timestamps vs block numbers
 ---------------------------
