@@ -109,7 +109,7 @@ assert (
     and population_size <= len(population)
 ), "Population size exceeds the maximum group or committee size."
 
-# The code computes the half-width of a 95% confidence interval for the
+# The risk_code computes the half-width of a 95% confidence interval for the
 # mean using the t-distribution. Here's a step-by-step breakdown:
 #
 # Sample Standard Deviation (sd_val):

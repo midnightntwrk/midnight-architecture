@@ -44,17 +44,16 @@ allocations to analyze the fairness and variance of the allocation mechanism.
 NOTE:
 The `#%%` symbol in Python is often used in Jupyter notebooks or interactive
 Python environments like JupyterLab or VS Code with Jupyter extension. It is
-a cell marker that separates different sections of code or text within the
-notebook. When you run a cell marked with `#%%`, it executes the code within
+a cell marker that separates different sections of risk_code or text within the
+notebook. When you run a cell marked with `#%%`, it executes the risk_code within
 that cell.
 """
 # %%
 import math
 import random
-from tabnanny import verbose
 
-import numpy as np
 import pandas as pd
+from numpy import cumsum, mean, ones, where, ndarray
 from tqdm import tqdm
 
 import fault_tolerance
@@ -118,7 +117,7 @@ def simulate_epoch_federated(
     
     # Create a series for the federated seats on the committee
     federated_seats = pd.Series(
-        np.ones(num_federated, dtype="int64") * seats_per_federated,
+        ones(num_federated, dtype="int64") * seats_per_federated,
         index=[str(i) for i in range(group_size + 1, group_size + num_federated + 1)],
         dtype="int64",
         name="federated seats",
@@ -152,6 +151,91 @@ def simulate_epoch_federated(
             f"Number of nodes = {num_federated} \n"
             f"Voting strength = {federated_voting_strength:.2%}",
             )
+    return committee_seats
+
+
+def simulate_committee_allocation(
+    group_stakes: pd.DataFrame,
+    num_epochs: int = 10000,
+    committee_size: int = 20,
+    num_federated: int = 5,
+    seats_per_federated: int = 1,
+    ) -> pd.DataFrame:
+    """
+    Simulate the allocation of committee seats over multiple epochs.
+
+    This function simulates the process of assigning committee seats for a specified
+    number of epochs using the simulate_epoch_federated function. It collects seat
+    assignments across all epochs and returns them as a DataFrame.
+
+    Args:
+        group_stakes (pd.DataFrame): DataFrame containing stake distribution.
+        num_epochs (int): Number of epochs to simulate. Default is 10000.
+        committee_size (int): Total size of the committee. Default is 20.
+        num_federated (int): Number of federated nodes. Default is 5.
+        seats_per_federated (int): Number of seats per federated node. Default is 1.
+
+    Returns:
+        pd.DataFrame: DataFrame containing committee seat assignments for all epochs,
+                     with epochs as rows and committee members as columns.
+    """
+    committee_list = []
+    for epoch in range(num_epochs):
+        # Assign committee seats for the current epoch
+        committee = simulate_epoch_federated(
+            group_stakes,
+            committee_size=committee_size,
+            num_federated=num_federated,
+            seats_per_federated=seats_per_federated,
+            )
+        committee_list.append(committee.seats)
+    
+    assert len(committee_list) == num_epochs, "Number of epochs does not match."
+    
+    committee_seats = pd.concat(committee_list, keys=range(num_epochs), axis=1).sort_index().T
+    return committee_seats
+
+
+def simulate_committee_federated(
+    registered_seat_counts: ndarray,
+    committee_size: int = 20,
+    num_federated: int = 5,
+    seats_per_federated: int = 1,
+    num_epochs: int = 1000,
+    ) -> pd.DataFrame:
+    """
+    Simulate the allocation of committee seats over multiple epochs.
+
+    This function simulates the process of assigning committee seats for a specified
+    number of epochs using the simulate_epoch_federated function. It collects seat
+    assignments across all epochs and returns them as a DataFrame.
+
+    Args:
+        registered_seat_counts (ndarray): seat counts for registered candidates
+        committee_size (int): Total size of the committee. Default is 20.
+        num_federated (int): Number of federated nodes. Default is 5.
+        seats_per_federated (int): Number of seats per federated node. Default is 1.
+        num_epochs (int): Number of epochs to simulate. Default is 1000.
+
+    Returns:
+        pd.DataFrame: DataFrame containing committee seat assignments for all epochs,
+                     with epochs as rows and committee members as columns.
+    """
+    committee_list = []
+    for epoch in range(num_epochs):
+        # Assign committee seats for the current epoch
+        committee = simulate_epoch_federated(
+            group_stakes,
+            committee_size=committee_size,
+            num_federated=num_federated,
+            seats_per_federated=seats_per_federated,
+            )
+        committee_list.append(committee.seats)
+    
+    assert len(committee_list) == num_epochs, "Number of epochs does not match."
+    
+    committee_seats = pd.concat(committee_list, keys=range(num_epochs), axis=1).sort_index().T
+    
     return committee_seats
 
 
@@ -260,7 +344,7 @@ def simulate_epoch_permissioned(
     return assignments
 
 
-def run_simulation(
+def simulate_proposed(
     registered_candidates: dict[str, int],
     permissioned_candidates: list[str],
     num_registered_slots: int,
@@ -303,7 +387,7 @@ def run_simulation(
             registered_results[name].append(reg_assign[name])
         for name in permissioned_candidates:
             permissioned_results[name].append(perm_assign[name])
-       
+    
     if verbose:
         print_statistics(registered_results)
         print_statistics(permissioned_results, candidate_type="Permissioned")
@@ -321,6 +405,7 @@ def run_simulation(
     )
     return committee_seats
 
+
 def print_statistics(
     results: dict[str, list[int]],
     candidate_type: str = "Registered",
@@ -334,8 +419,8 @@ def print_statistics(
     """
     print(f"--- {candidate_type} Candidates Statistics over Epochs ---")
     for candidate, counts in results.items():
-        avg = np.mean(counts)
-        std = np.std(counts)
+        avg = mean(counts)
+        std = std(counts)
         print(f"Candidate {candidate}: Average seats = {avg:.3f}, Std Dev = {std:.3f}")
     print("")
 
@@ -357,7 +442,7 @@ def faults_tolerated(committee_seats: pd.Series) -> int:
         committee_seats.sum(),
         )
     threshold = 1 / 3  # BFT finality risk threshold
-    faults = np.where(np.cumsum(voting_strength) > threshold)[0][0]
+    faults = where(cumsum(voting_strength) > threshold)[0][0]
     return faults
 
 
@@ -385,145 +470,12 @@ def calculate_fault_tolerance_probability(
     return probability
 
 
-# %%
-# ====== Use Case 1 ======
-run_simulation(
-    registered_candidates={
-        "R1": 100,
-        "R2": 200,
-        "R3": 300,
-        },
-    permissioned_candidates=["P1", "P2"],
-    num_registered_slots=10,  # Total registered slots
-    num_permissioned_slots=5,  # Total permissioned slots
-    num_epochs=10000,  # Number of epochs to simulate
-    seed=1234567,  # Random seed for reproducibility
-    verbose=True,
-    )
-
-# %%
-# ====== Use Case 2 ======
-run_simulation(
-    registered_candidates={
-        "R1": 100,
-        "R2": 200,
-        "R3": 300,
-        "R4": 400,
-        },
-    permissioned_candidates=["P1", "P2"],
-    num_registered_slots=15,  # Total registered slots
-    num_permissioned_slots=5,  # Total permissioned slots
-    num_epochs=10000,  # Number of epochs to simulate
-    seed=1234567,  # Random seed for reproducibility
-    verbose=True,
-    )
-# %%
-# ====== Use Case 3 ======
-run_simulation(
-    registered_candidates={
-        "R1": 100,
-        "R2": 200,
-        "R3": 300,
-        "R4": 400,
-        },
-    permissioned_candidates=["P1", "P2"],
-    num_registered_slots=20,  # Total registered slots
-    num_permissioned_slots=5,  # Total permissioned slots
-    num_epochs=10000,  # Number of epochs to simulate
-    seed=1234567,  # Random seed for reproducibility
-    verbose=True,
-    )
-# %%
-# ====== Use Case 4 ======
-run_simulation(
-    registered_candidates={
-        "R1": 100,
-        "R2": 200,
-        "R3": 300,
-        "R4": 400,
-        },
-    permissioned_candidates=["P1", "P2"],
-    num_registered_slots=21,  # Total registered slots
-    num_permissioned_slots=5,  # Total permissioned slots
-    num_epochs=10000,  # Number of epochs to simulate
-    seed=1234567,  # Random seed for reproducibility
-    verbose=True,
-    )
-
-# %%
-committee_seats = run_simulation(
-    registered_candidates={
-        "R1": 100,
-        "R2": 200,
-        "R3": 300,
-        "R4": 400,
-        "R5": 500,
-        "R6": 600,
-        "R7": 700,
-        "R8": 800,
-        "R9": 900,
-        "R10": 1000,
-        },
-    permissioned_candidates=["P1", "P2", "P3", "P4", "P5"],
-    num_registered_slots=15,  # Total registered slots
-    num_permissioned_slots=5,  # Total permissioned slots
-    num_epochs=10000,  # Number of epochs to simulate
-    seed=1234567,  # Random seed for reproducibility
-    verbose=True,
-    )
-
-# %%
-committee_seats
-
-# %%
-registered_candidates = {
-    "R1": 100,
-    "R2": 200,
-    "R3": 300,
-    "R4": 400,
-    "R5": 500,
-    "R6": 600,
-    "R7": 700,
-    "R8": 800,
-    "R9": 900,
-    "R10": 1000,
-    }
-
-group_stakes = pd.DataFrame.from_dict(
-    registered_candidates,
-    orient="index",
-    columns=["stake"],
-    )
-group_stakes["stake_weight"] = group_stakes["stake"] / group_stakes["stake"].sum()
-
-group_stakes
-
-# %%
-# Simulate the allocation of committee seats over multiple epochs
-num_epochs = 10000
-committee_list = []
-for epoch in range(num_epochs):
-    # Assign committee seats for the current epoch
-    committee = simulate_epoch_federated(
-        group_stakes,
-        committee_size=20,
-        num_federated=5,
-        seats_per_federated=1,
-        )
-    committee_list.append(committee.seats)
-
-assert len(committee_list) == num_epochs, "Number of epochs does not match."
-
-committee_seats_federated = pd.concat(committee_list, keys=range(num_epochs), axis=1).sort_index().T
-
-committee_seats_federated
-# %%
 def compare_fault_tolerance_probabilities(
     committee_seats: pd.DataFrame,
     committee_seats_federated: pd.DataFrame,
     max_faults: int = 5,
     first_name: str = "Proposed Algo",
-    second_name: str = "Federated Algo"
+    second_name: str = "Federated Algo",
     ) -> pd.DataFrame:
     """
     Compares fault tolerance probabilities between two committee seat allocation methods.
@@ -537,6 +489,7 @@ def compare_fault_tolerance_probabilities(
 
     Returns:
         DataFrame comparing fault tolerance probabilities of both approaches
+        as the probability distribution of tolerating the given number of faults.
     """
     # Calculate fault tolerance probabilities for the first algorithm
     prob_fault_tolerance = {}
@@ -569,18 +522,166 @@ def compare_fault_tolerance_probabilities(
         axis=1,
         names=["faults"],
         )
-    
+    # Return the probability distribution of tolerating the given number of faults
     return prob_fault_tolerance_compared
-# %%
-compare_fault_tolerance_probabilities(committee_seats, committee_seats_federated)
-# %%
-# Output:
-# faults Proposed Algo Federated Algo
-#          probability    probability
-# 0             1.0000         1.0000
-# 1             0.9998         0.9783
-# 2             0.8215         0.3113
-# 3             0.0631         0.0052
-# 4             0.0000         0.0000
 
-# %%
+
+def compute_pmf_means(p: pd.DataFrame) -> pd.Series:
+    """
+    Compute the mean index value for each column of DataFrame p,
+    treating each column as a probability mass function.
+
+    Args:
+        p (pd.DataFrame): DataFrame where each column represents a PMF
+                         with index values as the random variable outcomes
+                         and cell values as probabilities
+
+    Returns:
+        pd.Series: Series containing the mean/expected value for each column
+    """
+    # Convert index to numeric if it's not already
+    numeric_index = pd.to_numeric(p.index)
+    
+    # For each column, compute E[X] = sum(x_i * p(x_i))
+    means = pd.Series(index=p.columns)
+    for col in p.columns:
+        # Element-wise multiplication of index values with probabilities
+        means[col] = (numeric_index * p[col]).sum()
+    
+    return means
+
+
+if __name__ == "__main__":
+    # %%
+    # ====== Use Case 1 ======
+    simulate_proposed(
+        registered_candidates={
+            "R1": 100,
+            "R2": 200,
+            "R3": 300,
+            },
+        permissioned_candidates=["P1", "P2"],
+        num_registered_slots=10,  # Total registered slots
+        num_permissioned_slots=5,  # Total permissioned slots
+        num_epochs=10000,  # Number of epochs to simulate
+        seed=1234567,  # Random seed for reproducibility
+        verbose=True,
+        )
+    
+    # %%
+    # ====== Use Case 2 ======
+    simulate_proposed(
+        registered_candidates={
+            "R1": 100,
+            "R2": 200,
+            "R3": 300,
+            "R4": 400,
+            },
+        permissioned_candidates=["P1", "P2"],
+        num_registered_slots=15,  # Total registered slots
+        num_permissioned_slots=5,  # Total permissioned slots
+        num_epochs=10000,  # Number of epochs to simulate
+        seed=1234567,  # Random seed for reproducibility
+        verbose=True,
+        )
+    # %%
+    # ====== Use Case 3 ======
+    simulate_proposed(
+        registered_candidates={
+            "R1": 100,
+            "R2": 200,
+            "R3": 300,
+            "R4": 400,
+            },
+        permissioned_candidates=["P1", "P2"],
+        num_registered_slots=20,  # Total registered slots
+        num_permissioned_slots=5,  # Total permissioned slots
+        num_epochs=10000,  # Number of epochs to simulate
+        seed=1234567,  # Random seed for reproducibility
+        verbose=True,
+        )
+    # %%
+    # ====== Use Case 4 ======
+    simulate_proposed(
+        registered_candidates={
+            "R1": 100,
+            "R2": 200,
+            "R3": 300,
+            "R4": 400,
+            },
+        permissioned_candidates=["P1", "P2"],
+        num_registered_slots=21,  # Total registered slots
+        num_permissioned_slots=5,  # Total permissioned slots
+        num_epochs=10000,  # Number of epochs to simulate
+        seed=1234567,  # Random seed for reproducibility
+        verbose=True,
+        )
+    
+    # %%
+    committee_seats = simulate_proposed(
+        registered_candidates={
+            "R1": 100,
+            "R2": 200,
+            "R3": 300,
+            "R4": 400,
+            "R5": 500,
+            "R6": 600,
+            "R7": 700,
+            "R8": 800,
+            "R9": 900,
+            "R10": 1000,
+            },
+        permissioned_candidates=["P1", "P2", "P3", "P4", "P5"],
+        num_registered_slots=15,  # Total registered slots
+        num_permissioned_slots=5,  # Total permissioned slots
+        num_epochs=10000,  # Number of epochs to simulate
+        seed=1234567,  # Random seed for reproducibility
+        verbose=True,
+        )
+    
+    # %%
+    committee_seats
+    
+    # %%
+    registered_candidates = {
+        "R1": 100,
+        "R2": 200,
+        "R3": 300,
+        "R4": 400,
+        "R5": 500,
+        "R6": 600,
+        "R7": 700,
+        "R8": 800,
+        "R9": 900,
+        "R10": 1000,
+        }
+    
+    group_stakes = pd.DataFrame.from_dict(
+        registered_candidates,
+        orient="index",
+        columns=["stake"],
+        )
+    group_stakes["stake_weight"] = group_stakes["stake"] / group_stakes["stake"].sum()
+    
+    print("group_stakes:\n", group_stakes)
+    
+    # %%
+    committee_seats_federated = simulate_committee_allocation(
+        group_stakes, num_epochs=10000, committee_size=10, num_federated=5, seats_per_federated=1,
+        )
+    
+    print("committee seats federated:\n", committee_seats_federated)
+    # %%
+    p = compare_fault_tolerance_probabilities(committee_seats, committee_seats_federated)
+    # %%
+    # Output:
+    # faults Proposed Algo Federated Algo
+    #          probability    probability
+    # 0             1.0000         1.0000
+    # 1             0.9998         0.9783
+    # 2             0.8215         0.3113
+    # 3             0.0631         0.0052
+    # 4             0.0000         0.0000
+    print("p:\n", p)
+    # %%
+    print("compute_pmf_means(p):\n", compute_pmf_means(p))

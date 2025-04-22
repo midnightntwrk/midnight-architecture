@@ -17,7 +17,7 @@ pipenv install
 └── requirements.txt
 ├── Pipfile
 ├── Pipfile.lock
-├── code/
+├── risk_code/
 ├── data/
 ├── docs/
 ```

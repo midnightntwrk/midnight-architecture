@@ -397,12 +397,12 @@ def plot_participation(
         not_selected_percentages = (1.0 - mean_values / group_size) * 100
 
         # Prepare data for plotting the percentage excluded on ax1
-        # The code `plot_data` appears to be a function or method call to plot some data. However,
+        # The risk_code `plot_data` appears to be a function or method call to plot some data. However,
         # without seeing the implementation of the `plot_data` function or method, it is not possible
-        # to determine exactly what the code is doing.
-        # The code `plot_data` appears to be a function or method call to plot some data. However,
+        # to determine exactly what the risk_code is doing.
+        # The risk_code `plot_data` appears to be a function or method call to plot some data. However,
         # without seeing the implementation of the `plot_data` function or method, it is not possible
-        # to determine exactly what the code is doing.
+        # to determine exactly what the risk_code is doing.
         plot_data = pd.DataFrame(
             {
                 "Committee Sizes": committee_sizes,

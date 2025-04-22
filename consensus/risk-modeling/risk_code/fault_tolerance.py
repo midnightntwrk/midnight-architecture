@@ -587,7 +587,7 @@ if __name__ == "__main__":
     group_stakes.describe()
 
     # %%
-    # Let's test the code with an example:
+    # Let's test the risk_code with an example:
 
     committee_size = 300
 
