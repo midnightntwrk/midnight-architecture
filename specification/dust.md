@@ -12,10 +12,66 @@ properties:
 - The computed value of a Dust UTXO decays over time to zero after its Night UTXO is spent.
 - Dust is not persistent, the system may redistribute it on hardforks.
 
-## Preliminaries
+## Design overview
 
 Similar to Zswap, Dust is built on hashes and the commitment/nullifier
-paradigm. Differently to Zswap, Dust uses ZK-friendly hashes, as the
+paradigm; each Dust UTXO has an associated *commitment* which is inserted into
+an append-only commitment Merkle tree at the time of creation, and *nullifier*
+which is inserted into an append-only nullifier set at the time of
+destruction/spending.
+
+A Dust "spend" is a 1-to-1 "transfer", with 1 Dust UTXO input (nullifier), 1
+Dust UTXO output (commitment), and a public declaration of the fees paid by
+this spend. It includes a zero-knowledge proof that:
+1. The input is valid, and included in the commitment Merkle tree (at a point
+   in the recent past).
+2. The output value is the *updated* input value (which will be elaborated
+   below) minus the public fee declaration, and this is non-negative.
+3. The output nullifier is correct with respect to the output value and the
+   public key, which must be the same as the input public key.
+Dust "spends" don't really transfer Dust therefore, as they do not allow for
+change in ownership.
+
+Conceptually, Dust is generated over time by held *Night* UTXOs. Dust UTXOs are
+associated with a "backing" Night UTXO, and as long as this remains unspent
+will generate Dust up to a cap given by the amount of Night held in the
+backing UTXO. Once the backing Night is spent, the Dust UTXO will "decay" to
+zero over time, but may still be used.
+
+In practice, this is not continuously processed, but is calculated at the time
+a Dust UTXO is spent, by computing the "updated" value of this UTXO. For this
+purpose, the creation time of Dust UTXOs is used, as well as metadata
+"generation info" associated with the backing Night UTXO. This metadata
+includes the Dust public key, the creation time of the backing Night UTXO, and
+the *deletion* time of the backing Night UTXO (if applicable -- this may also
+be a future time, and is set to the maximum timestamp if backing Night UTXO is
+still present). These allow computing any generation and decay between the
+the time the Dust UTXO being spent was created and the current time.
+
+This Night metadata is stored separately to the main UTXO set, and not all
+UTXOs have associated metadata -- either because they are not Night UTXOs, or
+because they do not generate Dust.
+
+As Dust and Night have different public keys, and we anticipate leasing Dust to
+be desirable, creating a new Night UTXO does not always create a corresponding
+Dust UTXO. Instead, a table tracks which Dust public key to associate with
+which Night public key, and a new Dust UTXO is created (initially with zero
+balance) if and only if a Night UTXO is created *whose public key has a table
+entry*, and it is created for the Dust public key recorded at that table entry.
+A separate action allows (un)setting the table entry (or "registrations") for a
+given Night public key with the corresponding secret key's signature.
+currently active 
+Finally, because registrations run a challenge of paying for their own fees, if
+the same Night address is used in a registration, and at least one input that
+is *not* backing any Dust, then fees may be taken from the Dust these inputs
+*would have* generated, had they has an associated Dust UTXO (effectively
+backdating the registration). Any freshly created Dust UTXOs associated with
+the same Night address get the remaining Dust from this split between them at
+creation time, rather than the typical initial balance of 0.
+
+## Preliminaries
+
+Dust uses ZK-friendly hashes, as the
 non-persistence of Dust allows these to be changed on hardforks.
 
 ```rust
@@ -28,9 +84,9 @@ leave a question of wallet recovery, which [will be addressed
 below](#wallet-recovery).
 
 Core to this recovery is a deterministic evolution of nonces in Dust UTXOs. As
-each Dust spend is non-transferring, they are 1-to-1. Furthermore, the first Dust
-in a chain always originates uniquely from a Night UTXO. We hash three things
-to determine the nonce of a Dust UTXO:
+each Dust spend is non-transferring, they are 1-to-1. The first Dust UTXO
+in a chain is uniquely determined by the Night UTXO (and associated metadata)
+that created it. We hash three things to determine the nonce of a Dust UTXO:
 - The intent hash and output number identifying its originating Night UTXO.
 - A sequence number, starting at 0, indicating where we are in this chain of
 self-spends.
@@ -95,7 +151,7 @@ Dust has a handful of fundamental parameters, which are given here both in
 abstract, and in their concrete initial assignment. Fundamentally, these define
 the relation between Night, Dust, and time.
 
-Is is worth also being clear about the atomic units of Night and Dust here.
+It is worth also being clear about the atomic units of Night and Dust here.
 - The atomic unit of Night is the Star, with 1 Night = 10^6 Stars
 - The atomic unit of Dust is the Speck, with 1 Dust = 10^15 Specks
 
@@ -141,10 +197,10 @@ subsystem:
 The latter two are captured in an explicit `DustActions` structure, which also includes a timestamp that these actions are made against.
 
 The `DustRegistration`s case is the complex one, because these registrations
-*may* pay for fees. This has a several preconditions and, differently from the
+*may* pay for fees. This has several preconditions and, differently from the
 other operations, happens sequentially. In particular, for a registration to
-pay for fees, the relevant Night address must have both Night inputs and
-outputs present in this transaction, and at least one of the inputs must not
+pay for fees, the relevant Night address must have both Night inputs
+present in this transaction, and at least one of these inputs must not
 have already been generating Dust. In that case, the Dust these inputs *would
 have generated* will be used to cover transaction fees, up to the declared
 limit, and the remaining amount distributed across the outputs.
@@ -178,12 +234,12 @@ over time, to enable the use-case of leasing out Dust generation.
 
 This is primarily accomplished with a table linking Night and Dust addresses,
 and additional processing behaviour on processing Night inputs and outputs.
-For each input and output processed, a table of currently active Dust
+For each input and output processed, a table of Dust
 generations is updated; this can then be referenced to determine the amount of
 Dust held in any given UTXO. Additionally, each Night output processed creates a 
 new Dust UTXO.
 
-The core information about one currently active Night UTXO generation is
+The core information about one Night UTXO generation is
 encapsulated in `DustGenerationInfo`, which captures the amount of Night
 (Stars) generating Dust, the public key they are generating Dust to, the nonce
 at the start of the Dust chain, and finally, the time this Night UTXO was
@@ -702,7 +758,7 @@ length should be determined from the number of total commitments, such that the
 response includes however many commitments are sufficiently statistically
 hiding for this wallet user.
 
-For instance, if there are $2^14$ commitments in the state, and the wallet
+For instance, if there are $2^{14}$ commitments in the state, and the wallet
 wants an anonymity set of $2^7$, then it should send prefixes of $14 - 7 = 7$
 bits.
 
