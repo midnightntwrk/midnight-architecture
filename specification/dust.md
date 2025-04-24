@@ -38,6 +38,35 @@ will generate Dust up to a cap given by the amount of Night held in the
 backing UTXO. Once the backing Night is spent, the Dust UTXO will "decay" to
 zero over time, but may still be used.
 
+![Overview of the basic flow of Dust generation and decay](img/night-generates-dust-1-overview.jpg)
+
+The rate of generation ($\theta$ in figures) depends on the amount of night
+held ($N$), the ratio of the Dust cap to Night held ($\rho$), and "time to cap"
+($\Delta$).
+
+![Overview annotated with parameters](img/night-generates-dust-2-params.jpg)
+
+Dust may be spent multiple times, and a new UTXO is always created, even if its
+value is zero:
+
+![Demonstration of multiple Dust spends](img/night-generates-dust-3-using.jpg)
+
+Spending during decay is fine, and does not change the decay rate:
+
+![Demonstration of spend during decay](img/night-generates-dust-4-using.jpg)
+
+Once the backing Night is spent, the Dust immediately starts to decay, even if it is currently generating:
+
+![Decay during generation](img/night-generates-dust-5-spend-during-generation.jpg)
+
+If only a portion of the backing Night is spent, the change will be the backing
+Night to a new Dust UTXO, which accumulates Dust while the old UTXO decays. The
+net effect is a linear decrease in total Dust holdings:
+
+![Effects of partially spending backing Night](img/night-generates-dust-6-change.jpg)
+
+---
+
 In practice, this is not continuously processed, but is calculated at the time
 a Dust UTXO is spent, by computing the "updated" value of this UTXO. For this
 purpose, the creation time of Dust UTXOs is used, as well as metadata
@@ -69,7 +98,6 @@ backdating the registration). Any freshly created Dust UTXOs associated with
 the same Night address get the remaining Dust from this split between them at
 creation time, rather than the typical initial balance of 0.
 
-#![Overview of the basic flow of Dust generation and decay](img/night-generates-dust-1-overview.jpg)
 
 ## Preliminaries
 
