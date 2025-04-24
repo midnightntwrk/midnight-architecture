@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.stats as stats
 import seaborn as sns
 from matplotlib import pyplot as plt
-from numpy import arange, ceil, ndarray, ones, random, zeros
+from numpy import ceil, ndarray, ones, random, zeros
 from tqdm import tqdm
 
 from slot_alloc_sim import simulate_epoch_permissioned, simulate_epoch_registered
@@ -28,6 +28,32 @@ def sample_multinomial(num_participants: int) -> ndarray:
     # Sample a probability vector from the Dirichlet distribution,
     # which represents the multinomial probabilities for each participant.
     return random.dirichlet(alpha)
+
+
+def random_factor(n):
+    """
+    Computes all integer factors of a number and randomly selects one.
+
+    Args:
+        n (int): The number to find factors for
+
+    Returns:
+        int: A randomly selected factor of n
+    """
+    # Find all factors of n
+    factors = []
+    for i in range(1, int(n ** 0.5) + 1):
+        if n % i == 0:
+            factors.append(i)
+            if i != n // i:  # Avoid adding the same factor twice for perfect squares
+                factors.append(n // i)
+    
+    # If no factors are found (should only happen if n=0), return 1
+    if not factors:
+        return 1
+    
+    # Return a random factor
+    return random.choice(factors)
 
 
 # Define the function to sample alpha from a joint distribution
@@ -54,17 +80,33 @@ def sample_alpha() -> dict:
         AssertionError: If the internal logic fails, such as the sum of seat
         counts exceeding the specified total seats due to an unexpected error.
     """
-    num_registered = random.choice([20, 40, 80, 160])
-    num_permitted = int(ceil(random.choice([0.0, 0.1, 0.3, 0.5, 0.7]) * num_registered))
+    # Consider a random number of registered seats over this range
+    num_registered = random.choice([10, 20, 40, 80, 160, 320])
+    
+    # Let num_permitted seats be a random percentage of num_registered
+    num_permitted = int(ceil(random.choice([0.1, 0.3, 0.5, 0.7]) * num_registered))
+    
+    # Choose a random factor for seats_per_federated
+    seats_per_federated = random_factor(num_permitted)
+    
+    # This is guaranteed now to be an integer number of federated participants
+    num_federated = num_permitted // seats_per_federated
+    
     total_seats = num_registered + num_permitted
+    
     registered_probabilities = sample_multinomial(num_registered)
-    max_faults = 7  # fault tolerance levels = [1, 2, ..., max_faults]
+    
+    max_faults = 10
+    
     sample = dict(
         total_seats=total_seats,
         num_registered=num_registered,
-        num_permissioned=num_permitted,
+        num_permitted=num_permitted,
+        num_federated=num_federated,
+        seats_per_federated=seats_per_federated,
         registered_probabilities=registered_probabilities,
         max_faults=max_faults,
+        num_epochs=100,
         )
     return sample
 
@@ -89,8 +131,8 @@ def faults_tolerated(committee_seats: pd.Series) -> int:
 
 def simulate_epoch_federated(
     registered_seat_counts: ndarray,
-    num_federated: int = 10,
-    seats_per_federated: int = 2,
+    num_federated: int,
+    seats_per_federated: int,
     verbose: bool = False,
     ) -> pd.DataFrame:
     """
@@ -176,10 +218,10 @@ def simulate_epoch_federated(
 
 def simulate_committee_federated(
     registered_probabilities: ndarray,
-    num_registered: int = 15,
-    num_federated: int = 5,
-    seats_per_federated: int = 1,
-    num_epochs: int = 100,
+    num_registered: int,
+    num_federated: int,
+    seats_per_federated: int,
+    num_epochs: int,
     **kwargs,
     ) -> pd.DataFrame:
     """
@@ -191,10 +233,10 @@ def simulate_committee_federated(
 
     Args:
         registered_probabilities (ndarray): Probabilities for registered participants.
-        num_registered (int): Number of registered participants. Default is 15.
-        num_federated (int): Number of federated nodes. Default is 5.
-        seats_per_federated (int): Number of seats per federated node. Default is 1.
-        num_epochs (int): Number of epochs to simulate. Default is 100.
+        num_registered (int): Number of registered participants.
+        num_federated (int): Number of federated nodes.
+        seats_per_federated (int): Number of seats per federated node.
+        num_epochs (int): Number of epochs to simulate.
         kwargs: Additional keyword arguments.
 
     Returns:
@@ -224,9 +266,9 @@ def simulate_committee_federated(
 
 def simulate_proposed(
     registered_probabilities: ndarray,
-    num_registered: int = 15,
-    num_federated: int = 5,
-    num_epochs: int = 100,
+    num_registered: int,
+    num_permitted: int,
+    num_epochs: int,
     **kwargs,
     ) -> pd.DataFrame:
     """Runs the proposed algorithm simulation. For each epoch, simulates both the
@@ -235,16 +277,16 @@ def simulate_proposed(
 
     Args:
         registered_probabilities (ndarray): Probabilities for registered candidates.
-        num_registered (int): Number of registered candidates. Default is 15.
-        num_federated (int): Number of federated (permissioned) nodes. Default is 5.
-        num_epochs (int): Number of epochs to simulate. Default is 100.
+        num_registered (int): Number of registered candidates.
+        num_permitted (int): Number of permitted (federated)nodes.
+        num_epochs (int): Number of epochs to simulate.
         kwargs: Additional keyword arguments.
 
     Returns:
         pd.DataFrame: DataFrame containing committee seat assignments for all epochs,
             with epochs as rows and committee members as columns.
     """
-    permissioned_candidates = [f"P{i}" for i in range(num_federated)]
+    permissioned_candidates = [f"P{i}" for i in range(num_permitted)]
     permissioned_results = {name: [] for name in permissioned_candidates}
     registered_results = {i: [] for i in range(num_registered)}
     
@@ -253,7 +295,7 @@ def simulate_proposed(
         
         # Simulate this epoch
         reg_assign = simulate_epoch_registered(registered_candidates, num_registered)
-        perm_assign = simulate_epoch_permissioned(permissioned_candidates, num_federated)
+        perm_assign = simulate_epoch_permissioned(permissioned_candidates, num_permitted)
         
         # Collect results
         for name in registered_candidates:
@@ -292,31 +334,14 @@ def calculate_fault_tolerance_probability(
     Returns:
         float: Estimated probability of tolerating the given number of faults.
     """
-    # Calculate success rate through Monte Carlo simulation
-    probability = (
-        committee_seats.apply(faults_tolerated, axis=1) >= fault_tolerance
-    ).mean()
+    if fault_tolerance == 0:
+        probability = 1.0
+    else:
+        # Calculate success rate through Monte Carlo simulation
+        probability = (
+            committee_seats.apply(faults_tolerated, axis=1) >= fault_tolerance
+        ).mean()
     return probability
-
-
-def compute_score(ft: pd.Series) -> float:
-    """
-    Compute the performance score from ft, the probability
-    of tolerating a number of faults given by the p index.
-
-    Args:
-        ft (pd.Series): fault tolerance probability series
-
-    Returns:
-        float: computed score
-    """
-    # Convert index to numeric if it's not already
-    numeric_index = pd.to_numeric(ft.index).values
-    
-    # Element-wise multiplication of index values with probabilities
-    score = (numeric_index * ft.probability.values).sum()
-    
-    return score
 
 
 # Stub functions for Algorithm A and B
@@ -336,25 +361,87 @@ def algorithm(function, **params) -> float:
     """
     committee_seats = function(**params)
     
-    # Calculate fault tolerance probabilities for the first algorithm
-    prob_fault_tolerance = {
-        f: calculate_fault_tolerance_probability(committee_seats, fault_tolerance=f)
-        for f in arange(1, params.get("max_faults", 5) + 1)
-        }
+    # Calculate fault tolerance probabilities for the algorithm
+    faults = np.arange(1, params.get("max_faults", 5) + 1)
+    ftprob = pd.Series(0.0, index=faults, name="probability")
+    for f in faults:
+        # p is the probability of tolerating f faults
+        p = calculate_fault_tolerance_probability(committee_seats, fault_tolerance=f)
+        ftprob.loc[f] = p
+        if p == 0:  # since the rest of the series will be zero as well
+            break
     
-    prob_fault_tolerance = pd.DataFrame.from_dict(
-        prob_fault_tolerance,
-        orient="index",
-        columns=["probability"],
-        )
+    # Compute the performance score as the sum of probabilities
+    score = ftprob.sum()
     
-    # Compute fault tolerance performance score
-    ft_score = compute_score(prob_fault_tolerance)
-    
-    return ft_score
+    return score
 
 
-def monte_carlo_simulation(num_trials: int = 50) -> tuple[np.ndarray, np.ndarray]:
+def hypothesis_test(
+    results_a: ndarray,
+    results_b: ndarray,
+    kind: str = "bootstrap",
+    n_bootstrap: int = 10000,
+    ):
+    """
+    Conducts a hypothesis test to compare two result sets, `results_a` and `results_b`, based on the specified
+    kind of statistical testing approach. By default, a bootstrap approach is used to calculate the one-sided
+    p-value for the null hypothesis. Alternatively, a paired t-test can be performed. The results help determine
+    whether algorithm B (corresponding to `results_b`) is significantly better than algorithm A (corresponding
+    to `results_a`).
+
+    Args:
+        results_a: An array of numerical results for algorithm A.
+        results_b: An array of numerical results for algorithm B.
+        kind: The kind of statistical test to perform. Options are "bootstrap" (default) or "paired_t".
+        n_bootstrap: The number of bootstrap resampling iterations to perform. Only applicable
+            if the `kind` is "bootstrap".
+
+    Raises:
+        ValueError: If `kind` is not "bootstrap" or "paired_t".
+        RuntimeError: If inconsistencies in data prevent calculations, such as mismatched array lengths
+            or insufficient data.
+    """
+    if kind == "bootstrap":
+        # Calculate the observed mean difference.
+        differences = results_b - results_a
+        obs_diff = np.mean(differences)
+        
+        # For a one-sided test (B > A), if the observed mean difference is non-positive,
+        # the p-value would be 1 (or you might decide not to proceed).
+        if obs_diff <= 0:
+            p_value = 1.0
+        else:
+            # Center the differences: adjust the data so that its mean becomes 0
+            # (the null hypothesis condition)
+            differences_centered = differences - obs_diff
+            
+            # Bootstrap resampling from the centered differences.
+            bootstrap_means = np.empty(n_bootstrap)
+            for i in range(n_bootstrap):
+                sample = np.random.choice(differences_centered, size=len(differences_centered), replace=True)
+                bootstrap_means[i] = np.mean(sample)
+            
+            # One-sided p-value: proportion of bootstrap means greater than or equal to the observed difference.
+            p_value = np.mean(bootstrap_means >= obs_diff)
+        
+        print(f"Observed Mean Difference (B - A): {obs_diff:.3f}")
+        print(f"One-sided p-value: {p_value:.4f}")
+    
+    else:
+        # Perform a paired t-test to determine if B is significantly better than A
+        t_stat, p_value = stats.ttest_rel(results_a, results_b, alternative='less')
+        
+        print(f"Mean mA: {results_a.mean():.3f}, Mean mB: {results_b.mean():.3f}")
+        print(f"Paired t-test result: t-statistic = {t_stat:.3f}, p-value = {p_value:.3f}")
+    
+    if p_value < 0.05:
+        print("Conclusion: Algorithm B is significantly better than Algorithm A.")
+    else:
+        print("Conclusion: No statistically significant difference between A and B.")
+
+
+def monte_carlo_simulation(num_trials: int = 100) -> tuple[np.ndarray, np.ndarray]:
     """
     Run the Monte Carlo simulation to compare Algorithms A and B across random scenarios.
 
@@ -376,68 +463,35 @@ def monte_carlo_simulation(num_trials: int = 50) -> tuple[np.ndarray, np.ndarray
         results_a[i] = algorithm(a, **alpha)
         results_b[i] = algorithm(b, **alpha)
     
-    # Perform a paired t-test to determine if B is significantly better than A
-    # difference: B - A
-    t_stat, p_value = stats.ttest_rel(results_b, results_a, alternative='greater')
-    
-    # Display results
-    print(f"Mean mA: {results_a.mean():.3f}, Mean mB: {results_b.mean():.3f}")
-    print(f"Paired t-test result: t-statistic = {t_stat:.3f}, p-value = {p_value:.3f}")
-    
-    if p_value < 0.05:
-        print("Conclusion: Algorithm B is significantly better than Algorithm A.")
-    else:
-        print("Conclusion: No statistically significant difference between A and B.")
+    hypothesis_test(results_a, results_b, kind="bootstrap")
     
     return results_a, results_b
 
 
-if __name__ == "__main__":
-    # Run the simulation
-    results_a, results_b = monte_carlo_simulation(num_trials=1000)
+def visualize_algorithm_comparison(results_a, results_b, show_plots=True):
+    """
+    Visualize the comparison between two algorithms through various plots.
     
-    # ---------------------------
-    # 1. Histogram each Score
-    # ---------------------------
-    plt.figure(figsize=(10, 6))
-    plt.hist(results_a, bins=20, label="Algorithm A", alpha=0.5)
-    plt.hist(results_b, bins=20, label="Algorithm B", alpha=0.5)
-    plt.xlabel("Fault Tolerance Score")
-    plt.ylabel("Frequency")
-    plt.title("Histogram of Fault Tolerance Score")
-    plt.legend()
-    plt.show()
-
-    differences = results_b - results_a  # difference: A - B
+    This function creates three visualization plots:
+    1. Histogram of scores for both algorithms
+    2. Histogram of differences between algorithm scores
+    3. Scatter plot of paired algorithm results
     
-    # ---------------------------
-    # 2. Histogram of Differences
-    # ---------------------------
-    plt.figure(figsize=(8, 6))
-    sns.histplot(differences, bins=30, kde=True, color='skyblue', edgecolor='black')
-    plt.xlabel("Difference (Algorithm B - Algorithm A)")
-    plt.ylabel("Frequency")
-    plt.title("Histogram of Differences in Scores")
-    plt.axvline(
-        np.mean(differences), color='red', linestyle='dashed', linewidth=2,
-        label=f'Mean Difference = {np.mean(differences):.2f}',
-        )
-    plt.legend()
-    plt.show()
-    
-    # ------------------------
-    # 3. Boxplot of Differences
-    # ------------------------
-    plt.figure(figsize=(8, 4))
-    sns.boxplot(x=differences, color='lightgreen')
-    plt.xlabel("Difference (Algorithm B - Algorithm A)")
-    plt.title("Boxplot of Differences in Scores")
-    plt.show()
+    Args:
+        results_a (ndarray): Array of scores from Algorithm A
+        results_b (ndarray): Array of scores from Algorithm B
+        show_plots (bool): Whether to display the plots immediately. Default is True.
+        
+    Returns:
+        tuple: Three matplotlib figure objects (hist_fig, diff_fig, scatter_fig)
+    """
+    # Calculate differences
+    differences = results_b - results_a  # difference: B - A
     
     # -------------------------------
-    # 4. Scatter Plot of Paired Data
+    # 1. Scatter Plot of Paired Data
     # -------------------------------
-    plt.figure(figsize=(8, 6))
+    scatter_fig = plt.figure(figsize=(8, 6))
     plt.scatter(results_a, results_b, alpha=0.5, color='purple', edgecolor='none')
     plt.xlabel("Algorithm A Score")
     plt.ylabel("Algorithm B Score")
@@ -447,4 +501,39 @@ if __name__ == "__main__":
         linestyle='--', color='gray', label='Equality Line',
         )
     plt.legend()
-    plt.show()
+    
+    # ---------------------------
+    # 2. Histogram each Score
+    # ---------------------------
+    hist_fig = plt.figure(figsize=(10, 6))
+    plt.hist(results_a, bins=20, label="Algorithm A", alpha=0.5)
+    plt.hist(results_b, bins=20, label="Algorithm B", alpha=0.5)
+    plt.xlabel("Fault Tolerance Score")
+    plt.ylabel("Frequency")
+    plt.title("Histogram of Fault Tolerance Score")
+    plt.legend()
+    
+    # ---------------------------
+    # 3. Histogram of Differences
+    # ---------------------------
+    diff_fig = plt.figure(figsize=(8, 6))
+    sns.histplot(differences, bins=30, kde=True, color='skyblue', edgecolor='black')
+    plt.xlabel("Difference (Algorithm B - Algorithm A)")
+    plt.ylabel("Frequency")
+    plt.title("Histogram of Differences in Scores")
+    plt.axvline(
+        np.mean(differences), color='red', linestyle='dashed', linewidth=2,
+        label=f'Mean Difference = {np.mean(differences):.2f}',
+        )
+    plt.legend()
+    if show_plots:
+        plt.show()
+    
+    return hist_fig, diff_fig, scatter_fig
+
+
+if __name__ == "__main__":
+    # Run the simulation
+    results_a, results_b = monte_carlo_simulation(num_trials=1000)
+    
+    visualize_algorithm_comparison(results_a, results_b)
