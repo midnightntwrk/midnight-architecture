@@ -69,6 +69,8 @@ backdating the registration). Any freshly created Dust UTXOs associated with
 the same Night address get the remaining Dust from this split between them at
 creation time, rather than the typical initial balance of 0.
 
+#![Overview of the basic flow of Dust generation and decay](img/night-generates-dust-1-overview.jpg)
+
 ## Preliminaries
 
 Dust uses ZK-friendly hashes, as the
