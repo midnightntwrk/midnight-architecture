@@ -171,13 +171,13 @@ Where:
 - `role` follows table below
 - `index` follows BIP-44 recommendations
 
-| Role name            | Value | Description                                             |
-|----------------------|-------|---------------------------------------------------------|
-| Night External chain | 0     | Night is Midnight's main token of value, Follows BIP-44 |
-| Night Internal chain | 1     | as above                                                |
-| Dust                 | 2     | Dust is needed to pay fees on Midnight                  |
-| Zswap                | 3     | Zswap is a sub-protocol for shielded native tokens      |
-| Metadata             | 4     | Keys for signing metadata                               |
+| Role name                             | Value | Description                                                                                        |
+|---------------------------------------|-------|----------------------------------------------------------------------------------------------------|
+| Unshielded (and Night) External chain | 0     | Following BIP-44, this is main role for unshielded tokens, including Night - Midnight's main token |
+| Unshielded (and Night) Internal chain | 1     | Only present for BIP-44 compatibility, can be used to derive change addresses                      |
+| Dust                                  | 2     | Dust is needed to pay fees on Midnight                                                             |
+| Zswap                                 | 3     | Zswap is a sub-protocol for shielded native tokens                                                 |
+| Metadata                              | 4     | Keys for signing metadata                                                                          |
 
 
 > [!NOTE]
@@ -277,7 +277,12 @@ Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.med
 The human-readable part should consist of 3 parts, separated by underscore:
 - constant `mn` indicating it is a Midnight address
 - type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
-- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present. Following approach should be used to map ledger's `NetworkId` enum into network identifier:
+- network identifier - arbitrary string consisting of alphanumeric characters and 
+  hyphens, identifying network. Hyphen is allowed only to allow usage of multiple 
+  segments in network identifier, so parsing and validation are simplified. For 
+  mainnet, network identifier has to be omitted (and so its preceding underscore), for 
+  other networks it is required to be present. Following approach should be used to 
+  map ledger's `NetworkId` enum into network identifier:
   - mainnet - no prefix
   - testnet - "test"
   - devnet - "dev"
@@ -291,7 +296,7 @@ It is a SHA256 of an unshielded token public key.
 Its credential type is `addr`.
 
 Example human-readable parts:
-- for the mainnet: `mn_addr`
+- for the mainnet (notice no trailing underscore): `mn_addr`
 - for the testnet: `mn_addr_test`
 - for a testing environment: `mn_addr_testing-env`
 - for local development environment: `mn_addr_dev`
