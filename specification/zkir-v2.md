@@ -1,17 +1,117 @@
 ZKIR Version 2
 ==============
 
-# Gates:
+# Overview
+
+ZKIR (**Z**ero **K**nowledge **I**ntermediate **R**epresentation) is used as the interface between smart contracts and the Midnight proof system.
+The Compact compiler generates ZKIR files for a contract as one of the compiler outputs.
+These files are used as input to a separate binary (`zkir`) to generate prover and verifier keys.
+The verifier keys are stored on-chain when a contract is deployed.
+The prover keys are used to construct zkSNARKs ("proofs") that are included as part of a transaction.
+Before a transaction is made to the network, ZKIR files are sent to the proof server along with the transaction's private inputs, in order to construct zkSNARKs to be verified on-chain.
+
+There are two different encodings of ZKIR.
+There is a [JSON](https://www.json.org/json-en.html) encoding which is produced by the Compact compiler and used as input to the `zkir` binary to generate prover and verifier keys.
+There is an equivalent binary encoding which is produced as an output by the `zkir` binary and used as input to the proof server to generate zkSNARKs.
+There is a separate pair of ZKIR files for each exported circuit in a contract.
+
+Both encodings of ZKIR are considered an [application binary interface (ABI)](https://en.wikipedia.org/wiki/Application_binary_interface).
+They are versioned together using [semantic versioning](https://semver.org/), the current major version is version 2.
+(Version 1 was not publicly released.)
+
+# The Memory
+
+A ZKIR circuit consists of a linear sequence of *instructions* which describe a program for constructing a *memory*.
+The memory is a growable array of *locations* indexed by 32-bit unsigned integers.
+The memory has a *length*, the initial length is 0 (the memory is initially empty).
+The memory is extended by incrementing the length by one and by storing into the index equal to the length before incrementing.
+Each instruction has a variable number of *inputs* and *outputs*.
+Inputs are explicitly given in an instruction's encoding, and they can be of various kinds as described below.
+Outputs are implicitly determined by an instruction's position in the instruction sequence.
+
+An instruction causes the next available locations in the memory to be filled with the instruction's outputs.
+One kind of input is a memory index, which represents a use of the output of a previous instruction in the sequence.
+
+The values that can be in a memory location are described below.
+
+# File Header
+
+[TODO]
+
+# Instructions
+
+An instruction in the JSON format is given by a JSON object with a member named `"op"` whose value is an operation name string.
+In the binary format, instructions have a variable length encoding that starts with a byte that determines the operation.
+An instruction has a fixed number of inputs and outputs, determined by the operation.
+
+## Inputs
+
+An instruction explicitly names a number of inputs.
+Inputs can have various kinds.
+The number and kind of an instruction's inputs depends on the operation.
+
+- *Index* is an unsigned 32-bit value that is an index into the memory.
+  This index must exist in the memory, i.e., it must have been an output of a previous instruction in the sequence.
+
+## Outputs
+
+An instruction has a number of outputs, possibly zero.
+The number of ouptuts depends on the operation.
+
+## Example
+
+The `add` instruction has a pair of inputs `a` and `b` which are both memory indexes.
+
+The JSON encoding is a JSON object with three named members:
+
+- `"op"` is the operation, which is always the string `"add"`
+- `"a"` is the first (left) input, which is a memory index represented by a JSON number
+- `"b"` is the second (right) input, whish is also a memory index
+
+This is denoted in the reference below as:
+
+**JSON:** { "op": "add", "a": number, "b": number }
+
+The Binary encoding of the `add` instruction consists of the hexadecimal byte value 0x11.
+This is followed by the binary encoding of the inputs `a` and `b`, in that order, as (fixed length little endian?) unsigned 32-bit values.
+
+This is denoted in the reference below as:
+
+**Binary:** 0x11 a:u32 b:u32
+
+# Two-phase Evaluation
+
+ZKIR circuits are evaluated to construct a memory.
+Evaluation is a two phase process.
+The first phase is the *rehearsal semantics*.
+The rehearsal semantics... [TODO]
+The second phase is the *circuit semantics*.
+The circuit semantics... [TODO]
+
+## Rehearsal Semantics
+
+https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs/ir_vm.rs#L192
+
+The input to the rehearsal semantics is the ZKIR circuit and a *proof preimage*.
+https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs/mod.rs#L548
+
+## Circuit Semantics
+
+https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs/ir_vm.rs#L500
+
+# Instruction Reference
+
+Notation
 
 ## add
 
-**JSON:** { "op": "add", "a": Index, "b": Index }
+**JSON:** { "op": "add", "a": number, "b": number }
+
+**Binary:** 0x11 a:u32 b:u32
 
 Adds `a` and `b` in the prime field.
 
 **Outputs:** One output `a + b`.
-
-**Binary:** 0x11 ??? ???
 
 **Rehearsal semantics:** the field values at indexes *a* and *b* are read from
 the memory; the memory is extended with the result of adding them in the prime
