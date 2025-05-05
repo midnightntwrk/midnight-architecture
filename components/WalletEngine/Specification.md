@@ -176,9 +176,8 @@ Where:
 | Unshielded (and Night) External chain | 0     | Following BIP-44, this is main role for unshielded tokens, including Night - Midnight's main token |
 | Unshielded (and Night) Internal chain | 1     | Only present for BIP-44 compatibility, can be used to derive change addresses                      |
 | Dust                                  | 2     | Dust is needed to pay fees on Midnight                                                             |
-| Zswap                                 | 3     | Zswap is a sub-protocol for shielded native tokens                                                 |
+| Shielded                              | 3     | Shielded tokens, managed is a Zswap-based sub-protocol                                             |
 | Metadata                              | 4     | Keys for signing metadata                                                                          |
-
 
 > [!NOTE]
 > `role` and `index` path levels use public derivation for BIP-44 compatibility. For many keys it will not be possible to meaningfully perform public parent key -> public child key derivation. In many cases it is only the secret key at certain path used to further derive keys specific for particular purpose.
