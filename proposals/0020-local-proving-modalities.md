@@ -145,6 +145,17 @@ Following are the recommendations:
    Initially as a means of signalling to the community that this is a thing that is 
    being looked at, but also to streamline the process of integration of WASM proving 
    once necessary functionality of Rust toolchain stabilizes.
+4. Given common issues with OpenGL in Tauri (which seem to be related directly to the 
+   fact of using system-provided WebKit - https://github.com/tauri-apps/tauri/issues/5143),
+   usage of Tauri as the proving application implementation framework might require 
+   additional hardening work, like static linking of critical dependencies or other 
+   packaging workarounds. Additionally, while compatibility on macOS and Windows should 
+   not be a big issue (in both cases engines from Safari and Edge are used, and they are 
+   kept relatively up-to-date by Apple and Microsoft), it might arise as an issue in Linux 
+   environments, due to the variety of distributions, approaches to packages, etc. 
+   Given all the above - Tauri should be the chosen framework only if the above 
+   drawbacks and risks are outweighed by the fact of using Rust-first framework. 
+   Otherwise - Electron is known to be stable, quite well-known solution (TypeScript-first though).
 
 ## Desired Result
 
