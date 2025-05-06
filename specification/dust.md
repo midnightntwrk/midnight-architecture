@@ -42,32 +42,32 @@ will generate Dust up to a cap given by the amount of Night held in the
 backing UTXO. Once the backing Night is spent, the Dust UTXO will "decay" to
 zero over time, but may still be used.
 
-![Overview of the basic flow of Dust generation and decay](img/night-generates-dust-1-overview.jpg)
+<p align="center"><img src="img/night-generates-dust-1-overview.jpg" style="width: 60%;" /></p>
 
 The rate of generation ($\theta$ in figures) depends on the amount of night
 held ($N$), the ratio of the Dust cap to Night held ($\rho$), and "time to cap"
 ($\Delta$).
 
-![Overview annotated with parameters](img/night-generates-dust-2-params.jpg)
+<p align="center"><img src="img/night-generates-dust-2-params.jpg" style="width: 60%;" /></p>
 
 Dust may be spent multiple times, and a new UTXO is always created, even if its
 value is zero:
 
-![Demonstration of multiple Dust spends](img/night-generates-dust-3-using.jpg)
+<p align="center"><img src="img/night-generates-dust-3-using.jpg" style="width: 60%;" /></p>
 
 Spending during decay is fine, and does not change the decay rate:
 
-![Demonstration of spend during decay](img/night-generates-dust-4-using.jpg)
+<p align="center"><img src="img/night-generates-dust-4-using.jpg" style="width: 40%;" /></p>
 
 Once the backing Night is spent, the Dust immediately starts to decay, even if it is currently generating:
 
-![Decay during generation](img/night-generates-dust-5-spend-during-generation.jpg)
+<p align="center"><img src="img/night-generates-dust-5-spend-during-generation.jpg" style="width: 30%;" /></p>
 
 If only a portion of the backing Night is spent, the change will be the backing
 Night to a new Dust UTXO, which accumulates Dust while the old UTXO decays. The
 net effect is a linear decrease in total Dust holdings:
 
-![Effects of partially spending backing Night](img/night-generates-dust-6-change.jpg)
+<p align="center"><img src="img/night-generates-dust-6-change.jpg" style="width: 50%;" /></p>
 
 ---
 
