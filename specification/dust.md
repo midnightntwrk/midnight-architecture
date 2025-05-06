@@ -384,6 +384,8 @@ the Night-Dust ratio and the value of the backing Night. After the backing
 Night UTXO has been marked as destroyed, the Dust UTXO's value instead approaches
 zero over time.
 
+<p align="center"><img src="img/night-generates-dust-2-params.jpg" style="width: 60%;" /></p>
+
 When spending a Dust UTXO, its updated value needs to be computed. It's
 important *when* this value is picked, and whose notion of time it respects.
 Concretely, that is the time according to the transaction author, and is
