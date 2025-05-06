@@ -277,8 +277,8 @@ impl<S, P, B> Transaction<S, P, B> {
                 intent.fallible_unshielded_offer,
             ].into_iter());
         for offer in unshielded_offers {
-            assert!(unshielded_inputs.disjoint(inputs));
-            unshielded_inputs += inputs;
+            assert!(unshielded_inputs.disjoint(offer.inputs));
+            unshielded_inputs += offer.inputs;
         }
     }
 }
@@ -300,8 +300,11 @@ impl<S, P, B> Transaction<S, P, B> {
             // If a calls b, a causally precedes b.
             // Also, if a contract is in two intents, the prior precedes the latter
             for ((cid1, call1), (cid2, call2)) in intent1.actions.iter()
+                .enumerate()
                 .filter_map(ContractAction::as_call)
-                .product(intent2.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent2.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
             {
                 if sid1 == sid2 && cid1 == cid2 {
                     continue;
@@ -315,9 +318,14 @@ impl<S, P, B> Transaction<S, P, B> {
         // that of c, then b must precede c in the intent.
         for (_, intent) in self.intents.iter() {
             for ((cid1, call1), (cid2, call2), (cid3, call3)) in intent.actions.iter()
+                .enumerate()
                 .filter_map(ContractAction::as_call)
-                .product(intent.actions.iter().filter_map(ContractAction::as_call))
-                .product(intent.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
+                .product(intent.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
             {
                 if let (Some((_, s1)), Some((_, s2))) = (call1.calls_with_seq(call2), call1.calls_with_seq(call3)) {
                     assert!(cid1 < cid2);
@@ -338,8 +346,8 @@ impl<S, P, B> Transaction<S, P, B> {
                 .filter_map(ContractAction::as_call)
                 .product(intent.actions.iter().filter_map(ContractAction::as_call))
             {
-                if let Some((segment, _)) = call1.calls_with_seq(call2) {
-                    if segment {
+                if let Some((guaranteed, _)) = call1.calls_with_seq(call2) {
+                    if guaranteed {
                         assert!(call2.fallible_transcript.is_none());
                     } else {
                         assert!(call2.guaranteed_transcript.is_none());
@@ -351,7 +359,7 @@ impl<S, P, B> Transaction<S, P, B> {
         let mut prev = Vec::new();
         while causal_precs != prev {
             prev = causal_precs;
-            for ((a, b), (c, d)) in prev.iter().zip(prev.iter()) {
+            for ((a, b), (c, d)) in prev.iter().product(prev.iter()) {
                 if b == c && !prev.contains((a, d)) {
                     causal_precs = causal_precs.insert((a, d));
                 }
@@ -369,6 +377,8 @@ The balance check depends on fee calculations (out of scope), and the overall
 balance of the transaction, which is per token type, per segment ID:
 
 ```rust
+const FEE_TOKEN: TokenType = TokenType::Shielded(
+
 impl<S, P, B> Transaction<S, P, B> {
     fn fees(self) -> Result<u128> {
         // Out of scope of this spec
@@ -409,12 +419,12 @@ impl<S, P, B> Transaction<S, P, B> {
                         .map(|t| (segment, t)));
                 for (segment, transcript) in transcripts {
                     for (pre_token, val) in transcript.effects.shielded_mints {
-                        let tt = TokenType::Shielded(hash((transcript.address, pre_token)));
+                        let tt = TokenType::Shielded(hash((call.address, pre_token)));
                         let bal = res.get_mut_or_default((tt, segment));
                         *bal = (*bal).checked_add(val)?;
                     }
                     for (pre_token, val) in transcript.effects.unshielded_mints {
-                        let tt = TokenType::Unshielded(hash((transcript.address, pre_token)));
+                        let tt = TokenType::Unshielded(hash((call.address, pre_token)));
                         let bal = res.get_mut_or_default((tt, segment));
                         *bal = (*bal).checked_add(val)?;
                     }
@@ -437,10 +447,11 @@ impl<S, P, B> Transaction<S, P, B> {
             .chain(self.guaranteed_offer.iter().map(|o| (0, o)))
         {
             for (tt, val) in offer.deltas {
-                res.set((TokenType::Shielded(tt), segment), val);
+                let bal = res.get_mut_or_default((TokenType::Shielded(tt), segment));
+                *bal = (*bal).checked_add(val)?;
             }
         }
-        res.insert((DUST, 0), bust_bal);
+        res.insert((DUST, 0), dust_bal);
         Ok(res)
     }
 
@@ -743,9 +754,12 @@ impl LedgerState {
                 tx,
                 block_context.seconds_since_epoch,
             )?;
-            if let Some(offer) = tx.guaranteed_offer {
-                self.zswap = self.zswap.apply(offer)?;
-            }
+            let com_indicies = if let Some(offer) = tx.guaranteed_offer {
+                (self.zswap, indicies) = self.zswap.apply(offer)?;
+                indicies
+            } else {
+                Map::new()
+            };
             // Make sure all fallible offers *can* be applied
             assert!(tx.fallible_offer.values()
                 .fold(Ok(self.zswap), |st, offer| st?.apply(offer))
@@ -773,6 +787,7 @@ impl LedgerState {
                         true,
                         block_context,
                         erased,
+                        com_indicies,
                     )?;
                 }
             }
@@ -804,6 +819,12 @@ impl LedgerState {
             }
             assert!(fees_remaining == 0);
         } else {
+            let com_indicies = if let Some(offer) = tx.fallible_offer.get(segment) {
+                (self.zswap, indicies) = self.zswap.apply(offer)?;
+                indicies
+            } else {
+                Map::new()
+            };
             if let Some(intent) = tx.intents.get(segment) {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.fallible_unshielded_offer {
@@ -826,11 +847,9 @@ impl LedgerState {
                         false,
                         block_context,
                         erased,
+                        com_indicies,
                     )?;
                 }
-            }
-            if let Some(offer) = tx.fallible_offer.get(segment) {
-                self.zswap = self.zswap.apply(offer)?;
             }
         }
         Ok(self)

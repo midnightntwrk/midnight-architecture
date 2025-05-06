@@ -17,58 +17,68 @@ This document comprises a couple of sections:
 7. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
 8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
-<!-- TOC -->
-* [Midnight Wallet Specification](#midnight-wallet-specification)
-  * [Introduction](#introduction)
-    * [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
-    * [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
-    * [Binding randomness](#binding-randomness)
-    * [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
-    * [Summary](#summary)
-  * [Key management](#key-management)
-    * [HD Wallet structure](#hd-wallet-structure)
-    * [Night keys](#night-keys)
-    * [Dust keys](#dust-keys)
-    * [Zswap keys](#zswap-keys)
-      * [Zswap seed](#zswap-seed)
-      * [Output encryption keys](#output-encryption-keys)
-      * [Coin keys](#coin-keys)
-      * [Address](#address)
-    * [Metadata keys](#metadata-keys)
-    * [Scalar sampling](#scalar-sampling)
-  * [Address format](#address-format)
-    * [Unshielded Payment address](#unshielded-payment-address)
-    * [Shielded Payment address](#shielded-payment-address)
-    * [Shielded Coin public key](#shielded-coin-public-key)
-    * [Shielded Encryption secret key](#shielded-encryption-secret-key)
-  * [Transaction structure and statuses](#transaction-structure-and-statuses)
-  * [State management](#state-management)
-    * [Balances](#balances)
-    * [Operations](#operations)
-      * [`apply_transaction`](#apply_transaction)
-      * [`finalize_transaction`](#finalize_transaction)
-      * [`rollback_last_transaction`](#rollback_last_transaction)
-      * [`discard_transaction`](#discard_transaction)
-      * [`spend`](#spend)
-      * [`watch_for`](#watch_for)
-  * [Synchronization process](#synchronization-process)
-  * [Building transactions](#building-transactions)
-    * [Building operations](#building-operations)
-      * [Building an input](#building-an-input)
-      * [Building an output](#building-an-output)
-      * [Building a transient](#building-a-transient)
-      * [Combining inputs, outputs and transients into an offer](#combining-inputs-outputs-and-transients-into-an-offer)
-      * [Replacing output with a transient](#replacing-output-with-a-transient)
-      * [Creating transaction with the offer](#creating-transaction-with-the-offer)
-      * [Merging with other transaction](#merging-with-other-transaction)
-        * [Merging offers](#merging-offers)
-    * [Building stages](#building-stages)
-      * [Prepare transfer](#prepare-transfer)
-      * [Prepare a swap](#prepare-a-swap)
-      * [Contract call](#contract-call)
-      * [Balance transaction](#balance-transaction)
-  * [Transaction submission](#transaction-submission)
-<!-- TOC -->
+- [Midnight Wallet Specification](#midnight-wallet-specification)
+  - [Introduction](#introduction)
+    - [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
+    - [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
+    - [Binding randomness](#binding-randomness)
+    - [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
+    - [Summary](#summary)
+  - [Key management](#key-management)
+    - [HD Wallet structure](#hd-wallet-structure)
+    - [Night and unshielded tokens keys](#night-and-unshielded-tokens-keys)
+    - [Dust keys](#dust-keys)
+    - [Zswap keys](#zswap-keys)
+      - [Zswap seed](#zswap-seed)
+      - [Output encryption keys](#output-encryption-keys)
+      - [Coin keys](#coin-keys)
+      - [Address](#address)
+    - [Metadata keys](#metadata-keys)
+    - [Scalar sampling](#scalar-sampling)
+  - [Address format](#address-format)
+    - [Unshielded Payment address](#unshielded-payment-address)
+    - [Dust address](#dust-address)
+    - [Shielded Payment address](#shielded-payment-address)
+    - [Shielded Coin public key](#shielded-coin-public-key)
+    - [Shielded Encryption secret key](#shielded-encryption-secret-key)
+  - [Transaction structure and statuses](#transaction-structure-and-statuses)
+    - [Standard transactions](#standard-transactions)
+    - [Mint claim](#mint-claim)
+  - [State management](#state-management)
+    - [Balances](#balances)
+    - [Operations](#operations)
+      - [`apply_transaction`](#apply_transaction)
+        - [Steps to apply shielded offer of a section](#steps-to-apply-shielded-offer-of-a-section)
+        - [Steps to apply unshielded offer of a section](#steps-to-apply-unshielded-offer-of-a-section)
+      - [`finalize_transaction`](#finalize_transaction)
+      - [`rollback_last_transaction`](#rollback_last_transaction)
+      - [`discard_transaction`](#discard_transaction)
+      - [`spend`](#spend)
+      - [`watch_for`](#watch_for)
+  - [Synchronization process](#synchronization-process)
+    - [Indexing service for shielded tokens](#indexing-service-for-shielded-tokens)
+    - [Indexing service for unshielded tokens](#indexing-service-for-unshielded-tokens)
+  - [Building standard transactions](#building-standard-transactions)
+    - [Building operations](#building-operations)
+      - [Building a shielded input](#building-a-shielded-input)
+      - [Building a shielded output](#building-a-shielded-output)
+      - [Building a transient](#building-a-transient)
+      - [Combining shielded inputs, outputs and transients into a shielded offer](#combining-shielded-inputs-outputs-and-transients-into-a-shielded-offer)
+      - [Replacing shielded output with a transient](#replacing-shielded-output-with-a-transient)
+      - [Building an unshielded input](#building-an-unshielded-input)
+      - [Building an unshielded output](#building-an-unshielded-output)
+      - [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
+      - [Creating an intent](#creating-an-intent)
+      - [Creating transaction with an intent and shielded offers](#creating-transaction-with-an-intent-and-shielded-offers)
+      - [Merging with other transaction](#merging-with-other-transaction)
+        - [Merging shielded offers](#merging-shielded-offers)
+    - [Building stages](#building-stages)
+      - [Prepare transfer](#prepare-transfer)
+      - [Prepare a swap](#prepare-a-swap)
+      - [Contract call](#contract-call)
+      - [Balance transaction](#balance-transaction)
+  - [Transaction submission](#transaction-submission)
+
 
 ## Introduction
 
@@ -78,7 +88,7 @@ It is often the case, that for user's convenience, wallets also collect all the 
 
 Zswap, as a protocol for privacy-preserving tokens, has 3 major goals:
 1. Maintain privacy of transfers, so that it is impossible to tell:
-   - who the input provider (sender) is, unless one is the provider themself
+   - who the input provider (sender) is, unless one is the provider themselves
    - who the output recipient is, unless one created that output or is the recipient
    - what amounts were moved, unless one is sender or receiver of particular output
    - what kinds of tokens were moved, unless one is sender or receiver of the token
@@ -161,32 +171,31 @@ Where:
 - `role` follows table below
 - `index` follows BIP-44 recommendations
 
-| Role name            | Value | Description                                             |
-|----------------------|-------|---------------------------------------------------------|
-| Night External chain | 0     | Night is Midnight's main token of value, Follows BIP-44 |
-| Night Internal chain | 1     | as above                                                |
-| Dust                 | 2     | Dust is needed to pay fees on Midnight                  |
-| Zswap                | 3     | Zswap is a sub-protocol for shielded native tokens      |
-| Metadata             | 4     | Keys for signing metadata                               |
-
+| Role name                             | Value | Description                                                                                        |
+|---------------------------------------|-------|----------------------------------------------------------------------------------------------------|
+| Unshielded (and Night) External chain | 0     | Following BIP-44, this is main role for unshielded tokens, including Night - Midnight's main token |
+| Unshielded (and Night) Internal chain | 1     | Only present for BIP-44 compatibility, can be used to derive change addresses                      |
+| Dust                                  | 2     | Dust is needed to pay fees on Midnight                                                             |
+| Shielded                              | 3     | Shielded tokens, managed is a Zswap-based sub-protocol                                             |
+| Metadata                              | 4     | Keys for signing metadata                                                                          |
 
 > [!NOTE]
 > `role` and `index` path levels use public derivation for BIP-44 compatibility. For many keys it will not be possible to meaningfully perform public parent key -> public child key derivation. In many cases it is only the secret key at certain path used to further derive keys specific for particular purpose.
 > 
 > Generally treating keys as uniform bitstrings should not be done, though in this particular case, where secp256k1 base field is so close in size to 2^256, it is found that impact on security is negligible, which makes this approach acceptable.
 
-### Night keys
+### Night and unshielded tokens keys
 
-Night uses Schnorr signature over secp256k1 curve.
+Unshielded tokens use Schnorr signature over secp256k1 curve.
 
-That makes a private key derived at certain path, the private key for Night. The public key being derived accordingly, e.g. as specified in [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)
+That makes a private key derived at certain path, the private key for Night. The public key being derived accordingly, e.g. as specified in [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
 
 ### Dust keys
 
-Dust uses SNARK-friendly cryptography, where the secret key is an element of the main curve's (Pluto) scalar field, and public key a Poseidon hash of the secret key (so it is also an element of the scalar field). A Dust secret key is derived using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 8, and domain separator being `midnight:dsk`. That is:
+Dust uses SNARK-friendly cryptography, where the secret key is an element of the main curve's (BLS12-381) scalar field, and public key a Poseidon hash of the secret key (so it is also an element of the scalar field). A Dust secret key is derived using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 32, and domain separator being `midnight:dsk`. That is:
 ```ts
 function dustSecretKey(seed: Buffer): BigInt {
-    return sampledSecretKey(seed, "midnight:dsk", 8, PlutoScalar);
+    return sampledSecretKey(seed, "midnight:dsk", 32, BLSScalar);
 }
 ```
 
@@ -200,16 +209,16 @@ A secret 32 bytes, which allow to generate all the other Zswap keys. Rest of key
 
 #### Output encryption keys
 
-Encryption secret key is an element of the embedded curve's (Eris) scalar field, generated using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 8, and domain separator being `midnight:esk`. That is:
+Encryption secret key is an element of the embedded curve's (JubJub) scalar field, generated using the [Scalar sampling approach](#scalar-sampling) with bytes margin equal 32, and domain separator being `midnight:esk`. That is:
 ```ts
 function encryptionSecretKey(seed: Buffer): BigInt {
-    return sampledSecretKey(seed, "midnight:esk", 8, ErisScalar);
+    return sampledSecretKey(seed, "midnight:esk", 32, JubJubScalar);
 }
 ```
 
 Although it is a secret key, so it should be treated with a special care, there is one situation, where it can be shared - as a key letting a trusted backend service index wallet transactions - in such context it acts as a viewing key.
 
-Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the Eris curve), that is $esk \cdot G$, where $G$ is Eris's generator point and $esk$ the encryption secret key.
+Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve), that is $esk \cdot G$, where $G$ is JubJub's generator point and $esk$ the encryption secret key.
 
 #### Coin keys
 
@@ -267,7 +276,12 @@ Midnight uses [Bech32m](https://github.com/bitcoin/bips/blob/master/bip-0350.med
 The human-readable part should consist of 3 parts, separated by underscore:
 - constant `mn` indicating it is a Midnight address
 - type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
-- network identifier - arbitrary string consisting of alphanumeric characters and hyphens, identifying network. Hyphen is allowed only to allow usage of multiple segments in network identifier, so parsing and validation are simplified. For mainnet, network identifier has to be omitted, for other networks it is required to be present. Following approach should be used to map ledger's `NetworkId` enum into network identifier:
+- network identifier - arbitrary string consisting of alphanumeric characters and 
+  hyphens, identifying network. Hyphen is allowed only to allow usage of multiple 
+  segments in network identifier, so parsing and validation are simplified. For 
+  mainnet, network identifier has to be omitted (and so its preceding underscore), for 
+  other networks it is required to be present. Following approach should be used to 
+  map ledger's `NetworkId` enum into network identifier:
   - mainnet - no prefix
   - testnet - "test"
   - devnet - "dev"
@@ -275,12 +289,13 @@ The human-readable part should consist of 3 parts, separated by underscore:
 
 ### Unshielded Payment address
 
-Currently undefined, it is designated as a primary payment address in the network. It allows to receive Night and other unshielded tokens.
+Primary payment address in the network. It allows receiving Night and other unshielded tokens. 
+It is a SHA256 of an unshielded token public key.
 
 Its credential type is `addr`.
 
 Example human-readable parts:
-- for the mainnet: `mn_addr`
+- for the mainnet (notice no trailing underscore): `mn_addr`
 - for the testnet: `mn_addr_test`
 - for a testing environment: `mn_addr_testing-env`
 - for local development environment: `mn_addr_dev`
@@ -317,46 +332,53 @@ Credential type is `shield-esk`
 
 ## Transaction structure and statuses
 
-Midnight transaction includes 3 components:
-1. guaranteed Zswap offer
-2. (optional) fallible Zswap offer
-3. (optional) list of contract calls and deploys
+<!-- TODO: Refer to ledger spec -->
 
-Zswap offer is an atomically applicable, balanced, sorted set of inputs, outputs and transients. It also tracks token imbalances, because finalized offer does not contain information about coins values. The split into guaranteed and fallible offers is related to contracts and paying fees - guaranteed offer is applied first and needs to succeed for transaction to succeed at all, this offer needs to cover transaction fees. Then fallible offer is applied, which may fail, or may succeed, together with contract part. Because Midnight Node might include in a block transaction, which failed execution, there are 3 possible statuses to derive:
-- success - in which case all present components of transaction were successfully applied by ledger
-- partial success - when only guaranteed offer was successfully applied
-- failure - when even the guaranteed offer failed
+There are multiple types of supported transactions in Midnight, from the wallet perspective only 2 matter:
+1. Standard transactions.
+2. Mint claims.
 
-Offer input represents a coin spent in a transaction. It contains:
-- coin nullifier
-- value commitment
-- root of a coin commitment tree expected to be a result of a merkle proof
-- zero-knowledge spend proof
-- optionally, contract address, if contract is providing the input.
+### Standard transactions
 
-Offer output represents coin received in a transaction. It contains:
-- coin commitment
-- value commitment
-- zero knowledge creation proof
-- optionally, coin ciphertext (containing details of the coin: its value, nonce and token type)
-- optionally, contract address, if coin is meant to be received by a contract
+Standard Midnight transactions include 3 kinds of components:
+1. A shielded offer.
+2. An unshielded offer.
+3. A contract action.
 
-Transients are an extension needed mostly for contract execution - they are intermediate coins created as an output and spent within a single transaction. They allow contracts to correctly witness coin reception and spend in all situations, especially ones, where contract needs to e.g. merge existing coins with freshly received ones. They also allow to transfer token in the same transaction it was received, so it enables use-cases of creating an atomic chains of transfers, etc. For that reason they share many of properties of both inputs and outputs, which are:
-- coin nullifier
-- coin commitment
-- input value commitment
-- output value commitment
-- optionally, coin ciphertext,
-- optionally, contract address, if a contract received the original coin 
+Shielded offer is an atomically applicable, sorted set of shielded inputs, outputs and transients. It also conveys information on utilised token imbalances (if there are any), because finalized offer does not contain information about coins values.
 
-Transaction hash is not a reliable identifier of a Midnight transaction because it is possible for transaction to be merged with another one. Instead, any value commitment can be used - they are part of transaction data and remain unchanged when transactions are merged.
+Unshielded offer is an atomically applicable, sorted set of unshielded inputs and outputs, together with a set of signatures authorizing the spends and sealing the intent an offer is part of.
+
+Balance of a token within an offer/intent is a sum of values of the coins of particular type in the outputs subtracted from the sum of values of inputs. Only transactions which have balance for all tokens used greater than or equal to zero, where the balance of tDUST token needs to cover transaction fees, will be accepted by the ledger as valid ones.
+
+A standard transaction contains:
+- *Intents*: each intent has assigned its execution order, determined by an identifier within the transaction. It contains or refers to shielded and unshielded offers, and contract actions within a transaction that are meant to be executed together (e.g. because they represent a swap of unshielded tokens for shielded ones, which is all done through a contract).
+- Fallible and guaranteed sections.  A guaranteed section includes a shielded offer and a set of unshielded ones (one for each intent). A guaranteed section has to succeed for the whole transaction to succeed. Fallible sections (there exists one for each intent present) comprise a shielded offer, unshielded offer and contract actions. This split makes a transaction execution yield one of the following 3 results:
+  - success - when guaranteed section and all fallible sections succeed
+  - failure - when guaranteed section fails, so no fallible section is even executed
+  - partial success, with succeeding intent ids - when guaranteed section passes, but some (or all) of fallible sections fail, the succeeding ones are being returned
+
+Because a transaction can always be extended (by adding new intents or merging shielded offers), its hash is not a reliable identifier to use when looking for transaction confirmation. Instead, transactions should be identified by their known components: value commitments of shielded offers or binding commitments of intents.
+
+### Mint claim
+
+A system transaction can be issued by Midnight nodes to mint certain amount of tokens as a reward a party. Such minted tokens can be claimed with dedicated type of transaction.
+The claim includes:
+- Information about the coin created as a result of the claim.
+- The recipient's address.
+- The signature proving that the recipient is eligible for the claim.
+
+Possible uses of mint transactions are - assigning rewards to SPOs, assigning rewards to SPO delegators, minting tokens for faucet in testnets.
 
 ## State management
 
 Wallet has a state, which needs accurate maintenance in order to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
 - keys
-- set of known coins
-- coin commitment Merkle tree
+- A set of owned shielded coins
+- A Merkle tree of shielded coin commitments
+- A set of owned unshielded coins
+
+Owned coins do not have to be spendable at particular point. They might also be coins that the wallet was let know of, which are expected to be included in one of the future transactions.
 
 Additionally, it is in practice important to track progress of synchronization with chain, pool of pending transactions and transaction history.
 
@@ -368,11 +390,11 @@ There are 6 foundational operations defined, which should be atomic to whole wal
 - `spend(coins_to_spend, new_coins)` - which spends coins in a new transaction
 - `watch_for(coin)` - which adds a coin to explicitly watch for
 
-With the `apply_transaction`, `finalize_transaction` and `rollback_transaction` possibly be extended to blocks or ranges of blocks. Since shielded tokens are implemented using effectively an UTxO mode, one can find [Cardano Wallet Formal Specification](https://iohk.io/en/research/library/papers/formal-specification-for-a-cardano-wallet/) a relevant read, with many similarities present.
+Functions `apply_transaction`, `finalize_transaction` and `rollback_transaction` can be extended to blocks, ranges of blocks or other data to reconstruct the wallet state. Since shielded tokens are implemented using effectively a UTxO model and unshielded tokens are implemented in the UTxO model, the [Cardano Wallet Formal Specification](https://iohk.io/en/research/library/papers/formal-specification-for-a-cardano-wallet/) remains relevant read, which has many similarities with the Midnight wallet.
 
 Full transaction lifecycle in relationship to those operations is presented on figure below. Please note, that confirmed and final transactions have statuses related to their execution.
 
-The status "failed entirely" is conceptually the same as "failed" (there was no effect on ledger state), with the major difference being the reason - if transaction was confirmed with "failed entirely" status it meant it was successfully submitted to the network and there was an attempt of adding it to a block, but it was rejected by ledger rules, so it was added to a block as a failed one. The "failed" status means though that transaction was submitted to the network, but there is no block to include it in any form (because of some intermittent issues or a chain reorganization).
+The status "failure" is conceptually the same as "rejected" (there was no effect on ledger state), with the major difference being the reason - if transaction was confirmed with "failure" status it meant it was successfully submitted to the network and there was an attempt of adding it to a block, but it was rejected by ledger rules, so it was added to a block as a failed one. The "rejected" status means though that transaction was submitted to the network, but there is no block to include it in any form (because of some intermittent issues or a chain reorganization).
 
 ![](./tx-lifecycle.svg)
 
@@ -394,24 +416,32 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 
 #### `apply_transaction`
 
-Applies transaction to wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes for guaranteed offer only or first guaranteed and then fallible offer. Steps that need to be taken for an offer are:
+Applies a transaction to the wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes only sections indicated as successful (all of them in case of a `success` status, guaranteed and then indicated fallible sections in case of `partial success` status).
+
+##### Steps to apply shielded offer of a section
 1. Update coin commitment tree with commitments of outputs and transients present in the offer
 2. Verify obtained coin commitment tree root against provided one, implementation needs to revert updates to coin commitment tree and abort in case of inconsistency
 3. Book coins, whose nullifiers match the ones present in offer inputs 
 4. Watch for received coins, for each output:
-   1. Match commitment with set of pending coins, if it is a match, mark coin as confirmed
+   1. Match commitment with a set of pending coins, if there is a match, mark the matching pending coin as confirmed
    2. If commitment is not a match, try to decrypt output ciphertext, if decryption succeeds - add coin to known set as a confirmed one
    3. If decryption fails - ignore output
 
-If transaction is reported to fail entirely and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
+##### Steps to apply unshielded offer of a section
+1. Book coins spent in the inputs.
+2. Filter outputs to narrow them down to only ones received by tracked addresses, for each one:
+   1. Match the coin with pending ones, if there is a match, mark the matching pending coin as confirmed.
+   2. Otherwise add a coin to the known set as a confirmed.
 
-If transaction history is tracked and transaction is found relevant, an entry should be added, with confirmed status. Amount of tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
+If transaction is reported to fail and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
+
+If the transaction history is tracked and the transaction is found relevant to the history of the wallet (e.g. spends or outputs tokens from/to wallet keys), an entry should be added, with confirmed status. The amount of shielded tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
 
 #### `finalize_transaction`
 
 Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide definitive information about finalization, thus there is no need to implement probabilistic rules. It is expected wallet state has already applied provided transaction. 
 This operation needs to:
-1. Mark coin commitment tree state from that transaction as final
+1. Mark the shielded coin commitment tree state from that transaction as final.
 2. Update status of known coins to final, so that they become part of available balance
 3. Update statuses of transactions in history if tracked
 
@@ -462,38 +492,47 @@ Note: in many cases such transaction would be requested to be balanced, in such 
 
 Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant. Such option requires only a stream of blocks from a node, perform basic consistency checks and run `apply_transaction` one by one (alternatively batch all transactions from a block).
 
-An alternative idea is to implement a service, which receives encryption secret key, uses it to scan for transactions relevant for particular wallet and provides data needed to evolve the state, that is:
-- necessary updates to coin commitment tree (including roots for consistency checks)
-- filtered transactions to apply
-Such service cannot spend coins because it does not have access to coin secret key. It needs to be trusted by user though (because it has access to otherwise private information) while the upside is that it can offer better user experience.
+An alternative idea is to use an indexing service, at the cost of having to trust said service. In the most simplistic approach such a service could stream all transactions to the client, but the time needed to process all of them would still be high. Below we draft alternative approaches for shielded and unshielded tokens.
 
-## Building transactions
+### Indexing service for shielded tokens
+
+The service receives wallet's encryption secret key. Then the service uses it to scan for transactions relevant for particular wallet (in this context a relevant transaction is one containing an output that can be decrypted with the key provided) and provides data needed to evolve the state, that is:
+- The necessary updates to coin commitment tree (including roots for consistency checks) - that is either commitments themselves or subtrees of the coin commitment tree collapsed to only relevant nodes in the tree 
+- Filtered transactions to apply
+Such service cannot spend coins because it does not have access to the coin secret key. It still needs to be trusted by the user though, because it has access to otherwise private information. The upside is that it can offer better synchronization time, less resource consumption on the user side, and overall better user experience.
+
+### Indexing service for unshielded tokens
+
+Because all the information needed by the wallet in the case of unshielded tokens is the list of UTxOs, augmented by information about transactions they were created and spent at (including finalization information), the indexing service only needs to provide an API to query (or subscribe) for a set of UTxOs relevant to a particular address and the references to creation/spend transactions.   
+
+## Building standard transactions
 
 While there are structural similarities, building Midnight transaction is more involved than in most UTxO chains. The reason for that is that wallet needs to prove to ledger being eligible to spend coins and not minting new coins without having right to do so.
 
-Although there is only single kind of transaction, there are various semantics of transactions wallet can build:
-- a regular transfer of tokens, with possibly many inputs and outputs of DUST as well as other types of tokens
-- balancing existing transaction, that is - creating a transaction containing a counter-offer, which after merging results in a transaction reporting only DUST imbalances needed to cover fees
+With the flexibility of standard transactions, various semantics of performed operations can be represented using this single type:
+- A regular transfer of tokens, of different types, with possibly many inputs and outputs.
+- Balancing an existing transaction, that is, creating the necessary counter-offers, so that after merging them appropriately, a transaction reporting only fee-related imbalances is obtained. 
 - initiating a swap - creating a transaction (usually containing some inputs of token A and some outputs of token B), which is purposefully not balanced, to let another party balance such transaction and in that way - exchange tokens
 
-Technically, building a transaction by wallet involves following operations:
-- Creating inputs
-- Creating outputs
-- Creating transients
+Technically, building a standard transaction by wallet involves following operations:
+- Creating shielded/unshielded inputs
+- Creating shielded/unshielded outputs
+- Creating transients (only shielded)
 - Combining inputs and outputs into an offer
-- Replacing output with a transient in an offer
-- Creating a transaction with the offer
+- Replacing shielded output with a transient in a shielded offer
+- Creating an intent
+- Creating a transaction with an intent
 - Merging with other transaction
 
 A structured process for building transactions like mentioned above generally can be done in 2 steps:
-1. Prepare/retrieve transaction with necessary inputs and outputs, which drive the outcome - whether it is a regular transfer, contract call or a swap
-2. (optional) balance the transaction obtained in step #1 - to ensure fees are paid and other inputs provided if needed
+1. Prepare/retrieve transactions with necessary inputs and outputs, which drive the outcome - whether it is a regular transfer, contract call or a swap (or a mix of them)
+2. Balance the transaction obtained in step #1 - to ensure fees are paid and inputs and outputs match the desired structure (most importantly - that necessary change outputs are created)
 
 Following subsections define the steps needed to perform particular operation of prepare part of transaction. 
 
 ### Building operations
 
-#### Building an input
+#### Building a shielded input
 
 Building an input requires information, which coin owned by wallet should be provided, additionally access to part of wallet state is needed - the coin secret key and coin commitment Merkle tree. Steps to follow are:
 1. calculate nullifier
@@ -503,7 +542,7 @@ Building an input requires information, which coin owned by wallet should be pro
 5. generate zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
 6. return randomness and the input (nullifier, value commitment, root of coin commitment tree, zero-knowledge proof)
 
-#### Building an output
+#### Building a shielded output
 
 Building an output requires information of an address to receive tokens, their type and amount. Steps to follow are:
 1. sample new nonce
@@ -526,7 +565,7 @@ Steps to follow are very similar as in the case of creating input:
 6. generate input zero-knowledge proof using coin spending key, coin, randomness and Merkle proof
 7. return input randomness, output randomness and the transient containing both input data (nullifier, input value commitment, input zero-knowledge proof) and output data (coin commitment, output value commitment, ciphertext, output zero-knowledge proof, no contract address) 
 
-#### Combining inputs, outputs and transients into an offer
+#### Combining shielded inputs, outputs and transients into a shielded offer
 
 When inputs and outputs are ready, they can be combined into a Zswap offer with following steps:
 1. Find and discard outputs to be replaced by transients, by comparing their coin commitments or value commitments
@@ -538,7 +577,7 @@ When inputs and outputs are ready, they can be combined into a Zswap offer with 
 3. Calculate binding randomness - iteratively combine randomnesses of inputs, outputs and transients (both input and output randomness for each)
 4. Return binding randomness and the offer (inputs, outputs, imbalances)
 
-#### Replacing output with a transient
+#### Replacing shielded output with a transient
 
 Many use-cases involving transients require replacing an existing output with a transient in an offer. Such operation requires offer, transient, its input randomness and coin information - type and amount. The steps are:
 1. Identify and remove the output to be replaced from output list, one can use output value commitment or coin commitment available in transient as a reference 
@@ -546,15 +585,64 @@ Many use-cases involving transients require replacing an existing output with a 
 3. Update the offer's binding randomness, by combining it with provided transient's input randomness
 4. Update the offer's imbalances by increasing the imbalance for a provided coin's type by provided amount
 
-#### Creating transaction with the offer
+#### Building an unshielded input
 
-Given an offer and its binding randomness, a transaction can be created using them directly, that is by returning structure containing provided offer as a guaranteed one, no fallible offer, no contract calls, and offer's randomness.
+UTxO spend is almost the same as UTxO itself, with the difference that instead of an address, a Schnorr verifying key is provided.
+
+While inputs/outputs is a common vocabulary for UTxO-based systems and unshielded offer has a field called inputs, the ledger specification calls the datatype used as an input to transaction a UTxO Spend, hence mentioning both names.
+
+#### Building an unshielded output
+
+An unshielded output is just a minimal description of the value to transfer:
+- Amount (number of indivisible units).
+- Token type.
+- Recipient (unshielded address).
+
+#### Combining unshielded inputs and outputs into an unshielded offer
+
+An unshielded offer contains a list of inputs, outputs, and signatures corresponding to inputs. The signatures sign over the whole intent though, and, for that reason, an intermediate format needs to be used, where only inputs and outputs are present, which allows to construct the intent. 
+
+#### Creating an intent
+
+Given:
+- A non-zero segment id (zero is reserved for the guaranteed section). There are multiple approaches to obtaining one, with two being particularly useful in most use cases:
+  - Use 1 to create an intent that will prevent front-running any actions because other intents in the transaction will have to use a higher number
+  - Use a random number to create an intent that is expected to be merged in an arbitrary order with the other ones (e.g. in swaps).
+- An optional guaranteed unshielded offer (unshielded offer being part of the guaranteed section).
+- Optional fallible unshielded offer (unshielded offer being part of fallible section identified by segment id).
+- Optional fallible shielded offer and its binding randomness.
+- A list of contract actions.
+- A time-to-live (TTL), which is the time after which the intent is considered invalid.
+
+An intent can be constructed as follows:
+1. Establish data binding with proof-of-exponent as described in the ledger specification (Preliminaries, Fiat-Shamir'd and Multi-Base Pedersen), resulting in a commitment and binding randomness.
+2. In each unshielded offer present, for each of its inputs provide a signature and append it to the list of signatures (so that when finished the number of signatures matches the number of inputs, and the keys match):
+   - Over segment id and proof- and signature-erased intent.
+   - Using Schnorr secret key to authorize particular spend.
+3. Return the segment id, intent, the fallible shielded offer and binding randomnesses for both the intent and the fallible shielded offer
+#### Creating transaction with an intent and shielded offers
+
+Given:
+- A list of segment ids, their intents, fallible shielded offers and binding randomnesses.
+- A guaranteed shielded offer and its binding randomness.
+
+One can construct a transaction by:
+1. Turning the list of segments into 2 maps:
+   - A mapping from segment id to the relevant intent.
+   - A mapping from segment id to a fallible zswap offer.
+2. Combining all binding randomnesses into a single one (to bind transaction contents together).
+3. Returning the transaction consisting of the maps from step 1, the guaranteed Zswap offer and binding randomness.
 
 #### Merging with other transaction
 
-Transactions can be merged, by merging their guaranteed offers, fallible offers, contract calls and binding randomnesses.
+Transactions can generally be merged as long as it is possible to merge guaranteed shielded offers and the segment ids do not overlap. 
+To do so:
+1. Merge the intents map into a single one.
+2. Merge the fallible shielded offers map into a single one.
+3. Merge the guaranteed shielded offers as described below.
+4. Combine the transaction's binding randomness.
 
-##### Merging offers
+##### Merging shielded offers
 
 1. Verify if there are any identical inputs, outputs, or transients. Abort, if true
 2. Join list of inputs from one offer, with list of inputs from the other one, sort resulting list
@@ -570,24 +658,25 @@ Transactions can be merged, by merging their guaranteed offers, fallible offers,
 
 #### Prepare transfer
 
-Transfer transaction can be built by taking a list of desired transfers, where each one has defined the recipient's address, token type and amount to be sent.
+Transfer transactions can be built by taking a list of desired transfers, where each one has defined the recipient's address, token type (including information on whether it's shielded or unshielded) and the amount to be sent.
 Such list can be transformed into a transaction by:
 1. Creating an output for each of elements
-2. Combining all the outputs into an offer
-3. Creating the transaction from the offer
+2. Combining all the outputs into needed offers.
+3. Creating a transaction skeleton from the offers, by putting them into a guaranteed section (that is - data needed to build the transaction, but without signatures or proofs present)
 
-Resulting transaction will not be balanced, thus the next step of balancing transaction (to 0 for each token type) needs to be employed before transaction is ready to be submitted to the network.
+The resulting transaction will not be balanced, thus the next step of balancing the transaction (to reach 0 imbalance for each token type) needs to be employed before the transaction is ready to be submitted to the network.
 
 #### Prepare a swap
 
 Swap can be thought as a specific case of a transfer - with the difference being multiple parties providing inputs and outputs to the transaction. 
 To prepare a swap, one needs to provide what amounts of tokens of certain types one wants to exchange (provide as an input to the swap) for other types of tokens (receive from the swap).
 The transaction that initiates the swap will be a result of:
-1. Creating necessary output for each of token types to be received in the swap
-2. Combining them all into an offer
-3. Creating a transaction with the offer.
+1. Randomly choosing segment id for the unshielded intent.
+2. Creating expected outputs for each of the token types to be received in the swap.
+3. Combining them all into offers
+4. Creating a transaction skeleton with the offers and intents, by putting them into the guaranteed section.
 
-Resulting transaction will only have outputs to be received defined, with no inputs. Thus, the next step of balancing transaction (to positive amount for each token type being input to the swap and to negative amount to each token type being output from the swap) needs to be employed before the swap offer is ready to be submitted.
+The resulting transaction will only have outputs to be received defined, with no inputs. Thus, the next step of balancing the transaction must be employed before the swap offer is ready to be submitted, with proper target imbalances indicated.
 
 #### Contract call
 
@@ -595,34 +684,56 @@ Contract calls are prepared by other components than wallet. Once ready, in most
 
 #### Balance transaction
 
-Balancing a transaction is a process of creating a transaction with a counter-offer, so that after merging them both, resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. Particular difficulty in the process is coin selection (out of scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.  
+Balancing a transaction is a process of creating counter-offers, so that after merging them both, the resulting transaction has all imbalances removed, except for DUST token, which needs to cover fees. A particular difficulty in the process is coin selection (out of the scope of this document) and the fact that fees are growing as inputs and outputs are added to the transaction.  
 
 Balancing in the most generic form requires 2 inputs:
 1. The transaction to be balanced
-2. Map of desired imbalances per token type, if any are different than 0 or fees (in case of DUST)
+2. Map of desired imbalances per token type, per segment when desired is different from zero
 
-Conceptually, the process can be implemented as follows:
-1. Create an empty offer `offer`
-2. Calculate total fees to be paid for the unbalanced transaction and the offer.
-3. Calculate resulting imbalances by merging ones from the unbalanced transaction, the offer and target imbalances with values inversed (multiplied by -1), additionally for DUST - subtract total fees from the imbalance.
-4. Verify if target imbalances are met, if they are - create transaction from the offer, merge with the unbalanced transaction and return, continue if not.
-5. Sort token types present in result imbalances in a way, that DUST is left last and select first token type
-6. Perform a balancing step for the selected token type:
-   - if the imbalance is positive (there is more value in inputs than outputs) - create an output for self with the amount equal to imbalance, and add it to the offer; in case of DUST - subtract estimated fees for an output from the amount
-   - if the imbalance is negative (there is more value in outputs than inputs) - select a single coin of the selected type, create an input and add it to the offer; abort with error if there is no coin available to be spent
-   - Go back to step #2
+> [!NOTE]
+> Balancing fallible sections will only be possible when the provided transaction is not yet bound with signatures and binding randomness.
+> This does not apply to the guaranteed section because its shielded offer is not part of intents and all intents can include offers belonging to the guaranteed section. 
+
+Conceptually, the process follows given steps:
+1. List all segments in the imbalances present, sort them in descending order (to balance fees at the very end), then for each segment: 
+   1. Create an empty offer skeleton for collecting inputs and outputs to be created
+   2. Calculate total fees to be paid from the initial imbalances and all new balancing offers
+   3. Calculate the resulting imbalances by merging ones from the unbalanced transaction, the balancing offers and target imbalances with values inversed (multiplied by -1), additionally for DUST in the guaranteed section, then subtract total fees from the imbalance.
+   4. Verify if target imbalances for a segment are met:
+      - If they are, the given segment has successfully assigned inputs and outputs to be balanced. Proceed to the next segment.
+      - If they are not, continue
+   5. Sort token types present in result imbalances in a way, that DUST is left last and select the first token type
+   6. Perform a balancing step for the selected token type:
+      - If the imbalance is positive (there is more value in inputs than outputs), create an output for self with the amount equal to the imbalance, and add it to the offer; in the case of DUST, subtract estimated fees for an output from the amount
+      - If the imbalance is negative (there is more value in outputs than inputs), select a single coin of the selected type, create an input and add it to the offer; abort with error if there is no coin available to be spent
+      - Go back to step 1.2
+2. Once all offer skeletons are created, actual offers and intents can be created or adjusted:
+   1. For each non-zero segment id:
+      1. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton.
+      2. Merge the fallible unshielded offer with the created one
+      3. Create a shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton.
+      4. Merge the fallible shielded offer with the created one.
+   2. For zero segment id (guaranteed section):
+      1. Create a shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton.
+      2. Merge the guaranteed shielded offer with the created one
+      3. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton
+      4. Depending on the provided transaction status:
+         - If it is bound and sealed - add a new intent containing the created unshielded offer as the guaranteed one
+         - If it is not bound and sealed yet (and likely to contain only a single intent), merge the guaranteed unshielded offer of an intent of choice with the created one.
 
 ## Transaction submission
 
 Once transaction is created, it can be submitted to the network or other party.
 
-For cases, where wallet submits transaction to the network, it is advised wallet implementation features a re-submission mechanics. Blockchain is a distributed system and there are many possible issues, which may arise due to e.g. networking problems, node being temporarily unavailable or the network being congested.
+For cases, where the wallet submits a transaction to the network, it is advised that the wallet implements a re-submission mechanism. A blockchain is a distributed system and there are many possible issues, which may arise due to, among others, networking problems such as a node being temporarily unavailable, the network being congested or a form of eclipse attack being momentarily executed.
 
 For example:
-1. When transaction is added to the pending pool and is meant to be submitted to the network - assign it a certain positive integer called `TTL` - it translates to amount of time/number of submission retries
-2. Repeatedly, in constant time intervals:
-   1. submit all transactions present in pending set
-   2. decrease their `TTL` by 1
-   3. discard transactions with `TTL` equal 0
+1. Each intent has assigned a TTL value, which is the timestamp after which a transaction cannot be included (Ledger also has a parameter defining a possible margin of TTL values, this is, how much ahead of `now` TTL values can be)
+2. Repeatedly, in constant time intervals for each transaction present in the pending set:
+   1. Find the minimal TTL value across all intents present in a transaction - let's call it transaction TTL.
+   2. Compare the transaction TTL value against the wall clock time.
+   3. If the transaction TTL is past the wall clock time - discard it.
+   4. If the transaction TTL is not past the wall clock time yet - submit it to the network.
+      
 
 [^1]: [The definitive guide to “modulo bias and how to avoid it”!](https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/)

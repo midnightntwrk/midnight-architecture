@@ -189,6 +189,8 @@ key hash.
 
 ```rust
 struct CallContext {
+    own_address: ContractAddress,
+    com_indicies: Map<CoinCommitment, u64>,
     seconds_since_epoch: Timestamp,
     seconds_since_epoch_err: Duration,
     parent_block_hash: Hash<Block>,
@@ -198,13 +200,18 @@ struct CallContext {
 ```
 
 The call context is in part derived from a block context, given at application
-time, and in part from the containing `Intent`. In particular, the `caller`
-value comes from the intent and is determined as (in order):
+time, and in part from the containing `Intent` and its application. In
+particular, the `caller` value comes from the intent and is determined as (in
+order):
 
 - The calling contract's address, if applicable
 - If there is at least one UTXO input, and all UTXO inputs share their `owner`
   field, then the value of this field
 - Otherwise, the call is treated as having no caller
+
+The `com_indicies` value represents the indicies of Zswap `CoinCommitment`s,
+which are generated during the application of Zswap outputs, and threaded in
+from there.
 
 ```rust
 struct BlockContext {
@@ -214,7 +221,13 @@ struct BlockContext {
 }
 
 impl ContractCall {
-    fn context(self, block: BlockContext, intent: ErasedIntent, state: ContractState) -> CallContext {
+    fn context(
+        self,
+        block: BlockContext,
+        intent: ErasedIntent,
+        state: ContractState,
+        com_indicies: Map<CoinCommitment, u64>,
+    ) -> CallContext {
         let caller = intent.calls.iter()
             .find_map(|action| match action {
                 ContractAction::Call(caller) if caller.calls(self) =>
@@ -234,6 +247,8 @@ impl ContractCall {
                 }
             });
         CallContext {
+            own_address: self.address,
+            com_indicies,
             seconds_since_epoch: block.seconds_since_epoch,
             seconds_since_epoch_err: block.seconds_since_epoch_err,
             parent_block_hash: block.parent_block_hash,
@@ -247,15 +262,15 @@ impl ContractCall {
     }
 
     fn calls_with_seq(self, callee: ContractCall) -> Option<(bool, u64)> {
-        let calls = self.guaranteed_transcript.iter()
-            .chain(self.fallible_transcript.iter())
-            .flat_map(|t| t.claimed_contract_calls.iter());
-        calls.find(|(seq, addr, ep, cc)|
+        let calls = self.guaranteed_transcript.iter().map(|t| (t, true))
+            .chain(self.fallible_transcript.iter().map(|t| (t, false))
+            .flat_map(|(t, guaranteed)| t.effects.claimed_contract_calls.iter().map(|cc| (cc, guaranteed)));
+        calls.find(|((seq, addr, ep, cc), guaranteed)|
             if addr == callee.address &&
                ep == hash(callee.entry_point) &&
                cc == callee.communication_commitment
             {
-                Some(seq)
+                Some((guaranteed, seq))
             } else {
                 None
             })
@@ -307,6 +322,7 @@ impl LedgerContractState {
         guaranteed: bool,
         block_context: BlockContext,
         parent_intent: ErasedIntent,
+        com_indicies: Map<CoinCommitment, u64>,
     ) -> Result<Self> {
         let transcript = if guaranteed {
             call.guaranteed_transcript
@@ -315,7 +331,7 @@ impl LedgerContractState {
         };
         let Some(transcript) = transcript else return Ok(self);
         let mut state = self.contract.get(call.address)?;
-        let context = call.context(block_context, parent_intent);
+        let context = call.context(block_context, parent_intent, com_indicies);
         let (effects, data) = transcript.program(state.data, context)?;
         assert!(effects == transcript.effects);
         state.data = data;
@@ -372,6 +388,7 @@ impl LedgerContractState {
         guaranteed: bool,
         block_context: BlockContext,
         parent_intent: ErasedIntent,
+        com_indicies: Map<CoinCommitment, u64>,
     ) -> Result<Self> {
         match action {
             ContractAction::Deploy(deploy) if !guaranteed =>
@@ -379,7 +396,13 @@ impl LedgerContractState {
             ContractAction::Maintain(upd) if !guarnateed =>
                 self.apply_maintenance_update(upd),
             ContractAction::Call(call) =>
-                self.apply_call(call, guaranteed, block_context, parent_intent),
+                self.apply_call(
+                    call,
+                    guaranteed,
+                    block_context,
+                    parent_intent,
+                    com_indicies,
+                ),
             _ => Ok(()),
         }
     }
