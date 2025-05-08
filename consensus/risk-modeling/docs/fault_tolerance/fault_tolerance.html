@@ -70,7 +70,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
     var(--jp-scrollbar-background-color);
 }
 
-/* for code nodes, use a transparent style of scrollbar. These selectors
+/* for risk_code nodes, use a transparent style of scrollbar. These selectors
  * will match lower in the tree, and so will override the above */
 [data-jp-theme-scrollbars='true'] .CodeMirror-hscrollbar,
 [data-jp-theme-scrollbars='true'] .CodeMirror-vscrollbar {
@@ -4376,7 +4376,7 @@ h6:hover .jp-InternalAnchorLink {
 /* Most direct children of .jp-RenderedHTMLCommon have a margin-bottom of 1.0.
  * At the bottom of cells this is a bit too much as there is also spacing
  * between cells. Going all the way to 0 gets too tight between markdown and
- * code cells.
+ * risk_code cells.
  */
 .jp-RenderedHTMLCommon > *:last-child {
   margin-bottom: 0.5em;
@@ -6983,7 +6983,7 @@ all of MD as it is not optimized for dense, information rich UIs.
   /*
    * Code Fonts
    *
-   * Code font variables are used for typography of code and other monospaces content.
+   * Code font variables are used for typography of risk_code and other monospaces content.
    */
 
   --jp-code-font-size: 13px;
@@ -7254,7 +7254,7 @@ a.anchor-link {
 }
 
 .cm-editor.cm-s-jupyter .highlight pre {
-/* weird, but --jp-code-padding defined to be 5px but 4px horizontal padding is hardcoded for pre.cm-line */
+/* weird, but --jp-risk_code-padding defined to be 5px but 4px horizontal padding is hardcoded for pre.cm-line */
   padding: var(--jp-code-padding) 4px;
   margin: 0;
 

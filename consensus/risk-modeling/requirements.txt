@@ -146,3 +146,7 @@ websocket-client==1.8.0
 xarray==2025.4.0
 xarray-einstats==0.8.0
 z3-solver==4.14.1.0
+
+scipy~=1.15.2
+joblib~=1.4.2
+Ciw~=3.2.5
