@@ -67,7 +67,7 @@ from participation_lib import (
 # The results will be saved in a CSV file format.
 
 # Data files
-INPUT_DATA_FILE = "../data/pooltool-cleaned.csv"
+INPUT_DATA_FILE = "../../data/pooltool-cleaned.csv"
 OUTPUT_DATA_FILE = "../data/avg_seat_counts.csv"
 
 # Set the population size for the simulation.
@@ -109,7 +109,7 @@ assert (
     and population_size <= len(population)
 ), "Population size exceeds the maximum group or committee size."
 
-# The code computes the half-width of a 95% confidence interval for the
+# The risk_code computes the half-width of a 95% confidence interval for the
 # mean using the t-distribution. Here's a step-by-step breakdown:
 #
 # Sample Standard Deviation (sd_val):

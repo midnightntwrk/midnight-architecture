@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 """
-The code provided is part of a Python script designed to run simulations in
+The risk_code provided is part of a Python script designed to run simulations in
 parallel using the multiprocessing library. The script imports the Pool class
 from the multiprocessing module, which allows for the creation of a pool of
 worker processes to execute tasks concurrently.
@@ -15,7 +15,7 @@ defaulting to values from 10 to 50 in steps of 5), and R_ws (a list of whale
 probabilities to simulate).
 
 The function begins by loading the input data using a load_data function (not
-shown in the provided code). It then prepares the arguments for the simulation
+shown in the provided risk_code). It then prepares the arguments for the simulation
 by creating a list of tuples, where each tuple contains a combination of R_ws,
 group_sizes, num_trials, and the loaded data. This is done using the product
 function from the itertools module, which generates the Cartesian product of
@@ -25,7 +25,7 @@ Next, the script creates a pool of worker processes using the Pool class. The
 with Pool() as pool statement ensures that the pool is properly managed and
 closed after use. The pool.map method is used to distribute the simulation
 tasks across the worker processes. Each worker process runs the
-simulate_whale_probability function (not shown in the provided code) with the
+simulate_whale_probability function (not shown in the provided risk_code) with the
 corresponding arguments from the simulation_args list.
 
 Once all simulations are complete, the results are collected into a list and

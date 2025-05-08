@@ -1,5 +1,5 @@
 # Module comment:
-#   This module is pseudo-code for the process of selecting a committee
+#   This module is pseudo-risk_code for the process of selecting a committee
 #   and evaluating its fault tolerance.
 
 import math

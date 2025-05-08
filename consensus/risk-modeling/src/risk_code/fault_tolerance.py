@@ -554,127 +554,135 @@ def plot_committee_seats(
 
 
 # %%
-# Load the Data: The population of registered SPOs
+if __name__ == "__main__":
+    # Set the random seed for reproducibility
+    np.random.seed(42)
 
-population = load_population("../data/pooltool-cleaned.csv")
+    # Set the style for seaborn
+    sns.set_style("whitegrid")
+    sns.set_palette("deep")
 
-print(population.info())
+    # Set the path to the data directory
+    data_dir = Path("../../data")
+    data_dir.mkdir(parents=True, exist_ok=True)
 
-# %%
-population.describe()
+    # Load the Data: The population of registered SPOs
+    population = load_population("../../data/pooltool-cleaned.csv")
 
-# %%
-# Let's now sample a group of participants from the population
-# and calculate the stake weight for each participant.
+    print(population.info())
+    print(population.describe())
 
-group_size = 200
+    # Let's now sample a group of participants from the population
+    # and calculate the stake weight for each participant.
 
-group_stakes = get_stake_distribution(
-    population,
-    group_size=group_size,
-    num_iter=1,
-    plot_it=True,
-)
-print(group_stakes)
-group_stakes.describe()
+    group_size = 200
 
-# %%
-# Let's test the code with an example:
+    group_stakes = get_stake_distribution(
+        population,
+        group_size=group_size,
+        num_iter=1,
+        plot_it=True,
+    )
+    print(group_stakes)
+    group_stakes.describe()
 
-committee_size = 300
+    # %%
+    # Let's test the risk_code with an example:
 
-committee_seats = assign_commitee(
-    group_stakes,
-    committee_size=committee_size,
-    plot_it=True,
-)
-print(
-    "Number of distinct voters =",
-    len(committee_seats[committee_seats > 0]),
-)
+    committee_size = 300
 
-# %%
-# Fault tolerance probability without federated nodes
-f = 7  # fault appetite
-p = calculate_fault_tolerance_probability(
-    participant_group=group_stakes,
-    committee_size=committee_size,
-    fault_tolerance=f,
-)
+    committee_seats = assign_commitee(
+        group_stakes,
+        committee_size=committee_size,
+        plot_it=True,
+    )
+    print(
+        "Number of distinct voters =",
+        len(committee_seats[committee_seats > 0]),
+    )
 
-print(
-    f"Probability of tolerating {f} faults in a "
-    f"committee of size {committee_size} = {p:.2}"
-)
+    # %%
+    # Fault tolerance probability without federated nodes
+    f = 7  # fault appetite
+    p = calculate_fault_tolerance_probability(
+        participant_group=group_stakes,
+        committee_size=committee_size,
+        fault_tolerance=f,
+    )
 
-# %%
-# Fault tolerance probability with federated nodes
-f = 7  # fault appetite
-p = calculate_fault_tolerance_probability(
-    participant_group=group_stakes,
-    committee_size=committee_size,
-    num_federated=10,
-    seats_per_federated=8,
-    fault_tolerance=f,
-)
+    print(
+        f"Probability of tolerating {f} faults in a "
+        f"committee of size {committee_size} = {p:.2}"
+    )
 
-print(
-    f"With federated nodes (num_federated = 10, seats_per_federated = 8):\n"
-    f"Probability of tolerating {f} faults in a "
-    f"committee of size {committee_size} = {p:.2}\n"
-)
+    # %%
+    # Fault tolerance probability with federated nodes
+    f = 7  # fault appetite
+    p = calculate_fault_tolerance_probability(
+        participant_group=group_stakes,
+        committee_size=committee_size,
+        num_federated=10,
+        seats_per_federated=8,
+        fault_tolerance=f,
+    )
 
-# %%
-plot_fault_tolerance_heatmap(
-    participant_group=group_stakes,
-    committee_sizes=np.arange(50, 1050, 50),
-    fault_tolerance=np.arange(1, 9, 1),
-    plot_it=True,
-    figsize=(12, 6),
-)
+    print(
+        f"With federated nodes (num_federated = 10, seats_per_federated = 8):\n"
+        f"Probability of tolerating {f} faults in a "
+        f"committee of size {committee_size} = {p:.2}\n"
+    )
 
-# %%
-# Introduce federated participants
-committee_seats = assign_committee_seats(
-    group_stakes,
-    committee_size=committee_size,
-    num_federated=10,
-    seats_per_federated=8,
-    plot_it=True,
-    verbose=True,
-)
+    # %%
+    plot_fault_tolerance_heatmap(
+        participant_group=group_stakes,
+        committee_sizes=np.arange(50, 1050, 50),
+        fault_tolerance=np.arange(1, 9, 1),
+        plot_it=True,
+        figsize=(12, 6),
+    )
 
-# Plot the committee seats distribution
-plot_committee_seats(committee_seats)
+    # %%
+    # Introduce federated participants
+    committee_seats = assign_committee_seats(
+        group_stakes,
+        committee_size=committee_size,
+        num_federated=10,
+        seats_per_federated=8,
+        plot_it=True,
+        verbose=True,
+    )
 
-# %%
-committee_seats.head(50)
+    # Plot the committee seats distribution
+    plot_committee_seats(committee_seats)
 
-# %%
-# Fault tolerance probability WITHOUT federated nodes
-ft_without_feds = print_fault_tolerance_table(
-    group_stakes,
-    committee_size=300,
-    fault_levels=[1, 2, 3, 4, 5, 6, 7, 8],
-    verbose=True,
-)
+    # %%
+    committee_seats.head(50)
 
-# %%
-# Fault tolerance probability WITH federated nodes
-ft_with_feds = print_fault_tolerance_table(
-    group_stakes,
-    committee_size=300,
-    num_federated=5,
-    seats_per_federated=5,
-    fault_levels=[1, 2, 3, 4, 5, 6, 7, 8],
-    verbose=True,
-)
-# %%
-ft = pd.concat(
-    [ft_without_feds, ft_with_feds],
-    axis=1,
-    keys=["Without Federated Nodes", "With Federated Nodes"],
-).style.format("{:.2}")
+    # %%
+    # Fault tolerance probability WITHOUT federated nodes
+    ft_without_feds = print_fault_tolerance_table(
+        group_stakes,
+        committee_size=300,
+        fault_levels=[1, 2, 3, 4, 5, 6, 7, 8],
+        verbose=True,
+    )
 
-ft
-# %%
+    # %%
+    # Fault tolerance probability WITH federated nodes
+    ft_with_feds = print_fault_tolerance_table(
+        group_stakes,
+        committee_size=300,
+        num_federated=5,
+        seats_per_federated=5,
+        fault_levels=[1, 2, 3, 4, 5, 6, 7, 8],
+        verbose=True,
+    )
+    # %%
+    ft = pd.concat(
+        [ft_without_feds, ft_with_feds],
+        axis=1,
+        keys=["Without Federated Nodes", "With Federated Nodes"],
+    ).style.format("{:.2}")
+
+    ft
+    # %%

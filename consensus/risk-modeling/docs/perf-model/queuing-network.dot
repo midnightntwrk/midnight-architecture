@@ -1,0 +1,35 @@
+digraph ExtendedQueueNetwork {
+    rankdir=TB;
+    node [shape=box, style=rounded, fontsize=10];
+
+    // Define nodes
+    node1 [label="[1] Client Submission"];
+    node2 [label="[2] Initial Processing\n(2 servers)"];
+    node3 [label="[3] Mempool Ingress"];
+    node4 [label="[4] BFT Leader Proposal"];
+    node5 [label="[5] Voting Round-trip"];
+    node6 [label="[6] Failure/Retry"];
+    node7 [label="[7] Simple Consensus Finalization"];
+    node8 [label="[8] Complex Consensus Additional RTT"];
+    node9 [label="[9] Simple Finalization\n(Exit)"];
+    node10 [label="[10] Complex Finalization\n(Exit)"];
+
+    // Define edges for the main flow
+    node1 -> node2;
+    node2 -> node3;
+    node3 -> node4;
+    node4 -> node5;
+
+    // Branching from Node 5:
+    node5 -> node6 [label="20%\n(Failure)", fontsize=8];
+    node5 -> node7 [label="56%\n(Simple)", fontsize=8];
+    node5 -> node8 [label="24%\n(Complex)", fontsize=8];
+
+    // Finalization branches:
+    node7 -> node9;
+    node8 -> node10;
+
+    // Failure/Retry loop: from Node 6 back to Node 3
+    node6 -> node3 [label="Retry Loop", fontsize=8, style=dotted];
+}
+

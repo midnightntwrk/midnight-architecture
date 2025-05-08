@@ -61,7 +61,7 @@ from participation_lib import (
 # %%
 # Load the Data: The population of registered SPOs
 
-population = load_data("../data/pooltool-cleaned.csv")
+population = load_data("../../data/pooltool-cleaned.csv")
 
 print(population.info())
 
