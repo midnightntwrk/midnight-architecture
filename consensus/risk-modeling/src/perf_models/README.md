@@ -9,6 +9,29 @@
 ## Abstract
 This document provides an overview of a Python-based simulation designed to model and analyze the queuing behavior within a blockchain network context. The simulation leverages a discrete-event simulation library (CIW) and visual analytics (Matplotlib) to study key performance metrics such as queue waiting times, system (sojourn) times, and node utilization under varying load conditions.
 
+The simulation is structured as a tandem queuing network with three sequential nodes. In such a system, jobs (in this case, representing various stages of blockchain transactions or blocks) pass through each service stage one after the other. 
+
+While the simulation encapsulates the essence of a tandem queuing network by having each job flow serially through three nodes, it also extends traditional tandem queue analysis by incorporating cycle-based metrics and detailed performance tracking. This provides a richer insight into the overall behavior of the blockchain system under varying load conditions.
+
+Here’s how the simulation embodies this concept:
+
+1. **Sequential Processing:**  
+   The simulation organizes the process into three distinct stages:
+   - **Node 1 (Block Proposal):** Handles the initiation of a block proposal.
+   - **Node 2 (Block Import):** Manages the import and preliminary processing of the block.
+   - **Node 3 (Transaction Processing):** Takes care of the transaction details in a more rapid service phase.
+
+   In a tandem queuing network, the output (or the job) leaving one node immediately becomes the input for the next node, which is exactly how this simulation is designed.
+
+2. **Distinct Service Time Distributions:**  
+   Each node has its own service time distribution that reflects the unique operational characteristics at that stage. This differentiation helps to accurately model the effects of delays and bottlenecks across the entire process, which is a common approach when analyzing tandem queues in queuing theory.
+
+3. **Regeneration Events and Cycle Segmentation:**  
+   Although the network functions sequentially (i.e., tandem), it introduces regeneration events that help differentiate between processing cycles. These events further refine the simulation by resetting or recording significant milestones in the processing chain, adding an extra layer of analysis to the tandem structure.
+
+
+
+
 ---
 
 ## Purpose
