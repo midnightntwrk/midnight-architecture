@@ -56,7 +56,7 @@ Note that these only account for the *time* aspect of this, while the latter
 three measurement (including churn, which *temporarily* increases storage
 requirements) measure in part something unrelated to latency.
 
-### Compute Cost 
+### Compute Cost
 
 Compute cost is naively simply a measure of how long one of the computations
 takes. It is complicated by some operations being able to take advantage of
@@ -139,7 +139,7 @@ as potential points where users overpay (in the positive direction).
 Some ground assumptions:
 
 - We want to target a block time of 6s
-- We want *application* and *verification* of a fresh block to have a budget of at most 1s 
+- We want *application* and *verification* of a fresh block to have a budget of at most 1s
 - We require 4 CPU cores
 
 We will assume that verification and then application are optimally pipelined:
@@ -219,6 +219,244 @@ saturate a block). This is hard to judge correctly, except that:
   to, at cap, be able to transact at all?
 - 0.1 Dust seems a reasonable optimistic compromise: Not a lot, but not a
   trivial amount either.
+
+-----
+
+## Concretes
+
+```rust
+/// Fixed-point rationals. For implementation, a wrapper around `u64` is
+// suggested, normalised around `1 << 32` representing 1.0.
+type FixedPoint;
+
+type DurationFP = FixedPoint;
+
+struct SyntheticCost {
+    // The total time, in seconds, budgeted for synthetic I/O read time.
+    pub read_time: DurationFP,
+    // The total time, in seconds, budgeted for single-threaded compute.
+    pub compute_time: DurationFP,
+    // The block usage in bytes.
+    pub block_usage: u64,
+    // The I/O bytes written
+    pub bytes_written: u64,
+    // The I/O bytes churned
+    pub bytes_churned: u64,
+}
+
+// The block limits are set as an instance of `SyntheticCost`. These are
+// included in the ledger parameters. For instance:
+let block_limits: SyntheticCost {
+    read_time: 1.into(),
+    compute_time: 1.into(),
+    block_usage: 200_000,
+    bytes_written: 20_000,
+    bytes_churned: 20_000,
+};
+
+impl SyntheticCost {
+    fn normalize(self, limits: SyntheticCost) -> Option<NormalizedCost> {
+        let res = NormalizedCost {
+            read_time: self.read_time / limits.read_time,
+            compute_time: self.compute_time / limits.compute_time,
+            block_usage: self.block_usage / limits.block_usage,
+            bytes_written: self.bytes_written / limits.bytes_written,
+            bytes_churned: self.bytes_churned / limits.bytes_churned,
+        };
+        if res.read_time <= 1 && res.compute_time <= 1 && res.block_usage <= 1 && res.bytes_written <= 1 && res.bytes_churned <= 1 {
+            Some(res)
+        } else {
+            None
+        }
+    }
+}
+
+struct NormalizedCost {
+    pub read_time: FixedPoint,
+    pub compute_time: FixedPoint,
+    pub block_usage: FixedPoint,
+    pub bytes_written: FixedPoint,
+    pub bytes_churned: FixedPoint,
+}
+
+
+struct FeePrices {
+    read_time: FixedPoint,
+    compute_time: FixedPoint,
+    block_usage: FixedPoint,
+    bytes_written: FixedPoint,
+    churn_factor: FixedPoint,
+}
+
+const INITIAL_PRICES: FeePrices {
+    read_time: 10,
+    compute_time: 10,
+    block_usage: 10,
+    bytes_written: 10,
+    churn_factor: 0.1,
+}
+
+// The curve for taking fullness (0 <= inp <= 1) and returning the factor to
+// scale the corresponding fee dimension by.
+fn normalized_scaling_curve(inp: FixedPoint) -> FixedPoint;
+
+impl FeePrices {
+    fn overall_cost(self, tx_normalized: NormalizedCost) -> u128 {
+        let read_cost = self.read_time * tx_normalized.read_time;
+        let compute_cost = self.compute_time * tx_normalized.compute_time;
+        let block_cost = self.block_usage * tx_normalized.block_usage;
+        let write_cost = self.bytes_written * tx_normalized.bytes_written;
+        let churn_cost = self.bytes_written * self.churn_factor * tx_normalized.bytes_churned;
+
+        let utilization_cost = max(read_cost, compute_cost, block_cost);
+        ((utilization_cost + write_cost + churn_cost) * SPECS_PER_DUST).ceil()
+    }
+
+    fn update(self, block_sum: NormalizedCost) -> Self {
+        let mut updated = FeePrices {
+            read_time: self.read_time * normalized_scaling_curve(block_sum.read_time),
+            compute_time: self.compute_time * normalized_scaling_curve(block_sum.compute_time),
+            block_usage: self.block_usage * normalized_scaling_curve(block_sum.block_usage),
+            bytes_written: self.bytes_written * normalized_scaling_curve((block_sum.bytes_written + block_sum.bytes_churned * self.churn_factor) / (1 + self.churn_factor)),
+            churn_factor: self.churn_factor,
+        };
+        let mut most_expensive_dimension = max(updated.read_time, updated.compute_time, updated.block_usage, updated.bytes_written);
+        // The cheapest dimension must be at least 1/4 of the most expensive.
+        // This is to prevent a 'race to the bottom', where if one dimension is
+        // consistently underfilling blocks, it will eventually be priced close
+        // to zero, and a long time to recover to a reasonable level.
+        //
+        // Also ensure that all dimensions are positive.
+        const DIMENSION_FLOOR: FixedPoint = 0.25;
+        for dimension = [&mut updated.read_time, &mut updated.compute_time, &mut updated.block_usage, &mut updated.bytes_written] {
+            *dimension = max(*dimension, most_expensive_dimension * DIMENSION_FLOOR, FixedPoint::MIN_POSITIVE);
+        }
+        updated
+    }
+}
+
+
+struct PerformanceBenchmark {
+    pub read_time_batched_4k: DurationFP,
+    pub read_time_synchronous_4k: DurationFP,
+    pub proof_verification_time_constant: DurationFP,
+    pub proof_verification_time_linear: DurationFP,
+    pub verifier_key_load_time: DurationFP,
+    pub transient_hash_time_linear: DurationFP,
+    pub hash_to_curve_time: DurationFP,
+    pub ec_mul_time: DurationFP,
+    pub signature_verification_time: DurationFP,
+    pub fiat_shamir_pedersen_check: DurationFP,
+    // ...
+
+}
+
+// I'm fudging and rounding things here. These should be taken as a rough
+// reference, not gospel.
+let initial_guideline_bench = PerformanceBenchmark {
+    // NOTE: I'm using benchmarks for *sequential* reads for the batched 4k, and
+    // *random* reads for the synchronous 4k. This does align with actual
+    // performance, because sequential read benchmarks are typically parallel, and "random"
+    // ones are synchronous. The performance is *not* about the randomness on
+    // SSDs (as it would be on HDDs).
+    // Populated using mid-range SSD benchmark results, specifically:
+    // https://ssd.userbenchmark.com/SpeedTest/182182/Samsung-SSD-960-PRO-512GB
+    // Note that these are MB/s, to get to time per 4k read, it's:
+    // x MB/s => x MB/s / 4 kB/block = x/4 k block/s => 0.004/x s / block
+    read_time_batched_4k: 2 * MICROSECOND,
+    read_time_synchronous_4k: 85 * MICROSECOND,
+    // Measured on my own machine
+    proof_verification_time_constant: 3_382 * MICROSECOND,
+    proof_verification_time_linear: 3_352 * NANOSECOND,
+    verifier_key_load_time: 936 * MICROSECOND,
+    transient_hash_time_linear: 50 * MICROSECOND,
+    hash_to_curve_time: 217 * MICROSECOND,
+    ec_mul_time: 90 * MICROSECOND,
+    signature_verification_time: 60 * MICROSECOND,
+    fiat_shamir_pedersen_check: 180 * MICROSECOND,
+}
+
+// How many MPT nodes we actually expect to have to unpack before we
+// reach a given contract.
+// In reality this depends on the number of contracts deployed, and if
+// they are actually uniform in the address space.
+// We assume that accounting for 2^32, and adding a few extra for good
+// measure should be sufficient. This is likely over-counting than under.
+const EXPECTED_CONTRACT_DEPTH: usize = 10;
+
+impl Transaction {
+    fn validation_cost(self, bench: PerformanceBenchmark) -> SyntheticCost {
+        let vk_reads = self.intents.values().flat_map(|intent| intent.actions.filter_map(|action| match action {
+            ContractAction::ContractCall { address, entry_point, .. } => Some((address, entry_point)),
+            _ => None,
+        })).collect::<HashSet<_>>().size();
+        let random_reads = vk_reads * EXPECTED_CONTRACT_DEPTH;
+        let read_time = random_reads * bench.read_time_batched_4k;
+        // Accounting for misc stuff as a baseline.
+        const BASE_COMPUTE_TIME: DurationFP = 100 * MICROSECOND;
+        let mut compute_time = BASE_COMPUTE_TIME;
+        // Compute time for zswap validation
+        let offers = once(self.guaranteed_offer).chain(self.fallible_offer.values());
+        let zswap_inputs = offers.clone().map(|offer| offer.inputs.len() + offer.transients.len());
+        let zswap_ouputs = offers.clone().map(|offer| offer.outputs.len() + offer.transients.len());
+        compute_time += (zswap_inputs + zswap_outputs) * bench.proof_verification_time_constant;
+        compute_time += zswap_inputs * bench.proof_verification_time_linear * ZSWAP_INPUT_PIS;
+        compute_time += zswap_outputs * bench.proof_verification_time_linear * ZSWAP_OUTPUT_PIS;
+        for intent in self.intents.values() {
+            // Binding commitment check
+            compute_time += bench.fiat_shamir_pedersen_check;
+            // Unshielded offer validation
+            compute_time += intent.guaranteed_unshielded_offer.iter()
+                .chain(intent.fallible_unshielded_offer.iter())
+                .map(|o| o.signatures.len()).sum()
+            * bench.signature_verification_time;
+            for action in intent.actions {
+                match action {
+                    ContractAction::Call(call) => {
+                        compute_time += bench.verifier_key_load_time + bench.proof_verification_time_constant;
+                        compute_time += bench.proof_verification_time_linear * call.public_inputs();
+                    }
+                    ContractAcction::MaintenanceUpdate(upd) => {
+                        compute_time += bench.signature_verification_time * upd.signatures.len();
+                    }
+                    _ => {}
+                }
+            }
+            if let Some(dust_actions) = intent.dust_actions {
+                compute_time += (
+                    bench.proof_verification_time_constant +
+                    bench.proof_verification_time_linear * DUST_SPEND_PIS
+                ) * dust_actions.spends.len();
+                compute_time += bench.signature_verification_time * dust_actions.registrations.len();
+            }
+        }
+        // Compute time for Pedersen check
+        compute_time += offers.map(|o| o.deltas.len()).sum() * (bench.hash_to_curve_time + bench.ec_mul_time);
+        compute_time += bench.ec_mul_time;
+        SyntheticCost {
+            read_time,
+            compute_time,
+            block_usage: self.serialized_size(),
+            bytes_written: 0,
+            bytes_churned: 0,
+        }
+    }
+    fn application_cost(self, bench: PerformanceBenchmark) -> SyntheticCost {
+        let read_time = todo!();
+        let compute_time = todo!();
+        let bytes_written = todo!();
+        let bytes_churned = todo!();
+        SyntheticCost {
+            read_time,
+            compute_time,
+            // Accounted for as a 'validation' cost.
+            block_usage: 0,
+            bytes_written,
+            bytes_churned,
+        }
+    }
+}
+```
 
 ## Desired Result
 
