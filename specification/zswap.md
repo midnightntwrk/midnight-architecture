@@ -66,7 +66,7 @@ struct ZswapState {
     commitment_tree_first_free: u32,
     commitment_set: Set<CoinCommitment>,
     nullifiers: Set<CoinNullifier>,
-    commitment_tree_history: Map<Timestamp, MerkleTreeRoot>,
+    commitment_tree_history: TimeFilterMap<MerkleTreeRoot>,
 }
 ```
 
@@ -114,8 +114,8 @@ largely for modularity: It should be possible to turn a `ZswapOutput` into a
 transaction with operations that spend it.
 
 ```rust
-fn input_valid<P>(
-    input: Public<ZswapInput<P>>,
+fn input_valid<()>(
+    input: Public<ZswapInput<()>>,
     segment: Public<u16>,
     sk: Private<Either<ZswapCoinSecretKey, ContractAddress>>,
     merkle_tree: Private<MerkleTree<CoinCommitment>>,
@@ -134,7 +134,7 @@ fn input_valid<P>(
 }
 
 fn output_valid(
-    output: Public<ZswapOutput>,
+    output: Public<ZswapOutput<()>>,
     segment: Public<u16>,
     pk: Private<Either<ZswapCoinPublicKey, ContractAddress>>,
     coin: Private<CoinInfo>,
@@ -226,8 +226,8 @@ of processing a block, and cleaning up entries outside of a TTL parameter.
 ```rust
 impl ZswapState {
     fn post_block_update(mut self, tblock: Timestamp) -> Self {
-        self.commitment_tree_history = self.commitment_tree_history.insert(tblock, self.commitment_tree.root());
-        self.commitment_tree_history = self.commitment_tree_history.filter(|(t, _)| t >= tblock - global_ttl);
+        self.commitment_tree_history = self.commitment_tree_history.insert(tblock, self.commitment_tree.root()).filter(tblock - global_ttl);
+        self
     }
 }
 ```
