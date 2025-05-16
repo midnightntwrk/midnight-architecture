@@ -335,6 +335,12 @@ impl FeePrices {
     }
 }
 
+/// How our datastructures behave for I/O. Unlike the performance benchmark,
+/// this is more static, and derived from manual inspection.
+///
+struct IOCharacteristics {
+    // ...
+}
 
 struct PerformanceBenchmark {
     pub read_time_batched_4k: DurationFP,
@@ -348,7 +354,61 @@ struct PerformanceBenchmark {
     pub signature_verification_time: DurationFP,
     pub fiat_shamir_pedersen_check: DurationFP,
     // ...
+}
 
+// Assume addition and integer multiplication is defined on this.
+struct RunningCost {
+    pub read_time: DurationFP,
+    pub compute_time: DurationFP,
+    pub bytes_written: u64,
+    pub bytes_deleted: u64,
+}
+
+impl From<RunningCost> for SyntheticCost {
+    fn from(cost: RunningCost) -> SyntheticCost {
+        let real_bytes_written = cost.bytes_written.saturating_sub(cost.bytes_deleted);
+        SyntheticCost {
+            read_time: cost.read_time,
+            compute_time: cost.compute_time,
+            block_usage: 0,
+            bytes_written: real_bytes_written,
+            bytes_churned: cost.bytes_written - real_bytes_written,
+        }
+    }
+}
+
+const BASELINE_COST: RunningCost = RunningCost {
+    read_time: 0,
+    compute_time: 100 * MICROSECOND,
+    bytes_written: 0,
+    bytes_deleted: 0,
+};
+
+struct CostModel {
+    io: IOCharacteristics,
+    bench: PerformanceBenchmark,
+}
+
+impl CostModel {
+    //
+    fn proof_verify(&self, public_inputs: u64) -> RunningCost;
+    fn verifier_key_load(&self) -> RunningCost;
+    fn transient_hash(&self, length: u64) -> RunningCost;
+    fn time_filter_map_member(&self) -> RunningCost;
+    fn time_filter_map_lookup(&self) -> RunningCost;
+    fn time_filter_map_insert(&self, overwrite: bool) -> RunningCost;
+    fn cell_read(&self, size: u64) -> RunningCost;
+    fn cell_read_sync(&self, size: u64) -> RunningCost;
+    fn cell_write(&self, size: u64, overwrite: bool) -> RunningCost;
+    fn cell_delete(&self, size: u64) -> RunningCost;
+    fn map_member(&self, size: u64) -> RunningCost;
+    fn map_index(&self, size: u64) -> RunningCost;
+    fn map_insert(&self, size: u64, overwrite: bool) -> RunningCost;
+    fn map_remove(&self, size: u64, guaranteed_present: bool) -> RunningCost;
+    fn merkle_tree_insert(&self, size: u64, overwrite: bool) -> RunningCost;
+    fn merkle_tree_index(&self, size: u64) -> RunningCost;
+    // Cost of copying a static (structured) value into the state
+    fn tree_copy<T>(&self, value: T) -> RunningCost;
 }
 
 // I'm fudging and rounding things here. These should be taken as a rough
@@ -376,84 +436,199 @@ let initial_guideline_bench = PerformanceBenchmark {
     fiat_shamir_pedersen_check: 180 * MICROSECOND,
 }
 
-// How many MPT nodes we actually expect to have to unpack before we
-// reach a given contract.
-// In reality this depends on the number of contracts deployed, and if
-// they are actually uniform in the address space.
-// We assume that accounting for 2^32, and adding a few extra for good
-// measure should be sufficient. This is likely over-counting than under.
-const EXPECTED_CONTRACT_DEPTH: usize = 10;
+const EXPECTED_CONTRACT_DEPTH: usize = 32;
+const EXPECTED_OPERATIONS_DEPTH: usize = 10;
+const VERIFIER_KEY_SIZE: u64;
 
 impl Transaction {
-    fn validation_cost(self, bench: PerformanceBenchmark) -> SyntheticCost {
+    fn validation_cost(self, model: CostModel) -> SyntheticCost {
         let vk_reads = self.intents.values().flat_map(|intent| intent.actions.filter_map(|action| match action {
             ContractAction::ContractCall { address, entry_point, .. } => Some((address, entry_point)),
             _ => None,
         })).collect::<HashSet<_>>().size();
-        let random_reads = vk_reads * EXPECTED_CONTRACT_DEPTH;
-        let read_time = random_reads * bench.read_time_batched_4k;
-        // Accounting for misc stuff as a baseline.
-        const BASE_COMPUTE_TIME: DurationFP = 100 * MICROSECOND;
-        let mut compute_time = BASE_COMPUTE_TIME;
+        let mut cost = BASELINE_COST;
+        cost += (model.cell_read(VERIFIER_KEY_SIZE)
+            + model.map_index(EXPECTED_CONTRACT_DEPTH)
+            + model.map_index(EXPECTED_OPERATIONS_DEPTH)
+        ) * vk_reads ;
         // Compute time for zswap validation
         let offers = once(self.guaranteed_offer).chain(self.fallible_offer.values());
         let zswap_inputs = offers.clone().map(|offer| offer.inputs.len() + offer.transients.len());
         let zswap_ouputs = offers.clone().map(|offer| offer.outputs.len() + offer.transients.len());
-        compute_time += (zswap_inputs + zswap_outputs) * bench.proof_verification_time_constant;
-        compute_time += zswap_inputs * bench.proof_verification_time_linear * ZSWAP_INPUT_PIS;
-        compute_time += zswap_outputs * bench.proof_verification_time_linear * ZSWAP_OUTPUT_PIS;
+        compute_time += model.proof_verify(ZSWAP_INPUT_PIS) * zswap_inputs;
+        compute_time += model.proof_verify(ZSWAP_OUTPUT_PIS) * zswap_inputs;
         for intent in self.intents.values() {
             // Binding commitment check
-            compute_time += bench.fiat_shamir_pedersen_check;
+            cost.compute_time += model.bench.fiat_shamir_pedersen_check;
             // Unshielded offer validation
-            compute_time += intent.guaranteed_unshielded_offer.iter()
+            cost.compute_time += intent.guaranteed_unshielded_offer.iter()
                 .chain(intent.fallible_unshielded_offer.iter())
                 .map(|o| o.signatures.len()).sum()
-            * bench.signature_verification_time;
+                * model.bench.signature_verification_time;
             for action in intent.actions {
                 match action {
                     ContractAction::Call(call) => {
-                        compute_time += bench.verifier_key_load_time + bench.proof_verification_time_constant;
-                        compute_time += bench.proof_verification_time_linear * call.public_inputs();
+                        cost.compute_time += model.bench.verifier_key_load_time;
+                        cost += model.proof_verify(call.public_inputs());
                     }
-                    ContractAcction::MaintenanceUpdate(upd) => {
-                        compute_time += bench.signature_verification_time * upd.signatures.len();
+                    ContractAction::MaintenanceUpdate(upd) => {
+                        cost.compute_time += model.bench.signature_verification_time * upd.signatures.len();
                     }
                     _ => {}
                 }
             }
             if let Some(dust_actions) = intent.dust_actions {
-                compute_time += (
-                    bench.proof_verification_time_constant +
-                    bench.proof_verification_time_linear * DUST_SPEND_PIS
-                ) * dust_actions.spends.len();
-                compute_time += bench.signature_verification_time * dust_actions.registrations.len();
+                cost += model.proof_verify(DUST_SPEND_PIS) * dust_actions.spends.len();
+                cost.compute_time += model.bench.signature_verification_time * dust_actions.registrations.len();
             }
         }
         // Compute time for Pedersen check
-        compute_time += offers.map(|o| o.deltas.len()).sum() * (bench.hash_to_curve_time + bench.ec_mul_time);
-        compute_time += bench.ec_mul_time;
-        SyntheticCost {
-            read_time,
-            compute_time,
-            block_usage: self.serialized_size(),
-            bytes_written: 0,
-            bytes_churned: 0,
-        }
+        cost.compute_time += offers.map(|o| o.deltas.len()).sum() * (model.bench.hash_to_curve_time + model.bench.ec_mul_time);
+        cost.compute_time += model.bench.ec_mul_time;
+        let mut res = cost.into();
+        res.block_usage = self.serialized_size();
+        res
     }
-    fn application_cost(self, bench: PerformanceBenchmark) -> SyntheticCost {
-        let read_time = todo!();
-        let compute_time = todo!();
-        let bytes_written = todo!();
-        let bytes_churned = todo!();
-        SyntheticCost {
-            read_time,
-            compute_time,
-            // Accounted for as a 'validation' cost.
-            block_usage: 0,
-            bytes_written,
-            bytes_churned,
+    fn application_cost(self, model: CostModel) -> SyntheticCost {
+        let mut cost = BASELINE_COST;
+        for intent in self.intents.values() {
+            // Replay protection state update
+            cost += model.time_filter_map_member() + model.cell_read(32);
+            cost += model.time_filter_map_insert(false) + model.cell_write(32, false);
+            // utxo processing
+            let offers = intent.guaranteed_offer.iter().chain(intent.fallible_offer.iter());
+            let inputs = offers.clone().map(|o| o.inputs.len()).sum();
+            let outputs = offers.clone().map(|o| o.outputs.len()).sum();
+            // UTXO membership test
+            cost += model.map_member(32) * inputs;
+            // UTXO removal
+            cost += (model.map_remove(32, true) + model.cell_delete(sizeof(Utxo))) * inputs;
+            // UTXO insertion
+            cost += (model.map_insert(32, false) + model.cell_write(sizeof(Utxo))) * outputs;
+            let night_inputs = offers.clone().map(|o| o.inputs.iter().filter(|i| i.type_ == NIGHT).count()).sum();
+            let night_outputs = offers.clone().map(|o| o.outputs.iter().filter(|o| o.type_ == NIGHT).count()).sum();
+            // Generating dtime update
+            cost += (model.merkle_tree_insert(32, false) + model.cell_write(sizeof(DustGenerationInfo))) * night_inputs;
+            // Night generates Dust address table read
+            cost += (model.map_index(32) + model.cell_read(sizeof(DustAddress))) * night_outputs;
+            // Generation tree insertion & first-free update
+            cost += (model.cell_read(8) + model.cell_write(8, true)) * night_outputs;
+            cost += (model.merkle_tree_insert(32, false) + model.cell_write(sizeof(DustGenerationInfo))) * night_outputs;
+            // Night indicies insertion
+            cost += (model.map_insert(32, false) + model.cell_write(sizeof(u64))) * night_outputs;
+            let dust_spends = intent.dust_actions.map(|a| a.spends.len()).unwrap_or(0);
+            // Nullifier membership test
+            cost += model.map_member(32) * dust_spends;
+            // Nullifier set insertion
+            cost += (model.map_insert(32, false) + model.cell_write(sizeof(DustNullifier))) * dust_spends;
+            // Commitment merkle tree insertion & first-free update
+            cost += (model.cell_read(8) + model.cell_write(8, true)) * dust_spends;
+            cost += (model.merkle_tree_insert(32, false) + model.cell_write(sizeof(DustCommitment))) * dust_spends;
+            // Dust Merkle roots lookup
+            cost += model.time_filter_map_lookup() * 2;
+            for reg in intent.dust_actions.iter().flat_map(|a| a.registrations.iter()) {
+                // Update the dust address registration table
+                if reg.dust_address.is_some() {
+                    cost += model.map_insert(24, false) + model.cell_write(sizeof(DustPublicKey));
+                } else {
+                    cost += model.map_remove(24, true) + model.cell_delete(sizeof(DustPublicKey));
+                }
+                // For each guaranteed night input with a matching address in
+                // the intent, we read its ctime, and check it in the
+                // generation indicies table.
+                if reg.dust_address.is_some() {
+                    for night in intent.guaranteed_unshielded_offer.iter()
+                        .flat_map(|o| o.inputs.iter())
+                        .filter(|i| i.owner == reg.night_key && i.type_ == NIGHT)
+                    {
+                        // Night indicies set check
+                        cost += model.map_index(32) + model.cell_read(sizeof(u64));
+                        // Generation tree index
+                        cost += model.merkle_tree_index(32) + model.cell_read(sizeof(DustGenerationInfo));
+                    }
+                }
+            }
+            // Contract actions
+            for action in intent.actions {
+                match action {
+                    ContractAction::Call(call) => {
+                        // Fetch / store state
+                        cost += model.map_index(EXPECTED_CONTRACT_DEPTH)
+                            + model.map_insert(EXPECTED_CONTRACT_DEPTH, true)
+                            + model.map_index(1) + model.map_insert(1, true);
+                        // Declared transcript costs
+                        //
+                        // NOTE: This is taken at face-value here. During
+                        // execution, the declared cost (A `RunningCost`) is
+                        // checked against the real cost at each operation, and
+                        // aborted if it exceeds it (with the exception of
+                        // `bytes_deleted`, which is checked after completion,
+                        // and must be *at least* as declared).
+                        cost += call.guaranteed_transcript.declared_cost;
+                        cost += call.fallible_transcript.declared_cost;
+                        // VM stack setup / destroy cost
+                        // Left out of scope here to avoid going to deep into
+                        // stack structure.
+                        cost += call.stack_setup_cost();
+                    }
+                    ContractAction::Deploy(deploy) => {
+                        // Contract exists check
+                        cost += model.map_index(EXPECTED_CONTRACT_DEPTH);
+                        // Contract insert
+                        cost += model.map_insert(EXPECTED_CONTRACT_DEPTH, false) + model.tree_copy(deploy.initial_state);
+                    }
+                    ContractAction::Maintain(upd) => {
+                        // Contract state fetch
+                        cost += model.map_index(EXPECTED_CONTRACT_DEPTH);
+                        // Maintainance update counter update
+                        cost += model.map_index(1) * 2
+                            + model.map_insert(1, true) * 2
+                            + model.cell_read(sizeof(u64))
+                            + model.cell_write(sizeof(u64), true);
+                        // Carrying out the updates
+                        for part in upd.updates {
+                            match part {
+                                SingleUpdate::ReplaceAuthority(auth) => cost += model.tree_copy(auth)
+                                    + model.map_insert(1, true),
+                                SingleUpdate::VerifierKeyRemove(..) => cost += model.map_remove(EXPECTED_OPERATIONS_DEPTH, true)
+                                    + model.cell_delete(VERIFIER_KEY_SIZE) + model.map_insert(1),
+                                SingleUpdate::VerifierKeyInsert(..) => cost += model.map_insert(EXPECTED_OPERATIONS_DEPTH, false)
+                                    + model.cell_write(VERIFIER_KEY_SIZE) + model.map_insert(1),
+                            }
+                        }
+                        // Inserting the new state
+                        cost += model.map_insert(EXPECTED_CONTRACT_DEPTH, true);
+                    }
+                }
+            }
         }
+        for (segment, offer) in self.guaranteed_offer.iter().map(|o| (0, o))
+            .chain(self.fallible_offer.iter())
+        {
+            let offer_cost = RunningCost::ZERO;
+            let inputs = offer.inputs.len() + offer.transient.len();
+            let outputs = offer.outputs.len() + offer.transient.len();
+            // Roots set test
+            offer_cost += model.map_member(16) * inputs;
+            // Nullifier set test
+            offer_cost += model.map_member(32) * inputs;
+            // Nullifier set insertion
+            offer_cost += (model.map_insert(32, false) + model.cell_write(sizof(Nullifier))) * inputs;
+            // Commitment set test
+            offer_cost += model.map_member(32) * outputs;
+            // Commitment set insertion
+            offer_cost += model.map_insert(32, false) * outputs;
+            // Merkle tree insertion
+            offer_cost += model.merkle_tree_insert(32, false) * outputs;
+            // First free update
+            offer_cost += (model.cell_read(8) + model.cell_write(8, true)) * outputs;
+            // Because we also try to apply it in the guaranteed segment. 
+            if segment != 0 {
+                offer_cost.compute_time *= 2;
+            }
+        }
+        // todo: zswap
+        cost.into()
     }
 }
 ```
