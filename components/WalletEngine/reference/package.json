@@ -27,6 +27,6 @@
     "jest-diff": "^29.7.0",
     "lodash-es": "^4.17.21",
     "rxjs": "^7.8.1",
-    "@midnight-ntwrk/ledger": "4.0.0-beta.1"
+    "@midnight-ntwrk/ledger": "4.0.0"
   }
 }
