@@ -292,16 +292,88 @@ impl FeePrices {
 
 ### Synthesising Costs: Basic Operations
 
-> [!NOTE]
-> This section is TODO
+To provide a base for our synthetic costs, we carry out benchmarks of low-level
+data operations, and measure their single-threaded compute time, as well as
+model their I/O interactions.
+
+For I/O interactions, this models the following for basic operations:
+- The number of 4k random reads the operation will carry out
+- The number of bytes written (pessimistically)
+- The number of bytes deleted (assuming the pessimistic write case)
+
+Typically it should be clear from context if the random reads performed are
+*batchable* or *synchronous*. (Note that in benchmarking jargon, 'random' reads
+typically refers to unbatched reads, which this document refers to as
+'synchronous').
+
+I/O writes and churn are therefore modelled directly, with no measurements
+involved. I/O read time is modelled partially: The number of batched and
+synchronous 4k reads are modelled, and established benchmarks for SSD
+performance are applied to convert these into time. Note that we *do not* care
+about 'sequential' SSD performance, as our storage and problem domain ensures
+random reads dominate.
+
+Information on how to map high-level datastructures into low-level I/O
+operations in kept in a `IOCharacteristics` struct, which is made part of the
+ledger parameters to allow it to be easily updated. Details of this are left to
+implementation.
 
 ```rust
-/// How our datastructures behave for I/O. Unlike the performance benchmark,
-/// this is more static, and derived from manual inspection.
+// How our datastructures behave for I/O. Unlike the performance benchmark,
+// this is more static, and derived from manual inspection.
+// For example, this may include the branching factor of data structures, the
+// storage overhead of hashes, etc. for different data types.
 struct IOCharacteristics {
     // ...
 }
+```
 
+
+In order to enable hardware-level decentralisation of Midnight, the cost model
+should not be greatly biased in favour of any specific ISA, or hardware
+manufacturer. This is not to say we have no requirements -- this document does
+not suggest supporting old hardware, and in particular suggests that I/O
+measurements should assume an NVMe SSD.
+
+In order to achieve this, we suggest at least four benchmark machines, evenly
+split across `aarch64` and `x86_64`. This should be a basket of machines that
+can evolve over time, as the global hardware landscape, and our user base,
+evolves.
+
+> [!NOTE]
+> What are the machines we choose, concretely? Who choses them?
+
+- An AMD Ryzen machine
+- An Intel machine
+- An Apple silicon Mac
+- An ARM processor Linux machine (snapdragon cloud machine? raspberry pi?)
+
+Each would be clamped to a single core when running benchmarks, with other
+cores under synthetic load.
+
+Benchmarks should be easy to run and reproduce (up to measurement error) on the
+target machines, and easy to compare with the 'expected' aggregate result to
+determine how close a given machine is to the cost model.
+
+> [!NOTE]
+> How should benchmarks be aggregated? I believe the most 'formally correct'
+> mechanism is to simply take their arithmetic mean, but this seems to imply
+> that we cannot include slow machines (such as a raspberry pi) in our basket,
+> as they will skew our benchmarks severely.
+>
+> My gut feeling is that the geometric means is 'right' here, but I cannot
+> justify it.
+
+On each machine we measure a set of primitive operations, in some cases varying
+over one input parameter, which we linearly interpolate between at least 10
+measurements. We track the maximum (relative) deviation from the derived model,
+the ensure the measurement error is acceptable, and that parametrised options
+behave as expected.
+
+We then aggregate the benchmarks between all target systems using the
+*geometric mean* of each measurement.
+
+```rust
 struct PerformanceBenchmark {
     pub read_time_batched_4k: Duration,
     pub read_time_synchronous_4k: Duration,
@@ -313,25 +385,32 @@ struct PerformanceBenchmark {
     pub ec_mul_time: Duration,
     pub signature_verification_time: Duration,
     pub fiat_shamir_pedersen_check: Duration,
-    // ...
+    // etc ...
 }
+```
 
+As we skip some of the less costly operations in our modelling of transaction
+validation, we add a rough 'baseline' cost for miscellaneous parts of
+processing. Further, we mandate a minimum number of cores for validators, which
+we include in the cost model as the `parallelism_factor`. These, together with
+the full aggregated benchmarks, and the IO characteristics data, form the *cost
+model*.
 
-const BASELINE_COST: RunningCost = RunningCost {
-    read_time: 0,
-    compute_time: 100 * MICROSECOND,
-    bytes_written: 0,
-    bytes_deleted: 0,
-};
-
+```rust
 struct CostModel {
     io: IOCharacteristics,
     bench: PerformanceBenchmark,
-    multithreading_factor: u16,
+    parallelism_factor: u16,
+    baseline_cost: RunningCost,
 }
+```
 
+For convenience in latter definitions, we assume a number of convenience
+functions on `CostModel` that produces the running costs for various high-level
+data structure interactions:
+
+```rust
 impl CostModel {
-    //
     fn proof_verify(&self, public_inputs: u64) -> RunningCost;
     fn verifier_key_load(&self) -> RunningCost;
     fn transient_hash(&self, length: u64) -> RunningCost;
@@ -351,7 +430,16 @@ impl CostModel {
     // Cost of copying a static (structured) value into the state
     fn tree_copy<T>(&self, value: T) -> RunningCost;
 }
+```
+Details are against left to implementation.
 
+Though they should not be taken as reference, the parts of the benchmark
+highlighted above were mentioned as they are relevant to getting a feeling for
+real performance characteristics. For that purpose, we provide some preliminary
+values for these here. We also defined a preliminary baseline cost of 100
+microseconds of compute, and a parallelism factor of 4.
+
+```rust
 // I'm fudging and rounding things here. These should be taken as a rough
 // reference, not gospel.
 let initial_guideline_bench = PerformanceBenchmark {
@@ -375,6 +463,19 @@ let initial_guideline_bench = PerformanceBenchmark {
     ec_mul_time: 90 * MICROSECOND,
     signature_verification_time: 60 * MICROSECOND,
     fiat_shamir_pedersen_check: 180 * MICROSECOND,
+    // ...
+}
+
+let initial_cost_model = CostModel {
+    io: ...,
+    bench: initial_guideline_bench,
+    parallelism_factor: 4,
+    baseline_cost: RunningCost {
+        read_time: 0,
+        compute_time: 100 * MICROSECOND,
+        bytes_written: 0,
+        bytes_deleted: 0,
+    },
 }
 ```
 
@@ -406,7 +507,7 @@ const EXPECTED_OPERATIONS_DEPTH: usize = 10;
 impl Transaction {
     fn total_cost(self, model: CostModel) -> SyntheticCost {
         let mut validation_cost = self.validation_cost(model);
-        validation_cost.compute_time /= model.multithreading_factor;
+        validation_cost.compute_time /= model.parallelism_factor;
         validation_cost + self.application_cost(model).1
     }
     fn validation_cost(self, model: CostModel) -> SyntheticCost {
@@ -414,7 +515,7 @@ impl Transaction {
             ContractAction::ContractCall { address, entry_point, .. } => Some((address, entry_point)),
             _ => None,
         })).collect::<HashSet<_>>().size();
-        let mut cost = BASELINE_COST;
+        let mut cost = model.baseline_cost;
         cost += (model.cell_read(sizeof(VerifierKey))
             + model.map_index(EXPECTED_CONTRACT_DEPTH)
             + model.map_index(EXPECTED_OPERATIONS_DEPTH)
@@ -667,7 +768,7 @@ proofs that fit within this space. Therefore, we propose to set it at the cost
 of proof validation, divided by proof size, plus an error margin of 30%:
 
 ```rust
-let time_to_dismiss_per_byte = (bench.proof_verification_time_constant / PROOF_SIZE) * 1.3;
+let time_to_dismiss_per_byte = (bench.proof_verification_time_constant / sizeof(Proof)) * 1.3;
 ```
 
 For initial measurements, this corresponds to:
@@ -675,192 +776,6 @@ For initial measurements, this corresponds to:
 ```rust
 let time_to_dismiss_per_byte = 400 * NANOSECOND;
 ```
-
------
-
-> [!WARNING]
-> Out of date ramblings to be worked into main text or discarded begin here
-
-Note that first 4 can be tricky to measure precisely. We will generally adopt a
-simplified model on how the database translates into disk accesses when
-estimating these, refining this model should be a future work.
-
-This model will not be specified here, but will instead be closely coupled to
-our storage solution, using the graph structure of the storage tree as a proxy
-for disk I/O.
-
-Note also that we assume all reads are random, and all writes are sequential.
-This is also a simplification, but maps reasonably onto practice. To support
-this model, we therefore further need benchmarks of *batched* random reads (for
-the static reads), *sequential* random reads (for the dynamic reads), and
-sequential writes, ideally as performed by a sufficiently large model database.
-Note that these only account for the *time* aspect of this, while the latter
-three measurement (including churn, which *temporarily* increases storage
-requirements) measure in part something unrelated to latency.
-
-### Compute Cost
-
-Compute cost is naively simply a measure of how long one of the computations
-takes. It is complicated by some operations being able to take advantage of
-parallelism, and some not.
-
-Ideally, Midnight should be able to fully parallelise its operations regardless
-of atomic parts being parallelisable, by parallelising transactions themselves.
-This is unlikely to be the case at launch, however, as this requires building
-up commutative buckets of transactions for the application phase, which is not
-a solved problem.
-
-Instead, we assume that the *validation* phase is parallelised, and that the
-*application* phase is sequential. Further, this document assumes that the only
-operation that is individually parallelised is proof verification, which only
-occurs in the validation phase. Effectively, this means that we can *treat
-everything as if it were single-threaded*, because it either *is* (for
-application), or the multi-threading is at the macro-level (for validation).
-
-Therefore, our compute costs are simply *single-threaded* benchmarks.
-
-### What is costed
-
-For both storage and compute, the following candidates are either measured or
-manually derived from the storage model:
-
-- All [../apis-and-common-types/onchain-runtime/README.md](onchain VM) instructions
-    - Executed against random inputs, of varying sizes where the instruction has an input-size dependency
-    - Where instructions apply to different data types, each potential input data type is costed separately
-- Proof verification (measured as a linear function of public input length)
-- A constant and/or linear overhead per:
-    - Intent
-    - Dust action (separately for each type)
-    - Contract action (separately for each type)
-    - Zswap input/output/transient
-    - Unshielded input/output
-
-Where curves are measured, a linear regression on at least 10 points is performed.
-
-### Where and how things are measured
-
-In order to enable hardware-level decentralisation of Midnight, the cost model
-should not be greatly biased in favour of any specific ISA, or hardware
-manufacturer. This is not to say we have no requirements -- this document does
-not suggest supporting old hardware, and in particular suggests that I/O
-measurements should assume an NVMe SSD.
-
-In order to achieve this, we suggest at least four benchmark machines, evenly
-split across `aarch64` and `x86_64`:
-
-- An AMD Ryzen machine
-- An Intel machine
-- An Apple silicon Mac
-- An ARM processor Linux machine (snapdragon cloud machine? raspberry pi?)
-
-Each would be clamped to a single core when running benchmarks.
-
-Note that this should be treated as a basket of reference machines, which may
-be modified with time, and in practice initial work may use developer's
-machines while the 'official' basket is being determined.
-
-The measurements themselves should be automated and easy to re-run / reproduce
-(up to measurement error).
-
-For the CPU performance measurements, values are normalized around proof
-verification time, as this is expected to be the dominant cost. The normalized
-compute weights are then averaged between the different machines, and these
-averages are used as the 'bare' costs.
-
-For I/O performance measurements, the raw numbers are instead averaged, as it
-is less reasonable to set minimum performance requirements for an SSD than for
-a CPU.
-
-For each measurement dimension, the maximum deviation in both negative and
-positive direction from the average thus derived is also tracked. This
-highlights both potential points of attack (in the negative direction), as well
-as potential points where users overpay (in the positive direction).
-
-### Weighting fees and limits
-
-Some ground assumptions:
-
-- We want to target a block time of 6s
-- We want *application* and *verification* of a fresh block to have a budget of at most 1s
-- We require 4 CPU cores
-
-We will assume that verification and then application are optimally pipelined:
-Work to fetch the data needed for the application phase beings during the
-verification phase, and the compute never exceeds the data that has been
-fetched. As proof verification is assumed to dominate, this is likely to be true.
-
-Therefore, we have the 1s budget essentially independently for I/O *reads* and
-for compute. I/O *writes* have more leniency, as they don't need to fit within
-this budget. These are far more likely to be limited by a concern about disk
-storage than speed however -- constantly writing will fill up any disk very
-quickly. As a result, we want an overall limit on bytes *written* per block.
-For *churn* this can be a fair bit higher, as we can rely on eventually being
-able to forget this.
-
-Finally, for *dynamic* reads, these will be counted twice: Once as an I/O
-operation, as they are still reads to fit within the read budget, and once as a
-*compute* operation, as they also block compute.
-
-Concretely, this means that:
-- The model will provide an estimated number of 4k reads, both static and
-  dynamic, of a transaction, both for the validity check, and for application.
-- The static reads are multiplied with the benchmark for batched reads to get a
-  time estimate.
-- The dynamic reads are multiplied with the benchmark for sequential reads to
-  get a time estimate.
-- The sum of both estimates for all transactions in a block is subject to a
-  limit of 1s.
-
-For writes:
-
-- The model will provide an estimate for the number of bytes written and
-  churned in a transaction.
-- There is a per block limit set for these, with churned bytes weighted
-  fractionally.
-- Suggested initial limits (subject to discussion): 20kB writes per block, with
-  churn counting weighted 10%.
-
-For transaction size:
-
-- The model provides the transaction size.
-- There is a per block limit set for these.
-- Suggested initial limits: 200kB.
-
-Finally, for compute, the model provides a normalized compute cost, both for
-transaction validty, and for transaciton application. The validity cost is
-divided by the number of CPU cores required, as it is assumed to be done in
-parallel, and the weighted sum is then scaled by the real performance of the
-*weakest* baseline machine to give a synthetic compute time. The cost of
-dynamic reads is added to this, as compute will be blocked on these. This
-synthetic compute time is limited to 1 second per block.
-
-The fees to be paid (per transaction) are calculated as the sum of:
-- The *maximum* of:
-    - (Scaled) total synthetic I/O read time, normalized to the limit of 1s
-    - (Scaled) total synthetic compute time, normalized to the limit of 1s
-    - (Scaled) total block usage, normalized to the limit
-- (Scaled) total synthetic I/O bytes written, normalized to the limit
-
-These are all *scaled* -- their values are not used directly, but first
-compared with recent *block utilization*, targeting 50% utilization in every
-category. This scaling in each of the four dimensions uses the (exponentially
-weighted) average of the last day's (unscaled) block fullness data in the same
-dimension, and determines the scaled value based on the fee adjustment curve,
-increasing the value if it's over 0.5, decreasing it otherwise.
-
-The maximum of the first three values is in composite (summed for all
-transaction in a block) the 'block utilization rate', and is scaled by one fee
-factor. The final value is the 'block storage rate', and is scaled by a
-separate factor. Both modifiable ledger parameters. Initially, it is suggested
-they both be set to 10 Dust (implying that 20 Dust is sufficient to fully
-saturate a block). This is hard to judge correctly, except that:
-
-- 1/10th of this limit is likely around the cost of a basic transaction, and
-  should therefore be affordable
-- The question then becomes: How little Night should a user own for their Dust
-  to, at cap, be able to transact at all?
-- 0.1 Dust seems a reasonable optimistic compromise: Not a lot, but not a
-  trivial amount either.
 
 ## Desired Result
 
