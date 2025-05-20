@@ -34,7 +34,7 @@ Core to this is *what* we consider to be resource costs. There are four
 4. Persistent disk storage
 5. (secondary) "Churn", or temporary disk storage
 
-The first two are measured in *time* (specifically, nanoseconds), while the
+The first two are measured in *time* (specifically, picoseconds), while the
 latter three are measure in *bytes*. It may seem counterintuitive that disk
 reads are measured in time, while writes are measured in quantity -- the reason
 for this is straightforward: For reads, we only care that we can read all the
@@ -52,7 +52,7 @@ between transactions to take advantage of multithreading.
 Concretely, we define a synthetic cost as:
 
 ```rust
-// Modelled time (in nanoseconds)
+// Modelled time (in picoseconds)
 struct Duration(u64);
 
 struct SyntheticCost {
