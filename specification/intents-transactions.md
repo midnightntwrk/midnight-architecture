@@ -121,7 +121,7 @@ rejected.
 
 ```rust
 struct ReplayProtectionState {
-    intent_history: TimeFilterMap<Hash<ErasedIntent>>,
+    intent_history: TimeFilterMap<Set<Hash<ErasedIntent>>>,
 }
 
 impl ReplayProtectionState {
@@ -156,8 +156,7 @@ are:
 
 - Check that the different offers' inputs (and for Zswap, outputs) are disjoint
 - Check the [sequencing restrictions](#sequencing) laid out earlier.
-- TODO: Cross-check token-contract constraints, and contract call constraints
-  \[all `Effects` constaints\]
+- Cross-check token-contract constraints, and contract call constraints
   - For each contract claim in `Effects`, there is one matching call in the
     same segment, and the mapping is bidirectional
   - For each claimed nullifier in `Effects`, there is one matching nullifier in
@@ -211,6 +210,7 @@ impl<S, P, B> Intent<S, P, B> {
                     ref_state.params.dust,
                 ))
             .collect()?;
+        B::valid(self.binding_commitment, erased)?;
     }
 }
 
@@ -413,7 +413,7 @@ impl<S, P, B> Transaction<S, P, B> {
                 ContractAction::Call(call) => Some(call),
                 _ => None,
             }) {
-                let effects = call.guaranteed_transcript.iter()
+                let transcripts = call.guaranteed_transcript.iter()
                     .map(|t| (0, t))
                     .chain(call.fallible_transcript.iter()
                         .map(|t| (segment, t)));
@@ -673,25 +673,12 @@ enum TransactionResult {
 
 impl<S, P, B> Transaction<S, P, B> {
     fn segments(self) -> Vec<u16> {
-        let mut segments = vec![0];
-        let mut intent_segments = self.intents.iter().map(|(s, _)| s).peekable();
-        let mut offer_segments = self.fallible_offer.iter().map(|(s, _)| s).peekable();
-        loop {
-            let next_intent = intents.peek();
-            let next_offer = offers.peek();
-            let choice = match (intents.peek(), offers.peek()) {
-                (Some(i), Some(o)) => Some(i.cmp(o)),
-                (Some(_), None) => Some(Ordering::Less),
-                (None, Some(_)) => Some(Ordering::Greater),
-                (None, None) => None,
-            };
-            match choice {
-                Some(Ordering::Less) => segments.push_first(intents.next().unwrap()),
-                Some(Ordering::Equal) => segments.push_first(intents.next().unwrap()),
-                Some(Ordering::Greater) => segments.push_first(offers.next().unwrap()),
-                None => break,
-            }
-        }
+        let mut segments = once(0)
+            .chain(self.intents.iter().map(|(s, _)| s))
+            .chain(self.fallible_offer.iter().map(|(s, _)| s))
+            .collect::<Vec<_>>();
+        segments.sort();
+        segments.dedup();
         segments
     }
 }

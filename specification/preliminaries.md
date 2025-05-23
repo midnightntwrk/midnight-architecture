@@ -265,7 +265,15 @@ For some operations, we keep a *time-filtered map*. This is a map with
 timestamp keys, and the following efficient operations:
 
 ```rust
-type TimeFilterMap<V>;
+// For brevity, the spec will assume primitive types are their own container type.
+// In reality this is accomplished with an `Identity` type wrapper.
+trait Container {
+    type Item;
+    fn once(item: Item) -> Self;
+    fn iter(&self) -> impl Iterator<Item = Self::Item>;
+}
+
+type TimeFilterMap<V: Container>;
 
 impl<V: Default> TimeFilterMap<V> {
     /// Retrieves the entry under `t`, first entry immediately preceding `t`
@@ -279,7 +287,7 @@ impl<V: Default> TimeFilterMap<V> {
     /// Should be only called with monotonically increasing timestamps. 
     ///
     /// O(log |self|)
-    fn insert(self, t: Timestamp, v: V) -> Self;
+    fn insert(self, t: Timestamp, v: V::Item) -> Self;
     /// Retain only entries whose key is >= tmin. If there is no key equal to
     /// tmin, the last key prior to this is set at tmin to preserve the `get`
     /// behaviour for all values >= tmin.
@@ -289,6 +297,6 @@ impl<V: Default> TimeFilterMap<V> {
     /// Tests if the given *value* is in the map.
     ///
     /// O(log |self|)
-    fn contains(self, value: V) -> bool;
+    fn contains(self, value: V::Item) -> bool;
 }
 ```
