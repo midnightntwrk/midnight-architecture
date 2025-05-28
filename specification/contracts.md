@@ -228,7 +228,7 @@ impl ContractCall {
         state: ContractState,
         com_indicies: Map<CoinCommitment, u64>,
     ) -> CallContext {
-        let caller = intent.calls.iter()
+        let caller = intent.actions.iter()
             .find_map(|action| match action {
                 ContractAction::Call(caller) if caller.calls(self) =>
                     Some(PublicAddress::Contract(caller.address)),

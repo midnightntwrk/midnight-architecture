@@ -191,7 +191,9 @@ impl<S, P, B> Intent<S, P, B> {
     ) -> Result<()> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
-        self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
+        self.fallible_offer.iter()
+            .all(|offer| offer.well_formed(erased))
+            .collect()?;
         self.actions.iter()
             .all(|action|
                 action.well_formed(
@@ -219,11 +221,11 @@ const SEGMENT_GUARANTEED: u16 = 0;
 impl<S, P, B> Transaction<S, P, B> {
     fn well_formed(self, tblock: Timestamp, ref_state: LedgerState) -> Result<()> {
         self.guaranteed_offer.map(|offer| offer.well_formed(tblock, 0, ref_state)).transpose()?;
-        for (segment, offer) in self.fallible_offer {
+        for (segment, offer) in self.fallible_offer.sorted_iter() {
             assert!(segment != SEGMENT_GUARANTEED);
             offer.well_formed(segment)?;
         }
-        for (segment, intent) in self.intents {
+        for (segment, intent) in self.intents.sorted_iter() {
             assert!(segment != SEGMENT_GUARANTEED);
             intent.well_formed(tblock, segment, ref_state)?;
         }
@@ -258,7 +260,7 @@ impl<S, P, B> Transaction<S, P, B> {
         let mut shielded_inputs = Set::new();
         let mut shielded_outputs = Set::new();
         let mut unshielded_inputs = Set::new();
-        let shielded_offers = self.guaranteed_offer.iter().chain(self.fallible_offer.values());
+        let shielded_offers = self.guaranteed_offer.iter().chain(self.fallible_offer.sorted_values());
         for offer in shielded_offers {
             let inputs = offer.inputs.iter()
                 .chain(offer.transients.iter().map(ZswapTransient::as_input))
@@ -387,7 +389,7 @@ impl<S, P, B> Transaction<S, P, B> {
     fn balance(self) -> Result<Map<(TokenType, u16), i128>> {
         let mut res = Map::new();
         let mut dust_bal = - (self.fees() as i128);
-        for (segment, intent) in self.intents {
+        for (segment, intent) in self.intents.sorted_iter() {
             for dust_spend in self.dust_actions.iter().flat_map(|da| da.spends) {
                 dust_bal += min(spends.v_fee, i128::MAX) as i128;
             }
@@ -443,7 +445,7 @@ impl<S, P, B> Transaction<S, P, B> {
                 }
             }
         }
-        for (segment, offer) in self.fallible_offer.iter()
+        for (segment, offer) in self.fallible_offer.sorted_iter()
             .chain(self.guaranteed_offer.iter().map(|o| (0, o)))
         {
             for (tt, val) in offer.deltas {
@@ -470,7 +472,7 @@ declared balances:
 impl<S, P, B> Transaction<S, P, B> {
     fn pedersen_check(self) -> Result<()> {
         let comm_parts =
-            self.intents.values()
+            self.intents.sorted_values()
                 .map(|intent| {
                     let hash = hash(intent.erase_proofs());
                     intent.binding_commitment.well_formed(hash)?;
@@ -478,7 +480,7 @@ impl<S, P, B> Transaction<S, P, B> {
                 })?
                 .chain(
                     self.guaranteed_offer.iter()
-                        .chain(self.fallible_offer.values())
+                        .chain(self.fallible_offer.sorted_values())
                         .flat_map(|offer|
                             offer.inputs.iter()
                                 .map(|inp| inp.value_commitment)
@@ -518,7 +520,7 @@ impl<S, P, B> Transaction<S, P, B> {
         // transcripts associate with both the their intent segment, and their
         // logical segment (0 for guarnateed transcripts), as the matching uses
         // the former for calls, and the latter for zswap.
-        let calls = self.intents.iter()
+        let calls = self.intents.sorted_iter()
             .flat_map(|(segment, intent)|
                 intent.actions.iter().filter_map(|action| match action {
                     ContractAction::Call(call) => Some((segment, call)),
@@ -534,7 +536,7 @@ impl<S, P, B> Transaction<S, P, B> {
             .collect();
         let offers = self.guaranteed_offer.iter()
             .map(|o| (0, o))
-            .chain(self.fallible_offer.iter())
+            .chain(self.fallible_offer.sorted_iter())
             .collect();
         let commitments: MultiSet<(u16, CoinCommitment, ContractAddress)> =
             offers.iter().flat_map(|(segment, offer)|
@@ -622,7 +624,7 @@ impl<S, P, B> Transaction<S, P, B> {
                             (intent_seg, logical_seg == 0),
                             ((tt, Right(addr)), val),
                         )))
-                .chain(self.intents.iter()
+                .chain(self.intents.sorted_iter()
                     .flat_map(|(segment, intent)|
                         intent.guaranteed_unshielded_offer.outputs.iter()
                             .map(|o| (true, o))
@@ -674,8 +676,8 @@ enum TransactionResult {
 impl<S, P, B> Transaction<S, P, B> {
     fn segments(self) -> Vec<u16> {
         let mut segments = once(0)
-            .chain(self.intents.iter().map(|(s, _)| s))
-            .chain(self.fallible_offer.iter().map(|(s, _)| s))
+            .chain(self.intents.sorted_iter().map(|(s, _)| s))
+            .chain(self.fallible_offer.sorted_iter().map(|(s, _)| s))
             .collect::<Vec<_>>();
         segments.sort();
         segments.dedup();
@@ -748,11 +750,11 @@ impl LedgerState {
                 Map::new()
             };
             // Make sure all fallible offers *can* be applied
-            assert!(tx.fallible_offer.values()
+            assert!(tx.fallible_offer.sorted_values()
                 .fold(Ok(self.zswap), |st, offer| st?.apply(offer))
                 .is_ok());
             // Apply all guaranteed intent parts
-            for intent in tx.intents.values() {
+            for intent in tx.intents.sorted_values() {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.guaranteed_unshielded_offer {
                     self.utxo = self.utxo.apply_offer(
@@ -783,14 +785,14 @@ impl LedgerState {
             let mut fees_remaining = tx.fees();
             // apply spends first, to make sure registration outputs get the
             // maximum dust they can.
-            for dust_spend in tx.intents.values()
+            for dust_spend in tx.intents.sorted_values()
                 .flat_map(|i| i.dust_actions.iter().flat_map(|a| a.spends.iter()))
             {
                 self.dust = self.dust.apply_spend(dust_spend)?;
                 fees_remaining = fees_remaining.saturating_sub(dust_spend.v_fee);
             }
             // Then apply registrations
-            for intent in tx.intents.values() {
+            for intent in tx.intents.sorted_values() {
                 for reg in intent.dust_actions
                     .iter()
                     .flat_map(|a| a.registrations.iter())
