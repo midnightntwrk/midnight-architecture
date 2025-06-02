@@ -29,8 +29,8 @@ Each instruction has a variable number of *inputs* and *outputs*.
 Inputs are explicitly given in an instruction's encoding, and they can be of various kinds as described below.
 Outputs are implicitly determined by an instruction's position in the instruction sequence.
 
-An instruction causes the next available locations in the memory to be filled with the instruction's outputs.
-One kind of input is a memory index, which represents a use of the output of a previous instruction in the sequence.
+An instruction causes the next available locations in the memory to be filled with the instruction's outputs in order.
+One kind of input is a memory index, which represents a use of the output of some previous instruction in the sequence.
 
 The values that can be in a memory location are described below.
 
@@ -52,6 +52,10 @@ The number and kind of an instruction's inputs depends on the operation.
 
 - *Index* is an unsigned 32-bit value that is an index into the memory.
   This index must exist in the memory, i.e., it must have been an output of a previous instruction in the sequence.
+- *Array* (e.g., in `hash_to_curve`)
+- *Maybe* (e.g., in `pi_skip`)
+- *u32*
+- *Fr* (e.g., in `load_imm`)
 
 ## Outputs
 
@@ -70,7 +74,7 @@ The JSON encoding is a JSON object with three named members:
 
 This is denoted in the reference below as:
 
-**JSON:** { "op": "add", "a": number, "b": number }
+**JSON:** { `"op"`: `"add"`, `"a"`: Index, `"b"`: Index }
 
 The Binary encoding of the `add` instruction consists of the hexadecimal byte value 0x11.
 This is followed by the binary encoding of the inputs `a` and `b`, in that order, as (fixed length little endian?) unsigned 32-bit values.
@@ -81,121 +85,148 @@ This is denoted in the reference below as:
 
 # Two-phase Evaluation
 
-ZKIR circuits are evaluated to construct a memory.
-Evaluation is a two phase process.
-The first phase is the *rehearsal semantics*.
-The rehearsal semantics... [TODO]
-The second phase is the *circuit semantics*.
-The circuit semantics... [TODO]
+ZKIR circuits are evaluated in two *phases*.
+The first phase is the *rehearsal* phase, which evaluates the circuit given a (partial) proof *preimage* to construct a complete memory.
+During the rehearsal phase, the proof preimage is checked for well-formedness.
+The second phase is the *circuit* phase, which is given the memory produced by the rehearsal phase and uses the `midnight-circuits` library to construct a ZK proof.
 
-## Rehearsal Semantics
+## The Rehearsal Phase
 
-https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs/ir_vm.rs#L192
+The rehearsal phase is given a proof preimage, which was produced as a result of evaluating the circuit off chain.
+In the Midnight network with the Compact programming language, this off-chain execution happens by generating Compact compiler-generated JavaScript code and building a proof primage.
 
-The input to the rehearsal semantics is the ZKIR circuit and a *proof preimage*.
-https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs/mod.rs#L548
+The proof preimage consists of:
 
-## Circuit Semantics
+- **inputs**: the inputs to the circuit.
+  In the Compact programming language, these are the circuit's arguments that it was invoked with.
+- **private transcript**: the private transcript, or private inputs, are the witness return values for witnesses that were called while evaluating the circuit off chain.
+- **public transcript inputs**: the public transcript inputs, or public inputs, are public inputs to the circuit.
+  In the Midnight network, this is in practice the Impact VM instructions that were executed to perform ledger state accesses and updates.
+- **public transcript outputs**: the public transcript outputs, or public outputs, are the results of ledger state accesses that were observed during off-chain execution.
 
-https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs/ir_vm.rs#L500
+Programs in Compact can have conditional branches.
+During off-chain execution, not all branches will be taken, depending on the values of branch conditions.
+Therefore, the private inputs and public outputs will only be partial; values will be missing from them for branches that were not taken.
+However, the ZK proof needs to prove that values exist for these branches as well.
+So a major reason for the rehearsal phase of ZKIR evaluation is to construct a full memory that contains values for all the private inputs and public outputs that exist.
+
+### Private Inputs
+
+The `private_input` instruction is possibly conditionally executed.
+It has a single optional input *guard* index.
+It produces a single output.
+If there is no guard, then the instruction is unconditionally executed.
+
+During the rehearsal phase, an index is maintained into the private transcript.
+In the case where there is no guard, or where the value in the memory at the guard index is `1`, then the output of the `private_input` instruction is the private input at the current private transcript index, and the private transcript index is incremented.
+In the case where the value in the memory at the guard index is `0`, then the output of the `private_input` instruction is `0`, and the private transcript index is not incremented.
+
+### Public Outputs
+
+The `public_input` [sic] instruction is also possibly conditionally executed.
+It has a single optional input guard index and it produces a single output.
+If there is no guard, then the instruction is unconditionally executed.
+
+During the rehearsal phase, an index is maintained into the public transcript outputs.
+In the case where there is no guard or where the value in the memory at the guard index is `1`, then the output of the `public_input` instruction is the public output at the current public transcript output index, and this index is incremented.
+In the case where the value in the memory at the guard index is `0`, then the output of the `public_input` instruction is `0` and the public transcript output index is not incremented.
+
+### Public Inputs
+
+During the rehearsal phase, a complete vector of public inputs is built.
+This includes the public inputs for branches that were taken, whose values are in the proof preimage's public inputs.
+It also includes public inputs for branches that were not taken.
+Additionally, a vector of public input *skips* is built that is a vector of optional counts.
+A count in the public input skips indicates a consecutive sequence of public inputs that were skipped during off-chain execution.
+
+Public inputs are implemented by a pair of ZKIR instructions, `declare_pub_input` and `pi_skip`.
+Each `declare_pub_input` instruction is covered by exactly one `pi_skip` instruction that follows it somewhere in the ZKIR instruction sequence.
+A `pi_skip` instruction can cover multiple `declare_pub_input` instructions.
+
+The `declare_pub_input` instruction has a single input index and no output.
+It specifies that the value in the memory at the input index is the next public input.
+`declare_pub_input` has the effect of appending the value in the memory at the input index to the end of the public input vector and increasing the vector's length by one.
+There is a index into the partial public inputs in the proof preimage, which is unconditionally incremented by `declare_pub_input`, optimistically assuming the public input was produced by the circuit's off-chain execution.
+
+The `pi_skip` instruction is possibly conditionally executed.
+It has an optional input guard index, and an input literal *count* telling how many public inputs to skip.
+In the case where there is no guard or where the value in the memory at the guard index is `1`, then the public inputs were *not* skipped.
+Then the `pi_skip` instruction causes the rehearsal phase to verify that the previous consecutive *count* values in the proof preimage's public inputs match exactly the ones that were appended to the complete public inputs.
+A `None` optional skip is appended to the vector of public input skips (these public inputs were not skipped).
+In the case where the value in the memory at the guard index is `0`, then the public inputs were skipped during off-chain execution of the circuit.
+Then the `pi_skip` instruction simply decrements the index into the proof preimage's public inputs by the count, "undoing" the optimistic assumption the the public input was produced by the circuit's off-chain execution.
+A skip with the given count is appended to the vector of public input skips (these public inputs were skipped).
+
+## The Circuit Phase
+
+The circuit phase is given the complete memory produced by the rehearsal phase and the complete public inputs.
+
+It uses the `midnight-circuits` library to construt a zkSNARK.
 
 # Instruction Reference
 
-Notation
+Notation [TODO]
 
 ## add
 
-**JSON:** { "op": "add", "a": number, "b": number }
+One output.  Adds a pair of field values in the prime field.
+
+**JSON:** { `"op"`: `"add"`, `"a"`: Index, `"b"`: Index }
 
 **Binary:** 0x11 a:u32 b:u32
 
-Adds `a` and `b` in the prime field.
-
-**Outputs:** One output `a + b`.
-
 **Rehearsal semantics:** the field values at indexes *a* and *b* are read from
-the memory; the memory is extended with the result of adding them in the prime
+the memory.  The memory is extended with the result of adding them in the prime
 field.
 
-    I::Add { a, b } => memory.push(idx(&memory, *a)? + idx(&memory, *b)?),
-
-**Circuit semantics:** the gates at indexes *a* and *b* are read from the
-memory; the memory is extended with an `add` gate using the inputs *a* and *b*.
-
-    I::Add { a, b } => mem_push(
-        std.add(layouter, idx(&memory, *a)?, idx(&memory, *b)?)?,
-        &mut memory,
-    )?,
-
+**Circuit semantics:** the wires at indexes *a* and *b* are read from the
+memory.  An `add` gate is built using the inputs at *a* and *b*.  The memory is
+extended with the output wire of the `add` gate.
 
 ## assert
 
-**JSON:** { "op": "assert", "cond": Index }
+No outputs.  Asserts that a condition has the canonical true value `1`.  The
+result is undefined if the condition's value is not `0` or `1`.
 
-Asserts that `index` has value `1`. Undefined behavior if `index` is not `0` or
-`1`.
+**JSON:** { `"op"`: `"assert"`, `"cond"`: Index }
 
-**Outputs:** None.
+**Binary:** 0x00 cond:u32
 
-**Binary:**
+**Rehearsal semantics:** the field value at index *cond* is read from the
+memory.  The operation fails (the rehearsal phase is aborted) if the value is 0.
 
-**Rehearsal semantics:** the field value at *cond* is read from the memory.  The
-operation fails if the value is not 0 or 1, and it fails if the value is 0.
-
-    I::Assert { cond } => {
-        if !idx_bool(&memory, *cond)? {
-            bail!("Failed direct assertion");
-        }
-    }
-
-**Circuit semantics:** The gate at *cond* is read from the memory.  THEN WHAT?
-
-    I::Assert { cond } => std.assert_non_zero(layouter, idx(&memory, *cond)?)?,
-
+**Circuit semantics:** The wire at index *cond* is read from the memory.  A
+constraint is added that the value on the wire is non-zero.
 
 ## cond_select
 
-**JSON:** { "op: "cond_select", "bit": Index, "a": Index, "b": Index }
+One output.  Conditionally select between a pair of input values based on the
+value of a condition.  The result is undefined if the condition's value is not
+`0` or `1`.
 
-Conditionally selects a value. Undefined behavior if `bit` is not `0` or `1`.
+**JSON:** { `"op"`: `"cond_select"`, `"bit"`: Index, `"a"`: Index, `"b"`: Index }
 
-**Outputs:** One element, `a` or `b`.
+**Binary:** 0x01 bit:u32 a:u32 b:u32
 
-**Binary:**
+**Rehearsal semantics:** the field values at indexes *bit*, *a*, and *b* are
+read from the memory; the memory is extended with the value at *a* if the value
+at *bit* was `1` and the value at *b* if the value at *bit* was `0`.
 
-**Rehearsal semantics:**
-
-    I::CondSelect { bit, a, b } => {
-        let (bit, a, b) = (
-            idx_bool(&memory, *bit)?,
-            idx(&memory, *a)?,
-            idx(&memory, *b)?,
-        );
-        memory.push(if bit { a } else { b })
-    }
-
-**Circuit semantics:**
-
-    I::CondSelect { bit, a, b } => {
-        let bit = std.is_zero(layouter, idx(&memory, *bit)?)?;
-        // Note that b comes first here, because the is_zero negates the bit.
-        // The negation is to ensure the bit bound. This may be
-        // excessive, but user input could violate it otherwise.
-        let result =
-            std.select(layouter, &bit, idx(&memory, *b)?, idx(&memory, *a)?)?;
-        mem_push(result, &mut memory)?;
-    }
-
+**Circuit semantics:** the wires at indexes *bit*, *a*, and *b* are read from
+the memory.  An `is_zero` gate is built with the input at *bit*.  The output of
+this gate is used as the input of a `select` gate to choose between the inputs
+at *a* and *b*.  The memory is extended with the output wire of the `select`
+gate.
 
 ## constrain_bits
 
-**JSON:** { "op": "constrain_bits", "var": Index, "bits" u32 }
+**JSON:** { `"op"`: `"constrain_bits"`, `"var"`: Index, `"bits"`: u32 }
+
+**Binary:** 0x02 var:u32 bits:u32
 
 Constrains a value to a set number of bits.
 
 **Outputs:** No outputs.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -213,13 +244,13 @@ Constrains a value to a set number of bits.
 
 ## constrain_eq
 
-**JSON:** { "op": "constrain_eq", "a": Index, "b": Index }
+**JSON:** { `"op"`: `"constrain_eq"`, `"a"`: Index, `"b"`: Index }
+
+**Binary:** 0x03 a:u32 b:u32
 
 Constrains two values `a` and `b` to be equal.
 
 **Outputs:** No outputs.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -242,13 +273,13 @@ Constrains two values `a` and `b` to be equal.
 
 ## constrain\_to\_boolean
 
-**JSON:** { "op": "constrain\_to\_boolean", "var": Index }
+**JSON:** { `"op"`: `"constrain_to_boolean"`, `"var"`: Index }
+
+**Binary:** 0x04 var:u32
 
 Constrains a value `var` to be boolean (`0` or `1`).
 
 **Outputs:** No outputs.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -264,14 +295,14 @@ Constrains a value `var` to be boolean (`0` or `1`).
 
 ## copy
 
-**JSON:** { "op": "copy", "var": Index }
+**JSON:** { `"op"`: `"copy"`, `"var"`: Index }
+
+**Binary:** 0x05 var:u32
 
 Creates a copy of a value `var`. Superfluous, but potentially useful in some
 settings, and does not extend the actual circuit.
 
 **Outputs:** One element, `var`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -284,13 +315,13 @@ settings, and does not extend the actual circuit.
 
 ## declare\_pub\_input
 
-**JSON:** { "op": "declare\_pub\_input", "var": Index }
+**JSON:** { `"op"`: `"declare_pub_input"`, `"var"`: Index }
+
+**Binary:** 0x06 var:u32
 
 Declares a variable as the next public input.
 
 **Outputs:** No outputs.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -308,13 +339,13 @@ Declares a variable as the next public input.
 
 ## div\_mod\_power\_of\_two
 
-**JSON:** { "op": "div\_mod\_power\_of\_two", "var": Index, "bits": u32 }
+**JSON:** { `"op"`: `"div_mod_power_of_two"`, `"var"`: Index, `"bits"`: u32 }
+
+**Binary:** 0x0d var:u32 bits:u32
 
 Divides with remainder by a power of two (number of bits).
 
 **Outputs:** Two outputs, `var >> bits`, and `var & ((1 << bits) - 1)`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -382,13 +413,13 @@ Divides with remainder by a power of two (number of bits).
 
 ## ec_add
 
-**JSON:** { "op": "ec\_add", "a\_x": Index, "a\_y": Index, "b\_x": Index, "b\_y": Index }
+**JSON:** { `"op"`: `"ec_add"`, `"a_x"`: Index, `"a_y"`: Index, `"b_x"`: Index, `"b_y"`: Index }
+
+**Binary:** 0x08 a\_x:u32 a\_y:u32 b\_x:u32 b\_y:u32
 
 Adds two elliptic curve points. UB if either is not a valid curve point.
 
 **Outputs:** Two elements, `c_x` and `c_y`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -421,14 +452,14 @@ Adds two elliptic curve points. UB if either is not a valid curve point.
 
 ## ec_mul
 
-**JSON:** { "op": "ec\_mul", "a\_x": Index, "a\_y": Index, "scalar": Index }
+**JSON:** { `"op"`: `"ec_mul"`, `"a_x"`: Index, `"a_y"`: Index, `"scalar"`: Index }
+
+**Binary:** 0x09 a\_x:u32 a\_y:u32 scalar:u32
 
 Multiplies an elliptic curve point by a scalar. UB if it is not a valid curve
 point.
 
 **Outputs:** Two elements, `c_x` and `c_y`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -455,13 +486,13 @@ point.
 
 ## ec\_mul\_generator
 
-**JSON:** { "op": "ec\_mul\_generator", "scalar": Index }
+**JSON:** { `"op"`: `"ec_mul_generator"`, `"scalar"`: Index }
+
+**Binary:** 0x0a scalar:u32
 
 Multiplies the group generator by a scalar.
 
 **Outputs:** Two elements, `c_x` and `c_y`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -484,13 +515,13 @@ Multiplies the group generator by a scalar.
 
 ## hash\_to\_curve
 
-**JSON:** { "op": "hash\_to\_curve", "inputs", Index[] }
+**JSON:** { `"op"`: `"hash_to_curve"`, `"inputs"`, Index[] }
+
+**Binary:** 0x0b inputs:???
 
 Hashes a sequence of field elements to an embedded curve point.
 
 **Outputs:** Two elements, `c_x` and `c_y`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -517,14 +548,14 @@ Hashes a sequence of field elements to an embedded curve point.
 
 ## less_than
 
-**JSON:** { "op": "less_than", "a": Index, "b": Index, "bits": u32 }
+**JSON:** { `"op"`: `"less_than"`, `"a"`: Index, `"b"`: Index, `"bits"`: u32 }
+
+**Binary:** 0x19 a:u32 b:u32 bits:u32
 
 Checks if `a` < `b`, intepreting both as `bits`-bit unsigned integers.  UB if
 `a` or `b` exceed `bits`.
 
 **Outputs:** One boolean output `a < b`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -551,13 +582,13 @@ Checks if `a` < `b`, intepreting both as `bits`-bit unsigned integers.  UB if
 
 ## load_imm
 
-**JSON:** { "op": "load_imm", "imm": Fr??? }
+**JSON:** { `"op"`: `"load_imm"`, `"imm"`: Fr??? }
+
+**Binary:** 0x0c imm:???
 
 Loads a constant into the circuit.
 
 **Outputs:** One output, `imm`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -570,13 +601,13 @@ Loads a constant into the circuit.
 
 ## mul
 
-**JSON:** { "op": "mul", "a": Index, "b": Index }
+**JSON:** { `"op"`: `"mul"`, `"a"`: Index, `"b"`: Index }
+
+**Binary:** 0x12 a:u32 b:u32
 
 Multiplies `a` and `b` in the prime field.
 
 **Outputs:** One output `a * b`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -592,13 +623,13 @@ Multiplies `a` and `b` in the prime field.
 
 ## neg
 
-**JSON:** { "op": "neg", "a": Index }
+**JSON:** { `"op"`: `"neg"`, `"a"`: Index }
+
+**Binary:** 0x13 a:u32
 
 Negates `a` in the prime field.
 
 **Outputs:** One output `-a`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -611,13 +642,13 @@ Negates `a` in the prime field.
 
 ## not
 
-**JSON:** { "op": "not", "a": Index }
+**JSON:** { `"op"`: `"not"`, `"a"`: Index }
+
+**Binary:** 0x17 a:u32
 
 Boolean not gate.  NOTE: This gate is never emitted by the compiler.
 
 **Outputs:** One output `!a`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -630,13 +661,13 @@ Boolean not gate.  NOTE: This gate is never emitted by the compiler.
 
 ## output
 
-**JSON:** { "op": "output", "var": Index }
+**JSON:** { `"op"`: `"output"`, `"var"`: Index }
+
+**Binary:** 0x0e var:u32
 
 Outputs a `var` from the circuit, including it in the communications commitment
 
 **Outputs:** No outputs (at the level of the IR VM), despite the name.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -649,13 +680,13 @@ Outputs a `var` from the circuit, including it in the communications commitment
 
 ## persistent_hash
 
-**JSON:** { "op": "persistent_hash", "alignment": Alignment, "inputs": Index[] }
+**JSON:** { `"op"`: `"persistent_hash"`, `"alignment"`: Alignment, `"inputs"`: Index[] }
+
+**Binary:** 0x1d alignment:??? inputs:???
 
 Calls a long-term hash function on a sequence of items with a given alignment
 
 **Outputs:** One output, `H(inputs)`, in the binary format.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -690,7 +721,9 @@ Calls a long-term hash function on a sequence of items with a given alignment
 
 ## pi_skip
 
-**JSON:** { "op": "pi_skip", "guard": Maybe<Index>, "count": u32 }
+**JSON:** { `"op"`: `"pi_skip"`, `"guard"`: Maybe<Index>, `"count"`: u32 }
+
+**Binary:** 0x07 guard:??? count:u32
 
 A marker informing the proof assembler that a set of public inputs belong
 together (typically as an instruction), and whether they are active or not.
@@ -699,8 +732,6 @@ Every `declare_pub_input` should be *followed* by a `pi_skip` covering it.
 
 **Outputs:** No outputs, but adds activity information to `IrSource::prove` and
 `IrSource::check`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -739,14 +770,14 @@ Every `declare_pub_input` should be *followed* by a `pi_skip` covering it.
 
 ## private_input
 
-**JSON:** { "op": "private_input", "guard": Maybe<Index> }
+**JSON:** { `"op"`: `"private_input"`, `"guard"`: Maybe<Index> }
+
+**Binary:** 0x1b guard:???
 
 Retrieves a public input from the public transcript outputs.
 
 **Outputs:** Outputs one element, the next private transcript output, or `0` if
 the guard fails
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -798,14 +829,14 @@ the guard fails
 
 ## public_input
 
-**JSON:** { "op": "public_input", "guard": Maybe<Index> }
+**JSON:** { `"op"`: `"public_input"`, `"guard"`: Maybe<Index> }
+
+**Binary:** 0x1a guard:???
 
 Retrieves a public input from the public transcript outputs.
 
 **Outputs:** Outputs one element, the next public transcript output, or `0` if
 the guard fails.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -831,15 +862,15 @@ ZK semantics is the same as `private_input`.
 
 ## reconstitute_field
 
-**JSON:** { "op": "reconstitute_field", "divisor": Index, "modulus": Index, "bits": u32 }
+**JSON:** { `"op"`: `"reconstitute_field"`, `"divisor"`: Index, `"modulus"`: Index, `"bits"`: u32 }
+
+**Binary:** 0x1c divisor:u32 modulus:u32 bits:u32
 
 Takes two inputs, `divisor` and `modulus`, and outputs `divisor << bits |
 modulus`, guaranteeing that the result does not overflow the field size, and
 that `modulus < (1 << bits)`. Inverse of `DivModPowerOfTwo`.
 
 **Outputs:** One.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -924,13 +955,13 @@ that `modulus < (1 << bits)`. Inverse of `DivModPowerOfTwo`.
 
 ## test_eq
 
-**JSON:** { "op": "test_eq": "a": Index, "b": Index }
+**JSON:** { `"op"`: `"test_eq"`: `"a"`: Index, `"b"`: Index }
+
+**Binary:** 0x10 a:u32 b:u32
 
 Tests if `a` and `b` are equal.
 
 **Outputs:** One boolean output, `a == b`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
@@ -946,13 +977,13 @@ Tests if `a` and `b` are equal.
 
 ## transient_hash
 
-**JSON:** { "op": "transient_hash", "inputs": Index[] }
+**JSON:** { `"op"`: `"transient_hash"`, `"inputs"`: Index[] }
+
+**Binary:** 0x0f inputs:???
 
 Calls a circuit-friendly hash function on a sequence of items.
 
 **Outputs:** One output, `H(inputs)`.
-
-**Binary:**
 
 **Rehearsal semantics:**
 
