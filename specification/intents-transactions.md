@@ -9,8 +9,8 @@ atomically together. These are important for [sequencing](#sequencing) the
 order in which parts of the transaction are applied.
 
 ```rust
-struct Transaction<S, P> {
-    intents: Map<u16, Intent<S, P>>,
+struct Transaction<S, P, B> {
+    intents: Map<u16, Intent<S, P, B>>,
     guaranteed_offer: Option<ZswapOffer<P>>,
     fallible_offer: Map<u16, ZswapOffer<P>>,
     binding_randomness: Fr,
@@ -30,18 +30,53 @@ The transaction is only valid if the TTL is a) not in the past, and b) to too
 far in the future (by the ledger parameter `global_ttl`).
 
 ```rust
-struct Intent<S, P> {
+struct Intent<S, P, B> {
     guaranteed_unshielded_offer: Option<UnshieldedOffer<S>>,
     fallible_unshielded_offer: Option<UnshieldedOffer<S>>,
     actions: Vec<ContractAction<P>>,
-    // Dust payments will be enabled once dust tokenomics is fully settled.
-    // dust_payments: Vec<DustSpend<P>>,
+    dust_actions: Option<DustActions<P>>,
     ttl: Timestamp,
-    binding_commitment: FiatShamirPedersen<P>,
+    binding_commitment: B,
 }
 
-type IntentHash = Hash<(u16, Intent<(), ()>)>;
+type ErasedIntent = Intent<(), (), Pedersen>;
+type IntentHash = Hash<(u16, ErasedIntent)>;
 ```
+
+## Lifecycle of Intents and Transactions
+
+The number of type parameters of `Transaction` and `Intent` deserves some
+discussion, as it's directly linked to the lifecycle of intents and
+transactions. Broadly speaking, a transaction goes through the following
+phases, which are represented by parameterising different parts of the
+cryptography differently:
+
+- **Transaction construction**: This is gathering the content that should be in a
+  transaction - at this point there are no privacy guarantees, the transaction
+  can be freely modified, and authenticating signatures are missing.
+  Parameterised as `Transaction<Signature, PreProof, PedersenRandomness>`,
+  `well_formed` is not expected to succeed signature or balancing checks.
+- **Transaction balancing**: At this point, the transaction gets handed to the
+  wallet, which should not handle private information relating to contract calls.
+  For this purpose zero-knowledge proofs are done before the handover.
+  Parameterised as `Transaction<Signature, Proof, PedersenRandomness>`. This
+  still allows `Intent`s to be modified, however existing contract calls cannot
+  be moved around. `well_formed` is not expected to succeed signature or
+  balancing checks.
+- **Transaction signing**: At this point, all UTXOs have been added, and
+  transaction binding has been enforced. The signatures still need to be added,
+  which may be handled by an independent hardware security module handling
+  solely this step. Parameterised as `Transaction<Signature, Proof,
+  FiatShamirPedersen>`. `well_formed` is not expected to succeed signature
+  checks.
+- **Transaction submission**: At this point, transactions are submitted and
+  catalogued by the node. Parameterised as `Transaction<Signature, Proof,
+  FiatShamirPedersen>`. `well_formed` is expected to succeed.
+
+At any stage, parts of the system may want to access a consistent view of the
+transaction access all stages, without authenticating information. This view is
+captured by parametrising the transaction as `Transaction<(), (), Pedersen>`.
+This is also used to define a hash consistent across the latter two stages.
 
 ## Sequencing
 
@@ -86,24 +121,24 @@ rejected.
 
 ```rust
 struct ReplayProtectionState {
-    intent_history: Map<Timestamp, IntentHash>,
+    intent_history: TimeFilterMap<Hash<ErasedIntent>>,
 }
 
 impl ReplayProtectionState {
-    fn apply_intent<S, P>(mut self, intent: Intent<S, P>, tblock: Timestamp) -> Result<Self> {
+    fn apply_intent<S, P, B>(mut self, intent: Intent<S, P, B>, tblock: Timestamp) -> Result<Self> {
         let hash = hash(intent.erase_proofs());
-        assert!(!self.intent_history.contains_value(hash));
+        assert!(!self.intent_history.contains(hash));
         assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
         self.intent_history = self.intent_history.insert(intent.ttl, hash);
         Ok(self)
     }
 
-    fn apply_tx<S, P>(mut self, tx: Transaction<S, P>, tblock: Timestamp) -> Result<Self> {
+    fn apply_tx<S, P, B>(mut self, tx: Transaction<S, P, B>, tblock: Timestamp) -> Result<Self> {
         tx.intents.values().fold(|st, intent| (st?).apply_intent(intent, tblock), Ok(self))
     }
 
     fn post_block_update(mut self, tblock: Timestamp) -> Self {
-        self.intent_history = self.intent_history.filter(|(t, _)| t > tblock + global_ttl);
+        self.intent_history = self.intent_history.filter(tblock);
         self
     }
 }
@@ -148,31 +183,49 @@ existence constraints, where specific interactions also mandate the existence
 of another part in a contract.
 
 ```rust
-impl<S, P> Intent<S, P> {
+impl<S, P, B> Intent<S, P, B> {
     fn well_formed(
         self,
+        tblock: Timestamp,
         segment_id: u16,
-        ref_state: LedgerContractState,
+        ref_state: LedgerState,
     ) -> Result<()> {
         let erased = self.erase_proofs();
         self.guaranteed_offer.map(|offer| offer.well_formed(erased)).transpose()?;
         self.fallible_offer.map(|offer| offer.well_formed(erased)).transpose()?;
-        self.actions.iter().all(|action| action.well_formed(ref_state, hash((segment_id, erased)))).collect()?;
+        self.actions.iter()
+            .all(|action|
+                action.well_formed(
+                    ref_state.contract,
+                    hash((segment_id, erased)),
+                ))
+            .collect()?;
+        self.dust_actions.iter()
+            .all(|dust_actions|
+                dust_actions.well_formed(
+                    ref_state.dust,
+                    ref_state.utxo,
+                    segment_id,
+                    erased,
+                    tblock,
+                    ref_state.params.dust,
+                ))
+            .collect()?;
     }
 }
 
 const SEGMENT_GUARANTEED: u16 = 0;
 
-impl<S, P> Transaction<S, P> {
-    fn well_formed(self, tblock: Timestamp, ref_state: LedgerContractState) -> Result<()> {
-        self.guaranteed_offer.map(|offer| offer.well_formed(0)).transpose()?;
+impl<S, P, B> Transaction<S, P, B> {
+    fn well_formed(self, tblock: Timestamp, ref_state: LedgerState) -> Result<()> {
+        self.guaranteed_offer.map(|offer| offer.well_formed(tblock, 0, ref_state)).transpose()?;
         for (segment, offer) in self.fallible_offer {
             assert!(segment != SEGMENT_GUARANTEED);
             offer.well_formed(segment)?;
         }
         for (segment, intent) in self.intents {
             assert!(segment != SEGMENT_GUARANTEED);
-            intent.well_formed(segment, ref_state)?;
+            intent.well_formed(tblock, segment, ref_state)?;
         }
         self.disjoint_check()?;
         self.sequencing_check()?;
@@ -187,7 +240,7 @@ impl<S, P> Transaction<S, P> {
 The weak TTL check simply checks if the transaction is in the expected time window:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn ttl_check_weak(self, tblock: Timestamp) -> Result<()> {
         for (_, intent) in self.intents {
             assert!(intent.ttl >= tblock && intent.ttl <= tblock + global_ttl);
@@ -200,7 +253,7 @@ The disjoint check ensures that no inputs or outputs in the different parts
 overlap:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn disjoint_check(self) -> Result<()> {
         let mut shielded_inputs = Set::new();
         let mut shielded_outputs = Set::new();
@@ -224,8 +277,8 @@ impl<S, P> Transaction<S, P> {
                 intent.fallible_unshielded_offer,
             ].into_iter());
         for offer in unshielded_offers {
-            assert!(unshielded_inputs.disjoint(inputs));
-            unshielded_inputs += inputs;
+            assert!(unshielded_inputs.disjoint(offer.inputs));
+            unshielded_inputs += offer.inputs;
         }
     }
 }
@@ -234,7 +287,7 @@ impl<S, P> Transaction<S, P> {
 The sequencing check enforces the 'causal precedence' partial order above:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn sequencing_check(self) -> Result<()> {
         // NOTE: this is implemented highly inefficiently, and should be
         // optimised for the actual implementation to run sub-quadratically.
@@ -247,8 +300,11 @@ impl<S, P> Transaction<S, P> {
             // If a calls b, a causally precedes b.
             // Also, if a contract is in two intents, the prior precedes the latter
             for ((cid1, call1), (cid2, call2)) in intent1.actions.iter()
+                .enumerate()
                 .filter_map(ContractAction::as_call)
-                .product(intent2.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent2.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
             {
                 if sid1 == sid2 && cid1 == cid2 {
                     continue;
@@ -262,9 +318,14 @@ impl<S, P> Transaction<S, P> {
         // that of c, then b must precede c in the intent.
         for (_, intent) in self.intents.iter() {
             for ((cid1, call1), (cid2, call2), (cid3, call3)) in intent.actions.iter()
+                .enumerate()
                 .filter_map(ContractAction::as_call)
-                .product(intent.actions.iter().filter_map(ContractAction::as_call))
-                .product(intent.actions.iter().filter_map(ContractAction::as_call))
+                .product(intent.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
+                .product(intent.actions.iter()
+                    .enumerate()
+                    .filter_map(ContractAction::as_call))
             {
                 if let (Some((_, s1)), Some((_, s2))) = (call1.calls_with_seq(call2), call1.calls_with_seq(call3)) {
                     assert!(cid1 < cid2);
@@ -285,8 +346,8 @@ impl<S, P> Transaction<S, P> {
                 .filter_map(ContractAction::as_call)
                 .product(intent.actions.iter().filter_map(ContractAction::as_call))
             {
-                if let Some((segment, _)) = call1.calls_with_seq(call2) {
-                    if segment {
+                if let Some((guaranteed, _)) = call1.calls_with_seq(call2) {
+                    if guaranteed {
                         assert!(call2.fallible_transcript.is_none());
                     } else {
                         assert!(call2.guaranteed_transcript.is_none());
@@ -298,7 +359,7 @@ impl<S, P> Transaction<S, P> {
         let mut prev = Vec::new();
         while causal_precs != prev {
             prev = causal_precs;
-            for ((a, b), (c, d)) in prev.iter().zip(prev.iter()) {
+            for ((a, b), (c, d)) in prev.iter().product(prev.iter()) {
                 if b == c && !prev.contains((a, d)) {
                     causal_precs = causal_precs.insert((a, d));
                 }
@@ -316,14 +377,24 @@ The balance check depends on fee calculations (out of scope), and the overall
 balance of the transaction, which is per token type, per segment ID:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+const FEE_TOKEN: TokenType = TokenType::Shielded(
+
+impl<S, P, B> Transaction<S, P, B> {
     fn fees(self) -> Result<u128> {
         // Out of scope of this spec
     }
 
     fn balance(self) -> Result<Map<(TokenType, u16), i128>> {
         let mut res = Map::new();
+        let mut dust_bal = - (self.fees() as i128);
         for (segment, intent) in self.intents {
+            for dust_spend in self.dust_actions.iter().flat_map(|da| da.spends) {
+                dust_bal += min(spends.v_fee, i128::MAX) as i128;
+            }
+            for dust_reg in self.dust_actions.iter().flat_map(|da| da.registrations) {
+                dust_bal += min(dust_reg.allow_fee_payment, i128::MAX) as i128;
+            }
+
             for (segment, offer) in [
                 (0, intent.guaranteed_unshielded_offer),
                 (segment, intent. fallible_unshielded_offer),
@@ -348,12 +419,12 @@ impl<S, P> Transaction<S, P> {
                         .map(|t| (segment, t)));
                 for (segment, transcript) in transcripts {
                     for (pre_token, val) in transcript.effects.shielded_mints {
-                        let tt = TokenType::Shielded(hash((transcript.address, pre_token)));
+                        let tt = TokenType::Shielded(hash((call.address, pre_token)));
                         let bal = res.get_mut_or_default((tt, segment));
                         *bal = (*bal).checked_add(val)?;
                     }
                     for (pre_token, val) in transcript.effects.unshielded_mints {
-                        let tt = TokenType::Unshielded(hash((transcript.address, pre_token)));
+                        let tt = TokenType::Unshielded(hash((call.address, pre_token)));
                         let bal = res.get_mut_or_default((tt, segment));
                         *bal = (*bal).checked_add(val)?;
                     }
@@ -376,9 +447,11 @@ impl<S, P> Transaction<S, P> {
             .chain(self.guaranteed_offer.iter().map(|o| (0, o)))
         {
             for (tt, val) in offer.deltas {
-                res.set((TokenType::Shielded(tt), segment), val);
+                let bal = res.get_mut_or_default((TokenType::Shielded(tt), segment));
+                *bal = (*bal).checked_add(val)?;
             }
         }
+        res.insert((DUST, 0), dust_bal);
         Ok(res)
     }
 
@@ -394,11 +467,15 @@ The Pedersen check ensures that the Pedersen commitments are openable to the
 declared balances:
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn pedersen_check(self) -> Result<()> {
         let comm_parts =
             self.intents.values()
-                .map(|intent| intent.binding_commitment.commitment)
+                .map(|intent| {
+                    let hash = hash(intent.erase_proofs());
+                    intent.binding_commitment.well_formed(hash)?;
+                    Ok(Pedersen::from(intent.binding_commitment))
+                })?
                 .chain(
                     self.guaranteed_offer.iter()
                         .chain(self.fallible_offer.values())
@@ -429,7 +506,7 @@ The effects check ensures that the requirements of each `ContractCall`s
 `Effects` section are fulfilled.
 
 ```rust
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn effects_check(self) -> Result<()> {
         // We have multisets for the following:
         // - Claimed nullifiers (per segment ID)
@@ -565,10 +642,15 @@ impl<S, P> Transaction<S, P> {
 
 Transaction application roughly follows the following procedure:
 1. Apply the guaranteed section of all intents, and the guaranteed offer.
+  1. When applying fee payments, first all `DustSpend`s are processed
+  2. Then all `DustRegistration`s are processed sequentially.
+  3. Contract calls and both shielded/unshielded offers are independent of
+     this, although contract calls are processed sequentially themselves.
 2. Check if each fallible Zswap offer is applicable in isolation. That is:
 (that is: are the Merkle trees valid and the nullifiers unspent?).
 3. In order of sequence IDs, apply the fallible sections of contracts, and the
    fallible offers (both Zswap and unshielded).
+
 
 If any one sequence in 3. fails, this sequence, and this sequence only, is
 rolled back. If any part of 1. or 2. fails, the transaction fails in its
@@ -589,7 +671,7 @@ enum TransactionResult {
     }
 }
 
-impl<S, P> Transaction<S, P> {
+impl<S, P, B> Transaction<S, P, B> {
     fn segments(self) -> Vec<u16> {
         let mut segments = vec![0];
         let mut intent_segments = self.intents.iter().map(|(s, _)| s).peekable();
@@ -614,17 +696,24 @@ impl<S, P> Transaction<S, P> {
     }
 }
 
+struct LedgerParameters {
+    // ...
+    dust: DustParameters,
+}
+
 struct LedgerState {
     utxo: UtxoState,
     zswap: ZswapState,
     contract: LedgerContractState,
     replay_protection: ReplayProtectionState,
+    dust: DustState,
+    params: LedgerParameters,
 }
 
 impl LedgerState {
-    fn apply<S, P>(
+    fn apply<S, P, B>(
         mut self,
-        tx: Transaction<S, P>,
+        tx: Transaction<S, P, B>,
         block_context: BlockContext,
     ) -> (Self, TransactionResult) {
         let segments = tx.segments();
@@ -653,9 +742,9 @@ impl LedgerState {
         })
     }
 
-    fn apply_segment<S, P>(
+    fn apply_segment<S, P, B>(
         mut self,
-        tx: Transaction<S, P>,
+        tx: Transaction<S, P, B>,
         segment: u16,
         block_context: BlockContext,
     ) -> Result<Self> {
@@ -665,9 +754,12 @@ impl LedgerState {
                 tx,
                 block_context.seconds_since_epoch,
             )?;
-            if let Some(offer) = tx.guaranteed_offer {
-                self.zswap = self.zswap.apply(offer)?;
-            }
+            let com_indicies = if let Some(offer) = tx.guaranteed_offer {
+                (self.zswap, indicies) = self.zswap.apply(offer)?;
+                indicies
+            } else {
+                Map::new()
+            };
             // Make sure all fallible offers *can* be applied
             assert!(tx.fallible_offer.values()
                 .fold(Ok(self.zswap), |st, offer| st?.apply(offer))
@@ -676,7 +768,18 @@ impl LedgerState {
             for intent in tx.intents.values() {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.guaranteed_unshielded_offer {
-                    self.utxo = self.utxo.apply_offer(offer, erased)?;
+                    self.utxo = self.utxo.apply_offer(
+                        offer,
+                        0,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
+                    self.dust = self.dust.apply_offer(
+                        offer,
+                        0,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
                 }
                 for action in intent.actions.iter() {
                     self.contract = self.contract.apply_action(
@@ -684,14 +787,59 @@ impl LedgerState {
                         true,
                         block_context,
                         erased,
+                        com_indicies,
                     )?;
                 }
             }
+            // process fees and dust actions first. This is not in `apply_segment`,
+            // as they are not processed segment-by-segment.
+            let mut fees_remaining = tx.fees();
+            // apply spends first, to make sure registration outputs get the
+            // maximum dust they can.
+            for dust_spend in tx.intents.values()
+                .flat_map(|i| i.dust_actions.iter().flat_map(|a| a.spends.iter()))
+            {
+                self.dust = self.dust.apply_spend(dust_spend)?;
+                fees_remaining = fees_remaining.saturating_sub(dust_spend.v_fee);
+            }
+            // Then apply registrations
+            for intent in tx.intents.values() {
+                for reg in intent.dust_actions
+                    .iter()
+                    .flat_map(|a| a.registrations.iter())
+                {
+                    (self.dust, fees_remaining) = self.dust.apply_registration(
+                        self.utxo,
+                        fees_remaining,
+                        intent.erase_proofs(),
+                        reg,
+                        self.params.dust,
+                    )?;
+                }
+            }
+            assert!(fees_remaining == 0);
         } else {
+            let com_indicies = if let Some(offer) = tx.fallible_offer.get(segment) {
+                (self.zswap, indicies) = self.zswap.apply(offer)?;
+                indicies
+            } else {
+                Map::new()
+            };
             if let Some(intent) = tx.intents.get(segment) {
                 let erased = intent.erase_proofs();
                 if let Some(offer) = intent.fallible_unshielded_offer {
-                    self.utxo = self.utxo.apply_offer(offer, erased)?;
+                    self.utxo = self.utxo.apply_offer(
+                        offer,
+                        segment,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
+                    self.dust = self.dust.apply_offer(
+                        offer,
+                        segment,
+                        erased,
+                        block_context.seconds_since_epoch,
+                    )?;
                 }
                 for action in intent.actions.iter() {
                     self.contract = self.contract.apply_action(
@@ -699,11 +847,9 @@ impl LedgerState {
                         false,
                         block_context,
                         erased,
+                        com_indicies,
                     )?;
                 }
-            }
-            if let Some(offer) = tx.fallible_offer.get(segment) {
-                self.zswap = self.zswap.apply(offer)?;
             }
         }
         Ok(self)

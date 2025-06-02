@@ -5,26 +5,26 @@ skinparam nodesep 100
 skinparam ranksep 100
 
 state confirmed as "Confirmed" {
-  state succeededEntirely as "Succeeded Entirely"
-  state failFallible as "Fallible Failed"
-  state failEntirely as "Failed Entirely"
+  state success as "Success"
+  state partialSuccess as "Partial Success"
+  state failure as "Failure"
 }
 state pending as "Pending"
 
 state final as "Final" {
-  state succeededEntirelyF as "Succeeded Entirely"
-  state failFallibleF as "Fallible Failed"
-  state failEntirelyF as "Failed Entirely"
+  state successF as "Success"
+  state partialSuccessF as "Partial Success"
+  state failureF as "Failure"
 }
 
-state failed as "Failed"
+state rejected as "Rejected"
 
 [*] --> pending : spend | watch_for
 [*] --> confirmed : apply
 pending --> confirmed : apply
 confirmed --> final : finalize
 confirmed --> pending : rollback
-pending ---> failed : discard
-confirmed --> failed : discard
+pending ---> rejected : discard
+confirmed --> rejected : discard
 
 @enduml

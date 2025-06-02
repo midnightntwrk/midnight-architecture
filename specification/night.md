@@ -56,11 +56,18 @@ impl From<UtxoSpend> for Utxo {
 }
 ```
 
-The state associated with the UTXO subsystem is simply the set of UTXOs:
+The state associated with the UTXO subsystem is a set of UTXOs, associated with
+metadata. This is represented as a map from the UTXO, to its metadata.
+Presently, the metadata solely consists of a creating time timestamp of the
+UTXO.
 
 ```rust
+struct UtxoMeta {
+    ctime: Timestamp,
+}
+
 struct UtxoState {
-    utxos: Set<Utxo>,
+    utxos: Map<Utxo, UtxoMeta>,
 }
 ```
 
@@ -73,10 +80,11 @@ have a set of signatures, which each sign the containing
 be self-referential, as the `Intent` contains the signatures. To avoid this, we
 sign a *variant* of the `Intent` *without* signatures. In practice, this is
 achieved with a type parameter `S`, which may be instantiated either
-with the unit type `()`, or the type `Signature`. Therefore, the
-full type for `Intent` is `Intent<Signature, Proof>`, and it signs `Intent<(),
-()>`, as zero-knowledge proofs are similarly handled. This process is called
-*signature-* or *proof-erasure*.
+with the unit type `()`, or the type `Signature`. The full type for `Intent` is
+`Intent<Signature, Proof, FiatShamirPedersen>`, and it signs `ErasedIntent =
+Intent<(), (), Pedersen>`. This also erases zero-knowledge proofs, and some of
+the Pedersen commitment. This process is called *signature-*, *proof-* or
+*binding-erasure*.
 
 Due to the technicalities of [dust generation](./dust.md), a variant of
 `UtxoOutput`, `GeneratingUtxoOutput` also exists, which can appear in the place
@@ -91,7 +99,7 @@ struct UnshieldedOffer<S> {
     outputs: Vec<UtxoOutput>,
     // Note that for S = (), this has a fixed point of ().
     // This signs the intent, and the segment ID
-    signatures: Vec<S::Signature<(u16, Intent<(), ()>>>,
+    signatures: Vec<S::Signature<(u16, ErasedIntent>>,
 }
 ```
 
@@ -102,13 +110,13 @@ ZK-proofs, and must be valid wrt. the respective input's verifying key.
 
 ```rust
 impl<S> UnshieldedOffer<S> {
-    fn well_formed(self, parent: Intent<(), ()>) -> Result<()> {
+    fn well_formed(self, segment_id: u16, parent: ErasedIntent) -> Result<()> {
         assert!(self.inputs.is_sorted());
         assert!(self.outputs.is_sorted());
         assert!(self.inputs.len() == self.signatures.len());
         assert!(self.inputs.no_duplicates());
         for (inp, sig) in self.inputs.iter().zip(self.signatures.iter()) {
-            signature_verify(parent, inp.owner, sig)?;
+            signature_verify((segment_id, parent), inp.owner, sig)?;
         }
     }
 
@@ -136,11 +144,19 @@ applied.
 
 ```rust
 impl UtxoState {
-    fn apply_offer<S>(mut self, offer: UnshieldedOffer<S>, parent: Intent<(), ()>) -> Result<UtxoState> {
+    fn apply_offer<S>(
+        mut self,
+        offer: UnshieldedOffer<S>,
+        segment: u16,
+        parent: ErasedIntent,
+        tnow: Timestamp,
+    ) -> Result<UtxoState> {
         let inputs = offer.inputs.iter().map(Utxo::from).collect();
         assert!(self.utxos.hasSubset(inputs));
-        self.utxos -= inputs;
-        let intent_hash = hash(parent);
+        for input in inputs {
+            self.utxos = self.utxos.remove(input);
+        }
+        let intent_hash = hash((segment, parent));
         let outputs = offer.outputs.iter().enumerate().map(|(output_no, output)| Utxo {
             value: output.value,
             owner: output.owner,
@@ -149,8 +165,12 @@ impl UtxoState {
             output_no,
         }).collect();
         // The below is *not* needed, due to the uniqueness of outputs.
-        // assert!(self.utxo.intersection(outputs).is_empty());
-        self.utxos += outputs;
+        // assert!(self.utxos.intersection(outputs).is_empty());
+        for output in outputs {
+            self.utxos.insert(output, UtxoMeta {
+                ctime: tnow,
+            });
+        }
         Ok(self)
     }
 }

@@ -16,11 +16,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: './components/WalletEngine/reference/.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Set up credentials
+        run: |
+          echo '//npm.pkg.github.com/:_authToken=${{ secrets.MIDNIGHTCI_PACKAGES_READ }}' > ${HOME}/.npmrc
 
       - name: Install dependencies
         run: |
           cd ./components/WalletEngine/reference
-          npm install
+          npm install --ignore-scripts
+
+      - name: Cleanup auth setup
+        run: "rm -f ${HOME}/.npmrc"
+
+      - name: Run postinstall scripts
+        run: |
+          cd ./components/WalletEngine/reference
+          npm rebuild
+          npm run prepare --if-present
 
       - name: Check test vectors
         run: |

@@ -47,13 +47,11 @@ enum TokenType {
 }
 
 // NIGHT is a `TokenType`, but it is *not* a hash output, being defined as zero.
-const NIGHT: TokenType = TokenType::Unshielded([0u8; 32]);
+const NIGHT: TokenType = TokenType::Unshielded(NIGHT_RAW);
+const NIGHT_RAW: RawTokenType = [0u8; 32];
 
-// DUST is a `TokenType` for fees. For testnet, this is the shielded
-// token defined as zero. In the future, this will be the special
-// TokenType::Dust token
-const DUST: TokenType = TokenType::Shielded([0u8; 32]);
-// const DUST: TokenType = TokenType::Dust;
+// DUST is a `TokenType` for fees. This token is uniquely handled on Midnight.
+ const DUST: TokenType = TokenType::Dust;
 ```
 
 ## Signatures
@@ -70,7 +68,7 @@ type Signature<M> = secp256k1::schnorr::Signature;
 
 We support signature erasure by parameterising some data structures with a type
 parameter `S`, where `S::Signature<M> = Signature<M>` for `S = Signature` (a
-unit type), and `S::Signature<M> = ()` for `S = ()`. 
+unit type), and `S::Signature<M> = ()` for `S = ()`.
 
 We provide signature verification with
 
@@ -178,7 +176,7 @@ opened by revealing `v` and `r`. Two commitments `c1` and `c2` can be added,
 and opened to the sums `v1 + v2` and `r1 + r2`.
 
 A multi-base Pedersen commitment uses a different value for `h` in different
-situations. In Midnight we pick `h = hash_to_curve(coin.type, segment)`, and `v
+situations. In Midnight we pick `h = embedded::hash((coin.type, segment))`, and `v
 = coin.value`, for [Zswap](./zswap.md) (see link for definitions) coins. This ensures that commitments in
 different coin types and segments do not interfere with each other, as it is
 cryptographically hard to find two `coin` and `segment` values that produce the
@@ -200,7 +198,7 @@ We do this with a knowledge-of-exponent proof, consisting of:
 - The commitment itself, `g * r`
 - A 'target' point, `g * s` for a random `s: embedded::Scalar`
 - (implied) the challenge scalar `c: embedded::Scalar`, defined as the hash of:
-    - The containing `Intent<(), ()>` hash (see [Intents & Transactions](./intents-transactions.md) for details)
+    - The containing `ErasedIntent` hash (see [Intents & Transactions](./intents-transactions.md) for details)
     - The commitment
     - The target point
 - The 'reply' scalar `R = s - c * r`
@@ -208,6 +206,39 @@ We do this with a knowledge-of-exponent proof, consisting of:
 The Fiat-Shamir Pedersen is considered valid if `g * s == g * R + (g * r) *
 c`. Note that technically this is not a Pedersen commitment, but it is used as
 a re-randomization of Pedersen commitments, so we're lumping them together.
+
+### Binding stages
+
+As the Fiat-Shamir transformed Pedersen commitment is crucial for binding of
+the transaction, it is useful to distinguish between the different binding
+states, and allow partially unbound transactions to exist. This allows the
+wallet to add new inputs and outputs to a transaction, without having access to
+the private proof information of an unproven transaction.
+
+This is done with the type parameter `B` in `Transaction` and `Intent` (see
+[Intents & Transactions](./intents-transactions.md) for details), which is used
+for the binding commitment of intents. Specifically, we assume three marker
+types are permissible for `B`:
+
+- `PedersenRandomness`, where the value is directly the `r: embedded::Scalar`
+  described above
+- `FiatShamirPedersen`, where the value is the tuple `(g * r, g * s, s - c *
+  r): (embedded::CurvePoint, embedded::CurvePoint, embedded::Scalar)` described
+  above (Note: At the time of writing, this is called `PureGeneratorPedersen`
+  in the code base; it is recommended to rename this).
+- `Pedersen`, where the value is `(g * r): embedded::CurvePoint`
+
+There exists a randomized transformation from `PedersenRandomness` to
+`FiatShamirPedersen`, that commits to the challenge `c`. There also exist
+deterministic transformations from `PedersenRandomness` and
+`FiatShamirPedersen` to `Pedersen`.
+
+An intent starts out its life 'unbound', with `B = PedersenRandomness`, before
+eventually being sealed to `B = FiatShamirPedersen`. At this point, no
+modifications to the intent can be made without breaking the validation for
+this commitment. Some parts of a transaction need to reference the commitment
+both before and after binding, which they to by referencing its `Pedersen`
+form.
 
 ## Time
 
@@ -229,3 +260,35 @@ clearly unreachable, and assume the existence of a ledger parameter
 `global_ttl: Duration` defining a global validity window for time-to-live
 values, counting between `now` and `now + global_ttl`. This can be taken to be
 on the order of weeks.
+
+For some operations, we keep a *time-filtered map*. This is a map with
+timestamp keys, and the following efficient operations:
+
+```rust
+type TimeFilterMap<V>;
+
+impl<V: Default> TimeFilterMap<V> {
+    /// Retrieves the entry under `t`, first entry immediately preceding `t`
+    /// (that is: the entry under t', such that t' <= t, and no t'' != t'
+    /// exists where t' <= t'' <= t
+    /// For the empty map, returns the default of `V`.
+    ///
+    /// O(log |self|)
+    fn get(self, t: Timestamp) -> V;
+    /// Inserts a new value under the given timestamp
+    /// Should be only called with monotonically increasing timestamps. 
+    ///
+    /// O(log |self|)
+    fn insert(self, t: Timestamp, v: V) -> Self;
+    /// Retain only entries whose key is >= tmin. If there is no key equal to
+    /// tmin, the last key prior to this is set at tmin to preserve the `get`
+    /// behaviour for all values >= tmin.
+    ///
+    /// O(log |self|)
+    fn filter(self, tmin: Timestamp) -> Self;
+    /// Tests if the given *value* is in the map.
+    ///
+    /// O(log |self|)
+    fn contains(self, value: V) -> bool;
+}
+```
