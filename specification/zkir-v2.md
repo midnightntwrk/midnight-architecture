@@ -110,6 +110,19 @@ Therefore, the private inputs and public outputs will only be partial; values wi
 However, the ZK proof needs to prove that values exist for these branches as well.
 So a major reason for the rehearsal phase of ZKIR evaluation is to construct a full memory that contains values for all the private inputs and public outputs that exist.
 
+### The Rehearsal Memory
+
+Values in the rehearsal phase's memory are values in the underlying prime field.
+Field values are non-negative.
+There is a maximum field value, and arithmetic on field values is modulo the maximum value plus one.
+
+### Outputs
+
+The circuit has a number of outputs.
+These are the results (return values) of the circuit, if any.
+Note that these are different from public outputs (see below).
+The rehearsal phase builds up a vector of the circuit's outputs.
+
 ### Private Inputs
 
 The `private_input` instruction is possibly conditionally executed.
@@ -133,13 +146,15 @@ In the case where the value in the memory at the guard index is `0`, then the ou
 
 ### Public Inputs
 
+Public inputs are implemented by a pair of ZKIR instructions, `declare_pub_input` and `pi_skip`.
 During the rehearsal phase, a complete vector of public inputs is built.
 This includes the public inputs for branches that were taken, whose values are in the proof preimage's public inputs.
 It also includes public inputs for branches that were not taken.
 Additionally, a vector of public input *skips* is built that is a vector of optional counts.
-A count in the public input skips indicates a consecutive sequence of public inputs that were skipped during off-chain execution.
+Each element of the public input skip vector represents a corresponding `pi_skip` instruction in the ZKIR circuit.
+A count in the public input skips indicates a sequence of public inputs that were skipped during off-chain execution.
+No count (`None`) indicates a sequence of public inputs that were not skipped.
 
-Public inputs are implemented by a pair of ZKIR instructions, `declare_pub_input` and `pi_skip`.
 Each `declare_pub_input` instruction is covered by exactly one `pi_skip` instruction that follows it somewhere in the ZKIR instruction sequence.
 A `pi_skip` instruction can cover multiple `declare_pub_input` instructions.
 
@@ -160,8 +175,16 @@ A skip with the given count is appended to the vector of public input skips (the
 ## The Circuit Phase
 
 The circuit phase is given the complete memory produced by the rehearsal phase and the complete public inputs.
-
 It uses the `midnight-circuits` library to construt a zkSNARK.
+
+We embrace the "circuit" metaphor to describe the semantics of the circuit phase evaluation.
+Operations such as arithmetic are called *gates* with inputs and outputs.
+The inputs and outputs of gates are called *wires*.
+A special kind of gate is a *constraint*, which requires the input(s) to satisfy some property without necessarily producing an output.
+
+### The Circuit Memory
+
+Values in the circuit phase's memory are wires which are the output of some gate.
 
 # Instruction Reference
 
@@ -220,196 +243,109 @@ gate.
 
 ## constrain_bits
 
+No outputs.  Constrains a value in the memory to fit into a set number of bits.
+
 **JSON:** { `"op"`: `"constrain_bits"`, `"var"`: Index, `"bits"`: u32 }
 
 **Binary:** 0x02 var:u32 bits:u32
 
-Constrains a value to a set number of bits.
+**Rehearsal semantics:** the field value at index *var* is read from the memory.
+The operation fails if any bit at bit position *bits* or higher is non-zero.
 
-**Outputs:** No outputs.
-
-**Rehearsal semantics:**
-
-    I::ConstrainBits { var, bits } => drop(idx_bits(&memory, *var, Some(*bits))?),
-
-**Circuit semantics:**
-
-    I::ConstrainBits { var, bits } => drop(std.assigned_to_le_bits(
-        layouter,
-        idx(&memory, *var)?,
-        Some(*bits as usize),
-        *bits as usize >= FR_BITS,
-    )?),
-
+**Circuit semantics:** the wire at index *var* is read from the memory.  A
+constraint is added that the value on the wire fits in *bits* or fewer.
 
 ## constrain_eq
+
+No outputs.  Constrains a pair of values in the memory to be equal.
 
 **JSON:** { `"op"`: `"constrain_eq"`, `"a"`: Index, `"b"`: Index }
 
 **Binary:** 0x03 a:u32 b:u32
 
-Constrains two values `a` and `b` to be equal.
+**Rehearsal semantics:** the field values at indexes *a* and *b* are read from
+the memory.  They are compared for equality and the operation fails if they are
+not equal.
 
-**Outputs:** No outputs.
-
-**Rehearsal semantics:**
-
-    I::ConstrainEq { a, b } => {
-        if idx(&memory, *a)? != idx(&memory, *b)? {
-            bail!(
-                "Failed equality constraint: {:?} != {:?}",
-                idx(&memory, *a)?,
-                idx(&memory, *b)?
-            );
-        }
-    }
-
-**Circuit semantics:**
-
-    I::ConstrainEq { a, b } => {
-        std.assert_equal(layouter, idx(&memory, *a)?, idx(&memory, *b)?)?
-    }
-
+**Circuit semantics:** the wires at indexes *a* and *b* are read from the
+memory.  A constraint is added that they are equal.
 
 ## constrain\_to\_boolean
+
+No outputs.  Constrains a value in the memory to be one of the canonical boolean
+values `0` (false) or `1` (true).
 
 **JSON:** { `"op"`: `"constrain_to_boolean"`, `"var"`: Index }
 
 **Binary:** 0x04 var:u32
 
-Constrains a value `var` to be boolean (`0` or `1`).
+**Rehearsal semantics:** the field value at *var* is read from the memory.  The
+operation fails if the value is not `0` or `1`.
 
-**Outputs:** No outputs.
-
-**Rehearsal semantics:**
-
-    I::ConstrainToBoolean { var } => drop(idx_bool(&memory, *var)?),
-
-**Circuit semantics:**
-
-    I::ConstrainToBoolean { var } => {
-        // Yes, this does insert a constraint.
-        let _: AssignedBit<_> = std.convert(layouter, idx(&memory, *var)?)?;
-    }
-
+**Circuit semantics:** the wire at index *var* is read from the memory.  A
+constraint is added that the value on the wire is either `0` or `1`.
 
 ## copy
+
+One output.  Duplicates a value in the memory.  This instruction is not
+necessary but it can be useful in some cases, and it can simplify the generation
+of ZKIR.
 
 **JSON:** { `"op"`: `"copy"`, `"var"`: Index }
 
 **Binary:** 0x05 var:u32
 
-Creates a copy of a value `var`. Superfluous, but potentially useful in some
-settings, and does not extend the actual circuit.
+**Rehearsal semantics:** the field value at *var* is read from the memory.  The
+memory is extended with this value.
 
-**Outputs:** One element, `var`.
-
-**Rehearsal semantics:**
-
-    I::Copy { var } => memory.push(idx(&memory, *var)?),
-
-**Circuit semantics:**
-
-    I::Copy { var } => mem_push(idx(&memory, *var)?.clone(), &mut memory)?,
-
+**Circuit semantics:** the wire at *var* is read from the memory.  The memory is
+extended with this (same) wire.
 
 ## declare\_pub\_input
+
+No outputs.  Declares a value in the memory as the next public input.
 
 **JSON:** { `"op"`: `"declare_pub_input"`, `"var"`: Index }
 
 **Binary:** 0x06 var:u32
 
-Declares a variable as the next public input.
+**Rehearsal semantics:** the rehearsal phase builds up a complete vector of
+public input field values.  The field value at *var* is read from the memory.
+The public input vector is extended with this value.  The rehearsal phase
+maintains a current index into the proof primage's (partial) public input
+vector.  This index is incremented, optimistically assuming that the declared
+public input was in a conditional branch that was taken during the off-chain
+execution of the circuit.
 
-**Outputs:** No outputs.
-
-**Rehearsal semantics:**
-
-    I::DeclarePubInput { var } => {
-        pis.push(idx(&memory, *var)?);
-        public_transcript_inputs_idx += 1;
-    }
-
-**Circuit semantics:**
-
-    I::DeclarePubInput { var } => {
-        pi_push(idx(&memory, *var)?.clone(), &mut public_inputs)?
-    }
-
+**Circuit semantics:** the circuit phase builds up a vector of public inputs.
+The wire at *var* is read from the memory.  The public input vector is extended
+with this wire.  A constraint is added that it the value on the wire is equal to
+the field value at the same index in the public inputs computed during the
+rehearsal phase.
 
 ## div\_mod\_power\_of\_two
+
+Two outputs, the quotient and remainder when dividing a field value by a power
+of two.  This allows splitting a field value's binary representation into high
+(quotient) and low (remainder) parts.
 
 **JSON:** { `"op"`: `"div_mod_power_of_two"`, `"var"`: Index, `"bits"`: u32 }
 
 **Binary:** 0x0d var:u32 bits:u32
 
-Divides with remainder by a power of two (number of bits).
-
 **Outputs:** Two outputs, `var >> bits`, and `var & ((1 << bits) - 1)`.
 
-**Rehearsal semantics:**
+**Rehearsal semantics:** the field value at index *var* is read from the memory.
+The memory is extended with the quotient and remainder when the value is divided
+by 2^*bits*.  The quotient will be the value shifted right by *bits* and the
+remainder will be the value logically ANDed with the bit mask 2^*bits*-1.
 
-    I::DivModPowerOfTwo { var, bits } => {
-        if *bits as usize > FR_BYTES_STORED * 8 {
-            bail!("Excessive bit count");
-        }
-        let var_bits = idx_bits(&memory, *var, None)?;
-        memory.push(from_bits(var_bits[*bits as usize..].iter().copied()));
-        memory.push(from_bits(var_bits[..*bits as usize].iter().copied()));
-    }
-
-**Circuit semantics:**
-
-    I::DivModPowerOfTwo { var, bits } => {
-        let var = idx(&memory, *var)?.clone();
-        let (divisor, modulus) = match &workbench {
-            ProofWorkbench::Dry => (Value::unknown(), Value::unknown()),
-            ProofWorkbench::Mock => (
-                Value::known(Default::default()),
-                Value::known(Default::default()),
-            ),
-            ProofWorkbench::Live(preproc) => {
-                let idx = memory.len();
-                if preproc.memory.len() < idx + 2 {
-                    return Err(ProofError::Synthesis);
-                }
-                (
-                    Value::known(preproc.memory[idx]),
-                    Value::known(preproc.memory[idx + 1]),
-                )
-            }
-        };
-        let divisor = std.assign(layouter, divisor)?;
-        let modulus = std.assign(layouter, modulus)?;
-        let divisor_bits = std.assigned_to_le_bits(
-            layouter,
-            &divisor,
-            Some(FR_BITS - *bits as usize),
-            *bits == 0,
-        )?;
-        let modulus_bits = std.assigned_to_le_bits(
-            layouter,
-            &modulus,
-            Some(*bits as usize),
-            *bits as usize >= FR_BITS,
-        )?;
-
-        let var_bits = std.assigned_to_le_bits(layouter, &var, None, true)?;
-        for (a, b) in modulus_bits
-            .iter()
-            .chain(divisor_bits.iter())
-            .zip(var_bits.iter())
-        {
-            let a: AssignedCell<outer::Scalar, outer::Scalar> =
-                std.convert(layouter, a)?;
-            let b: AssignedCell<outer::Scalar, outer::Scalar> =
-                std.convert(layouter, b)?;
-            std.assert_equal(layouter, &a, &b)?;
-        }
-        mem_push(divisor, &mut memory)?;
-        mem_push(modulus, &mut memory)?;
-    }
-
+**Circuit semantics:** the wire at index *var* is read from the memory.  The
+expected quotient and remainder field values are read from the memory that was
+produced by the rehearsal phase.  Pairwise constraints are added that every bit
+of the value on the wire is equal to the corresponding bit of (quotient <<
+*bits*) + remainder.  The memory is extended with wires carrying the quotient
+and remainder computed by the rehearsal phase.
 
 ## ec_add
 
@@ -582,44 +518,32 @@ Checks if `a` < `b`, intepreting both as `bits`-bit unsigned integers.  UB if
 
 ## load_imm
 
+One output.  Extends the memory with an immediate field value.
+
 **JSON:** { `"op"`: `"load_imm"`, `"imm"`: Fr??? }
 
 **Binary:** 0x0c imm:???
 
-Loads a constant into the circuit.
+**Rehearsal semantics:** the memory is extended with the field value *imm*.
 
-**Outputs:** One output, `imm`.
-
-**Rehearsal semantics:**
-
-    I::LoadImm { imm } => memory.push(*imm),
-
-**Circuit semantics:**
-
-    I::LoadImm { imm } => mem_push(std.assign_fixed(layouter, imm.0)?, &mut memory)?,
-
+**Circuit semantics:** a wire is created carrying the field value *imm*.  The
+memory is extended with this wire.
 
 ## mul
+
+One output.  Multiples a pair of field values in the prime field.
 
 **JSON:** { `"op"`: `"mul"`, `"a"`: Index, `"b"`: Index }
 
 **Binary:** 0x12 a:u32 b:u32
 
-Multiplies `a` and `b` in the prime field.
+**Rehearsal semantics:** the field values at indexes *a* and *b* are read from
+the memory.  The memory is extended with the result of multiplying them in the
+prime field.
 
-**Outputs:** One output `a * b`.
-
-**Rehearsal semantics:**
-
-    I::Mul { a, b } => memory.push(idx(&memory, *a)? * idx(&memory, *b)?),
-
-**Circuit semantics:**
-
-    I::Mul { a, b } => mem_push(
-        std.mul(layouter, idx(&memory, *a)?, idx(&memory, *b)?, None)?,
-        &mut memory,
-    )?,
-
+**Circuit semantics:** the wires at indexes *a* and *b* are read from the
+memory.  A `mul` gate is built using the inputs at *a* and *b*.  The memory is
+extended with the output wire of the `mul` gate.
 
 ## neg
 
@@ -661,22 +585,18 @@ Boolean not gate.  NOTE: This gate is never emitted by the compiler.
 
 ## output
 
+No outputs as an instruction, despite the name.  A value in memory is recorded
+as an output from the circuit.
+
 **JSON:** { `"op"`: `"output"`, `"var"`: Index }
 
 **Binary:** 0x0e var:u32
 
-Outputs a `var` from the circuit, including it in the communications commitment
+**Rehearsal semantics:** the field value at *var* is read from the memory.  The
+vector of circuit outputs is extended with this value.
 
-**Outputs:** No outputs (at the level of the IR VM), despite the name.
-
-**Rehearsal semantics:**
-
-    I::Output { var } => outputs.push(idx(&memory, *var)?),
-
-**Circuit semantics:**
-
-    I::Output { var } => outputs.push(idx(&memory, *var)?.clone()),
-
+**Circuit semantics:** the wire at *var* is read from the memory.  The vector of
+circuit outputs is extended with this wire.
 
 ## persistent_hash
 
@@ -721,144 +641,83 @@ Calls a long-term hash function on a sequence of items with a given alignment
 
 ## pi_skip
 
+No outputs.  This is an instruction that tells the ZKIR evaluator whether a
+public input corresponds to one that was produced by the off-chain execution of
+the circuit or not.  Every `declare_put_input` instruction should have a
+`pi_skip` that covers it occuring later in the instruction sequence.
+
 **JSON:** { `"op"`: `"pi_skip"`, `"guard"`: Maybe<Index>, `"count"`: u32 }
 
 **Binary:** 0x07 guard:??? count:u32
 
-A marker informing the proof assembler that a set of public inputs belong
-together (typically as an instruction), and whether they are active or not.
+**Rehearsal semantics:** if the instruction has a *guard*, then the field value
+at index *guard* is read from the memory.  If there is a guard, the operation's
+behavior is undefined if the field value is not `0` or `1`.  There are two
+cases:
 
-Every `declare_pub_input` should be *followed* by a `pi_skip` covering it.
+- **there is no guard or the guard's field value is `1`:** this represents an
+  unconditionally produced public input or one that was produced by a
+  conditional branch that was taken during the circuit's off-chain execution.
+  The most recent *count* public inputs are compared to the ones in the proof
+  preimage from the current public input index minus *count* up to the current
+  public input index.  The operation fails if any of these values are not equal.
+  The public input skip vector is extended with `None` (no count) indicating
+  that the public inputs corresponding to this `pi_skip` were not skipped.
+  
+- **the guard's field value is `0`:** this represents a public input that would
+  have been produced in a conditional branch that was not taken during the
+  circuit's off-chain execution.  The current public input index is decremented
+  by *count*.  The public input skip vector is extended with the *count*,
+  indicating that the public inputs corresponding to this `pi_skip` were
+  skipped.
 
-**Outputs:** No outputs, but adds activity information to `IrSource::prove` and
-`IrSource::check`.
-
-**Rehearsal semantics:**
-
-    I::PiSkip { guard, count } => match guard {
-        Some(guard) if !idx_bool(&memory, *guard)? => {
-            pi_skips.push(Some(*count as usize));
-            public_transcript_inputs_idx -= *count as usize;
-        }
-        _ => {
-            pi_skips.push(None);
-            for i in 0..(*count as usize) {
-                let idx = public_transcript_inputs_idx - *count as usize + i;
-                let expected = preimage.public_transcript_inputs.get(idx).copied();
-                let computed = Some(pis[pis.len() - *count as usize + i]);
-                if expected != computed {
-                    error!(
-                        ?idx,
-                        ?expected,
-                        ?computed,
-                        ?memory,
-                        ?pis,
-                        "Public transcript input mismatch"
-                    );
-                    bail!(
-                        "Public transcript input mismatch for input {idx}; expected: {expected:?}, computed: {computed:?}"
-                    );
-                }
-            }
-        }
-    },
-
-**Circuit semantics:**
-
-    I::PiSkip { .. } => {}
-
+**Circuit semantics:** nothing is done for this instruction, it is a no-op.
 
 ## private_input
+
+One output.  Optionally retrieves a private input from the private transcript.
 
 **JSON:** { `"op"`: `"private_input"`, `"guard"`: Maybe<Index> }
 
 **Binary:** 0x1b guard:???
 
-Retrieves a public input from the public transcript outputs.
+**Rehearsal semantics:** if the instruction has a *guard*, then the field value
+at index *guard* is read from the memory.  If there is a guard, the operation's
+behavior is undefined if the field value is not `0` or `1`.  There are two
+cases:
 
-**Outputs:** Outputs one element, the next private transcript output, or `0` if
-the guard fails
+- **there is no guard or the guard's field value is `1`:** this represents an
+  unconditionally produced private input or one that was produced by a
+  conditional branch that was taken during the circuit's off-chain execution.
+  The rehearsal phase maintains a current index into the proof preimage's
+  private inputs.  The memory is extended with the value of the current private
+  input and the current index is incremented.
+  
+- **the guard's field value is `0`:** this represents a private input that would
+  have been produced in a conditional branch that was not taken during the
+  circuit's off-chain execution.  The memory is extended with the field value
+  `0` as a dummy value.
 
-**Rehearsal semantics:**
-
-    I::PrivateInput { guard } => match guard {
-        Some(guard) if !idx_bool(&memory, *guard)? => memory.push(0.into()),
-        _ => {
-            memory.push(
-                preimage
-                    .private_transcript
-                    .get(private_transcript_outputs_idx)
-                    .copied()
-                    .ok_or(anyhow!("Ran out of private transcript outputs"))?,
-            );
-            private_transcript_outputs_idx += 1;
-        }
-    },
-
-**Circuit semantics:**
-
-    I::PublicInput { guard } | I::PrivateInput { guard } => {
-        let guard = guard.map(|guard| idx(&memory, guard)).transpose()?;
-        let value = match &workbench {
-            ProofWorkbench::Live(preproc) => {
-                let idx = memory.len();
-                if idx > preproc.memory.len() {
-                    error!("Ran out of preprocessed memory. This is a bug.");
-                    return Err(ProofError::Synthesis);
-                }
-                Value::known(preproc.memory[idx])
-            }
-            ProofWorkbench::Dry => Value::unknown(),
-            ProofWorkbench::Mock => Value::known(Default::default()),
-        };
-        let value_cell = std.assign(layouter, value)?;
-        // If `guard` is Some, then we want to ensure that
-        // `value` is 0 if `guard` is 0
-        // That is: guard == 0 -> value == 0
-        // => value == 0 || guard
-        if let Some(guard) = guard {
-            let value_is_zero = std.is_zero(layouter, &value_cell)?;
-            let guard_bit = std.convert(layouter, guard)?;
-            let is_ok = std.or(layouter, &[value_is_zero, guard_bit])?;
-            let is_ok_field = std.convert(layouter, &is_ok)?;
-            std.assert_non_zero(layouter, &is_ok_field)?;
-        }
-        mem_push(value_cell, &mut memory)?;
-    }
-
+**Circuit semantics:** the expected private input is read from the memory that
+was produced by the rehearsal phase.  If there is a *guard*, the wire at *guard*
+is read from the memory and a constraint is added that either the guard value is
+non-zero or else the expected private input is zero.  The memory is extended
+with a wire containing the private input computed by the rehearsal phase.
 
 ## public_input
+
+One output.  Optionally retrieves a public output from the public transcript.
 
 **JSON:** { `"op"`: `"public_input"`, `"guard"`: Maybe<Index> }
 
 **Binary:** 0x1a guard:???
 
-Retrieves a public input from the public transcript outputs.
+**Rehearsal semantics:** the same as `private_input` except that the instruction
+reads from the proof preimage's public outputs and updates the current index
+into the public outputs.
 
-**Outputs:** Outputs one element, the next public transcript output, or `0` if
-the guard fails.
-
-**Rehearsal semantics:**
-
-    I::PublicInput { guard } => {
-        let val = match guard {
-            Some(guard) if !idx_bool(&memory, *guard)? => 0.into(),
-            _ => {
-                public_transcript_outputs_idx += 1;
-                preimage
-                    .public_transcript_outputs
-                    .get(public_transcript_outputs_idx - 1)
-                    .copied()
-                    .ok_or(anyhow!("Ran out of public transcript outputs"))?
-            }
-        };
-        memory.push(val);
-    }
-
-**Circuit semantics:**
-
-ZK semantics is the same as `private_input`.
-
+**Circuit semantics:** exactly the same as `private_input` (the expected value
+is found in the memory computed during the rehearsal phase).
 
 ## reconstitute_field
 
