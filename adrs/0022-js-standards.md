@@ -75,6 +75,7 @@ Positives:
 * npm is universally known and supported
 * minimal learning curve for developers
 * extensive ecosystem compatibility
+* Checkmarx support
 
 Negatives:
 * slower installation times than next gen package managers and larger disk usage
