@@ -125,8 +125,8 @@ Positives:
 * Can be used in backward compatible node_modules mode for projects where PnP would be an issue.
 
 Negatives:
-* larger disk usage compared to pnpm
-* slower than pnpm
+* larger disk usage compared to pnpm (if using legacy node_modules mode)
+* slower than pnpm (if using legacy node_modules mode)
 * Yarn 1 vs Yarn 2+ fragmentation in ecosystem
 * Npm has closed the gap on yarn performance.
 
