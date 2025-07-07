@@ -112,6 +112,7 @@ Positives:
 Negatives:
 * newer tool with smaller community and ecosystem
 * some tools may have limited Bun compatibility
+* No checkmarx support :-(
 
 ### Yarn Approach
 
