@@ -97,6 +97,7 @@ Negatives:
 * some tools may have limited pnpm support
 * migration effort required for existing examples
 * No checkmarx support :-(
+* SynLink might require elevated privileges for windows users.
 
 ### Bun + All-in-One Approach
 
