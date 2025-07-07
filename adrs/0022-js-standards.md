@@ -128,7 +128,7 @@ Negatives:
 * larger disk usage compared to pnpm (if using legacy node_modules mode)
 * slower than pnpm (if using legacy node_modules mode)
 * Yarn 1 vs Yarn 2+ fragmentation in ecosystem
-* Npm has closed the gap on yarn performance.
+* Npm has closed the gap on yarn performance. EDIT: no it hasn't: Yarn PnP is faster than pnpm: https://pnpm.io/benchmarks
 
 ### Mixed Approach
 
