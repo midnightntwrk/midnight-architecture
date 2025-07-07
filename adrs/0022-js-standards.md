@@ -121,6 +121,7 @@ Yarn package manager.
 
 Positives:
 * Checkmarx support
+* In the default PnP mode faster installs than pnpm.
 * In the default PnP mode stricter dependency resolution than NPM.
 * In the default PnP mode significantly faster installation and better disk space efficiency (likely simpler/faster than pnpm as no symlinks need creating)
 * Can be used in backward compatible node_modules mode for projects where PnP would be an issue.
