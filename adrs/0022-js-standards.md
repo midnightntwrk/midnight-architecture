@@ -96,6 +96,7 @@ Negatives:
 * requires developers to learn pnpm-specific commands
 * some tools may have limited pnpm support
 * migration effort required for existing examples
+* No checkmarx support :-(
 
 ### Bun + All-in-One Approach
 
