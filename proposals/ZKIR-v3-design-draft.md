@@ -140,6 +140,7 @@ a ∈ arg
 I ∈ instruction 
 Ω ∈ circuit 
 x ∈ var 
+k ∈ constant 
 ```
 
 ## Typing 
@@ -297,6 +298,26 @@ Subtype constraints are well-scoped if the subtype `T_1` and supertype
 
 ### Typing Rules 
 
+
+**Context** 
+
+Typing depends on the following contextual information: 
+
+* A set of available constants with their base type (`K`), and 
+* A set of available gates & their signature (`G`). 
+
+Additionally, we maintain two types of variable contexts that are relevant during typing: 
+
+* A context `Γ` of 
+
+**Phi nodes** 
+
+
+
+
+
+
+
 ## Gate Reference 
 
 ## Semantics 
@@ -350,4 +371,4 @@ and maintainability.
 * JSON
 * BINARY 
 
-(TODO: what meta-data 
+(TODO: what meta-data ) 
