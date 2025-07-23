@@ -74,7 +74,7 @@ with nested `if`-statements to capture control flow.
 ```
 circuit := <instruction>
          | LET <var_1> ... <var_n> = <instruction> IN <circuit>
-         | IF <var> THEN <circuit> ELSE <circuit>
+         | IF <var> THEN <circuit> ELSE <circuit> 
 ```
 
 Except for the final insruction in a block block, the output wire(s)
@@ -313,13 +313,6 @@ Additionally, we maintain two types of variable contexts that are relevant durin
 **Phi nodes** 
 
 
-
-
-
-
-
-## Gate Reference 
-
 ## Semantics 
 
 (TODO: several things to clarify
@@ -330,6 +323,142 @@ Additionally, we maintain two types of variable contexts that are relevant durin
 * impact 
 
 ) 
+
+### Overview 
+
+Abstractly, we can view the semantics of a circuit as a function
+mapping inputs (`I`, which can be a tuple if the ciruict has multiple
+arguments) to outputs (`O`). Because a circuit call may affect the
+public state, computations run in a state monad (`M`) where state is
+separated into a public (`ContractState`) and private (`PrivateState`) part. 
+
+```
+type State = ContractState × PrivateState 
+type M = State → - × State
+Circuit = I → M O 
+```
+
+When creating a call transaction, we would like to update the state as
+described by the circuit. This is a two-step process, where we first
+execute the circuit locally to witness it's effect on the ledger's
+state, before propagating said chainges to the rest of the network by
+creating a call transaction.
+
+A call transaction contains the following key elements: 
+
+  * how the public state of the contract changed when the circuit was
+    called, and
+
+  * a (zero-knowledge) proof that these changes correspond to a valid
+    execution of the circuit. 
+	
+For a circuit `c`, this means informally that we ought to convince
+other participants that the following statement holds: 
+
+```
+c(i, (pub , priv)) ≡ (o , (pub′ , priv′))
+```
+
+Where `pub`/`priv` and `pub′`/`priv′` are the public/private contract
+states respectively before and after calling the circuit.
+
+We cannot submit such a proof immediately, because we don't know `c`,
+let alone how to generate a ZK proof that hides the private state
+witnesses. 
+
+To convice ourselves (and others) that a particular execution of a
+circuit was valid, we don't need to know the entire public and private
+state before and after execution. Instead, it is enough to know
+
+  * which values were returned by ledger accesses (= public outputs), 
+  * which values were returned by witnesses (= private inputs), and
+  * a _bytecode transcript_ describing interaction with the public
+    state during execution (= public transcript). 
+
+Rather than proving the equality above, we construct a relation `R`
+over the circuit's inputs, witness results, ledger access results, and
+public transcript. The relation `R` should be inhabited for those
+combinations of data that correspond to a valid execution of the
+circuit.
+
+`R` captures all valid executions of a circuit `c` and is
+characterized by the following equivalence:
+
+```
+R(W(priv) , L(pub), t , i , o) ⇔ ∃ priv′ . c(i , (pub , priv)) ≡ (o , (f(pub) , priv′))
+```
+
+Where `t : Transcript`, and `W` and `L` are functions that project
+witness and ledger reads out of the public/private state respectively.
+
+When compiling a contract written in Compact, the generated ZKIR
+output defines this relation `R` for each ciruit in the
+contract. Then, when creating a call transaction, we submit a proof of
+this relation together with a public transcript. 
+
+```
+CallTransaction = { 
+  addr  : ContractAddress
+  t     : Transcript 
+  proof : ∃ w . R(w , L(pub), t, i, o)
+} 
+```
+
+Where `proof` establishes that the transcript `t` was generated during
+local rehearsal, and that it abides by the rules of the contract. It
+should be such that other participants cannot learn the value of `w`
+from the proof. 
+
+### Proof Preimage 
+
+In the off-chain runtime: 
+
+```typescript 
+export interface ProofData {
+  /**
+   * The inputs to a circuit
+   */
+  input: ocrt.AlignedValue;
+  /**
+   * The outputs from a circuit
+   */
+  output: ocrt.AlignedValue;
+  /**
+   * The public transcript of operations
+   */
+  publicTranscript: ocrt.Op<ocrt.AlignedValue>[];
+  /**
+   * The transcript of the witness call outputs
+   */
+  privateTranscriptOutputs: ocrt.AlignedValue[];
+}
+```
+
+Found here: https://github.com/midnightntwrk/compactc/blob/main/runtime/src/runtime.ts#L658
+
+In the ledger: 
+
+```rust 
+pub struct ProofPreimage {
+    /// The inputs to be directly handed to the IR.
+    pub inputs: Vec<Fr>,
+    /// A private witness vector consumed by active witness calls in the IR.
+    pub private_transcript: Vec<Fr>,
+    /// A public statement vector encoding statement call information in the IR.
+    pub public_transcript_inputs: Vec<Fr>,
+    /// A public statement vector encoding statement call results in the IR.
+    pub public_transcript_outputs: Vec<Fr>,
+    ...
+	/// + Some crypto stuff 
+	... 
+}
+```
+
+Found here: https://github.com/midnightntwrk/midnight-ledger-prototype/blob/main/transient-crypto/src/proofs.rs#L618
+
+
+## Gate Reference 
+
 
 ## Implementation 
 
