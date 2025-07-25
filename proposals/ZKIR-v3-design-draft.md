@@ -68,66 +68,59 @@ representations further in this document.
 
 **Circuits** 
 
-Formally, we define a circuit as a non-empty tree of instructions,
-with nested `if`-statements to capture control flow. 
+Formally, we define a circuit as a sequence of instructions: 
 
 ```
-circuit := <instruction>
-         | LET <var_1> ... <var_n> = <instruction> IN <circuit>
-         | IF <var> THEN <circuit> ELSE <circuit> 
+circuit := <list instruction> 
 ```
-
-Except for the final insruction in a block block, the output wire(s)
-of an instruction are bound to a fresh set of variables, with one new
-unique variable for each output wire.
 
 **Instructions** 
 
-There are 2 types of instructions: gate references and phi
-functions. 
+There are 2 types of instructions: gate references and conditional branching.
 
 ```
-instruction := GATE <gate> <arg_1> ... <arg_n>  
-             | PHI <var> <var> 
+instruction := (<var_1>, ..., <var_n>) <- GATE <gate> <arg_1> ... <arg_n>  
+             | IF <var> THEN <circuit> ELSE <circuit> JOIN joins 
+			 
+joins := List <join> 			 
+join := PHI <var> <var> <var> 
    
 arg := <var>
      | <constant> 
 ```
 
-A gate reference refers to a known gate, giving an argument
-for each input wire of the gate, where arguments are variables
-referencing output wires of other instructions, or
-constants. Conceptually, gates represent the atomic units of
-computation in a circuit. The number of output wires of a gate
-reference depends on the specific gate that we refer to. 
+A gate reference refers to a known gate, giving an argument for each
+input wire of the gate, where arguments are variables referencing
+output wires of other instructions, or constants. It binds it's output
+to variables `var_1` through `var_n`. Conceptually, gates represent
+the atomic units of computation in a circuit. The number of output
+wires of a gate reference depends on the specific gate that we refer
+to.
 
-A phi function takes exactly 2 variables referencing output wires. The
-purpose of a phi function is to join two variables that are assigned
-on different control flow paths, and as such it has exactly one output
-wire corresponding to the joined wire of its inputs.  
+A conditional takes a variable `var`, and depending on its value
+executes the circuit in the then or else branch. Every conditional
+must be followed by a (possibly empty) sequence of joins. Variables
+bound in the then and else branches are not in scope for the
+instructions following the conditional, but variables joined by phi
+functions are.  
 
-**Variable scoping**
+**Variable Scoping**
 
-While there is only a single namespace for variables, it is important
-to recognize that their scoping may be different depending on the
-context in which they are used. More concretely, in the input of phi
-functions we may refer to variables that are outside the current
-lexical scope. 
+Typically, in SSA with explicit joins, we must maintain a distinction
+between lexical scope and control-flow scope, where the inputs to phi
+nodes are control-flow scoped. By restricting the invokation of phi
+nodes to an explicit sequence following conditionals, we avoid the
+need for control-flow scoping. Instead, the first argument to a join
+is scoped by the lexical scope at the _end_ of the `THEN` branch, and
+vice versa. 
 
-Concretely, we distinguish 2 types of variable scopes: 
-
-_Lexical scoping_, where the variables in scope are those variables
-that are defined in an ancester node in the abstract syntax tree. 
-
-_Control flow scoping_, where the variables in scope are those
-variables that _dominate a predecessor of the current node in the
-control flow graph_. By reflexivity of dominance, this (trivially)
-includes all variables defined in a predecessor block.
-
-In ZKIR v3, lexical scoping implies dominance, meaning that in the
-inputs of a phi function we may refer to all variables in the lexical
-scope, but we may also refer to variables that dominate one of its
-predecessors in the control-flow graph. 
+This setup is akin to having a sequence of phi nodes after an
+if-statement, but this way we enforce by consruction that the input
+variables to a phi node must dominate a predecessor of the current
+block. Furthermore, it enforces by construction that for each phi
+node, for every possible way control may flow to that node, exactly
+`1` of the variables will be assigned, so the result of joining is
+always defined and canonical. 
 
 
 ## Metavariables 
@@ -139,6 +132,8 @@ g ∈ gate
 a ∈ arg 
 I ∈ instruction 
 Ω ∈ circuit 
+φ* ∈ joins 
+φ ∈ join 
 x ∈ var 
 k ∈ constant 
 ```
@@ -305,13 +300,131 @@ Typing depends on the following contextual information:
 
 * A set of available constants with their base type (`K`), and 
 * A set of available gates & their signature (`G`). 
+* A set of predicate witnesses (`P`).  
 
-Additionally, we maintain two types of variable contexts that are relevant during typing: 
+Where `G` is well-formed iff `∀ g . G(g) ↦ Σ ⇒ ∅ ⊢ Σ`. That is, all
+gates must map to a closed and well-formed signature. 
 
-* A context `Γ` of 
+Additionally, we use a context `Γ` to keep track of lexically-scoped
+variables and their type. 
 
-**Phi nodes** 
+**Circuits** 
 
+Circuits are a sequence of instructions. Well-typedness is defined
+with a judgment `Γ ⊢ Ω ⊣ Γ′`, which proves that the circuit `Ω` is
+well-typed under context `Γ` and `Γ′` is the lexical scope at the
+_end_ of the circuit. 
+
+
+An empty sequence of instructions is trivially well-typed: 
+
+```
+---------
+Γ ⊢ ε ⊣ Γ 
+```
+
+A non-empty sequence of instructions is well-typed if both the head
+(`I`) and tail (`Ω`) are well-typed. `Ω` should well typed under `Γ′`,
+which is the lexical scope _after_ `I`. That is, any variables bound
+by `I` are in scope in the remainder of the circuit. 
+
+```
+Γ ⊢ I ⊣ Γ′ 
+Γ′ ⊢ Ω ⊣ Γ′′ 
+-------------
+Γ ⊢ I;Ω ⊣ Γ′′ 
+```
+
+**Gate** 
+
+A gate instruction is well-typed iff the referenced gate `g` maps to a
+closed, well-formed signature (implied by well-formedness of `G`), `Σ`
+can be instantiated to get input types `T_1 ... T_n` and output types
+`T_1 ... T_m`, and the arguments `a_1 ... a_n` are well-formed under
+the input types `T_1 ... T_n`. 
+
+```
+1 ≤ i ≤ n
+G(g) ↦ Σ 
+(T_1, ... , T_n | T_1, ... , T_m) = inst(Σ)
+Γ ⊢ a_i : T_i 
+-----------------------------------------------------------------------
+Γ ⊢ (x_1 , ... , x_m) ← g(a_1,...,a_n) ⊣ x_1 : T_1 , ... , x_m : T_m, Γ
+```
+
+The output variables `x_1 ... x_m` are bound to `T_1... T_m` in the
+lexical scope after the gate instruction. Instantiation is responsible
+for discharging any constraints qualified by the signature `Σ`. We can
+discharge a constraint `C` of a qualified type `C ⇒ ρ` if `P ⊩ C`,
+i.e., the predicate context entails `C`. 
+
+**Conditional**
+
+A conditional instruction is well-typed if the guard variable `x` maps to
+`bool` in `Γ`, branches `Ω_1,Ω_2` are well-typed under `Γ`, and the
+join sequence `φ*` is well-typed w.r.t. the branch scopes of `Ω_1` and
+`Ω_2` respecitvely. We define the branch scope as the difference
+between the lexical scope before and after the branch, containing
+exactly those variables bound _inside_ the branch. 
+
+```
+Γ(x) ↦ bool 
+Γ ⊢ Ω_1 ⊣ Γ_1 
+Γ ⊢ Ω_2 ⊣ Γ_2 
+Γ_1 / Γ | Γ_2 / Γ ⊢ φ* ⊣ vs 
+----------------------------------------
+Γ ⊢ if x then Ω_1 else Ω_2 join φ* ⊣ extend(Γ , vs) 
+```
+
+In context after the conditional instruction is extended with the set
+of variables bound by the join sequence. 
+
+**Joins** 
+
+Well-typedness of join sequences is defined in terms of a judgment
+`Γ_1 | Γ_2 ⊢ φ∗ ⊣ vs`, where `Γ_1` and `Γ_2` are the the branch
+contexts of surrounding conditional, and `vs` the set of variables
+bound by the join sequence. 
+
+The empty join sequence is trivially well-typed. 
+
+```
+-----------------
+Γ_1 | Γ_2 ⊢ ε ⊣ ε 
+```
+
+A non-empty sequence is well-typed if the joined variables `x_1` and
+`x_2` are bound in `Γ_1` and `Γ_2` respectively, and tail of the
+sequence, `φ*` is well-typed under `Γ_1`,`Γ_2` with `x_1`,`x_2`
+removed. 
+
+```
+Γ_1(x_1) ↦ T_1
+Γ_2(x_2) ↦ T_2 
+T = T_1 ⊔ T_2
+Γ_1/{x_1:T_1} | Γ_2/{x_2:T_2} ⊢ φ⋆ ⊣ vs
+---------------------------------------------
+Γ_1 | Γ_2 ⊢ x ← phi(x_1 , x_2); φ* ⊣ (x:T);vs 
+```
+
+The set of variables bound by the sequence is extended with `x:T`
+where `T` is the least upper bound of `T_1` and `T_2`. 
+
+**Arguments** 
+
+Arguments are typed w.r.t. a judgment `Γ ⊢ a : T`. They must refer
+either to values in the constant pool `K` or variables in `Γ`. 
+
+```
+K(k) ↦ B
+---------
+Γ ⊢ k : B
+
+Γ(x) ↦ T 
+---------
+Γ ⊢ x : T
+
+```
 
 ## Semantics 
 
@@ -360,36 +473,39 @@ c(i, (pub , priv)) ≡ (o , (pub′ , priv′))
 ```
 
 Where `pub`/`priv` and `pub′`/`priv′` are the public/private contract
-states respectively before and after calling the circuit.
-
-We cannot submit such a proof immediately, because we don't know `c`,
-let alone how to generate a ZK proof that hides the private state
-witnesses. 
+states respectively before and after calling the circuit. However,
+it'll need some massaging before it can be stated in a way that we can
+hide the private state from other participants in a zero-knowledge
+proof.
 
 To convice ourselves (and others) that a particular execution of a
 circuit was valid, we don't need to know the entire public and private
-state before and after execution. Instead, it is enough to know
+state before and after rehearsal. Instead, it is enough to know
 
   * which values were returned by ledger accesses (= public outputs), 
   * which values were returned by witnesses (= private inputs), and
   * a _bytecode transcript_ describing interaction with the public
     state during execution (= public transcript). 
 
-Rather than proving the equality above, we construct a relation `R`
-over the circuit's inputs, witness results, ledger access results, and
-public transcript. The relation `R` should be inhabited for those
-combinations of data that correspond to a valid execution of the
-circuit.
+The above information is bundled in a so-called _proof preimage_, 
 
-`R` captures all valid executions of a circuit `c` and is
-characterized by the following equivalence:
+
+`R` captures all valid executions of a circuit `c` as expressed by the
+following equivalence:
 
 ```
-R(W(priv) , L(pub), t , i , o) ⇔ ∃ priv′ . c(i , (pub , priv)) ≡ (o , (f(pub) , priv′))
+R(priv, pub, t , i , o) ⇔ ∃ priv′ . c(i , (pub , priv)) ≡ (o , (apply_transcript(t , pub) , priv′))
 ```
 
-Where `t : Transcript`, and `W` and `L` are functions that project
-witness and ledger reads out of the public/private state respectively.
+Where `t : Transcript`, and `i` and `o` the arguments and return value
+of the circuit respectively.
+
+```
+/// `Relation` has a default implementation for loading only the tables
+/// needed for the requested chips. The developer needs to implement the
+/// function [Relation::circuit], which essentially contains the
+/// statement of the proof we are creating.
+```
 
 When compiling a contract written in Compact, the generated ZKIR
 output defines this relation `R` for each ciruit in the
@@ -408,6 +524,23 @@ Where `proof` establishes that the transcript `t` was generated during
 local rehearsal, and that it abides by the rules of the contract. It
 should be such that other participants cannot learn the value of `w`
 from the proof. 
+
+(x , w) ∈ R 
+x3
+To create a call transaction for a circuit `c`, we must submit 
+
+```
+t : Transcript 
+proof : R_c(x , w)
+```
+
+Where `R_c` is a relation that embeds the computational logic of `c`
+such that `(t , w) ∈ R` iff `t` is a transcript corresponding to a
+valid execution according to the circuit's logic. The witness data `w`
+is hidden, and contains a "memory" all data--public and
+private--pertaining to the circuit's execution.
+
+Abstractly, the memory is a tuple (i,o,W,LR)
 
 ### Proof Preimage 
 
