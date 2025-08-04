@@ -32,67 +32,70 @@ This document comprises a couple of sections:
 8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
 <!-- TOC -->
-* [Midnight Wallet Specification](#midnight-wallet-specification)
-  * [Introduction](#introduction)
-    * [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
-    * [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
-    * [Binding randomness](#binding-randomness)
-    * [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
-    * [Summary](#summary)
-  * [Key management](#key-management)
-    * [HD Wallet structure](#hd-wallet-structure)
-    * [Night and unshielded tokens keys](#night-and-unshielded-tokens-keys)
-    * [Dust keys](#dust-keys)
-    * [Zswap keys](#zswap-keys)
-      * [Zswap seed](#zswap-seed)
-      * [Output encryption keys](#output-encryption-keys)
-      * [Coin keys](#coin-keys)
-      * [Address](#address)
-    * [Metadata keys](#metadata-keys)
-    * [Scalar sampling](#scalar-sampling)
-  * [Address format](#address-format)
-    * [Unshielded Payment address](#unshielded-payment-address)
-    * [Dust address](#dust-address)
-    * [Shielded Payment address](#shielded-payment-address)
-    * [Shielded Coin public key](#shielded-coin-public-key)
-    * [Shielded Encryption secret key](#shielded-encryption-secret-key)
-  * [Transaction structure and statuses](#transaction-structure-and-statuses)
-    * [Standard transactions](#standard-transactions)
-    * [Mint claim](#mint-claim)
-  * [State management](#state-management)
-    * [Balances](#balances)
-    * [Operations](#operations)
-      * [`apply_transaction`](#apply_transaction)
-        * [Steps to apply shielded offer of a section](#steps-to-apply-shielded-offer-of-a-section)
-        * [Steps to apply unshielded offer of a section](#steps-to-apply-unshielded-offer-of-a-section)
-      * [`finalize_transaction`](#finalize_transaction)
-      * [`rollback_last_transaction`](#rollback_last_transaction)
-      * [`discard_transaction`](#discard_transaction)
-      * [`spend`](#spend)
-      * [`watch_for`](#watch_for)
-  * [Synchronization process](#synchronization-process)
-    * [Indexing service for shielded tokens](#indexing-service-for-shielded-tokens)
-    * [Indexing service for unshielded tokens](#indexing-service-for-unshielded-tokens)
-  * [Building standard transactions](#building-standard-transactions)
-    * [Building operations](#building-operations)
-      * [Building a shielded input](#building-a-shielded-input)
-      * [Building a shielded output](#building-a-shielded-output)
-      * [Building a transient](#building-a-transient)
-      * [Combining shielded inputs, outputs and transients into a shielded offer](#combining-shielded-inputs-outputs-and-transients-into-a-shielded-offer)
-      * [Replacing shielded output with a transient](#replacing-shielded-output-with-a-transient)
-      * [Building an unshielded input](#building-an-unshielded-input)
-      * [Building an unshielded output](#building-an-unshielded-output)
-      * [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
-      * [Creating an intent](#creating-an-intent)
-      * [Creating transaction with an intent and shielded offers](#creating-transaction-with-an-intent-and-shielded-offers)
-      * [Merging with other transaction](#merging-with-other-transaction)
-        * [Merging shielded offers](#merging-shielded-offers)
-    * [Building stages](#building-stages)
-      * [Prepare transfer](#prepare-transfer)
-      * [Prepare a swap](#prepare-a-swap)
-      * [Contract call](#contract-call)
-      * [Balance transaction](#balance-transaction)
-  * [Transaction submission](#transaction-submission)
+- [Midnight Wallet Specification](#midnight-wallet-specification)
+  - [Introduction](#introduction)
+    - [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
+    - [Coin nullifiers and commitments](#coin-nullifiers-and-commitments)
+    - [Binding randomness](#binding-randomness)
+    - [Output encryption and blockchain scanning](#output-encryption-and-blockchain-scanning)
+    - [Summary](#summary)
+  - [Key management](#key-management)
+    - [HD Wallet structure](#hd-wallet-structure)
+    - [Night and unshielded tokens keys](#night-and-unshielded-tokens-keys)
+    - [Dust keys](#dust-keys)
+    - [Shielded token (Zswap) keys](#shielded-token-zswap-keys)
+      - [Zswap seed](#zswap-seed)
+      - [Output encryption keys](#output-encryption-keys)
+      - [Coin keys](#coin-keys)
+    - [Metadata keys](#metadata-keys)
+    - [Scalar sampling](#scalar-sampling)
+  - [Address format](#address-format)
+    - [Unshielded Payment address](#unshielded-payment-address)
+    - [Dust address](#dust-address)
+    - [Shielded Payment address](#shielded-payment-address)
+    - [Shielded Coin public key](#shielded-coin-public-key)
+    - [Shielded Encryption secret key](#shielded-encryption-secret-key)
+  - [Transaction structure and statuses](#transaction-structure-and-statuses)
+    - [Standard transactions](#standard-transactions)
+    - [Mint claim](#mint-claim)
+  - [State management](#state-management)
+    - [Balances](#balances)
+    - [Operations](#operations)
+      - [`apply_transaction`](#apply_transaction)
+        - [Steps to apply shielded offer of a section](#steps-to-apply-shielded-offer-of-a-section)
+        - [Steps to apply unshielded offer of a section](#steps-to-apply-unshielded-offer-of-a-section)
+        - [Steps to apply dust actions](#steps-to-apply-dust-actions)
+      - [`apply_system_transaction`](#apply_system_transaction)
+      - [`finalize_transaction`](#finalize_transaction)
+      - [`rollback_last_transaction`](#rollback_last_transaction)
+      - [`discard_transaction`](#discard_transaction)
+      - [`spend`](#spend)
+      - [`watch_for`](#watch_for)
+  - [Synchronization process](#synchronization-process)
+    - [Indexing service for shielded tokens](#indexing-service-for-shielded-tokens)
+    - [Indexing service for unshielded tokens](#indexing-service-for-unshielded-tokens)
+    - [Indexing service for Dust](#indexing-service-for-dust)
+  - [Building standard transactions](#building-standard-transactions)
+    - [Building operations](#building-operations)
+      - [Building a shielded input](#building-a-shielded-input)
+      - [Building a shielded output](#building-a-shielded-output)
+      - [Building a transient](#building-a-transient)
+      - [Combining shielded inputs, outputs and transients into a shielded offer](#combining-shielded-inputs-outputs-and-transients-into-a-shielded-offer)
+      - [Replacing shielded output with a transient](#replacing-shielded-output-with-a-transient)
+      - [Building an unshielded input](#building-an-unshielded-input)
+      - [Building an unshielded output](#building-an-unshielded-output)
+      - [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
+      - [Creating a Dust spend](#creating-a-dust-spend)
+      - [Creating an intent](#creating-an-intent)
+      - [Creating transaction with an intent and shielded offers](#creating-transaction-with-an-intent-and-shielded-offers)
+      - [Merging with other transaction](#merging-with-other-transaction)
+        - [Merging shielded offers](#merging-shielded-offers)
+    - [Building stages](#building-stages)
+      - [Prepare transfer](#prepare-transfer)
+      - [Prepare a swap](#prepare-a-swap)
+      - [Contract call](#contract-call)
+      - [Balance transaction](#balance-transaction)
+  - [Transaction submission](#transaction-submission)
 <!-- TOC -->
 
 
@@ -105,12 +108,11 @@ necessary for issuing simple operations on tokens. Midnight Wallet is no excepti
 this regard, one could even say, that in case of Midnight, that data management is a 
 particularly important task because the data needed to create transaction is not only 
 sensitive, but also computationally expensive to obtain. This is a common property to 
-many, if not all implementations of protocols based on [Zerocash]
-(http://zerocash-project.org/media/pdf/zerocash-extended-20140518.pdf) and [CryptoNote]
-(https://bytecoin.org/old/whitepaper.pdf) protocols of privacy-preserving tokens, and 
+many, if not all implementations of protocols based on [Zerocash](http://zerocash-project.org/media/pdf/zerocash-extended-20140518.pdf) 
+and [CryptoNote](https://bytecoin.org/old/whitepaper.pdf) protocols of privacy-preserving tokens, and 
 Midnight shielded tokens protocols (including Dust) belong to this family, as they are  
-based on [Zswap](https://iohk.io/en/research/library/papers/zswap-zk-snark-based-non
--interactive-multi-asset-swaps/), which is related to an evolution of Zerocash protocol.
+based on [Zswap](https://iohk.io/en/research/library/papers/zswap-zk-snark-based-non-interactive-multi-asset-swaps/)
+, which is related to an evolution of Zerocash protocol.
 
 Zswap, as a protocol for privacy-preserving tokens, has 3 major goals:
 1. Maintain privacy of transfers, so that it is impossible to tell:
@@ -442,7 +444,7 @@ in a transaction. Minimally, it consists of the data needed to spend coins and p
 - a set of own shielded coins
 - a Merkle tree of shielded coin commitments
 - a set of own unshielded coins
-- a set of own Dust generation info paired with Dust actions containing them
+- a set of own Dust generation info paired with Dust actions containing them and their Merkle tree indices
 - a set of own Dust outputs paired with Dust actions containing them
 - a Merkle tree of Dust generation infos
 - a Merkle tree of Dust commitments
@@ -498,14 +500,16 @@ parameters:
 - updated Dust generation Merkle tree or an update with expected root - to allow 
   Dust spends; an alternative is to process all transactions (including system ones) 
   and follow ledger algorithm to obtain the same result, which is a memory-intensive 
-  process, though may bo worth the cost if implementation's threat model assumes 
-  operation on raw chain data
+  process, though may be worth the cost if implementation's threat model assumes 
+  operation on raw chain data; Additional mappings to help in resolving indices of 
+  Dust generation infos would be helpful too (e.g. mapping from Dust generation info
+  hash to an index in the Merkle tree).
 
 This operation is basis to the synchronization process and primarily serves the 
 purpose of discovering received and spent coins. Depending on provided status of 
-transaction executes only sections indicated as successful (all of them in case of a 
-`success` status, guaranteed and then indicated fallible sections in case of 
-`partial success` status). Dust spends are treated as part of guaranteed section while 
+transaction executes only sections indicated as successful - all of them in case of a 
+`success` status, or only indicated sections (always including guaranteed one) in case of 
+`partial success` status. Dust spends are treated as part of guaranteed section while 
 Dust registrations are treated as part of intent's fallible section.
 
 ##### Steps to apply shielded offer of a section
@@ -524,7 +528,7 @@ Dust registrations are treated as part of intent's fallible section.
    1. Match the coin with pending ones, if there is a match, mark the matching pending coin as confirmed.
    2. Otherwise, add a coin to the known set as a confirmed.
    3. Add a new Dust generation info to the own set, if the receiving Night address was 
-      earlier registered for Dust generation
+      earlier registered for Dust generation, resolve its index in the Dust generation info Merkle tree
    4. derive the first Dust output in the chain and add it to the set of own ones as
       confirmed
 
