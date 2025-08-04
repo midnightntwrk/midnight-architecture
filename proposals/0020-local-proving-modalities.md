@@ -85,13 +85,12 @@ run in a multithreaded setup (by leveraging Web Workers, shared array buffers an
 performance to noticeably slower than native, but somewhat acceptable levels (usually 
 20-30s for a Zswap spend proof on a M1 Max/10 core machine). These times indicate 
 possibility of reaching even 5 minutes proving time for real-world transactions on 
-consumer hardware. There are multiple additional issues though with this approach:
+consumer hardware. There are multiple additional issues and considerations with 
+this approach:
 1. It requires using an unstable feature of Rust compiler (`target-features=+atomics`).
    This poses a stability risk - with possible future releases of the Rust toolchain, 
    behavior of this implementation might change in a way, which requires adjustments 
-   of our (or our dependencies) code. But even more importantly - it poses a security 
-   risk, in a particularly sensitive area (after all proving involves processing 
-   private data, including wallet secret keys!).
+   of our (or our dependencies) code.
 2. Usage of shared array buffers, crucial to enabling efficient memory sharing between 
    web workers, is constrained with cross-origin isolation in an aftermath of Spectre 
    vulnerability (https://web.dev/articles/coop-coep,
@@ -140,7 +139,7 @@ Following are the recommendations:
    a community-maintained list of wallet browser extensions. While it still 
    raises a security concern in case a malicious proving application gets installed, 
    it will help detecting usage of fake wallet extensions.
-3. (In a low-priority, best-effort basis) implement an experimental WASM-based prover 
+3. Implement an experimental WASM-based prover 
    implementation, which could be used with Midnight.js to prove contract calls. 
    Initially as a means of signalling to the community that this is a thing that is 
    being looked at, but also to streamline the process of integration of WASM proving 
