@@ -8,8 +8,6 @@ Wallet and address formatting. As such - it is used to generate test vectors.
 > Scalar operations are not constant time and there is no attempt at cleaning 
 > memory from unnecessary copies of the secret key or data used to generate it.
 
-
-
 ## Test vectors format
 
 > [!NOTE]
@@ -53,6 +51,7 @@ type Entry = {
 
   unshieldedAddress: AddressEntry;
   shieldedAddress: AddressEntry;
+  dustAddress: AddressEntry;
   shieldedESK: AddressEntry;
   shieldedCPK: AddressEntry;
 };
@@ -92,7 +91,7 @@ type Entry = {
     /**
      * Binary data being output of the hashing step, before interpreting as number and taking modulo
      */
-    secretKeyIntermediateBytes: esk.intermediateBytes.toString("hex"),
+    secretKeyIntermediateBytes: HexString,
   },
   dust: {
     /**
@@ -106,7 +105,7 @@ type Entry = {
     /**
      * Binary data being output of the hashing step, before interpreting as number and taking modulo
      */
-    secretKeyIntermediateBytes: esk.intermediateBytes.toString("hex"),
+    secretKeyIntermediateBytes: HexString,
   },
   coin: {
     /**

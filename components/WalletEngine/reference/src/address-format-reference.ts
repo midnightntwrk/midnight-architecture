@@ -187,3 +187,19 @@ export class ShieldedCoinPublicKey {
     this.data = data;
   }
 }
+
+export class DustAddress {
+  static codec: Bech32mCodec<DustAddress> = new Bech32mCodec(
+    "dust",
+    (daddr) => daddr.data,
+    (repr) => new DustAddress(repr),
+  );
+
+  [Bech32m] = DustAddress.codec;
+
+  public readonly data: Buffer;
+
+  constructor(data: Buffer) {
+    this.data = data;
+  }
+}
