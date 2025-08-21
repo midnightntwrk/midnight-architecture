@@ -197,7 +197,7 @@ Notation [TODO]
 Adds a pair of field values in the prime field.
 *a* and *b* are memory indexes.  There is one output.
 
-**JSON:** { `"op"`: `"add"`, `"a"`: Index, `"b"`: Index }
+**JSON:** `{"op":"add"`, `"a:"`Index, `"b:"`Index`}`
 
 **Binary:** 0x11 a:u32 b:u32
 
