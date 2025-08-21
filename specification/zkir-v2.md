@@ -210,7 +210,7 @@ The memory is extended with the result of adding them in the prime field.
 
 **Circuit semantics:**
 
-`<add(a,b), C, M> ==> C U {ADD(M[a],M[b],w)}; M ++ w
+`<add(a,b), C, M> ==> C U {ADD(M[a],M[b],w)}; M ++ w`
 
 The wires at indexes *a* and *b* are read from the memory.
 An `ADD` gate is built using the input wires at *a* and *b* and with a fresh output.
