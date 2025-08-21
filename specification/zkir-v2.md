@@ -188,9 +188,24 @@ A special kind of gate is a *constraint*, which requires the input(s) to satisfy
 
 Values in the circuit phase's memory are wires which are the output of some gate.
 
+**Relational Constraints**
+
+These establish a relation between their operands.
+
+`ADD`, `IS_ZERO`, `SELECT`
+
+**Equality-like Constraints**
+
+These cause the system to be unsatisfiable if they are not satisfied.
+
+`CONSTRAIN_BITS`, `EQUALS`, `NON_ZERO`
+
 # Instruction Reference
 
 Notation [TODO]
+
+*w*, *w0*, *w1*, etc. range over wires.
+When a wire that is not in the memory is is mentioned in a constraint, then that wire is chosen fresh.
 
 ## add(a, b)
 
@@ -239,60 +254,105 @@ There are no outputs.
                   ==> fail, if M[cond] = 0
 ```
 
-the field value at index *cond* is read from the
-memory.  The operation fails (the rehearsal phase is aborted) if the value is 0.
+The field value at index *cond* is read from the memory.
+The operation fails (the rehearsal phase is aborted) if the value is 0.
 
-**Circuit semantics:** The wire at index *cond* is read from the memory.  A
-constraint is added that the value on the wire is non-zero.
+**Circuit semantics:**
 
-## cond_select
+```
+<assert(cond), C, M> ==> C U {NON_ZERO(M[cond])}; M
+```
 
-One output.  Conditionally select between a pair of input values based on the
-value of a condition.  The result is undefined if the condition's value is not
-`0` or `1`.
+The wire at index *cond* is read from the memory.
+A constraint is added that the value on the wire is non-zero.
 
-**JSON:** { `"op"`: `"cond_select"`, `"bit"`: Index, `"a"`: Index, `"b"`: Index }
+## cond_select(bit, a, b)
+
+Conditionally select between a pair of input values based on the value of a condition.
+The result is undefined if the condition's value is not `0` or `1`.
+*bit*, *a*, and *b* are memory indexes.
+There is one output.
+
+**JSON:** `{"op":"cond_select"`,`"bit":`Index,`"a":`Index,`"b":`Index`}`
 
 **Binary:** 0x01 bit:u32 a:u32 b:u32
 
-**Rehearsal semantics:** the field values at indexes *bit*, *a*, and *b* are
-read from the memory; the memory is extended with the value at *a* if the value
-at *bit* was `1` and the value at *b* if the value at *bit* was `0`.
+**Rehearsal semantics:**
 
-**Circuit semantics:** the wires at indexes *bit*, *a*, and *b* are read from
-the memory.  An `is_zero` gate is built with the input at *bit*.  The output of
-this gate is used as the input of a `select` gate to choose between the inputs
-at *a* and *b*.  The memory is extended with the output wire of the `select`
-gate.
+```
+<cond_select(bit,a,b), M> ==> M ++ M[a], if M[bit] = 1
+                          ==> M ++ M[b], if M[bit] = 0
+```
 
-## constrain_bits
+The field values at indexes *bit*, *a*, and *b* are read from the memory;
+the memory is extended with the value at *a* if the value at *bit* was `1`
+and the value at *b* if the value at *bit* was `0`.
 
-No outputs.  Constrains a value in the memory to fit into a set number of bits.
+**Circuit semantics:**
 
-**JSON:** { `"op"`: `"constrain_bits"`, `"var"`: Index, `"bits"`: u32 }
+```
+<cond_select(bit,a,b), C, M> ==> C U {IS_ZERO(M[bit],w0), SELECT(w0,M[a],M[b],w1)}; M ++ w1
+```
+
+The wires at indexes *bit*, *a*, and *b* are read from the memory.
+An `IS_ZERO` gate is built with the input at *bit*.
+The output of this gate is used as the input of a `SELECT` gate to choose between the inputs at *a* and *b*.
+The memory is extended with the output wire of the `SELECT` gate.
+
+## constrain_bits(var, bits)
+
+Constrains a value in the memory to fit into a set number of bits.
+*var* is a memory index and *bits* is a 32-bit unsigned literal.
+There are no outputs.
+
+**JSON:** `{"op":"constrain_bits"`,`"var":`Index,`"bits:"`u32`}`
 
 **Binary:** 0x02 var:u32 bits:u32
 
-**Rehearsal semantics:** the field value at index *var* is read from the memory.
+**Rehearsal semantics:**
+
+```
+<constrain_bits(var,bits), M> ==> M, if M[var] >= 2^bits
+```
+
+The field value at index *var* is read from the memory.
 The operation fails if any bit at bit position *bits* or higher is non-zero.
 
-**Circuit semantics:** the wire at index *var* is read from the memory.  A
-constraint is added that the value on the wire fits in *bits* or fewer.
+**Circuit semantics:**
 
-## constrain_eq
+```
+<constrain_bits(var,bits), C, M> ==> C U {CONSTRAIN_BITS(M[var],bits)}; M
+```
 
-No outputs.  Constrains a pair of values in the memory to be equal.
+The wire at index *var* is read from the memory.
+A constraint is added that the value on the wire fits in *bits* or fewer.
 
-**JSON:** { `"op"`: `"constrain_eq"`, `"a"`: Index, `"b"`: Index }
+## constrain_eq(a, b)
+
+Constrains a pair of values in the memory to be equal.
+*a* and *b* are memory indexes.
+There are no outputs.
+
+**JSON:** `{"op":"constrain_eq"`,`"a":`Index,`"b":`Index`}`
 
 **Binary:** 0x03 a:u32 b:u32
 
-**Rehearsal semantics:** the field values at indexes *a* and *b* are read from
-the memory.  They are compared for equality and the operation fails if they are
-not equal.
+**Rehearsal semantics:**
 
-**Circuit semantics:** the wires at indexes *a* and *b* are read from the
-memory.  A constraint is added that they are equal.
+```
+<constrain_eq(a,b), M> ==> M, if M[a] = M[b]
+```
+
+The field values at indexes *a* and *b* are read from the memory.
+They are compared for equality and the operation fails if they are not equal.
+
+**Circuit semantics:**
+
+```
+<constrain_eq(a,b), C, M> ==> C U {EQUALS(M[a],M[b])}; M
+
+The wires at indexes *a* and *b* are read from the memory.
+A constraint is added that they are equal.
 
 ## constrain\_to\_boolean
 
