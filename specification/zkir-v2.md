@@ -350,6 +350,7 @@ They are compared for equality and the operation fails if they are not equal.
 
 ```
 <constrain_eq(a,b), C, M> ==> C U {EQUALS(M[a],M[b])}; M
+```
 
 The wires at indexes *a* and *b* are read from the memory.
 A constraint is added that they are equal.
