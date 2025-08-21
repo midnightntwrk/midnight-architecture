@@ -195,37 +195,51 @@ Notation [TODO]
 ## add(a, b)
 
 Adds a pair of field values in the prime field.
-*a* and *b* are memory indexes.  There is one output.
+*a* and *b* are memory indexes.
+There is one output.
 
-**JSON:** `{"op":"add"`, `"a:"`Index, `"b:"`Index`}`
+**JSON:** `{"op":"add"`,`"a:"`Index,`"b:"`Index`}`
 
 **Binary:** 0x11 a:u32 b:u32
 
 **Rehearsal semantics:**
 
-`<add(a,b), M> ==> M ++ (M[a]+M[b])`
+```
+<add(a,b), M> ==> M ++ (M[a]+M[b])
+```
 
 The field values at indexes *a* and *b* are read from the memory.
 The memory is extended with the result of adding them in the prime field.
 
 **Circuit semantics:**
 
-`<add(a,b), C, M> ==> C U {ADD(M[a],M[b],w)}; M ++ w`
+```
+<add(a,b), C, M> ==> C U {ADD(M[a],M[b],w)}; M ++ w
+```
 
 The wires at indexes *a* and *b* are read from the memory.
 An `ADD` gate is built using the input wires at *a* and *b* and with a fresh output.
 The memory is extended with the output wire of the `ADD` gate.
 
-## assert
+## assert(cond)
 
-No outputs.  Asserts that a condition has the canonical true value `1`.  The
-result is undefined if the condition's value is not `0` or `1`.
+Asserts that a condition has the canonical true value `1`.
+The result is undefined if the condition's value is not `0` or `1`.
+*cond* is a memory index.
+There are no outputs.
 
-**JSON:** { `"op"`: `"assert"`, `"cond"`: Index }
+**JSON:** `{"op":"assert"`,`"cond"`:Index`}`
 
 **Binary:** 0x00 cond:u32
 
-**Rehearsal semantics:** the field value at index *cond* is read from the
+**Rehearsal semantics:**
+
+```
+<assert(cond), M> ==> M, if M[cond] = 1
+                  ==> fail, if M[cond] = 0
+```
+
+the field value at index *cond* is read from the
 memory.  The operation fails (the rehearsal phase is aborted) if the value is 0.
 
 **Circuit semantics:** The wire at index *cond* is read from the memory.  A
