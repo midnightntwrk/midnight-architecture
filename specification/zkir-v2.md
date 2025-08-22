@@ -204,6 +204,8 @@ These cause the system to be unsatisfiable if they are not satisfied.
 
 Notation [TODO]
 
+Try to use polynomial equalities and interval membership constraints ONLY.
+
 *w*, *w0*, *w1*, etc. range over wires.
 When a wire that is not in the memory is is mentioned in a constraint, then that wire is chosen fresh.
 
@@ -220,21 +222,19 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<add(a,b), M> ==> M ++ (M[a]+M[b])
+<add(a, b), M> ==> M ++ (M[a] + M[b])
 ```
 
-The field values at indexes *a* and *b* are read from the memory.
-The memory is extended with the result of adding them in the prime field.
+The memory is extended with the result of adding the field values at *a* and *b* in the prime field.
 
 **Circuit semantics:**
 
 ```
-<add(a,b), C, M> ==> C U {ADD(M[a],M[b],w)}; M ++ w
+<add(a, b), C, M> ==> C U {M[a] + M[b] = w)}; M ++ w
 ```
 
-The wires at indexes *a* and *b* are read from the memory.
-An `ADD` gate is built using the input wires at *a* and *b* and with a fresh output.
-The memory is extended with the output wire of the `ADD` gate.
+A constraint is added that the sum of the input wires at *a* and *b* are equal to a fresh output wire.
+The memory is extended with the fresh output wire.
 
 ## assert(cond)
 
@@ -254,17 +254,16 @@ There are no outputs.
                   ==> fail, if M[cond] = 0
 ```
 
-The field value at index *cond* is read from the memory.
-The operation fails (the rehearsal phase is aborted) if the value is 0.
+The operation fails (the rehearsal phase is aborted) if the field value at *cond* is not 1.
 
 **Circuit semantics:**
 
 ```
-<assert(cond), C, M> ==> C U {NON_ZERO(M[cond])}; M
+<assert(cond), C, M> ==> C U {M[cond] = 1}; M
 ```
 
 The wire at index *cond* is read from the memory.
-A constraint is added that the value on the wire is non-zero.
+A constraint is added that the value on the wire is equal to one.
 
 ## cond_select(bit, a, b)
 
@@ -280,24 +279,22 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<cond_select(bit,a,b), M> ==> M ++ M[a], if M[bit] = 1
-                          ==> M ++ M[b], if M[bit] = 0
+<cond_select(bit, a, b), M> ==> M ++ M[a], if M[bit] = 1
+                            ==> M ++ M[b], if M[bit] = 0
 ```
 
-The field values at indexes *bit*, *a*, and *b* are read from the memory;
-the memory is extended with the value at *a* if the value at *bit* was `1`
+The memory is extended with the value at *a* if the value at *bit* was `1`
 and the value at *b* if the value at *bit* was `0`.
 
 **Circuit semantics:**
 
 ```
-<cond_select(bit,a,b), C, M> ==> C U {IS_ZERO(M[bit],w0), SELECT(w0,M[a],M[b],w1)}; M ++ w1
+<cond_select(bit, a, b), C, M> ==> C U {bit * M[a] + (1 - bit) * M[b] = w}; M ++ w
 ```
 
-The wires at indexes *bit*, *a*, and *b* are read from the memory.
-An `IS_ZERO` gate is built with the input at *bit*.
-The output of this gate is used as the input of a `SELECT` gate to choose between the inputs at *a* and *b*.
-The memory is extended with the output wire of the `SELECT` gate.
+A constraint is added that a fresh wire is equal to the wire *a* if *bit* is 1
+and equal to the wire *b* if *bit* is 0.
+The memory is extended with the fresh output wire.
 
 ## constrain_bits(var, bits)
 
@@ -312,7 +309,7 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_bits(var,bits), M> ==> M, if M[var] >= 2^bits
+<constrain_bits(var, bits), M> ==> M, if M[var] < 2^bits
 ```
 
 The field value at index *var* is read from the memory.
@@ -321,7 +318,7 @@ The operation fails if any bit at bit position *bits* or higher is non-zero.
 **Circuit semantics:**
 
 ```
-<constrain_bits(var,bits), C, M> ==> C U {CONSTRAIN_BITS(M[var],bits)}; M
+<constrain_bits(var, bits), C, M> ==> C U {M[var] in [0, 2^bits-1]}; M
 ```
 
 The wire at index *var* is read from the memory.
@@ -335,7 +332,7 @@ There are no outputs.
 
 **JSON:** `{"op":"constrain_eq"`,`"a":`Index,`"b":`Index`}`
 
-**Binary:** 0x03 a:u32 b:u32
+p**Binary:** 0x03 a:u32 b:u32
 
 **Rehearsal semantics:**
 
