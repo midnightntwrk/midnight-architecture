@@ -352,7 +352,7 @@ They are compared for equality and the operation fails if they are not equal.
 The wires at indexes *a* and *b* are read from the memory.
 A constraint is added that they are equal.
 
-## constrain\_to\_boolean
+## constrain\_to\_boolean(var)
 
 No outputs.  Constrains a value in the memory to be one of the canonical boolean
 values `0` (false) or `1` (true).
@@ -367,7 +367,7 @@ operation fails if the value is not `0` or `1`.
 **Circuit semantics:** the wire at index *var* is read from the memory.  A
 constraint is added that the value on the wire is either `0` or `1`.
 
-## copy
+## copy(var)
 
 One output.  Duplicates a value in the memory.  This instruction is not
 necessary but it can be useful in some cases, and it can simplify the generation
@@ -383,7 +383,7 @@ memory is extended with this value.
 **Circuit semantics:** the wire at *var* is read from the memory.  The memory is
 extended with this (same) wire.
 
-## declare\_pub\_input
+## declare\_pub\_input(var)
 
 No outputs.  Declares a value in the memory as the next public input.
 
@@ -405,7 +405,7 @@ with this wire.  A constraint is added that it the value on the wire is equal to
 the field value at the same index in the public inputs computed during the
 rehearsal phase.
 
-## div\_mod\_power\_of\_two
+## div\_mod\_power\_of\_two(var, bits)
 
 Two outputs, the quotient and remainder when dividing a field value by a power
 of two.  This allows splitting a field value's binary representation into high
@@ -429,7 +429,7 @@ of the value on the wire is equal to the corresponding bit of (quotient <<
 *bits*) + remainder.  The memory is extended with wires carrying the quotient
 and remainder computed by the rehearsal phase.
 
-## ec_add
+## ec\_add(a\_x, a\_y, b\_x, b\_y)
 
 **JSON:** { `"op"`: `"ec_add"`, `"a_x"`: Index, `"a_y"`: Index, `"b_x"`: Index, `"b_y"`: Index }
 
@@ -468,7 +468,7 @@ Adds two elliptic curve points. UB if either is not a valid curve point.
     }
 
 
-## ec_mul
+## ec\_mul(a\_x, a\_y, scalar)
 
 **JSON:** { `"op"`: `"ec_mul"`, `"a_x"`: Index, `"a_y"`: Index, `"scalar"`: Index }
 
@@ -502,7 +502,7 @@ point.
     }
 
 
-## ec\_mul\_generator
+## ec\_mul\_generator(scalar)
 
 **JSON:** { `"op"`: `"ec_mul_generator"`, `"scalar"`: Index }
 
@@ -531,7 +531,7 @@ Multiplies the group generator by a scalar.
     }
 
 
-## hash\_to\_curve
+## hash\_to\_curve(inputs)
 
 **JSON:** { `"op"`: `"hash_to_curve"`, `"inputs"`, Index[] }
 
@@ -564,7 +564,7 @@ Hashes a sequence of field elements to an embedded curve point.
     }
 
 
-## less_than
+## less_than(a, b, bits)
 
 **JSON:** { `"op"`: `"less_than"`, `"a"`: Index, `"b"`: Index, `"bits"`: u32 }
 
@@ -598,7 +598,7 @@ Checks if `a` < `b`, interpreting both as `bits`-bit unsigned integers.  UB if
     }
 
 
-## load_imm
+## load_imm(imm)
 
 One output.  Extends the memory with an immediate field value.
 
@@ -611,7 +611,7 @@ One output.  Extends the memory with an immediate field value.
 **Circuit semantics:** a wire is created carrying the field value *imm*.  The
 memory is extended with this wire.
 
-## mul
+## mul(a, b)
 
 One output.  Multiples a pair of field values in the prime field.
 
@@ -627,7 +627,7 @@ prime field.
 memory.  A `mul` gate is built using the inputs at *a* and *b*.  The memory is
 extended with the output wire of the `mul` gate.
 
-## neg
+## neg(a)
 
 **JSON:** { `"op"`: `"neg"`, `"a"`: Index }
 
@@ -646,7 +646,7 @@ Negates `a` in the prime field.
     I::Neg { a } => mem_push(std.neg(layouter, idx(&memory, *a)?)?, &mut memory)?,
 
 
-## not
+## not(a)
 
 **JSON:** { `"op"`: `"not"`, `"a"`: Index }
 
@@ -665,7 +665,7 @@ Boolean not gate.  NOTE: This gate is never emitted by the compiler.
     I::Not { a } => mem_push(lnot(std, layouter, idx(&memory, *a)?)?, &mut memory)?,
 
 
-## output
+## output(var)
 
 No outputs as an instruction, despite the name.  A value in memory is recorded
 as an output from the circuit.
@@ -680,7 +680,7 @@ vector of circuit outputs is extended with this value.
 **Circuit semantics:** the wire at *var* is read from the memory.  The vector of
 circuit outputs is extended with this wire.
 
-## persistent_hash
+## persistent_hash(alignment, inputs)
 
 **JSON:** { `"op"`: `"persistent_hash"`, `"alignment"`: Alignment, `"inputs"`: Index[] }
 
@@ -721,7 +721,7 @@ Calls a long-term hash function on a sequence of items with a given alignment
     }
 
 
-## pi_skip
+## pi_skip(guard, count)
 
 No outputs.  This is an instruction that tells the ZKIR evaluator whether a
 public input corresponds to one that was produced by the off-chain execution of
@@ -755,7 +755,7 @@ cases:
 
 **Circuit semantics:** nothing is done for this instruction, it is a no-op.
 
-## private_input
+## private_input(guard)
 
 One output.  Optionally retrieves a private input from the private transcript.
 
@@ -786,7 +786,7 @@ is read from the memory and a constraint is added that either the guard value is
 non-zero or else the expected private input is zero.  The memory is extended
 with a wire containing the private input computed by the rehearsal phase.
 
-## public_input
+## public_input(guard)
 
 One output.  Optionally retrieves a public output from the public transcript.
 
@@ -801,7 +801,7 @@ into the public outputs.
 **Circuit semantics:** exactly the same as `private_input` (the expected value
 is found in the memory computed during the rehearsal phase).
 
-## reconstitute_field
+## reconstitute_field(divison, modulus, bits)
 
 **JSON:** { `"op"`: `"reconstitute_field"`, `"divisor"`: Index, `"modulus"`: Index, `"bits"`: u32 }
 
@@ -894,7 +894,7 @@ that `modulus < (1 << bits)`. Inverse of `DivModPowerOfTwo`.
     }
 
 
-## test_eq
+## test_eq(a, b)
 
 **JSON:** { `"op"`: `"test_eq"`: `"a"`: Index, `"b"`: Index }
 
@@ -916,7 +916,7 @@ Tests if `a` and `b` are equal.
     }
 
 
-## transient_hash
+## transient_hash(inputs)
 
 **JSON:** { `"op"`: `"transient_hash"`, `"inputs"`: Index[] }
 
