@@ -1,11 +1,25 @@
 # Midnight Wallet Specification
 
-This document is meant to be a reference for wallet implementors: explaining the differences between other well-known blockchain protocols, providing details on data needed to successfully create and submit transactions, as well as provide practical insights. There are some aspects of cryptography and algorithms used, which are unique to wallet, and thus - are explained in more detail, while others, more ubiquitous across the stack - are meant to be a target of separate documents.  
+This document is meant to be a reference for wallet implementors: explaining the 
+differences between other well-known blockchain protocols, providing details on data 
+needed to successfully create and submit transactions, as well as provide practical 
+insights. There are some aspects of cryptography and algorithms used, which are unique 
+to Midnight's wallet, and thus - are explained in more detail, while others, more 
+ubiquitous across the Midnight stack - are meant to be a target of separate documents.  
 
-Midnight features a unique set of features, which influence the way wallet software can operate significantly. In particular, in comparison to many other blockchain protocols:
+Midnight hosts a unique set of features, which influence the way Midnight wallet 
+software can operate significantly. In particular, in comparison to many other 
+blockchain protocols:
 - transactions are not sealed with signatures
-- usage of zero-knowledge technology requires users to generate proofs, which takes relatively a lot of resources: time, CPU and memory
-- knowing wallet balance requires iterating over every single transaction present
+- usage of zero-knowledge technology requires users to generate proofs, which takes 
+  relatively a lot of resources: time, CPU and memory
+- there are 3 kinds of tokens/resources, each with its own specific way to learn 
+  balance and data needed for spending it:
+  - shielded, which require iterating over every single transaction to learn balance 
+    and tracking an ever-growing Merkle tree to issue spends
+  - unshielded, which are typical UTxO and only require knowing the UTxO to spend it
+  - Dust, whose balance can be discovered by tracking data used for its generation and 
+    spends, including an ever-growing Merkle tree to issue spends
 
 This document comprises a couple of sections:
 1. **[Introduction](#introduction)** - which explains, how addressing goals stated for the protocol leads to differences mentioned above
@@ -17,6 +31,7 @@ This document comprises a couple of sections:
 7. **[Transaction building](#building-transactions)** - on the details and steps to be performed to build transaction
 8. **[Transaction submission](#transaction-submission)** - which mentions the process of submitting transaction, including possible impact on state
 
+<!-- TOC -->
 - [Midnight Wallet Specification](#midnight-wallet-specification)
   - [Introduction](#introduction)
     - [Non-interactive zero knowledge proofs of knowledge (NIZK)](#non-interactive-zero-knowledge-proofs-of-knowledge-nizk)
@@ -28,11 +43,10 @@ This document comprises a couple of sections:
     - [HD Wallet structure](#hd-wallet-structure)
     - [Night and unshielded tokens keys](#night-and-unshielded-tokens-keys)
     - [Dust keys](#dust-keys)
-    - [Zswap keys](#zswap-keys)
+    - [Shielded token (Zswap) keys](#shielded-token-zswap-keys)
       - [Zswap seed](#zswap-seed)
       - [Output encryption keys](#output-encryption-keys)
       - [Coin keys](#coin-keys)
-      - [Address](#address)
     - [Metadata keys](#metadata-keys)
     - [Scalar sampling](#scalar-sampling)
   - [Address format](#address-format)
@@ -50,6 +64,8 @@ This document comprises a couple of sections:
       - [`apply_transaction`](#apply_transaction)
         - [Steps to apply shielded offer of a section](#steps-to-apply-shielded-offer-of-a-section)
         - [Steps to apply unshielded offer of a section](#steps-to-apply-unshielded-offer-of-a-section)
+        - [Steps to apply dust actions](#steps-to-apply-dust-actions)
+      - [`apply_system_transaction`](#apply_system_transaction)
       - [`finalize_transaction`](#finalize_transaction)
       - [`rollback_last_transaction`](#rollback_last_transaction)
       - [`discard_transaction`](#discard_transaction)
@@ -58,6 +74,7 @@ This document comprises a couple of sections:
   - [Synchronization process](#synchronization-process)
     - [Indexing service for shielded tokens](#indexing-service-for-shielded-tokens)
     - [Indexing service for unshielded tokens](#indexing-service-for-unshielded-tokens)
+    - [Indexing service for Dust](#indexing-service-for-dust)
   - [Building standard transactions](#building-standard-transactions)
     - [Building operations](#building-operations)
       - [Building a shielded input](#building-a-shielded-input)
@@ -68,6 +85,7 @@ This document comprises a couple of sections:
       - [Building an unshielded input](#building-an-unshielded-input)
       - [Building an unshielded output](#building-an-unshielded-output)
       - [Combining unshielded inputs and outputs into an unshielded offer](#combining-unshielded-inputs-and-outputs-into-an-unshielded-offer)
+      - [Creating a Dust spend](#creating-a-dust-spend)
       - [Creating an intent](#creating-an-intent)
       - [Creating transaction with an intent and shielded offers](#creating-transaction-with-an-intent-and-shielded-offers)
       - [Merging with other transaction](#merging-with-other-transaction)
@@ -78,19 +96,29 @@ This document comprises a couple of sections:
       - [Contract call](#contract-call)
       - [Balance transaction](#balance-transaction)
   - [Transaction submission](#transaction-submission)
+<!-- TOC -->
 
 
 ## Introduction
 
 Wallet is an important component in a whole network - it stores and protects user's secret keys and allows to use them in order to create or confirm transactions.
 
-It is often the case, that for user's convenience, wallets also collect all the data necessary for issuing simple operations on tokens. Midnight Wallet is no exception in this regard, one could even say, that in case of Midnight, that data management is a particularly important task because the data needed to create transaction is not only sensitive, but also computationally expensive to obtain. This is a common property to many, if not all implementations of protocols based on [Zerocash](http://zerocash-project.org/media/pdf/zerocash-extended-20140518.pdf) and [CryptoNote](https://bytecoin.org/old/whitepaper.pdf) protocols of privacy-preserving tokens, and Midnight shielded tokens protocol belongs to this family, as it is based on [Zswap](https://iohk.io/en/research/library/papers/zswap-zk-snark-based-non-interactive-multi-asset-swaps/), which is related to an evolution of Zerocash protocol.
+It is often the case, that for user's convenience, wallets also collect all the data 
+necessary for issuing simple operations on tokens. Midnight Wallet is no exception in 
+this regard, one could even say, that in case of Midnight, that data management is a 
+particularly important task because the data needed to create transaction is not only 
+sensitive, but also computationally expensive to obtain. This is a common property to 
+many, if not all implementations of protocols based on [Zerocash](http://zerocash-project.org/media/pdf/zerocash-extended-20140518.pdf) 
+and [CryptoNote](https://bytecoin.org/old/whitepaper.pdf) protocols of privacy-preserving tokens, and 
+Midnight shielded tokens protocols (including Dust) belong to this family, as they are  
+based on [Zswap](https://iohk.io/en/research/library/papers/zswap-zk-snark-based-non-interactive-multi-asset-swaps/)
+, which is related to an evolution of Zerocash protocol.
 
 Zswap, as a protocol for privacy-preserving tokens, has 3 major goals:
 1. Maintain privacy of transfers, so that it is impossible to tell:
    - who the input provider (sender) is, unless one is the provider themselves
    - who the output recipient is, unless one created that output or is the recipient
-   - what amounts were moved, unless one is sender or receiver of particular output
+   - what amounts were moved, unless one is receiver of particular output
    - what kinds of tokens were moved, unless one is sender or receiver of the token
 2. Allow to maintain privacy, while using a non-interactive protocol. That is - to not need interact with the network or other parties after transaction was submitted.
 3. Allow to make swap transactions
@@ -147,9 +175,10 @@ With just zero-knowledge proof no additional interaction is needed to verify tra
 Zswap reaches its goals of maintaining privacy using a non-interactive protocol and allowing swaps through a combination of zero-knowledge technology, coin nullifiers and Merkle tree of coin commitments tracked by ledger, sparse homomorphic commitments and output encryption. This indicates high level goals of wallet software for Midnight, which need to be met in order to be able to create a transaction, that will be accepted by Midnight's ledger:
 - generate proper zero-knowledge proofs
 - track coin lifecycle to prevent double spends
-- keep access to an up-to-date view on the Merkle tree of coin commitments, which allows to generate inclusion proofs for coins owned by particular wallet instance
+- keep access to an up-to-date view on the needed Merkle trees, to generate inclusion 
+  proofs for coins owned by particular wallet instance
 - derive relevant keys
-- calculate nullifiers, coin commitments, value commitments as well as combine them accordingly
+- calculate needed nullifiers and commitments, and combine them accordingly
 - encrypt and decrypt outputs
 - scan blockchain transactions for own outputs
 
@@ -199,7 +228,10 @@ function dustSecretKey(seed: Buffer): BigInt {
 }
 ```
 
-### Zswap keys
+In the HD wallet structure, seed for Dust secret key is a secret key derived at 
+certain path. 
+
+### Shielded token (Zswap) keys
 
 ![](./zswap-keys.svg)
 
@@ -216,13 +248,17 @@ function encryptionSecretKey(seed: Buffer): BigInt {
 }
 ```
 
-Although it is a secret key, so it should be treated with a special care, there is one situation, where it can be shared - as a key letting a trusted backend service index wallet transactions - in such context it acts as a viewing key.
+Although it is a secret key, so it should be treated with a special care, there is one 
+situation, where it can be shared - as a key letting a trusted backend service index 
+related transactions - in such context it acts as a viewing key.
 
 Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve), that is $esk \cdot G$, where $G$ is JubJub's generator point and $esk$ the encryption secret key.
 
 #### Coin keys
 
-Coin secret key is 32 random bytes, generated as a SHA-256 hash of seed with domain separator "midnight:csk". Through coin commitment calculation in a zero-knowledge proof it is a credential to rights to spend particular coin.
+Coin secret key is 32 random bytes, generated as an SHA-256 hash of seed with domain 
+separator `midnight:csk`. Through coin commitment calculation in a zero-knowledge 
+proof it is a credential to rights to spend particular coin.
 
 Coin public key is 32 bytes calculated as SHA-256 hash of coin secret key suffixed with domain separator `mdn:pk`, that is (in a TS pseudocode):
 
@@ -233,19 +269,19 @@ function coinPublicKey (coinSecretKey: Buffer): Buffer {
 }
 ```
 
-#### Address
-
-Since coin ownership and output encryption are separated and use different keys, address contains both components as a concatenation of a base16-encoded coin public key, pipe sign (`|`) and base16-serialized encryption public key.
-
-Such built address can be sent to other parties, and the sender wallet can easily extract both components by splitting at `|` character.
-
 ### Metadata keys
 
 Similarly to Night, metadata signing uses Schnorr signatures over secp256k1 curve, thus a private key derived at a path is a private key for signature, with public key being derived accordingly for Schnorr (e.g. as specified in [BIP-0340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)).
 
 ### Scalar sampling
 
-Zswap and Dust keys require sampling a scalar value out of uniform bytes. The procedure to follow is the same for both, with some details specific to a key and curve it is related to. It iteratively hashes provided bytes with a domain separator until a certain number of bytes is reached (enough to represent every number on the scalar field plus couple more to have more uniform output[^1]). Resulting byte sequence is interpreted to scalar assuming a little-endian layout and taken modulo the field prime. In naive pseudocode (simplifying for readability):
+Zswap and Dust keys require sampling a scalar value out of uniform bytes. The 
+procedure to follow is the same for both, with some details specific to a key and 
+curve it is related to. It iteratively hashes provided bytes with a domain separator 
+until a certain number of bytes is reached (enough to represent every number on the 
+scalar field plus some more to obtain sufficiently uniform output[^1]). Resulting byte 
+sequence is interpreted to scalar assuming a little-endian layout and taken modulo 
+the field prime. In naive TS code (simplifying for readability):
 ```ts
 function toScalar(bytes: Buffer): BigInt {
     return BigInt(`0x${Buffer.from(bytes).reverse().toString('hex')}`);
@@ -290,7 +326,7 @@ The human-readable part should consist of 3 parts, separated by underscore:
 ### Unshielded Payment address
 
 Primary payment address in the network. It allows receiving Night and other unshielded tokens. 
-It is a SHA256 of an unshielded token public key.
+It is an SHA256 hash of an unshielded token public key.
 
 Its credential type is `addr`.
 
@@ -302,13 +338,22 @@ Example human-readable parts:
 
 ### Dust address
 
-Currently undefined (very likely to be Dust's public key). It will allow to represent recipient of Dust generation.
+It is a Ledger-serialized Dust public key, without network id: versioning header (2 
+bytes), length information (1 byte), and contents of the key itself (up to 32 bytes).
+It represents recipient of Dust generation.
 
 Its credential type is `dust-addr`.
 
+Example human-readable parts:
+- for the mainnet: `mn_dust-addr`
+- for the testnet: `mn_dust-addr_test`
+- for a testing environment: `mn_dust-addr_testing-env`
+- for local development environment: `mn_dust-addr_dev`
+
 ### Shielded Payment address
 
-It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption public key (59 bytes).
+It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption 
+public key (up to 36 bytes).
 
 NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
 
@@ -327,7 +372,8 @@ Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-serialized encryption secret key without network id: versioning header (2 bytes), length information (1 byte) + contents of the secret key (up to 56 bytes) 
+Ledger-serialized encryption secret key without network id: versioning header (2 bytes)
+, length information (1 byte) + contents of the secret key (up to 32 bytes) 
 Credential type is `shield-esk`
 
 ## Transaction structure and statuses
@@ -340,23 +386,43 @@ There are multiple types of supported transactions in Midnight, from the wallet 
 
 ### Standard transactions
 
-Standard Midnight transactions include 3 kinds of components:
+A standard Midnight transactions are built with 4 kinds of components, further grouped 
+into intents:
 1. A shielded offer.
 2. An unshielded offer.
 3. A contract action.
+4. Dust action
 
 Shielded offer is an atomically applicable, sorted set of shielded inputs, outputs and transients. It also conveys information on utilised token imbalances (if there are any), because finalized offer does not contain information about coins values.
 
 Unshielded offer is an atomically applicable, sorted set of unshielded inputs and outputs, together with a set of signatures authorizing the spends and sealing the intent an offer is part of.
 
-Balance of a token within an offer/intent is a sum of values of the coins of particular type in the outputs subtracted from the sum of values of inputs. Only transactions which have balance for all tokens used greater than or equal to zero, where the balance of tDUST token needs to cover transaction fees, will be accepted by the ledger as valid ones.
+Contract action is a contract call, deploy or a maintenance action.
 
-A standard transaction contains:
-- *Intents*: each intent has assigned its execution order, determined by an identifier within the transaction. It contains or refers to shielded and unshielded offers, and contract actions within a transaction that are meant to be executed together (e.g. because they represent a swap of unshielded tokens for shielded ones, which is all done through a contract).
-- Fallible and guaranteed sections.  A guaranteed section includes a shielded offer and a set of unshielded ones (one for each intent). A guaranteed section has to succeed for the whole transaction to succeed. Fallible sections (there exists one for each intent present) comprise a shielded offer, unshielded offer and contract actions. This split makes a transaction execution yield one of the following 3 results:
+Dust action is a Dust spend (to pay for fees) or a registration (to start generating Dust).
+
+Each intent is a structure assigned its execution order, determined by an identifier 
+  within the transaction. It contains or refers to shielded and unshielded offers, 
+  contract actions and Dust actions within a transaction that are meant to be executed 
+  together (e.g. because they represent a swap of unshielded tokens for shielded ones, 
+  which is all done through a contract).
+
+Transaction can be viewed at through the lens of sections: guaranteed one, and 
+fallible ones. The guaranteed section includes a shielded offer and a set of unshielded 
+ones (one from each intent). The guaranteed section has to succeed for the whole 
+transaction to succeed. Fallible sections comprise a shielded offer, unshielded offer 
+and contract actions. This split makes a transaction execution yield one of the following 3 results:
   - success - when guaranteed section and all fallible sections succeed
   - failure - when guaranteed section fails, so no fallible section is even executed
-  - partial success, with succeeding intent ids - when guaranteed section passes, but some (or all) of fallible sections fail, the succeeding ones are being returned
+  - partial success, with succeeding intent ids - when guaranteed section passes, but 
+    some (or all) of fallible sections fail, the succeeding ones are being returned
+
+Balance of a token within an offer/intent/section is a sum of values of the coins of
+particular type in the outputs subtracted from the sum of values of inputs. Only
+transactions with balances meeting following criteria will be accepted by ledger:
+- for all shielded and unshielded tokens, for each section separately - greater or equal 
+  zero
+- for Dust spends (to pay fees) - greater or equal to fees to be paid
 
 Because a transaction can always be extended (by adding new intents or merging shielded offers), its hash is not a reliable identifier to use when looking for transaction confirmation. Instead, transactions should be identified by their known components: value commitments of shielded offers or binding commitments of intents.
 
@@ -372,18 +438,26 @@ Possible uses of mint transactions are - assigning rewards to SPOs, assigning re
 
 ## State management
 
-Wallet has a state, which needs accurate maintenance in order to be able to use coins in a transaction. Minimally, it consists of the data needed to spend coins:
+Wallet has a state, which needs accurate maintenance in order to be able to use coins 
+in a transaction. Minimally, it consists of the data needed to spend coins and pay fees
 - keys
-- A set of owned shielded coins
-- A Merkle tree of shielded coin commitments
-- A set of owned unshielded coins
+- a set of own shielded coins
+- a Merkle tree of shielded coin commitments
+- a set of own unshielded coins
+- a set of own Dust generation info paired with Dust actions containing them and their Merkle tree indices
+- a set of own Dust outputs paired with Dust actions containing them
+- a Merkle tree of Dust generation infos
+- a Merkle tree of Dust commitments
 
 Owned coins do not have to be spendable at particular point. They might also be coins that the wallet was let know of, which are expected to be included in one of the future transactions.
 
 Additionally, it is in practice important to track progress of synchronization with chain, pool of pending transactions and transaction history.
 
 There are 6 foundational operations defined, which should be atomic to whole wallet state:
-- `apply_transaction(transaction, status, expected_root)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming transactions
+- `apply_transaction(transaction, status, timestamp, expected_roots, 
+genearations_tree_update)` - which updates the state with a transaction observed on chain, this operation allows to learn about incoming tokens
+- `apply_system_transaction(transaction)` - which allows to discover cNight-based 
+  genearations
 - `finalize_transaction(transaction)` - which marks transaction as final according to consensus rules
 - `rollback_last_transaction` - which reverts effects of applying last transaction 
 - `discard_transaction(transaction)` - which considers a pending transaction irreversibly failed  
@@ -416,7 +490,27 @@ Because of need to book coins for ongoing transactions, coin lifecycle differs f
 
 #### `apply_transaction`
 
-Applies a transaction to the wallet state. Most importantly - to discover received coins. Depending on provided status of transaction executes only sections indicated as successful (all of them in case of a `success` status, guaranteed and then indicated fallible sections in case of `partial success` status).
+Applies a (standard) transaction to the wallet state. It should receive following 
+parameters:
+- transaction to apply, including information about its on-chain execution status 
+  (which sections passed)
+- containing block's timestamp
+- roots of commitments Merkle trees (shielded coin commitments, Dust commitments) - to 
+  allow consistency checks
+- updated Dust generation Merkle tree or an update with expected root - to allow 
+  Dust spends; an alternative is to process all transactions (including system ones) 
+  and follow ledger algorithm to obtain the same result, which is a memory-intensive 
+  process, though may be worth the cost if implementation's threat model assumes 
+  operation on raw chain data; Additional mappings to help in resolving indices of 
+  Dust generation infos would be helpful too (e.g. mapping from Dust generation info
+  hash to an index in the Merkle tree).
+
+This operation is basis to the synchronization process and primarily serves the 
+purpose of discovering received and spent coins. Depending on provided status of 
+transaction executes only sections indicated as successful - all of them in case of a 
+`success` status, or only indicated sections (always including guaranteed one) in case of 
+`partial success` status. Dust spends are treated as part of guaranteed section while 
+Dust registrations are treated as part of intent's fallible section.
 
 ##### Steps to apply shielded offer of a section
 1. Update coin commitment tree with commitments of outputs and transients present in the offer
@@ -428,21 +522,51 @@ Applies a transaction to the wallet state. Most importantly - to discover receiv
    3. If decryption fails - ignore output
 
 ##### Steps to apply unshielded offer of a section
-1. Book coins spent in the inputs.
+1. Book coins spent in the inputs. Find matching Dust generation infos and set their 
+   spent time to timestamp provided 
 2. Filter outputs to narrow them down to only ones received by tracked addresses, for each one:
    1. Match the coin with pending ones, if there is a match, mark the matching pending coin as confirmed.
-   2. Otherwise add a coin to the known set as a confirmed.
+   2. Otherwise, add a coin to the known set as a confirmed.
+   3. Add a new Dust generation info to the own set, if the receiving Night address was 
+      earlier registered for Dust generation, resolve its index in the Dust generation info Merkle tree
+   4. derive the first Dust output in the chain and add it to the set of own ones as
+      confirmed
+
+##### Steps to apply dust actions
+1. Update Dust generation tree with provided data, check its consistency
+2. Update Dust commitments tree with spends present in the actions
+3. Verify Dust commitments tree against root received, implementation needs to revert
+   updates to the tree and abort in case of inconsistency.
+4. Book Dust outputs whose nullifiers match the ones present in Dust spends, compute 
+   new Dust outputs based on the spends, add them to the set of own ones as confirmed
 
 If transaction is reported to fail and is present in pending pool, it is up to implementor to choose how to progress. It is advised to discard such transaction (with operation `discard_transaction`) and notify user.
 
 If the transaction history is tracked and the transaction is found relevant to the history of the wallet (e.g. spends or outputs tokens from/to wallet keys), an entry should be added, with confirmed status. The amount of shielded tokens spent can be deducted by comparing coins provided as inputs through nullifiers and discovered outputs. Additionally, transients present in a transaction should be inspected for transaction history completeness, as there may be tokens immediately spent.
 
+#### `apply_system_transaction`
+
+Allows to discover cNight-based generation.
+
+1. If transaction is registering cNight to generate Dust and the Dust address is own:
+   1. Add the generation info to set of own ones
+   2. Compute first Dust output in the chain and add it to the set of own ones as 
+      confirmed
+2. If transaction is for registering backing cNight UTxO spent, and it was used to 
+   generate own Dust:
+   1. Set proper timestamp on relevant generation info
+3. Otherwise, ignore it
+
 #### `finalize_transaction`
 
-Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide definitive information about finalization, thus there is no need to implement probabilistic rules. It is expected wallet state has already applied provided transaction. 
+Marks transaction as final. Midnight uses Grandpa finalization gadget, which provide 
+definitive information about finalization, thus there is no need to implement 
+probabilistic rules. It is expected that wallet state has already applied provided 
+transaction. 
 This operation needs to:
-1. Mark the shielded coin commitment tree state from that transaction as final.
-2. Update status of known coins to final, so that they become part of available balance
+1. Mark the Merkle trees states from that transaction as final.
+2. Update status of known coins and outputs to final, so that they become part of 
+   available balance
 3. Update statuses of transactions in history if tracked
 
 #### `rollback_last_transaction`
@@ -450,16 +574,23 @@ This operation needs to:
 Reverts effects of applying last transaction in response to chain reorganization.
 
 It needs to:
-1. Revert coin commitment tree state to one from before that transaction
+1. Revert Merkle trees states to the ones from before that transaction
 2. If transaction is considered own:
    1. Add it to the pool of pending transactions, so it can be submitted to the network again
-   2. Move coins received from it to pending state
+   2. Move shielded coins, unshielded coins and Dust outputs received in it to pending 
+      state
    3. Restore coins spent in the transaction in a booked state
+   4. Undo setting timestamp on Dust generation info related to Night UTxOs spent in the 
+      transaction
+   5. Remove related Dust generation info
 3. Otherwise, discard transaction
 
 There are a couple of practical considerations:
 - usage of persistent data structures will allow coin commitment tree revert to be as simple as picking an older pointer
-- depending on the APIs for providing blockchain data slightly different input to this operation might be needed for a more efficient implementation; in all cases though handling reorganization is conceptually first - finding relevant range of blocks/transactions to revert, then reverting them and then applying new updates  
+- depending on the APIs for providing blockchain data slightly different input to this 
+  operation might be needed for a more efficient implementation; in all cases though 
+  handling reorganization is conceptually similar - first find relevant range of 
+  blocks/transactions to revert, then revert them and then apply new updates  
 
 #### `discard_transaction`
 
@@ -468,6 +599,7 @@ Following steps need to be taken:
 1. Move transaction to transaction history as failed
 2. Remove coins received in the transaction
 3. Un-book coins spent in the transaction
+4. Remove related Dust generation info
 
 #### `spend`
 
@@ -492,7 +624,11 @@ Note: in many cases such transaction would be requested to be balanced, in such 
 
 Literal implementation of a Midnight Wallet, applying transactions one by one, provided by a local node is the best option from security and privacy standpoint, but resources needed to run such implementation and time to have wallet synchronized are quite significant. Such option requires only a stream of blocks from a node, perform basic consistency checks and run `apply_transaction` one by one (alternatively batch all transactions from a block).
 
-An alternative idea is to use an indexing service, at the cost of having to trust said service. In the most simplistic approach such a service could stream all transactions to the client, but the time needed to process all of them would still be high. Below we draft alternative approaches for shielded and unshielded tokens.
+An alternative idea is to use an indexing service, at the cost of having to trust said 
+service. In the most simplistic approach such a service could stream all transactions 
+to the client, but the time and resources needed by wallet would essentially be the 
+same as when synchronizing with a node. Below we draft alternative approaches for 
+shielded and unshielded tokens.
 
 ### Indexing service for shielded tokens
 
@@ -504,6 +640,61 @@ Such service cannot spend coins because it does not have access to the coin secr
 ### Indexing service for unshielded tokens
 
 Because all the information needed by the wallet in the case of unshielded tokens is the list of UTxOs, augmented by information about transactions they were created and spent at (including finalization information), the indexing service only needs to provide an API to query (or subscribe) for a set of UTxOs relevant to a particular address and the references to creation/spend transactions.   
+
+### Indexing service for Dust
+
+The relationship between Night and Dust, as well as the need to track both generation 
+info  and spends makes the amount of data and overall process more involved. Proposed 
+approach would allow wallet to obtain data needed to issue Dust spends, while having 
+a way to limit Indexer's ability to link transactions belonging to single wallet.
+
+To enable that, the indexer service needs to provide 4 endpoints:
+1. Allowing wallet to reconstruct all generation info - while the Night part of the 
+   wallet can inform generations originating from mNIGHT, there are still cNIGHT 
+   ones. One possibility is to expose an endpoint allowing to learn about all 
+   generation by Dust address, while other would be to enable querying (or streaming)
+   standard and system transactions by relevance to a Dust address.
+2. Streaming collapsed updates to generation Merkle tree, including only paths 
+   relevant for own generation infos, starting from a provided index (which can be 
+   overlapping with the tree view held by wallet). This stream can be 
+   combined with the former endpoint, similarly to how it is done for shielded tokens.
+3. Providing all transactions containing Dust spends with nullifiers starting by 
+   provided set of nullifier prefixes after certain block/transaction.
+4. Streaming Dust commitments Merkle tree, where wallet provides starting point for 
+   the updates (possibly overlapping with the view wallet already has) and a set of 
+   commitment prefixes of wallet's interest. 
+
+With such endpoints, the synchronization could look like below:
+1. Reconstruct generation infos and their Merkle tree by combining known generations 
+   from the wallet state and usage of endpoints #1 and #2. Optionally discard expired 
+   generation infos
+2. Once all (active) generation infos are known, it becomes possible to inspect the 
+   chains of Dust spends to learn about the latest Dust outputs possible to spend for 
+   each generation. This is done iteratively:
+   1. Calculate nullifiers of the successor Dust outputs in relation to currently 
+      known ones
+   2. Make a query to endpoint #3, providing the computed nullifiers or their prefixes
+   3. Filter the response to only relevant transactions
+   4. Update Dust outputs data (book spent outputs, create new confirmed ones, etc.)
+   5. Stop, once query does not return any new data.
+   
+   It is up to implementation to adjust length of prefixes provided with respect to the 
+   implementation's trust model and efficiency (shorter prefix will result with more 
+   data provided and improving privacy, at a cost of more data to transmit and process). 
+3. At the end, synchronize Dust commitments Merkle tree with streaming endpoint #4, 
+   providing commitments (or their prefixes) and one of already present indices in 
+   local view of the tree.
+
+There are couple important considerations, mostly related to the fact, that there is a 
+need to discover cNight-backed Dust generations and that both generation and 
+commitment Merkle trees need to be from within Dust grace period:
+- periodically performing all steps up to reaching the latest data available will 
+  allow for simpler state management, at a cost of inefficiencies caused effectively 
+  by form of polling 
+- streams implementing all 3 steps can be running in parallel, allowing wallet to 
+  always operate on reasonably up-to-date data without employing any form of polling, 
+  at a cost of some synchronization needed or possibility that different portions 
+  of the state are in different state of completeness
 
 ## Building standard transactions
 
@@ -520,6 +711,7 @@ Technically, building a standard transaction by wallet involves following operat
 - Creating transients (only shielded)
 - Combining inputs and outputs into an offer
 - Replacing shielded output with a transient in a shielded offer
+- Creating a Dust spend
 - Creating an intent
 - Creating a transaction with an intent
 - Merging with other transaction
@@ -555,7 +747,11 @@ Building an output requires information of an address to receive tokens, their t
 
 #### Building a transient
 
-Building a transient can be thought as a process of taking an output, and converting it into a transient. Therefore - the output is needed, its randomness, information about the coin - its type, value and nonce, and access to part of wallet state - the coin secret key and the encryption secret key (if output ciphertext needs to be decrypted)
+Building a transient can be thought as a process of taking an output, converting it 
+into an input, and then combining them both into a transient. Therefore - the output 
+is needed, its randomness, information about the coin - its type, value and nonce, and 
+access to part of wallet state - the coin secret key and the encryption secret key (if 
+output ciphertext needs to be decrypted)
 Steps to follow are very similar as in the case of creating input:
 1. if no coin information is available - extract it by decrypting provided output ciphertext, abort if decryption fails
 2. calculate nullifier
@@ -602,6 +798,37 @@ An unshielded output is just a minimal description of the value to transfer:
 
 An unshielded offer contains a list of inputs, outputs, and signatures corresponding to inputs. The signatures sign over the whole intent though, and, for that reason, an intermediate format needs to be used, where only inputs and outputs are present, which allows to construct the intent. 
 
+#### Creating a Dust spend
+
+Dust spend represents both spending and creating a new output. Creating such requires 
+following data:
+- Dust secret key to prove its ownership
+- the Dust output to use
+- Dust commitments Merkle tree
+- current timestamp
+- generation info
+- generations Merkle tree
+- amount of fees being paid
+
+The steps to create a spend are following:
+1. Compute nullifier of the Dust output
+2. Compute commitment of the Dust output
+3. Compute sequence number, nonce and commitment of the successor Dust output
+4. Compute commitment's Merkle proof
+5. Compute generation's Merkle proof
+6. Compute spend's zero-knowledge proof by providing:
+   - The Dust output that is being spent
+   - The Dust secret key
+   - The generation info
+   - The Merkle proofs to both the Dust commitment being spent, and the generation info.
+   - The sequence number and the nonce of the successor output
+7. Create spend itself by including:
+   - amount of fees paid
+   - spent output's nullifier
+   - successor output's commitment
+   - spend proof
+
+
 #### Creating an intent
 
 Given:
@@ -612,14 +839,17 @@ Given:
 - Optional fallible unshielded offer (unshielded offer being part of fallible section identified by segment id).
 - Optional fallible shielded offer and its binding randomness.
 - A list of contract actions.
+- A list of Dust spends and timestamp used to create them
 - A time-to-live (TTL), which is the time after which the intent is considered invalid.
 
 An intent can be constructed as follows:
-1. Establish data binding with proof-of-exponent as described in the ledger specification (Preliminaries, Fiat-Shamir'd and Multi-Base Pedersen), resulting in a commitment and binding randomness.
-2. In each unshielded offer present, for each of its inputs provide a signature and append it to the list of signatures (so that when finished the number of signatures matches the number of inputs, and the keys match):
+1. Construct DustAction with provided spends and timestamp
+2. Establish data binding with proof-of-exponent as described in the ledger specification (Preliminaries, Fiat-Shamir'd and Multi-Base Pedersen), resulting in a commitment and binding randomness.
+3. In each unshielded offer present, for each of its inputs provide a signature and append it to the list of signatures (so that when finished the number of signatures matches the number of inputs, and the keys match):
    - Over segment id and proof- and signature-erased intent.
    - Using Schnorr secret key to authorize particular spend.
-3. Return the segment id, intent, the fallible shielded offer and binding randomnesses for both the intent and the fallible shielded offer
+4. Return the segment id, intent, the fallible shielded offer and binding randomnesses for both the intent and the fallible shielded offer
+
 #### Creating transaction with an intent and shielded offers
 
 Given:
@@ -688,26 +918,36 @@ Balancing a transaction is a process of creating counter-offers, so that after m
 
 Balancing in the most generic form requires 2 inputs:
 1. The transaction to be balanced
-2. Map of desired imbalances per token type, per segment when desired is different from zero
+2. Map of desired imbalances per token type, per segment when desired is different than 
+   zero
 
 > [!NOTE]
 > Balancing fallible sections will only be possible when the provided transaction is not yet bound with signatures and binding randomness.
 > This does not apply to the guaranteed section because its shielded offer is not part of intents and all intents can include offers belonging to the guaranteed section. 
 
 Conceptually, the process follows given steps:
-1. List all segments in the imbalances present, sort them in descending order (to balance fees at the very end), then for each segment: 
-   1. Create an empty offer skeleton for collecting inputs and outputs to be created
-   2. Calculate total fees to be paid from the initial imbalances and all new balancing offers
-   3. Calculate the resulting imbalances by merging ones from the unbalanced transaction, the balancing offers and target imbalances with values inversed (multiplied by -1), additionally for DUST in the guaranteed section, then subtract total fees from the imbalance.
-   4. Verify if target imbalances for a segment are met:
+1. List all segments in the imbalances present, then for each segment: 
+   1. Create an empty offer skeleton for collecting inputs and outputs
+   2. Calculate the resulting imbalances by merging ones from the unbalanced transaction, the balancing offers and target imbalances with values inversed (multiplied by -1)
+   3. Verify if target imbalances for a segment are met:
       - If they are, the given segment has successfully assigned inputs and outputs to be balanced. Proceed to the next segment.
       - If they are not, continue
-   5. Sort token types present in result imbalances in a way, that DUST is left last and select the first token type
-   6. Perform a balancing step for the selected token type:
-      - If the imbalance is positive (there is more value in inputs than outputs), create an output for self with the amount equal to the imbalance, and add it to the offer; in the case of DUST, subtract estimated fees for an output from the amount
+   4. Sort token types present in result imbalances in a way, that DUST is left last and select the first token type
+   5. Perform a balancing step for the selected token type:
+      - If the imbalance is positive (there is more value in inputs than outputs), create an output for self with the amount equal to the imbalance, and add it to the offer
       - If the imbalance is negative (there is more value in outputs than inputs), select a single coin of the selected type, create an input and add it to the offer; abort with error if there is no coin available to be spent
       - Go back to step 1.2
-2. Once all offer skeletons are created, actual offers and intents can be created or adjusted:
+2. Cover fees, by repeating above steps for Dust:
+   1. Create an empty Dust actions skeleton for capturing Dust spends and the timestamp
+   2. Compute current value of all available Dust outputs
+   3. Compute remaining amount of fees to be paid: sum fees needed to cover balanced 
+      transaction, the offers from previous step and prepared Dust spends, then 
+      subtract amount of fees provided in already prepared Dust spends. Continue if 
+      the remaining amount is bigger than zero, otherwise proceed to the next stage.
+   4. Select Dust output to use, assign to pay with it `min(remaining_fees + 
+   dust_spend_fee, current_value)` amount of fees and add it to the prepared spends
+3. Once all offer and Dust spend skeletons are created, actual offers and intents can be 
+   created or adjusted:
    1. For each non-zero segment id:
       1. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton.
       2. Merge the fallible unshielded offer with the created one
@@ -715,11 +955,16 @@ Conceptually, the process follows given steps:
       4. Merge the fallible shielded offer with the created one.
    2. For zero segment id (guaranteed section):
       1. Create a shielded offer with shielded inputs and outputs from the relevant balancing offer skeleton.
-      2. Merge the guaranteed shielded offer with the created one
-      3. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton
-      4. Depending on the provided transaction status:
-         - If it is bound and sealed - add a new intent containing the created unshielded offer as the guaranteed one
-         - If it is not bound and sealed yet (and likely to contain only a single intent), merge the guaranteed unshielded offer of an intent of choice with the created one.
+      2. Create Dust actions with dust spends and the timestamp
+      3. Merge the guaranteed shielded offer with the created one
+      4. Create an unshielded offer with unshielded inputs and outputs from the relevant balancing offer skeleton
+      5. Depending on the provided transaction status:
+         - If it is bound and sealed or already contains Dust actions with a different 
+           timestamp - add a new intent containing the created 
+           unshielded offer as the guaranteed one and the Dust actions
+         - If it is not bound and sealed yet (and likely to contain only a single 
+           intent with no Dust actions), merge the guaranteed unshielded offer of an 
+           intent of choice with the created one, add created Dust actions
 
 ## Transaction submission
 

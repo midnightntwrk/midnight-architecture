@@ -1,12 +1,12 @@
 import * as crypto from "node:crypto";
 import { schnorr } from "@noble/curves/secp256k1";
-import { BLSScalar, Field, JubJubScalar, toScalar } from "./field.js";
+import { BLSScalar, Field, fromScalar, JubJubScalar, toScalar } from "./field.js";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
   return crypto.createHash("sha-256").update(a).update(b).digest();
 }
 
-function sampleBytes(bytes: number, domainSeparator: Buffer, seed: Buffer): Buffer {
+export function sampleBytes(bytes: number, domainSeparator: Buffer, seed: Buffer): Buffer {
   const rounds = Math.ceil(bytes / 32);
   const result = Buffer.alloc(bytes);
   for (let i = 0; i < rounds; i++) {
@@ -48,6 +48,14 @@ export function dustSecretKey(seed: Buffer): {
   const field = BLSScalar;
   const domainSeparator = Buffer.from("midnight:dsk", "utf-8");
   return sampleKey(seed, 32, domainSeparator, field);
+}
+
+/**
+ * This is not proper Dust PK derivation, only a way to reproducibly obtain data in a right-ish format
+ */
+export function fakeDustPKFromSeed(seed: Buffer): Buffer {
+  const sampledKey = fromScalar(dustSecretKey(seed).key);
+  return Buffer.concat([Buffer.from([3, 0, sampledKey.length]), sampledKey]);
 }
 
 export function coinKeys(seed: Buffer): {
