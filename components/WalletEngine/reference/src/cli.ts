@@ -21,7 +21,7 @@ import {
   ShieldedEncryptionSecretKey,
   UnshieldedAddress
 } from "./address-format-reference.js";
-import { ErisScalar, fromScalar, PlutoScalar } from "./field.js";
+import { BLSScalar, fromScalar, JubJubScalar } from "./field.js";
 import {
   coinKeys,
   dustSecretKey,
@@ -62,12 +62,12 @@ function generateKeyDerivationTestVectors(seeds: Buffer[]) {
         publicKey: unshieldedKeyPair.publicKey?.toString("hex") ?? null,
       },
       encryption: {
-        secretKeyRepr: fromScalar(esk.key, ErisScalar).toString("hex"),
+        secretKeyRepr: fromScalar(esk.key, JubJubScalar).toString("hex"),
         secretKeyDecimal: esk.key.toString(10),
         secretKeyIntermediateBytes: esk.intermediateBytes.toString("hex"),
       },
       dust: {
-        secretKeyRepr: fromScalar(dsk.key, PlutoScalar).toString("hex"),
+        secretKeyRepr: fromScalar(dsk.key, BLSScalar).toString("hex"),
         secretKeyDecimal: dsk.key.toString(10),
         secretKeyIntermediateBytes: dsk.intermediateBytes.toString("hex"),
       },
