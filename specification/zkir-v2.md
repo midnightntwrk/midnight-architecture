@@ -74,7 +74,7 @@ The JSON encoding is a JSON object with three named members:
 
 This is denoted in the reference below as:
 
-**JSON:** { `"op"`: `"add"`, `"a"`: Index, `"b"`: Index }
+**JSON:** `{ "op":"add", "a":Index, "b":Index }`
 
 The Binary encoding of the `add` instruction consists of the hexadecimal byte value 0x11.
 This is followed by the binary encoding of the inputs `a` and `b`, in that order, as (fixed length little endian?) unsigned 32-bit values.
@@ -212,12 +212,9 @@ When a wire that is not in the memory is is mentioned in a constraint, then that
 ## add(a, b)
 
 Adds a pair of field values in the prime field.
-*a* and *b* are memory indexes.
 There is one output.
 
-**JSON:** `{"op":"add"`,`"a:"`Index,`"b:"`Index`}`
-
-**Binary:** 0x11 a:u32 b:u32
+**JSON:** `{ "op":"add", "a":Index, "b":Index }`
 
 **Rehearsal semantics:**
 
@@ -225,27 +222,12 @@ There is one output.
 <add(a, b), M> ==> M ++ (M[a] + M[b])
 ```
 
-The memory is extended with the result of adding the field values at *a* and *b* in the prime field.
-
-**Circuit semantics:**
-
-```
-<add(a, b), C, M> ==> C U {M[a] + M[b] = w)}; M ++ w
-```
-
-A constraint is added that the sum of the input wires at *a* and *b* are equal to a fresh output wire.
-The memory is extended with the fresh output wire.
-
 ## assert(cond)
-
 Asserts that a condition has the canonical true value `1`.
 The result is undefined if the condition's value is not `0` or `1`.
-*cond* is a memory index.
 There are no outputs.
 
-**JSON:** `{"op":"assert"`,`"cond"`:Index`}`
-
-**Binary:** 0x00 cond:u32
+**JSON:** `{ "op":"assert", "cond":Index }`
 
 **Rehearsal semantics:**
 
@@ -254,27 +236,13 @@ There are no outputs.
                   ==> fail, if M[cond] = 0
 ```
 
-The operation fails (the rehearsal phase is aborted) if the field value at *cond* is not 1.
-
-**Circuit semantics:**
-
-```
-<assert(cond), C, M> ==> C U {M[cond] = 1}; M
-```
-
-The wire at index *cond* is read from the memory.
-A constraint is added that the value on the wire is equal to one.
-
 ## cond_select(bit, a, b)
 
-Conditionally select between a pair of input values based on the value of a condition.
-The result is undefined if the condition's value is not `0` or `1`.
-*bit*, *a*, and *b* are memory indexes.
-There is one output.
+Conditionally select between a pair of input values based on the value of a condition bit.
+The result is undefined if the bit's value is not `0` or `1`.
+There is one output, identical to either *a* or *b*.
 
-**JSON:** `{"op":"cond_select"`,`"bit":`Index,`"a":`Index,`"b":`Index`}`
-
-**Binary:** 0x01 bit:u32 a:u32 b:u32
+**JSON:** `{ "op":"cond_select", "bit":Index, "a":Index, "b":Index }`
 
 **Rehearsal semantics:**
 
@@ -283,28 +251,12 @@ There is one output.
                             ==> M ++ M[b], if M[bit] = 0
 ```
 
-The memory is extended with the value at *a* if the value at *bit* was `1`
-and the value at *b* if the value at *bit* was `0`.
-
-**Circuit semantics:**
-
-```
-<cond_select(bit, a, b), C, M> ==> C U {bit * M[a] + (1 - bit) * M[b] = w}; M ++ w
-```
-
-A constraint is added that a fresh wire is equal to the wire *a* if *bit* is 1
-and equal to the wire *b* if *bit* is 0.
-The memory is extended with the fresh output wire.
-
 ## constrain_bits(var, bits)
 
-Constrains a value in the memory to fit into a set number of bits.
-*var* is a memory index and *bits* is a 32-bit unsigned literal.
+Constrains a value's binary representation to fit into a set number of bits.
 There are no outputs.
 
-**JSON:** `{"op":"constrain_bits"`,`"var":`Index,`"bits:"`u32`}`
-
-**Binary:** 0x02 var:u32 bits:u32
+**JSON:** `{ "op":"constrain_bits", "var":Index, "bits:"u32 }`
 
 **Rehearsal semantics:**
 
@@ -312,27 +264,12 @@ There are no outputs.
 <constrain_bits(var, bits), M> ==> M, if M[var] < 2^bits
 ```
 
-The field value at index *var* is read from the memory.
-The operation fails if any bit at bit position *bits* or higher is non-zero.
-
-**Circuit semantics:**
-
-```
-<constrain_bits(var, bits), C, M> ==> C U {M[var] in [0, 2^bits-1]}; M
-```
-
-The wire at index *var* is read from the memory.
-A constraint is added that the value on the wire fits in *bits* or fewer.
-
 ## constrain_eq(a, b)
 
-Constrains a pair of values in the memory to be equal.
-*a* and *b* are memory indexes.
+Constrains a pair of values to be equal.
 There are no outputs.
 
-**JSON:** `{"op":"constrain_eq"`,`"a":`Index,`"b":`Index`}`
-
-p**Binary:** 0x03 a:u32 b:u32
+**JSON:** `{ "op":"constrain_eq", "a":Index, "b":Index }`
 
 **Rehearsal semantics:**
 
@@ -343,53 +280,33 @@ p**Binary:** 0x03 a:u32 b:u32
 The field values at indexes *a* and *b* are read from the memory.
 They are compared for equality and the operation fails if they are not equal.
 
-**Circuit semantics:**
-
-```
-<constrain_eq(a,b), C, M> ==> C U {EQUALS(M[a],M[b])}; M
-```
-
-The wires at indexes *a* and *b* are read from the memory.
-A constraint is added that they are equal.
-
 ## constrain\_to\_boolean(var)
 
-No outputs.  Constrains a value in the memory to be one of the canonical boolean
-values `0` (false) or `1` (true).
+Constrains a value to be one of the canonical boolean values `0` (false) or `1` (true).
+There are no outputs.
 
-**JSON:** { `"op"`: `"constrain_to_boolean"`, `"var"`: Index }
-
-**Binary:** 0x04 var:u32
+**JSON:** `{ "op":"constrain_to_boolean", "var":Index }`
 
 **Rehearsal semantics:** the field value at *var* is read from the memory.  The
 operation fails if the value is not `0` or `1`.
 
-**Circuit semantics:** the wire at index *var* is read from the memory.  A
-constraint is added that the value on the wire is either `0` or `1`.
-
 ## copy(var)
 
-One output.  Duplicates a value in the memory.  This instruction is not
-necessary but it can be useful in some cases, and it can simplify the generation
-of ZKIR.
+Duplicates a value in the memory.
+This instruction is not necessary but it can be useful in some cases, and it can simplify the generation of ZKIR.
+There is one output, identical to the input.
 
-**JSON:** { `"op"`: `"copy"`, `"var"`: Index }
-
-**Binary:** 0x05 var:u32
+**JSON:** `{ "op":"copy", "var":Index }`
 
 **Rehearsal semantics:** the field value at *var* is read from the memory.  The
 memory is extended with this value.
 
-**Circuit semantics:** the wire at *var* is read from the memory.  The memory is
-extended with this (same) wire.
-
 ## declare\_pub\_input(var)
 
-No outputs.  Declares a value in the memory as the next public input.
+Declares a value as the next public input.
+There are no outputs.
 
-**JSON:** { `"op"`: `"declare_pub_input"`, `"var"`: Index }
-
-**Binary:** 0x06 var:u32
+**JSON:** `{ "op":"declare_pub_input", "var":Index }`
 
 **Rehearsal semantics:** the rehearsal phase builds up a complete vector of
 public input field values.  The field value at *var* is read from the memory.
@@ -399,21 +316,12 @@ vector.  This index is incremented, optimistically assuming that the declared
 public input was in a conditional branch that was taken during the off-chain
 execution of the circuit.
 
-**Circuit semantics:** the circuit phase builds up a vector of public inputs.
-The wire at *var* is read from the memory.  The public input vector is extended
-with this wire.  A constraint is added that it the value on the wire is equal to
-the field value at the same index in the public inputs computed during the
-rehearsal phase.
-
 ## div\_mod\_power\_of\_two(var, bits)
 
-Two outputs, the quotient and remainder when dividing a field value by a power
-of two.  This allows splitting a field value's binary representation into high
-(quotient) and low (remainder) parts.
+Splits a field value's binary representation at a given bit position into high (quotient) and low (remainder) parts.
+There are two outputs, the quotient and remainder when dividing a field value by a power of two.
 
-**JSON:** { `"op"`: `"div_mod_power_of_two"`, `"var"`: Index, `"bits"`: u32 }
-
-**Binary:** 0x0d var:u32 bits:u32
+**JSON:** `{ "op":"div_mod_power_of_two", "var":Index, "bits":u32 }`
 
 **Outputs:** Two outputs, `var >> bits`, and `var & ((1 << bits) - 1)`.
 
@@ -422,22 +330,13 @@ The memory is extended with the quotient and remainder when the value is divided
 by 2^*bits*.  The quotient will be the value shifted right by *bits* and the
 remainder will be the value logically ANDed with the bit mask 2^*bits*-1.
 
-**Circuit semantics:** the wire at index *var* is read from the memory.  The
-expected quotient and remainder field values are read from the memory that was
-produced by the rehearsal phase.  Pairwise constraints are added that every bit
-of the value on the wire is equal to the corresponding bit of (quotient <<
-*bits*) + remainder.  The memory is extended with wires carrying the quotient
-and remainder computed by the rehearsal phase.
-
 ## ec\_add(a\_x, a\_y, b\_x, b\_y)
 
-**JSON:** { `"op"`: `"ec_add"`, `"a_x"`: Index, `"a_y"`: Index, `"b_x"`: Index, `"b_y"`: Index }
+Adds two elliptic curve points.
+The result is undefined if either pair does not represent a valid curve point.
+There are two ouputs, the x and y coordinates of the result curve point.
 
-**Binary:** 0x08 a\_x:u32 a\_y:u32 b\_x:u32 b\_y:u32
-
-Adds two elliptic curve points. UB if either is not a valid curve point.
-
-**Outputs:** Two elements, `c_x` and `c_y`.
+**JSON:** `{ "op":"ec_add", "a_x":Index, "a_y":Index, "b_x":Index, "b_y": Index }`
 
 **Rehearsal semantics:**
 
@@ -445,39 +344,13 @@ Adds two elliptic curve points. UB if either is not a valid curve point.
         idx_point(&memory, *a_x, *a_y)? + idx_point(&memory, *b_x, *b_y)?,
     )),
 
-**Circuit semantics:**
-
-    I::EcAdd { a_x, a_y, b_x, b_y } => {
-        let a = ecc_from_parts(
-            std,
-            layouter,
-            workbench,
-            idx(&memory, *a_x)?,
-            idx(&memory, *a_y)?,
-        )?;
-        let b = ecc_from_parts(
-            std,
-            layouter,
-            workbench,
-            idx(&memory, *b_x)?,
-            idx(&memory, *b_y)?,
-        )?;
-        let c = std.ecc_chip().add(layouter, &a, &b)?;
-        mem_push(c.x(), &mut memory)?;
-        mem_push(c.y(), &mut memory)?;
-    }
-
-
 ## ec\_mul(a\_x, a\_y, scalar)
 
-**JSON:** { `"op"`: `"ec_mul"`, `"a_x"`: Index, `"a_y"`: Index, `"scalar"`: Index }
+Multiples an elliptic curve point by a scalar.
+The result is undefined if the pair of coordinated does not represent a valid curve point.
+There are two ouputs, the x and y coordinates of the result curve point.
 
-**Binary:** 0x09 a\_x:u32 a\_y:u32 scalar:u32
-
-Multiplies an elliptic curve point by a scalar. UB if it is not a valid curve
-point.
-
-**Outputs:** Two elements, `c_x` and `c_y`.
+**JSON:** `{ "op":"ec_mul", "a_x":Index, "a_y":Index, "scalar":Index }`
 
 **Rehearsal semantics:**
 
@@ -485,32 +358,12 @@ point.
         idx_point(&memory, *a_x, *a_y)? * idx(&memory, *scalar)?,
     )),
 
-**Circuit semantics:**
-
-    I::EcMul { a_x, a_y, scalar } => {
-        let a = ecc_from_parts(
-            std,
-            layouter,
-            workbench,
-            idx(&memory, *a_x)?,
-            idx(&memory, *a_y)?,
-        )?;
-        let scalar = std.ecc_chip().convert(layouter, idx(&memory, *scalar)?)?;
-        let b = std.ecc_chip().msm(layouter, &[scalar], &[a])?;
-        mem_push(b.x(), &mut memory)?;
-        mem_push(b.y(), &mut memory)?;
-    }
-
-
 ## ec\_mul\_generator(scalar)
 
-**JSON:** { `"op"`: `"ec_mul_generator"`, `"scalar"`: Index }
-
-**Binary:** 0x0a scalar:u32
-
 Multiplies the group generator by a scalar.
+There are two ouputs, the x and y coordinates of the result curve point.
 
-**Outputs:** Two elements, `c_x` and `c_y`.
+**JSON:** `{ "op":"ec_mul_generator", "scalar": Index }`
 
 **Rehearsal semantics:**
 
@@ -518,28 +371,12 @@ Multiplies the group generator by a scalar.
         EmbeddedGroupAffine::generator() * idx(&memory, *scalar)?,
     )),
 
-**Circuit semantics:**
-
-    I::EcMulGenerator { scalar } => {
-        let g: EccPoint<embedded::Affine> = std
-            .ecc_chip()
-            .assign_fixed(layouter, embedded::Affine::generator())?;
-        let scalar = std.ecc_chip().convert(layouter, idx(&memory, *scalar)?)?;
-        let b = std.ecc_chip().msm(layouter, &[scalar], &[g])?;
-        mem_push(b.x(), &mut memory)?;
-        mem_push(b.y(), &mut memory)?;
-    }
-
-
 ## hash\_to\_curve(inputs)
 
-**JSON:** { `"op"`: `"hash_to_curve"`, `"inputs"`, Index[] }
-
-**Binary:** 0x0b inputs:???
-
 Hashes a sequence of field elements to an embedded curve point.
+There are two ouputs, the x and y coordinates of the result curve point.
 
-**Outputs:** Two elements, `c_x` and `c_y`.
+**JSON:** `{ "op":"hash_to_curve", "inputs":Index[] }`
 
 **Rehearsal semantics:**
 
@@ -551,29 +388,13 @@ Hashes a sequence of field elements to an embedded curve point.
         memory.extend(from_point(hash_to_curve(&inputs)))
     }
 
-**Circuit semantics:**
-
-    I::HashToCurve { inputs } => {
-        let inputs = inputs
-            .iter()
-            .map(|input| idx(&memory, *input).cloned())
-            .collect::<Result<Vec<_>, _>>()?;
-        let (x, y) = std.hash_to_curve(layouter, &inputs)?;
-        mem_push(x, &mut memory)?;
-        mem_push(y, &mut memory)?;
-    }
-
-
 ## less_than(a, b, bits)
 
-**JSON:** { `"op"`: `"less_than"`, `"a"`: Index, `"b"`: Index, `"bits"`: u32 }
+Checks if a first field value is less than a second one, interpreting both of them as sized unsigned integers of a given bit size.
+The result is undefined if either of the inputs exceeds the given size.
+There is one output, a canonical boolean value.
 
-**Binary:** 0x19 a:u32 b:u32 bits:u32
-
-Checks if `a` < `b`, interpreting both as `bits`-bit unsigned integers.  UB if
-`a` or `b` exceed `bits`.
-
-**Outputs:** One boolean output `a < b`.
+**JSON:** `{ "op":"less_than", "a":Index, "b":Index, "bits": u32 }`
 
 **Rehearsal semantics:**
 
@@ -583,112 +404,66 @@ Checks if `a` < `b`, interpreting both as `bits`-bit unsigned integers.  UB if
         .into(),
     ),
 
-**Circuit semantics:**
-
-    I::LessThan { a, b, bits } => {
-        // Adding mod 2 to meet library constraint that this is even
-        // Hidden req that this is >= 4
-        let bit = std.lower_than(
-            layouter,
-            idx(&memory, *a)?,
-            idx(&memory, *b)?,
-            u32::max(*bits + *bits % 2, 4),
-        )?;
-        mem_push(std.convert(layouter, &bit)?, &mut memory)?;
-    }
-
-
 ## load_imm(imm)
 
-One output.  Extends the memory with an immediate field value.
+Extends the memory with an immediate field value.
+There is one output.
 
-**JSON:** { `"op"`: `"load_imm"`, `"imm"`: Fr??? }
-
-**Binary:** 0x0c imm:???
+**JSON:** `{ "op":"load_imm", "imm":Field }`
 
 **Rehearsal semantics:** the memory is extended with the field value *imm*.
 
-**Circuit semantics:** a wire is created carrying the field value *imm*.  The
-memory is extended with this wire.
-
 ## mul(a, b)
 
-One output.  Multiples a pair of field values in the prime field.
+Multiples a pair of field values in the prime field.
+There is one output.
 
-**JSON:** { `"op"`: `"mul"`, `"a"`: Index, `"b"`: Index }
-
-**Binary:** 0x12 a:u32 b:u32
+**JSON:** `{ "op":"mul", "a":Index, "b": Index }`
 
 **Rehearsal semantics:** the field values at indexes *a* and *b* are read from
 the memory.  The memory is extended with the result of multiplying them in the
 prime field.
 
-**Circuit semantics:** the wires at indexes *a* and *b* are read from the
-memory.  A `mul` gate is built using the inputs at *a* and *b*.  The memory is
-extended with the output wire of the `mul` gate.
-
 ## neg(a)
 
-**JSON:** { `"op"`: `"neg"`, `"a"`: Index }
+Negates a field value in the prime field.
+There is one ouput.
 
-**Binary:** 0x13 a:u32
-
-Negates `a` in the prime field.
-
-**Outputs:** One output `-a`.
+**JSON:** `{ "op":"neg", "a": Index }`
 
 **Rehearsal semantics:**
 
     I::Neg { a } => memory.push(-idx(&memory, *a)?),
 
-**Circuit semantics:**
-
-    I::Neg { a } => mem_push(std.neg(layouter, idx(&memory, *a)?)?, &mut memory)?,
-
-
 ## not(a)
 
-**JSON:** { `"op"`: `"not"`, `"a"`: Index }
+Negates a canonical boolean value.
+The result is undefined if the input value is not `0` or `1`.
+There is one output, a canonical boolean value.
 
-**Binary:** 0x17 a:u32
-
-Boolean not gate.  NOTE: This gate is never emitted by the compiler.
-
-**Outputs:** One output `!a`.
+**JSON:** `{ "op":"not", "a": Index }`
 
 **Rehearsal semantics:**
 
     I::Not { a } => memory.push((!idx_bool(&memory, *a)?).into()),
 
-**Circuit semantics:**
-
-    I::Not { a } => mem_push(lnot(std, layouter, idx(&memory, *a)?)?, &mut memory)?,
-
-
 ## output(var)
 
-No outputs as an instruction, despite the name.  A value in memory is recorded
-as an output from the circuit.
+A value is recorded as an output from the circuit itself.
+There are no instruction outputs.
 
-**JSON:** { `"op"`: `"output"`, `"var"`: Index }
-
-**Binary:** 0x0e var:u32
+**JSON:** `{ "op":"output", "var": Index }`
 
 **Rehearsal semantics:** the field value at *var* is read from the memory.  The
 vector of circuit outputs is extended with this value.
 
-**Circuit semantics:** the wire at *var* is read from the memory.  The vector of
-circuit outputs is extended with this wire.
-
 ## persistent_hash(alignment, inputs)
 
-**JSON:** { `"op"`: `"persistent_hash"`, `"alignment"`: Alignment, `"inputs"`: Index[] }
+Call a long-term hash function on a sequence of items with a given alignment.
+Compared to `transient_hash`, this hash function will not change without notice and is likely less efficient.
+One output, the hash of the inputs.
 
-**Binary:** 0x1d alignment:??? inputs:???
-
-Calls a long-term hash function on a sequence of items with a given alignment
-
-**Outputs:** One output, `H(inputs)`, in the binary format.
+**JSON:** `{ "op":"persistent_hash", "alignment": Alignment, "inputs": Index[] }`
 
 **Rehearsal semantics:**
 
@@ -708,29 +483,13 @@ Calls a long-term hash function on a sequence of items with a given alignment
         memory.push(hash.field_vec()[0]);
     }
 
-**Circuit semantics:**
-
-    I::PersistentHash { alignment, inputs } => {
-        let inputs = inputs
-            .iter()
-            .map(|i| idx(&memory, *i).cloned())
-            .collect::<Result<Vec<_>, _>>()?;
-        let bytes = fab_decode_to_bytes(std, layouter, alignment, &inputs)?;
-        let res_bytes = std.sha256(layouter, &bytes)?;
-        mem_push(assemble_bytes(std, layouter, &res_bytes)?, &mut memory)?;
-    }
-
-
 ## pi_skip(guard, count)
 
-No outputs.  This is an instruction that tells the ZKIR evaluator whether a
-public input corresponds to one that was produced by the off-chain execution of
-the circuit or not.  Every `declare_pub_input` instruction should have a
-`pi_skip` that covers it occurring later in the instruction sequence.
+This is an instruction that tells the ZKIR evaluator whether a public input corresponds to one that was produced by the off-chain execution of the circuit or not.
+Every `declare_pub_input` instruction should have a unique `pi_skip` that covers it occurring later in the instruction sequence.
+There are no outputs.
 
-**JSON:** { `"op"`: `"pi_skip"`, `"guard"`: Maybe<Index>, `"count"`: u32 }
-
-**Binary:** 0x07 guard:??? count:u32
+**JSON:** `{ "op":"pi_skip", "guard":Maybe<Index>, "count": u32 }`
 
 **Rehearsal semantics:** if the instruction has a *guard*, then the field value
 at index *guard* is read from the memory.  If there is a guard, the operation's
@@ -753,15 +512,13 @@ cases:
   indicating that the public inputs corresponding to this `pi_skip` were
   skipped.
 
-**Circuit semantics:** nothing is done for this instruction, it is a no-op.
-
 ## private_input(guard)
 
-One output.  Optionally retrieves a private input from the private transcript.
+Optionally retrieves a private input from the private transcript outputs.
+If there is a guard, the result is undefined if it is not one of the canonical boolean values.
+There is one output, the next private transcript output or `0` if the guard is `0`.
 
-**JSON:** { `"op"`: `"private_input"`, `"guard"`: Maybe<Index> }
-
-**Binary:** 0x1b guard:???
+**JSON:** `{ "op":"private_input", "guard": Maybe<Index> }`
 
 **Rehearsal semantics:** if the instruction has a *guard*, then the field value
 at index *guard* is read from the memory.  If there is a guard, the operation's
@@ -780,38 +537,29 @@ cases:
   circuit's off-chain execution.  The memory is extended with the field value
   `0` as a dummy value.
 
-**Circuit semantics:** the expected private input is read from the memory that
-was produced by the rehearsal phase.  If there is a *guard*, the wire at *guard*
-is read from the memory and a constraint is added that either the guard value is
-non-zero or else the expected private input is zero.  The memory is extended
-with a wire containing the private input computed by the rehearsal phase.
-
 ## public_input(guard)
 
-One output.  Optionally retrieves a public output from the public transcript.
+Optionally retrieves a public input from the the public transcript outputs.
+If there is a guard, the result is undefined if it is not one of the canonical boolean values.
+There is one output, the next public transcript output or `0` if the guard is `0`.
 
-**JSON:** { `"op"`: `"public_input"`, `"guard"`: Maybe<Index> }
-
-**Binary:** 0x1a guard:???
+**JSON:** `{ "op":"public_input", "guard": Maybe<Index> }`
 
 **Rehearsal semantics:** the same as `private_input` except that the instruction
 reads from the proof preimage's public outputs and updates the current index
 into the public outputs.
 
-**Circuit semantics:** exactly the same as `private_input` (the expected value
-is found in the memory computed during the rehearsal phase).
+## reconstitute_field(divisor, modulus, bits)
 
-## reconstitute_field(divison, modulus, bits)
+Inverse of `div_mod_power_of_two`.
+Combines the high and low parts of the binary representation of a field value into a field element, given *bits*, the size in bits of the low part.
+There is one ouput.
 
-**JSON:** { `"op"`: `"reconstitute_field"`, `"divisor"`: Index, `"modulus"`: Index, `"bits"`: u32 }
-
-**Binary:** 0x1c divisor:u32 modulus:u32 bits:u32
+**JSON:** `{ "op":"reconstitute_field", "divisor":Index, "modulus":Index, "bits": u32 }`
 
 Takes two inputs, `divisor` and `modulus`, and outputs `divisor << bits |
 modulus`, guaranteeing that the result does not overflow the field size, and
 that `modulus < (1 << bits)`. Inverse of `DivModPowerOfTwo`.
-
-**Outputs:** One.
 
 **Rehearsal semantics:**
 
@@ -844,85 +592,24 @@ that `modulus < (1 << bits)`. Inverse of `DivModPowerOfTwo`.
         memory.push(power * idx(&memory, *divisor)? + idx(&memory, *modulus)?);
     }
 
-**Circuit semantics:**
-
-    I::ReconstituteField {
-        divisor,
-        modulus,
-        bits,
-    } => {
-        let divisor = idx(&memory, *divisor)?.clone();
-        let modulus = idx(&memory, *modulus)?.clone();
-        let reconstituted_value = match &workbench {
-            ProofWorkbench::Dry => Value::unknown(),
-            ProofWorkbench::Mock => Value::known(Default::default()),
-            ProofWorkbench::Live(preproc) => {
-                let idx = memory.len();
-                if preproc.memory.len() < idx + 1 {
-                    return Err(ProofError::Synthesis);
-                }
-                Value::known(preproc.memory[idx])
-            }
-        };
-        let reconstituted = std.assign(layouter, reconstituted_value)?;
-        let divisor_bits = std.assigned_to_le_bits(
-            layouter,
-            &divisor,
-            Some(FR_BITS - *bits as usize),
-            *bits == 0,
-        )?;
-        let modulus_bits = std.assigned_to_le_bits(
-            layouter,
-            &modulus,
-            Some(*bits as usize),
-            *bits as usize >= FR_BITS,
-        )?;
-        let reconstituted_bits =
-            std.assigned_to_le_bits(layouter, &reconstituted, None, true)?;
-        for (a, b) in modulus_bits
-            .iter()
-            .chain(divisor_bits.iter())
-            .zip(reconstituted_bits.iter())
-        {
-            let a: AssignedCell<outer::Scalar, outer::Scalar> =
-                std.convert(layouter, a)?;
-            let b: AssignedCell<outer::Scalar, outer::Scalar> =
-                std.convert(layouter, b)?;
-            std.assert_equal(layouter, &a, &b)?;
-        }
-        mem_push(reconstituted, &mut memory)?;
-    }
-
-
 ## test_eq(a, b)
 
-**JSON:** { `"op"`: `"test_eq"`: `"a"`: Index, `"b"`: Index }
+Tests if a pair of field values are equal.
+There is one output, a canonical boolean value `0` (false) or `1` (true).
 
-**Binary:** 0x10 a:u32 b:u32
-
-Tests if `a` and `b` are equal.
-
-**Outputs:** One boolean output, `a == b`.
+**JSON:** `{ "op":"test_eq": "a":Index, "b":Index }`
 
 **Rehearsal semantics:**
 
     I::TestEq { a, b } => memory.push((idx(&memory, *a)? == idx(&memory, *b)?).into()),
 
-**Circuit semantics:**
-
-    I::TestEq { a, b } => {
-        let bit = std.is_equal(layouter, idx(&memory, *a)?, idx(&memory, *b)?)?;
-        mem_push(std.convert(layouter, &bit)?, &mut memory)?;
-    }
-
-
 ## transient_hash(inputs)
 
-**JSON:** { `"op"`: `"transient_hash"`, `"inputs"`: Index[] }
+Calls a circuit-friendly hash function on a sequence of inputs.
+Compared to `persistent_hash`, this hash function can change without notice but is likely more efficient.
+One output, the hash of the inputs.
 
-**Binary:** 0x0f inputs:???
-
-Calls a circuit-friendly hash function on a sequence of items.
+**JSON:** `{ "op":"transient_hash", "inputs": Index[] }`
 
 **Outputs:** One output, `H(inputs)`.
 
@@ -934,16 +621,3 @@ Calls a circuit-friendly hash function on a sequence of items.
             .map(|i| idx(&memory, *i))
             .collect::<Result<Vec<_>, _>>()?,
     )),
-
-**Circuit semantics:**
-
-    I::TransientHash { inputs } => mem_push(
-        std.poseidon(
-            layouter,
-            &inputs
-                .iter()
-                .map(|inp| idx(&memory, *inp).cloned())
-                .collect::<Result<Vec<_>, _>>()?,
-        )?,
-        &mut memory,
-    )?,
