@@ -262,6 +262,7 @@ There are no outputs.
 
 ```
 <constrain_bits(var, bits), M> ==> M, if M[var] < 2^bits
+                               ==> fail, othersise
 ```
 
 ## constrain_eq(a, b)
@@ -275,6 +276,7 @@ There are no outputs.
 
 ```
 <constrain_eq(a,b), M> ==> M, if M[a] = M[b]
+                       ==> fail, otherwise
 ```
 
 The field values at indexes *a* and *b* are read from the memory.
@@ -287,8 +289,12 @@ There are no outputs.
 
 **JSON:** `{ "op":"constrain_to_boolean", "var":Index }`
 
-**Rehearsal semantics:** the field value at *var* is read from the memory.  The
-operation fails if the value is not `0` or `1`.
+**Rehearsal semantics:**
+
+```
+<constrain_to_boolean(var), M> ==> M, if M[var] <= 1
+                               ==> fail, otherwise
+```
 
 ## copy(var)
 
@@ -298,8 +304,11 @@ There is one output, identical to the input.
 
 **JSON:** `{ "op":"copy", "var":Index }`
 
-**Rehearsal semantics:** the field value at *var* is read from the memory.  The
-memory is extended with this value.
+**Rehearsal semantics:**
+
+```
+<copy(var), M> ==> M ++ M[var]
+```
 
 ## declare\_pub\_input(var)
 
@@ -398,11 +407,11 @@ There is one output, a canonical boolean value.
 
 **Rehearsal semantics:**
 
-    I::LessThan { a, b, bits } => memory.push(
-        (from_bits(idx_bits(&memory, *a, Some(*bits))?.into_iter())
-            < from_bits(idx_bits(&memory, *b, Some(*bits))?.into_iter()))
-        .into(),
-    ),
+```
+<less_than(a, b, bits), M> ==> fail, if M[a] >= 2^bits or M[b] >= 2^bits
+                           ==> M ++ 1, if M[a] < M[b]
+                           ==> M ++ 0, otherwise
+```
 
 ## load_imm(imm)
 
@@ -411,7 +420,11 @@ There is one output.
 
 **JSON:** `{ "op":"load_imm", "imm":Field }`
 
-**Rehearsal semantics:** the memory is extended with the field value *imm*.
+**Rehearsal semantics:**
+
+```
+<load_imm(imm), M> ==> M ++ imm
+```
 
 ## mul(a, b)
 
@@ -420,9 +433,11 @@ There is one output.
 
 **JSON:** `{ "op":"mul", "a":Index, "b": Index }`
 
-**Rehearsal semantics:** the field values at indexes *a* and *b* are read from
-the memory.  The memory is extended with the result of multiplying them in the
-prime field.
+**Rehearsal semantics:**
+
+```
+<mul(a, b), M> ==> M ++ (M[a] * M[b])
+```
 
 ## neg(a)
 
@@ -433,7 +448,9 @@ There is one ouput.
 
 **Rehearsal semantics:**
 
-    I::Neg { a } => memory.push(-idx(&memory, *a)?),
+```
+<neg(a), M> ==> M ++ -M[a]
+```
 
 ## not(a)
 
@@ -445,7 +462,10 @@ There is one output, a canonical boolean value.
 
 **Rehearsal semantics:**
 
-    I::Not { a } => memory.push((!idx_bool(&memory, *a)?).into()),
+```
+<not(a), M> ==> M ++ 0, if M[a] = 1
+            ==> M ++ 1, if M[a] = 0
+```
 
 ## output(var)
 
@@ -601,7 +621,10 @@ There is one output, a canonical boolean value `0` (false) or `1` (true).
 
 **Rehearsal semantics:**
 
-    I::TestEq { a, b } => memory.push((idx(&memory, *a)? == idx(&memory, *b)?).into()),
+```
+<test_eq(a, b), M> ==> M ++ 1, if M[a] = M[b]
+                   ==> M ++ 0, otherwise
+```
 
 ## transient_hash(inputs)
 
