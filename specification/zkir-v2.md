@@ -219,7 +219,7 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<add(a, b), M> ==> M ++ (M[a] + M[b])
+<add(a, b), M, O> ==> M ++ (M[a] + M[b]); O
 ```
 
 ## assert(cond)
@@ -232,7 +232,7 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<assert(cond), M> ==> M, if M[cond] = 1
+<assert(cond), M, O> ==> M; O, if M[cond] = 1
                   ==> fail, if M[cond] = 0
 ```
 
@@ -247,8 +247,8 @@ There is one output, identical to either *a* or *b*.
 **Rehearsal semantics:**
 
 ```
-<cond_select(bit, a, b), M> ==> M ++ M[a], if M[bit] = 1
-                            ==> M ++ M[b], if M[bit] = 0
+<cond_select(bit, a, b), M, O> ==> M ++ M[a]; O, if M[bit] = 1
+                               ==> M ++ M[b]; O, if M[bit] = 0
 ```
 
 ## constrain_bits(var, bits)
@@ -261,8 +261,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_bits(var, bits), M> ==> M, if M[var] < 2^bits
-                               ==> fail, othersise
+<constrain_bits(var, bits), M, O> ==> M; O, if M[var] < 2^bits
+                                  ==> fail, othersise
 ```
 
 ## constrain_eq(a, b)
@@ -275,8 +275,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_eq(a,b), M> ==> M, if M[a] = M[b]
-                       ==> fail, otherwise
+<constrain_eq(a,b), M, O> ==> M; O, if M[a] = M[b]
+                          ==> fail, otherwise
 ```
 
 The field values at indexes *a* and *b* are read from the memory.
@@ -292,8 +292,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_to_boolean(var), M> ==> M, if M[var] <= 1
-                               ==> fail, otherwise
+<constrain_to_boolean(var), M, O> ==> M; O, if M[var] <= 1
+                                  ==> fail, otherwise
 ```
 
 ## copy(var)
@@ -307,7 +307,7 @@ There is one output, identical to the input.
 **Rehearsal semantics:**
 
 ```
-<copy(var), M> ==> M ++ M[var]
+<copy(var), M, O> ==> M ++ M[var]; O
 ```
 
 ## declare\_pub\_input(var)
@@ -332,12 +332,11 @@ There are two outputs, the quotient and remainder when dividing a field value by
 
 **JSON:** `{ "op":"div_mod_power_of_two", "var":Index, "bits":u32 }`
 
-**Outputs:** Two outputs, `var >> bits`, and `var & ((1 << bits) - 1)`.
+**Rehearsal semantics:**
 
-**Rehearsal semantics:** the field value at index *var* is read from the memory.
-The memory is extended with the quotient and remainder when the value is divided
-by 2^*bits*.  The quotient will be the value shifted right by *bits* and the
-remainder will be the value logically ANDed with the bit mask 2^*bits*-1.
+```
+<div_mod_power_of_two(var, bits), M, O> ==> M ++ M[var] div 2^bits ++ M[var] mod 2^bits; O
+```
 
 ## ec\_add(a\_x, a\_y, b\_x, b\_y)
 
@@ -349,9 +348,9 @@ There are two ouputs, the x and y coordinates of the result curve point.
 
 **Rehearsal semantics:**
 
-    I::EcAdd { a_x, a_y, b_x, b_y } => memory.extend(from_point(
-        idx_point(&memory, *a_x, *a_y)? + idx_point(&memory, *b_x, *b_y)?,
-    )),
+```
+<ec_add(a_x, a_y, b_x, b_y), M, O> ==> M ++ p.x ++ p.y; O, where p = (M[a_x], M[a_y]) ⊕ (M[b_x], M[b_y])
+```
 
 ## ec\_mul(a\_x, a\_y, scalar)
 
@@ -363,9 +362,9 @@ There are two ouputs, the x and y coordinates of the result curve point.
 
 **Rehearsal semantics:**
 
-    I::EcMul { a_x, a_y, scalar } => memory.extend(from_point(
-        idx_point(&memory, *a_x, *a_y)? * idx(&memory, *scalar)?,
-    )),
+```
+<ec_mul(a_x, a_y, scalar), M, O> ==> M ++ p.x ++ p.y; O, where p = (M[a_x], M[a_y]) ⊗ M[scalar]
+```
 
 ## ec\_mul\_generator(scalar)
 
@@ -376,9 +375,9 @@ There are two ouputs, the x and y coordinates of the result curve point.
 
 **Rehearsal semantics:**
 
-    I::EcMulGenerator { scalar } => memory.extend(from_point(
-        EmbeddedGroupAffine::generator() * idx(&memory, *scalar)?,
-    )),
+```
+<ec_mul_generator(scalar), M, O> ==> M ++ p.x ++ p.y; O, where p = G ⊗ M[scalar]
+```
 
 ## hash\_to\_curve(inputs)
 
@@ -389,13 +388,9 @@ There are two ouputs, the x and y coordinates of the result curve point.
 
 **Rehearsal semantics:**
 
-    I::HashToCurve { inputs } => {
-        let inputs = inputs
-            .iter()
-            .map(|var| idx(&memory, *var))
-            .collect::<Result<Vec<_>, _>>()?;
-        memory.extend(from_point(hash_to_curve(&inputs)))
-    }
+```
+<hash_to_curve(input_1, ..., input_n) ==> M ++ HC(M[input_1], ..., M[input_n])
+```
 
 ## less_than(a, b, bits)
 
@@ -408,9 +403,9 @@ There is one output, a canonical boolean value.
 **Rehearsal semantics:**
 
 ```
-<less_than(a, b, bits), M> ==> fail, if M[a] >= 2^bits or M[b] >= 2^bits
-                           ==> M ++ 1, if M[a] < M[b]
-                           ==> M ++ 0, otherwise
+<less_than(a, b, bits), M, O> ==> fail, if M[a] >= 2^bits or M[b] >= 2^bits
+                              ==> M ++ 1; O, if M[a] < M[b]
+                              ==> M ++ 0; O, otherwise
 ```
 
 ## load_imm(imm)
@@ -423,7 +418,7 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<load_imm(imm), M> ==> M ++ imm
+<load_imm(imm), M, O> ==> M ++ imm; O
 ```
 
 ## mul(a, b)
@@ -436,7 +431,7 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<mul(a, b), M> ==> M ++ (M[a] * M[b])
+<mul(a, b), M, O> ==> M ++ (M[a] * M[b]); O
 ```
 
 ## neg(a)
@@ -449,7 +444,7 @@ There is one ouput.
 **Rehearsal semantics:**
 
 ```
-<neg(a), M> ==> M ++ -M[a]
+<neg(a), M, O> ==> M ++ -M[a]; O
 ```
 
 ## not(a)
@@ -463,8 +458,8 @@ There is one output, a canonical boolean value.
 **Rehearsal semantics:**
 
 ```
-<not(a), M> ==> M ++ 0, if M[a] = 1
-            ==> M ++ 1, if M[a] = 0
+<not(a), M, O> ==> M ++ 0; O, if M[a] = 1
+               ==> M ++ 1; O, if M[a] = 0
 ```
 
 ## output(var)
@@ -474,34 +469,28 @@ There are no instruction outputs.
 
 **JSON:** `{ "op":"output", "var": Index }`
 
-**Rehearsal semantics:** the field value at *var* is read from the memory.  The
-vector of circuit outputs is extended with this value.
+**Rehearsal semantics:**
+
+```
+<output(var), M, O> ==> M; O ++ M[var]
+```
+
 
 ## persistent_hash(alignment, inputs)
 
 Call a long-term hash function on a sequence of items with a given alignment.
 Compared to `transient_hash`, this hash function will not change without notice and is likely less efficient.
-One output, the hash of the inputs.
+Potentially multiple outputs.
+The output represents a Compact byte array of length 32, which might be encoded in multiple fields depending on the maximum field value.
+Currently the encoding requires two field values, so this instruction has two outputs.
 
 **JSON:** `{ "op":"persistent_hash", "alignment": Alignment, "inputs": Index[] }`
 
 **Rehearsal semantics:**
 
-    I::PersistentHash { alignment, inputs } => {
-        let inputs = inputs
-            .iter()
-            .map(|i| idx(&memory, *i))
-            .collect::<Result<Vec<_>, _>>()?;
-        let value = alignment.parse_field_repr(&inputs).ok_or_else(|| {
-            error!("Inputs did not match alignment (inputs: {inputs:?}, alignment: {alignment:?})");
-            anyhow!("Inputs did not match alignment (inputs: {inputs:?}, alignment: {alignment:?})")
-        })?;
-        let mut repr = Vec::new();
-        ValueReprAlignedValue(value).binary_repr(&mut repr);
-        trace!(bytes = ?repr, "bytes decoded out-of-circuit");
-        let hash = persistent_hash(&repr);
-        memory.push(hash.field_vec()[0]);
-    }
+```
+<persistent_hash(alignment, input_1, ..., input_n), M, O> ==> M ++ output_1 ++ ... ++ output_n; O, where (output_1, ..., output_n) = PH(alignment, M[input_1], ..., M[intput_n])
+```
 
 ## pi_skip(guard, count)
 
@@ -577,40 +566,12 @@ There is one ouput.
 
 **JSON:** `{ "op":"reconstitute_field", "divisor":Index, "modulus":Index, "bits": u32 }`
 
-Takes two inputs, `divisor` and `modulus`, and outputs `divisor << bits |
-modulus`, guaranteeing that the result does not overflow the field size, and
-that `modulus < (1 << bits)`. Inverse of `DivModPowerOfTwo`.
-
 **Rehearsal semantics:**
 
-    I::ReconstituteField {
-        divisor,
-        modulus,
-        bits,
-    } => {
-        if *bits as usize > FR_BYTES_STORED * 8 {
-            bail!("Excessive bit count");
-        }
-        let fr_max = Fr::from(-1);
-        let max_bits = idx_bits(&[fr_max], 0, None)?;
-        let modulus_bits = idx_bits(&memory, *modulus, Some(*bits))?;
-        let divisor_bits = idx_bits(&memory, *divisor, Some(FR_BITS as u32 - *bits))?;
-        let cmp = modulus_bits
-            .iter()
-            .chain(divisor_bits.iter())
-            .rev()
-            .zip(max_bits[..FR_BITS].iter().rev())
-            .map(|(ab, max)| ab.cmp(max))
-            .fold(
-                Ordering::Equal,
-                |prefix, local| if prefix.is_eq() { local } else { prefix },
-            );
-        if cmp.is_gt() {
-            bail!("Reconstituted element overflows field");
-        }
-        let power = (0..*bits).fold(Fr::from(1), |acc, _| Fr::from(2) * acc);
-        memory.push(power * idx(&memory, *divisor)? + idx(&memory, *modulus)?);
-    }
+```
+<reconstitute_field(divisor, modulus, bits), M, O> ==> M ++ divisor * 2^bits + modulus; O, if this value does not overflow the maximum field value
+                                                   ==> fail, otherwise
+```
 
 ## test_eq(a, b)
 
@@ -622,8 +583,8 @@ There is one output, a canonical boolean value `0` (false) or `1` (true).
 **Rehearsal semantics:**
 
 ```
-<test_eq(a, b), M> ==> M ++ 1, if M[a] = M[b]
-                   ==> M ++ 0, otherwise
+<test_eq(a, b), M, O> ==> M ++ 1; O, if M[a] = M[b]
+                      ==> M ++ 0; O, otherwise
 ```
 
 ## transient_hash(inputs)
@@ -634,13 +595,8 @@ One output, the hash of the inputs.
 
 **JSON:** `{ "op":"transient_hash", "inputs": Index[] }`
 
-**Outputs:** One output, `H(inputs)`.
-
 **Rehearsal semantics:**
 
-    I::TransientHash { inputs } => memory.push(transient_hash(
-        &inputs
-            .iter()
-            .map(|i| idx(&memory, *i))
-            .collect::<Result<Vec<_>, _>>()?,
-    )),
+```
+<transient_hash(input_1, ..., input_n), M, O> ==> M ++ TH(M[input_1], ..., M[input_n]); O
+```
