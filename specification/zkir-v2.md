@@ -204,6 +204,16 @@ These cause the system to be unsatisfiable if they are not satisfied.
 
 Notation [TODO]
 
+The rehearsal semantics is defined by a single step transition for a virtual machine with the following components:
+
+- A ZKIR circuit, which is a sequence of ZKIR instructions
+- `M`, an extensible **m**emory vector mapping natural number indexes to field values
+- `O`, an extensible **o**utput vector containing a sequence of circuit outputs
+- `PI`, an extensible **p**ublic **i**nput vector containing a sequence of field values
+- `ro`, an index into `RO`, the proof preimage's p**r**ivate **o**utputs
+- `uo`, an index into `UO`, the proof preimage's p**u**blic **o**utputs
+- `ui`, an index into `UI`, the proof preimage's p**u**blic **i**nputs
+
 Try to use polynomial equalities and interval membership constraints ONLY.
 
 *w*, *w0*, *w1*, etc. range over wires.
@@ -219,7 +229,7 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<add(a, b), M, O> ==> M ++ (M[a] + M[b]); O
+<add(a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ (M[a] + M[b]), O, ro, uo, ui>
 ```
 
 ## assert(cond)
@@ -232,8 +242,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<assert(cond), M, O> ==> M; O, if M[cond] = 1
-                  ==> fail, if M[cond] = 0
+<assert(cond) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[cond] = 1
+                                           ==> fail, if M[cond] = 0
 ```
 
 ## cond_select(bit, a, b)
@@ -247,8 +257,8 @@ There is one output, identical to either *a* or *b*.
 **Rehearsal semantics:**
 
 ```
-<cond_select(bit, a, b), M, O> ==> M ++ M[a]; O, if M[bit] = 1
-                               ==> M ++ M[b]; O, if M[bit] = 0
+<cond_select(bit, a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ M[a], O, ro, uo, ui>, if M[bit] = 1
+                                                     ==> <instrs, M ++ M[b], O, ro, uo, ui>, if M[bit] = 0
 ```
 
 ## constrain_bits(var, bits)
@@ -261,8 +271,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_bits(var, bits), M, O> ==> M; O, if M[var] < 2^bits
-                                  ==> fail, othersise
+<constrain_bits(var, bits) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[var] < 2^bits
+                                                        ==> fail, othersise
 ```
 
 ## constrain_eq(a, b)
@@ -275,8 +285,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_eq(a,b), M, O> ==> M; O, if M[a] = M[b]
-                          ==> fail, otherwise
+<constrain_eq(a,b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[a] = M[b]
+                                                ==> fail, otherwise
 ```
 
 The field values at indexes *a* and *b* are read from the memory.
@@ -292,8 +302,8 @@ There are no outputs.
 **Rehearsal semantics:**
 
 ```
-<constrain_to_boolean(var), M, O> ==> M; O, if M[var] <= 1
-                                  ==> fail, otherwise
+<constrain_to_boolean(var) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[var] <= 1
+                                                        ==> fail, otherwise
 ```
 
 ## copy(var)
@@ -307,23 +317,22 @@ There is one output, identical to the input.
 **Rehearsal semantics:**
 
 ```
-<copy(var), M, O> ==> M ++ M[var]; O
+<copy(var) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ M[var], O, ro, uo, ui>
 ```
 
 ## declare\_pub\_input(var)
 
 Declares a value as the next public input.
+Optimistically assumes that the declared public input is in a branch that was taken during off-chain execution.
 There are no outputs.
 
 **JSON:** `{ "op":"declare_pub_input", "var":Index }`
 
-**Rehearsal semantics:** the rehearsal phase builds up a complete vector of
-public input field values.  The field value at *var* is read from the memory.
-The public input vector is extended with this value.  The rehearsal phase
-maintains a current index into the proof preimage's (partial) public input
-vector.  This index is incremented, optimistically assuming that the declared
-public input was in a conditional branch that was taken during the off-chain
-execution of the circuit.
+**Rehearsal semantics:**
+
+```
+<declare_pub_input(var) :: instrs, M, O, PI, ro, uo, ui> ==> <instrs, M, O, PI ++ M[var], ro, uo, ui + 1>
+```
 
 ## div\_mod\_power\_of\_two(var, bits)
 
@@ -335,7 +344,7 @@ There are two outputs, the quotient and remainder when dividing a field value by
 **Rehearsal semantics:**
 
 ```
-<div_mod_power_of_two(var, bits), M, O> ==> M ++ M[var] div 2^bits ++ M[var] mod 2^bits; O
+<div_mod_power_of_two(var, bits) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ M[var] div 2^bits ++ M[var] mod 2^bits, O, ro, uo, ui>
 ```
 
 ## ec\_add(a\_x, a\_y, b\_x, b\_y)
@@ -344,12 +353,12 @@ Adds two elliptic curve points.
 The result is undefined if either pair does not represent a valid curve point.
 There are two ouputs, the x and y coordinates of the result curve point.
 
-**JSON:** `{ "op":"ec_add", "a_x":Index, "a_y":Index, "b_x":Index, "b_y": Index }`
+**JSON:** `{ "op":"ec_add", "a_x":Index, "a_y":Index, "b_x":Index, "b_y":Index }`
 
 **Rehearsal semantics:**
 
 ```
-<ec_add(a_x, a_y, b_x, b_y), M, O> ==> M ++ p.x ++ p.y; O, where p = (M[a_x], M[a_y]) ⊕ (M[b_x], M[b_y])
+<ec_add(a_x, a_y, b_x, b_y) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ p.x ++ p.y, O, ro, uo, ui>, where p = (M[a_x], M[a_y]) ⊕ (M[b_x], M[b_y])
 ```
 
 ## ec\_mul(a\_x, a\_y, scalar)
@@ -363,7 +372,7 @@ There are two ouputs, the x and y coordinates of the result curve point.
 **Rehearsal semantics:**
 
 ```
-<ec_mul(a_x, a_y, scalar), M, O> ==> M ++ p.x ++ p.y; O, where p = (M[a_x], M[a_y]) ⊗ M[scalar]
+<ec_mul(a_x, a_y, scalar) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ p.x ++ p.y, O, ro, uo, ui>, where p = (M[a_x], M[a_y]) ⊗ M[scalar]
 ```
 
 ## ec\_mul\_generator(scalar)
@@ -376,7 +385,7 @@ There are two ouputs, the x and y coordinates of the result curve point.
 **Rehearsal semantics:**
 
 ```
-<ec_mul_generator(scalar), M, O> ==> M ++ p.x ++ p.y; O, where p = G ⊗ M[scalar]
+<ec_mul_generator(scalar) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ p.x ++ p.y, O, ro, uo, ui>, where p = G ⊗ M[scalar]
 ```
 
 ## hash\_to\_curve(inputs)
@@ -389,7 +398,7 @@ There are two ouputs, the x and y coordinates of the result curve point.
 **Rehearsal semantics:**
 
 ```
-<hash_to_curve(input_1, ..., input_n) ==> M ++ HC(M[input_1], ..., M[input_n])
+<hash_to_curve(input_1, ..., input_n) ==> <instrs, M ++ HC(M[input_1], ..., M[input_n]), O, ro, uo, ui>
 ```
 
 ## less_than(a, b, bits)
@@ -403,9 +412,9 @@ There is one output, a canonical boolean value.
 **Rehearsal semantics:**
 
 ```
-<less_than(a, b, bits), M, O> ==> fail, if M[a] >= 2^bits or M[b] >= 2^bits
-                              ==> M ++ 1; O, if M[a] < M[b]
-                              ==> M ++ 0; O, otherwise
+<less_than(a, b, bits) :: instrs, M, O, ro, uo, ui> ==> fail, if M[a] >= 2^bits or M[b] >= 2^bits
+                                                    ==> <instrs, M ++ 1, O, ro, uo, ui>, if M[a] < M[b]
+                                                    ==> <instrs, M ++ 0, O, ro, uo, ui>, otherwise
 ```
 
 ## load_imm(imm)
@@ -418,7 +427,7 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<load_imm(imm), M, O> ==> M ++ imm; O
+<load_imm(imm) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ imm, O, ro, uo, ui>
 ```
 
 ## mul(a, b)
@@ -431,7 +440,7 @@ There is one output.
 **Rehearsal semantics:**
 
 ```
-<mul(a, b), M, O> ==> M ++ (M[a] * M[b]); O
+<mul(a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ (M[a] * M[b]), O, ro, uo, ui>
 ```
 
 ## neg(a)
@@ -444,7 +453,7 @@ There is one ouput.
 **Rehearsal semantics:**
 
 ```
-<neg(a), M, O> ==> M ++ -M[a]; O
+<neg(a) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ -M[a], O, ro, uo, ui>
 ```
 
 ## not(a)
@@ -458,8 +467,8 @@ There is one output, a canonical boolean value.
 **Rehearsal semantics:**
 
 ```
-<not(a), M, O> ==> M ++ 0; O, if M[a] = 1
-               ==> M ++ 1; O, if M[a] = 0
+<not(a) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ 0, O, ro, uo, ui>, if M[a] = 1
+                                     ==> <instrs, M ++ 1, O, ro, uo, ui>, if M[a] = 0
 ```
 
 ## output(var)
@@ -472,7 +481,7 @@ There are no instruction outputs.
 **Rehearsal semantics:**
 
 ```
-<output(var), M, O> ==> M; O ++ M[var]
+<output(var) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O ++ M[var]>
 ```
 
 
@@ -489,37 +498,26 @@ Currently the encoding requires two field values, so this instruction has two ou
 **Rehearsal semantics:**
 
 ```
-<persistent_hash(alignment, input_1, ..., input_n), M, O> ==> M ++ output_1 ++ ... ++ output_n; O, where (output_1, ..., output_n) = PH(alignment, M[input_1], ..., M[intput_n])
+<persistent_hash(alignment, input_1, ..., input_n) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ output_1 ++ ... ++ output_n, O, ro, uo, ui>, where (output_1, ..., output_n) = PH(alignment, M[input_1], ..., M[intput_n])
 ```
 
 ## pi_skip(guard, count)
 
 This is an instruction that tells the ZKIR evaluator whether a public input corresponds to one that was produced by the off-chain execution of the circuit or not.
+If there is a guard, the result is undefined if it is not one of the canonical boolean values.
 Every `declare_pub_input` instruction should have a unique `pi_skip` that covers it occurring later in the instruction sequence.
 There are no outputs.
 
-**JSON:** `{ "op":"pi_skip", "guard":Maybe<Index>, "count": u32 }`
+**JSON:** `{ "op":"pi_skip", "guard":Maybe<Index>, "count":u32 }`
 
-**Rehearsal semantics:** if the instruction has a *guard*, then the field value
-at index *guard* is read from the memory.  If there is a guard, the operation's
-behavior is undefined if the field value is not `0` or `1`.  There are two
-cases:
+**Rehearsal semantics:**
 
-- **there is no guard or the guard's field value is `1`:** this represents an
-  unconditionally produced public input or one that was produced by a
-  conditional branch that was taken during the circuit's off-chain execution.
-  The most recent *count* public inputs are compared to the ones in the proof
-  preimage from the current public input index minus *count* up to the current
-  public input index.  The operation fails if any of these values are not equal.
-  The public input skip vector is extended with `None` (no count) indicating
-  that the public inputs corresponding to this `pi_skip` were not skipped.
-  
-- **the guard's field value is `0`:** this represents a public input that would
-  have been produced in a conditional branch that was not taken during the
-  circuit's off-chain execution.  The current public input index is decremented
-  by *count*.  The public input skip vector is extended with the *count*,
-  indicating that the public inputs corresponding to this `pi_skip` were
-  skipped.
+```
+<pi_skip(none, count) :: instrs, M, O, PI, ro, uo, ui> ==> <instrs, M, O, PI, ro, uo, ui>, if PI[PI.length - i] = UI[ui - i] for all i in 1..count
+
+<pi_skip(guard, count) :: instrs, M, O, PI, ro, uo, ui> ==> <instrs, M, O, PI, ro, uo, ui>, if M[guard] = 1 and (PI[PI.length - i] = UI[ui - i] for all i in 1..count)
+                                                        ==> <instrs, M, O, PI, ro, uo, ui - count>, if M[guard] = 0
+```
 
 ## private_input(guard)
 
@@ -529,22 +527,14 @@ There is one output, the next private transcript output or `0` if the guard is `
 
 **JSON:** `{ "op":"private_input", "guard": Maybe<Index> }`
 
-**Rehearsal semantics:** if the instruction has a *guard*, then the field value
-at index *guard* is read from the memory.  If there is a guard, the operation's
-behavior is undefined if the field value is not `0` or `1`.  There are two
-cases:
+**Rehearsal semantics:**
 
-- **there is no guard or the guard's field value is `1`:** this represents an
-  unconditionally produced private input or one that was produced by a
-  conditional branch that was taken during the circuit's off-chain execution.
-  The rehearsal phase maintains a current index into the proof preimage's
-  private inputs.  The memory is extended with the value of the current private
-  input and the current index is incremented.
-  
-- **the guard's field value is `0`:** this represents a private input that would
-  have been produced in a conditional branch that was not taken during the
-  circuit's off-chain execution.  The memory is extended with the field value
-  `0` as a dummy value.
+```
+<private_input(null) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ R[r], O, ro + 1, uo, ui>
+
+<private_input(guard) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ R[r], O, ro + 1, uo, ui>, if M[guard] = 1
+                                                   ==> <instrs, M ++ 0, O, ro, uo, ui>, if M[guard] = 0
+```
 
 ## public_input(guard)
 
@@ -554,10 +544,14 @@ There is one output, the next public transcript output or `0` if the guard is `0
 
 **JSON:** `{ "op":"public_input", "guard": Maybe<Index> }`
 
-**Rehearsal semantics:** the same as `private_input` except that the instruction
-reads from the proof preimage's public outputs and updates the current index
-into the public outputs.
+**Rehearsal semantics:**
 
+```
+<public_input(null) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ U[u], O, ro, uo + 1, ui>
+
+<public_input(guard) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ U[u], O, ro, uo + 1>, ui, if M[guard] = 1
+                                                  ==> <instrs, M ++ 0, O, ro, uo, ui>, if M[guard] = 0
+```
 ## reconstitute_field(divisor, modulus, bits)
 
 Inverse of `div_mod_power_of_two`.
@@ -569,8 +563,8 @@ There is one ouput.
 **Rehearsal semantics:**
 
 ```
-<reconstitute_field(divisor, modulus, bits), M, O> ==> M ++ divisor * 2^bits + modulus; O, if this value does not overflow the maximum field value
-                                                   ==> fail, otherwise
+<reconstitute_field(divisor, modulus, bits) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ divisor * 2^bits + modulus, O, ro, uo, ui>, if this value does not overflow the maximum field value
+                                                                         ==> fail, otherwise
 ```
 
 ## test_eq(a, b)
@@ -583,8 +577,8 @@ There is one output, a canonical boolean value `0` (false) or `1` (true).
 **Rehearsal semantics:**
 
 ```
-<test_eq(a, b), M, O> ==> M ++ 1; O, if M[a] = M[b]
-                      ==> M ++ 0; O, otherwise
+<test_eq(a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ 1, O, ro, uo, ui>, if M[a] = M[b]
+                                            ==> <instrs, M ++ 0, O, ro, uo, ui>, otherwise
 ```
 
 ## transient_hash(inputs)
@@ -598,5 +592,5 @@ One output, the hash of the inputs.
 **Rehearsal semantics:**
 
 ```
-<transient_hash(input_1, ..., input_n), M, O> ==> M ++ TH(M[input_1], ..., M[input_n]); O
+<transient_hash(input_1, ..., input_n) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ TH(M[input_1], ..., M[input_n]), O, ro, uo, ui>
 ```
