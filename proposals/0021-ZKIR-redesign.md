@@ -3,6 +3,8 @@
 
 This document details a proposed re-design of ZKIR. 
 
+**Status:** this is an in-progress draft of a proposal.
+
 ## Introduction 
 
 The reasons for re-designing ZKIR are: 
