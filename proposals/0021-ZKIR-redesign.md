@@ -1,5 +1,5 @@
 
-# ZKIR V3
+# A New Version of ZKIR
 
 This document details a proposed re-design of ZKIR. 
 
