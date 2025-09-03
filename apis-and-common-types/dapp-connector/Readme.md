@@ -120,7 +120,7 @@ type InitActions = {
    * pay fees, add necessary inputs and outputs to remove imbalances from it, 
    * returning a transaction ready for submission
    */
-  balanceUnsealedTransaction(tx: string): Promise<{tx: string}>;
+  balanceSealedTransaction(tx: string): Promise<{tx: string}>;
   /**
    * Initialize a transfer transaction with desired outputs
    */
