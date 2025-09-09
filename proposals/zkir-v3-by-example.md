@@ -1,3 +1,9 @@
+**Overview:**
+This document is an example of what ZKIR v3 circuits will look like.
+It is structured as a series of transformations made on a ZKIR v2 example circuit.
+Out implementation plan will likely follow this sequence of transformations, building and testing each in turn.
+If you just want to see the final version 3 circuit, scroll down to the bottom of the document.
+
 # An Example Circuit
 
 We consider part of the Zswap contract found in the [Midnight ledger](https://github.com/midnightntwrk/midnight-ledger/blob/main/zswap/zswap.compact).
