@@ -201,7 +201,7 @@ The instruction output indexes don't easily correspond to the instruction number
 A possible change for ZKIR version 3 is to change the implicit output indexes into explicit output names.
 While this is not the most important change, it's the first one we will make here because it makes the rest of the changes easier to understand.
 
-To make it easy to do this transformation by hand, we first give the outputs names of the form _vN_ where _N_ is the output index of the ZKIR v2 insruction.
+To make it easy to do this transformation by hand, we first give the outputs names of the form _vN_ where _N_ is the output index of the ZKIR v2 instruction.
 
 
 ```json
