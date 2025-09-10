@@ -660,7 +660,7 @@ Therefore, the `private_input` instruction needs to have a type annotation.
       "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
       "inputs": ["tmp0", "tmp1", "tmp2", "tmp3", "value", "pk.is_left", "tmp4", "tmp5", "0x6d646e3a6363"] },
     { "op": "publish", "vals": [
-        "0x70", "0x1", "0x1", "0x0"] },
+        "0x70", "0x1", "0x1", "0x0",
         "0x70", "0x1", "0x1", "0x0",
         "0x32",
         "0x50", "0x1", "0x1", "0x1",
@@ -760,7 +760,7 @@ With explicit control flow, instructions no longer have a guard:
       "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
       "inputs": ["tmp0", "tmp1", "tmp2", "tmp3", "value", "pk.is_left", "tmp4", "tmp5", "0x6d646e3a6363"] },
     { "op": "publish", "vals": [
-        "0x70", "0x1", "0x1", "0x0"] },
+        "0x70", "0x1", "0x1", "0x0",
         "0x70", "0x1", "0x1", "0x0",
         "0x32",
         "0x50", "0x1", "0x1", "0x1",
