@@ -227,8 +227,8 @@ To make it easy to do this transformation by hand, we first give the outputs nam
     { "op": "cond_select", "output": "v15", "bit": "v0", "a": "v2", "b": "v4" },
     { "op": "load_imm", "output": "v16", "imm": "6D646E3A6363" },
     { "op": "persistent_hash", "outputs": ["v17", "v18"],
-	  "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
-	  "inputs": ["v5", "v6", "v7", "v8", "v9", "v0", "v14", "v15", "v16"] },
+      "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
+      "inputs": ["v5", "v6", "v7", "v8", "v9", "v0", "v14", "v15", "v16"] },
     { "op": "load_imm", "output": "v19", "imm": "70" },
     { "op": "declare_pub_input", "var": "v19" },
     { "op": "declare_pub_input", "var": "v11" },
@@ -396,8 +396,8 @@ With that change, we have fewer names:
     { "op": "cond_select", "output": "v14", "bit": "v0", "a": "v1", "b": "v3" },
     { "op": "cond_select", "output": "v15", "bit": "v0", "a": "v2", "b": "v4" },
     { "op": "persistent_hash", "outputs": ["v17", "v18"],
-	  "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
-	  "inputs": ["v5", "v6", "v7", "v8", "v9", "v0", "v14", "v15", "0x6d646e3a6363"] },
+      "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
+      "inputs": ["v5", "v6", "v7", "v8", "v9", "v0", "v14", "v15", "0x6d646e3a6363"] },
     { "op": "declare_pub_input", "var": "0x70" },
     { "op": "declare_pub_input", "var": "0x1" },
     { "op": "declare_pub_input", "var": "0x1" },
@@ -544,10 +544,12 @@ Then we have a guarded `pi_skip` that covers them and mentions the length of the
 
 A simpler representation is:
 
-- `declare_pub_input` is changed to `declare_pub_inputs` and takes a sequence of inputs corresponding to an Impact VM instruction, and
+- `declare_pub_input` is changed to `publish` and takes a sequence of values corresponding to an Impact VM instruction, and
 - `pi_skip` is eliminated in favor of making `declare_pub_inputs` itself guarded.
 
-We can represent `declare_pub_inputs` with a literal guard of 0x1 as an unconditional one, with no guard.
+We can represent `publish` with a literal guard of 0x1 as an unconditional one, with no guard.
+
+Blocks of public inputs that share the same guard (or that are all unguarded) can be combined into a single instruction.
 
 With those simplifications, we have:
 
@@ -571,39 +573,44 @@ With those simplifications, we have:
     { "op": "cond_select", "output": "v14", "bit": "v0", "a": "v1", "b": "v3" },
     { "op": "cond_select", "output": "v15", "bit": "v0", "a": "v2", "b": "v4" },
     { "op": "persistent_hash", "outputs": ["v17", "v18"],
-	  "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
-	  "inputs": ["v5", "v6", "v7", "v8", "v9", "v0", "v14", "v15", "0x6d646e3a6363"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x32"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x50", "0x1", "0x1", "0x1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x11", "0x1", "0x1", "0x20", "v17", "v18"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x91"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xe", "0x1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x2"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x32"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x50", "0x1", "0x1", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x11", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x91"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa2"] },
-    { "op": "declare_pub_inputs", "guard": "v13", "inputs": ["0x10", "0x1", "0x1", "0x1", "0x3"] },
-    { "op": "declare_pub_inputs", "guard": "v13", "inputs": ["0x11", "0x1", "0x1", "0x20", "v3", "v4"] },
-    { "op": "declare_pub_inputs", "guard": "v13", "inputs": ["0x91"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x30"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x50", "0x1", "0x1", "0x5"] },
+      "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
+      "inputs": ["v5", "v6", "v7", "v8", "v9", "v0", "v14", "v15", "0x6d646e3a6363"] },
+    { "op": "publish", "vals": [
+        "0x70", "0x1", "0x1", "0x0",
+        "0x70", "0x1", "0x1", "0x0",
+        "0x32",
+        "0x50", "0x1", "0x1", "0x1",
+        "0x11", "0x1", "0x1", "0x20", "v17", "v18",
+        "0x91",
+        "0xa1",
+        "0x70", "0x1", "0x1", "0x1",
+        "0xe", "0x1",
+        "0xa1",
+        "0x70", "0x1", "0x1", "0x2",
+        "0x32",
+        "0x50", "0x1", "0x1", "0x0",
+        "0xa",
+        "0x11", "0x0",
+        "0x91",
+        "0xa2"] },
+    { "op": "publish", "guard": "v13", "vals": [
+        "0x10", "0x1", "0x1", "0x1", "0x3",
+        "0x11", "0x1", "0x1", "0x20", "v3", "v4",
+        "0x91"] },
+    { "op": "publish", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x5"] },
     { "op": "public_input", "output": "v41", "guard": null },
-    { "op": "declare_pub_inputs", "inputs": ["0xc", "0x1", "0x2", "v41"] },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x2", "v41"] },
     { "op": "hash_to_curve", "outputs": ["v43", "v44"], "inputs": ["v7", "v8", "v41"] },
     { "op": "ec_mul_generator", "outputs": ["v45", "v46"], "scalar": "v10" },
     { "op": "ec_mul", "outputs": ["v47", "v48"], "a_x": "v43", "a_y": "v44", "scalar": "v9" },
     { "op": "ec_add", "outputs": ["v49", "v50"], "a_x": "v45", "a_y": "v46", "b_x": "v47", "b_y": "v48" },
-    { "op": "declare_pub_inputs", "inputs": ["0x10", "0x1", "0x1", "0x1", "0x2"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x11", "0x1", "0x2", "-0x2", "-0x2", "v49", "v50"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x91"] },
+    { "op": "publish", "vals": [
+        "0x10", "0x1", "0x1", "0x1", "0x2",
+        "0x11", "0x1", "0x2", "-0x2", "-0x2", "v49", "v50",
+        "0x91"] },
   ]
 }
 ```
@@ -632,6 +639,10 @@ The instructions `hash_to_curve`, `ec_mul_generator`, `ec_mul`, and `ec_add` eac
 Likewise, their inputs have `Point` types where appropriate.
 Like for byte arrays, `Point`s need to be encoded into field values when they appear in Impact instructions.
 
+**A note on private inputs:** the test program we started with did not have any private inputs (witness return values in Compact).
+However, they need to be treated uniformly with the circuit inputs (though interleaved with ZKIR code).
+Therefore, the `private_input` instruction needs to have a type annotation.
+
 ```json
 {
   "version": { "major": 3, "minor": 0 },
@@ -642,45 +653,286 @@ Like for byte arrays, `Point`s need to be encoded into field values when they ap
     { "op": "constrain_bits", "var": "v9", "bits": 128 },
     { "op": "cond_select", "output": "v13", "bit": "pk.is_left", "a": "0x0", "b": "0x1" },
     { "op": "cond_select", "output": "v14", "bit": "pk.is_left", "a": "pk.left", "b": "pk.right" },
-	{ "op": "encode", "outputs": ["tmp0", "tmp1"], "var": "coin.nonce" },
-	{ "op": "encode", "outputs": ["tmp2", "tmp3"], "var": "coin.color" },
-	{ "op": "encode", "outputs": ["tmp4", "tmp5"], "var": "v14" },
+    { "op": "encode", "outputs": ["tmp0", "tmp1"], "var": "coin.nonce" },
+    { "op": "encode", "outputs": ["tmp2", "tmp3"], "var": "coin.color" },
+    { "op": "encode", "outputs": ["tmp4", "tmp5"], "var": "v14" },
     { "op": "persistent_hash", "outputs": ["v17", "v18"],
-	  "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
-	  "inputs": ["tmp0", "tmp1", "tmp2", "tmp3", "value", "pk.is_left", "tmp4", "tmp5", "0x6d646e3a6363"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x32"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x50", "0x1", "0x1", "0x1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x11", "0x1", "0x1", "0x20", "v17", "v18"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x91"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xe", "0x1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa1"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x70", "0x1", "0x1", "0x2"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x32"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x50", "0x1", "0x1", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x11", "0x0"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x91"] },
-    { "op": "declare_pub_inputs", "inputs": ["0xa2"] },
-    { "op": "declare_pub_inputs", "guard": "v13", "inputs": ["0x10", "0x1", "0x1", "0x1", "0x3"] },
-	{ "op": "encode", "outputs": ["tmp6", "tmp7"], "var": "pk.right" },
-    { "op": "declare_pub_inputs", "guard": "v13", "inputs": ["0x11", "0x1", "0x1", "0x20", "tmp6", "tmp7"] },
-    { "op": "declare_pub_inputs", "guard": "v13", "inputs": ["0x91"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x30"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x50", "0x1", "0x1", "0x5"] },
+      "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
+      "inputs": ["tmp0", "tmp1", "tmp2", "tmp3", "value", "pk.is_left", "tmp4", "tmp5", "0x6d646e3a6363"] },
+    { "op": "publish", "vals": [
+        "0x70", "0x1", "0x1", "0x0"] },
+        "0x70", "0x1", "0x1", "0x0",
+        "0x32",
+        "0x50", "0x1", "0x1", "0x1",
+        "0x11", "0x1", "0x1", "0x20", "v17", "v18",
+        "0x91",
+        "0xa1",
+        "0x70", "0x1", "0x1", "0x1",
+        "0xe", "0x1",
+        "0xa1",
+        "0x70", "0x1", "0x1", "0x2",
+        "0x32",
+        "0x50", "0x1", "0x1", "0x0",
+        "0xa",
+        "0x11", "0x0",
+        "0x91",
+        "0xa2"] },
+    { "op": "encode", "outputs": ["tmp6", "tmp7"], "var": "pk.right" },
+    { "op": "publish", "guard": "v13", "vals": [
+        "0x10", "0x1", "0x1", "0x1", "0x3",
+        "0x11", "0x1", "0x1", "0x20", "tmp6", "tmp7",
+        "0x91"] },
+    { "op": "publish", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x5"] },
     { "op": "public_input", "output": "v41" },
-    { "op": "declare_pub_inputs", "inputs": ["0xc", "0x1", "0x2", "v41"] },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x2", "v41"] },
     { "op": "hash_to_curve", "output": "colorBase", "inputs": ["coin.color", "v41"] },
     { "op": "ec_mul_generator", "output": "pedersenBlinding", "scalar": "rc" },
     { "op": "ec_mul", "output": "pedersenCommit", "a": "colorBase", "scalar": "coin.value" },
     { "op": "ec_add", "output": "v49", "a": "pedersenBlinding", "b": "pedersenCommit" },
-    { "op": "declare_pub_inputs", "inputs": ["0x10", "0x1", "0x1", "0x1", "0x2"] },
-	{ "op": "encode", "outputs": ["tmp8", "tmp9"], "var": "v49" },
-    { "op": "declare_pub_inputs", "inputs": ["0x11", "0x1", "0x2", "-0x2", "-0x2", "tmp8", "tmp9"] },
-    { "op": "declare_pub_inputs", "inputs": ["0x91"] },
+    { "op": "encode", "outputs": ["tmp8", "tmp9"], "var": "v49" },
+    { "op": "publish", "vals": [
+        "0x10", "0x1", "0x1", "0x1", "0x2",
+        "0x11", "0x1", "0x2", "-0x2", "-0x2", "tmp8", "tmp9",
+        "0x91"] },
   ]
 }
 ```
+
+# Full Control
+
+ZKIR version 2's control flow is completely linear, the circuit is "evaluated" in order.
+Instructions can be effectively "skipped" by giving them a "guard" input.
+This allows instructions to have a conditional interpretation, depending on whether they were taken or not taken when executing the JavaScript code for the circuit.
+
+There are some known bugs in ZKIR v2 where instructions (such as `constrain_` instructions) should be conditional but are not.
+
+Conceivably, we should make every instruction in ZKIR v3 have an optional guard.
+This allows us to interpret every instruction differently depending on whether it was taken or not.
+An alternative, equivalent, representation is that ZKIR v3 has explicit branching control flow.
+
+**Static Single Assignment (SSA) Form:**
+Compilers use a representation called SSA, where every intermediate variable in the representation is assigned exactly once.
+ZKIR v2 trivially has this property.
+Because output indexes are implicit and a "counter" is incremented for every ouput, they can never be "reassigned" in any sense.
+
+There is a second condition on SSA form, which is that the single assignment to a variable must _dominate_ all its uses.
+Dominance is a relation on a control flow graph with a distinguished entry node: an instruction _i0_ dominates an instruction _i1_ if _every_ path from the entry to _i1_ includes _i0_.
+So the property in SSA is that a variable is **definitely assigned** before it is used.
+
+This is also true of ZKIR v2.
+The dominance relation is trivial.
+Every instruction is evaluated, in order, so there is only one path from the entry to a given instruction.
+ZKIR v2 has the implicit constraint that an input index needs to exist in the extensible memory (that is, it was produced as an output) before it can be used.
+
+If we make every instruction potentially guarded in ZKIR v3, then it can encode SSA programs.
+Every SSA program has a representation in such a language.
+However, the language can also represent nonsensical program that do not correspond to SSA programs, because they violate the dominance condition.
+
+Therefore, we would like to introduce explicit branching control flow and syntactically enforce the dominance property.
+
+We introduce an explicit branching instruction `if`.
+It has members `then` and `else` that are each arrays of ZKIR instructions.
+To resolve control flow at a join point, where different values computed on the two branches need to be merged, SSA uses so-called phi functions.
+We can syntactically enforce their presence by also adding an array of `phis` to an `if` instruction.
+
+The branching in the test program is relatively uninteresting (we will look at an interesting case later).
+The only branch is for the conditional ledger write in the original Compact program.
+This write takes the form of a guarded `publish` instruction.
+With explicit control flow, instructions no longer have a guard:
+
+```json
+{
+  "version": { "major": 3, "minor": 0 },
+  "do_communications_commitment": true,
+  "inputs": ["pk.is_left", "pk.left",   "pk.right",  "coin.nonce", "coin.color", "value", "rc"],
+  "types":  ["Bit",        "Bytes[32]", "Bytes[32]", "Bytes[32]",  "Bytes[32]",  "Field", "Field"],
+  "instructions": [
+    { "op": "constrain_bits", "var": "v9", "bits": 128 },
+    { "op": "cond_select", "output": "v13", "bit": "pk.is_left", "a": "0x0", "b": "0x1" },
+    { "op": "cond_select", "output": "v14", "bit": "pk.is_left", "a": "pk.left", "b": "pk.right" },
+    { "op": "encode", "outputs": ["tmp0", "tmp1"], "var": "coin.nonce" },
+    { "op": "encode", "outputs": ["tmp2", "tmp3"], "var": "coin.color" },
+    { "op": "encode", "outputs": ["tmp4", "tmp5"], "var": "v14" },
+    { "op": "persistent_hash", "outputs": ["v17", "v18"],
+      "alignment": [{ "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 16, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 1, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 32, "tag": "bytes" } }, { "tag": "atom", "value": { "length": 6, "tag": "bytes" } }],
+      "inputs": ["tmp0", "tmp1", "tmp2", "tmp3", "value", "pk.is_left", "tmp4", "tmp5", "0x6d646e3a6363"] },
+    { "op": "publish", "vals": [
+        "0x70", "0x1", "0x1", "0x0"] },
+        "0x70", "0x1", "0x1", "0x0",
+        "0x32",
+        "0x50", "0x1", "0x1", "0x1",
+        "0x11", "0x1", "0x1", "0x20", "v17", "v18",
+        "0x91",
+        "0xa1",
+        "0x70", "0x1", "0x1", "0x1",
+        "0xe", "0x1",
+        "0xa1",
+        "0x70", "0x1", "0x1", "0x2",
+        "0x32",
+        "0x50", "0x1", "0x1", "0x0",
+        "0xa",
+        "0x11", "0x0",
+        "0x91",
+        "0xa2"] },
+    { "op": "encode", "outputs": ["tmp6", "tmp7"], "var": "pk.right" },
+    { "op": "if", "cond": "v13",
+        "then": [
+            { "op": "publish", "vals": [
+                "0x10", "0x1", "0x1", "0x1", "0x3",
+                "0x11", "0x1", "0x1", "0x20", "tmp6", "tmp7",
+                "0x91"] }]
+        "else": [],
+        "phis": [] },
+    { "op": "publish", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x5"] },
+    { "op": "public_input", "output": "v41" },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x2", "v41"] },
+    { "op": "hash_to_curve", "output": "colorBase", "inputs": ["coin.color", "v41"] },
+    { "op": "ec_mul_generator", "output": "pedersenBlinding", "scalar": "rc" },
+    { "op": "ec_mul", "output": "pedersenCommit", "a": "colorBase", "scalar": "coin.value" },
+    { "op": "ec_add", "output": "v49", "a": "pedersenBlinding", "b": "pedersenCommit" },
+    { "op": "encode", "outputs": ["tmp8", "tmp9"], "var": "v49" },
+    { "op": "publish", "vals": [
+        "0x10", "0x1", "0x1", "0x1", "0x2",
+        "0x11", "0x1", "0x2", "-0x2", "-0x2", "tmp8", "tmp9",
+        "0x91"] },
+  ]
+}
+```
+
+## A more interesting example
+
+```typescript
+import CompactStandardLibrary;
+
+ledger x: Uint<32>;
+ledger y: Uint<32>;
+
+export circuit absDiff(): Uint<32> {
+  const [big, small] = x < y ? [y, x] : [x, y];
+  return big - small;
+}
+```
+
+This code produces the ZKIR v3 program:
+
+```json
+{
+  "version": { "major": 3, "minor": 0 },
+  "do_communications_commitment": true,
+  "inputs": [],
+  "instructions": [
+    { "op": "publish", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x0"] },
+    { "op": "public_input", "output": "v4", "guard": null },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x4", "v4",
+        "0x30",
+        "0x50", "0x1", "0x1", "0x1"] },
+    { "op": "public_input", "output": "v7", "guard": null },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x4", "v7"] },
+    { "op": "less_than", "output": "v8", "a": "v4", "b": "v7", "bits": 32 },
+    { "op": "cond_select", "output": "v9", "bit": "v8", "a": "0x0", "b": "0x1" },
+    { "op": "publish", "guard": "v8", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x1"] },
+    { "op": "public_input", "output": "v12", "guard": "v8" },
+    { "op": "publish", "guard": "v8", "vals": [
+        "0xc", "0x1", "0x4", "v12",
+        "0x30",
+        "0x50", "0x1", "0x1", "0x0"] },
+    { "op": "public_input", "output": "v19", "guard": "v8" },
+    { "op": "publish", "guard": "v8", "vals": [
+        "0xc", "0x1", "0x4", "v19"] },
+    { "op": "publish", "guard": "v9", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x0"] },
+    { "op": "public_input", "output": "v26", "guard": "v9" },
+    { "op": "publish", "guard": "v9", "vals": [
+        "0xc", "0x1", "0x4", "v26",
+        "0x30",
+        "0x50", "0x1", "0x1", "0x1"] },
+    { "op": "public_input", "output": "v32", "guard": "v9" },
+    { "op": "publish", "guard": "v9", "vals": [
+        "0xc", "0x1", "0x4", "v32"] },
+    { "op": "cond_select", "output": "v36", "bit": "v8", "a": "v12", "b": "v26" },
+    { "op": "cond_select", "output": "v37", "bit": "v8", "a": "v19", "b": "v32" },
+    { "op": "less_than", "output": "v38", "a": "v36", "b": "v37", "bits": "v32" },
+    { "op": "cond_select", "output": "v39", "bit": "v38", "a": "0x0", "b": "0x1" },
+    { "op": "assert", "cond": "v39" },
+    { "op": "neg", "output": "v40", "a": "v37" },
+    { "op": "add", "output": "v41", "a": "v36", "b": "v40" },
+    { "op": "output", "var": "v41" }
+  ]
+}
+```
+
+This code has two blocks of conditional instructions which are respectively guarded by _v8_ and _v9_ (_v9_ is the negation of _v8_).
+The corresponding branching version obtained by collecting all those instructions into blocks is:
+
+```json
+{
+  "version": { "major": 3, "minor": 0 },
+  "do_communications_commitment": true,
+  "inputs": [],
+  "instructions": [
+    { "op": "publish", "vals": [
+        "0x30",
+        "0x50", "0x1", "0x1", "0x0"] },
+    { "op": "public_input", "output": "v4" },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x4", "v4",
+        "0x30",
+        "0x50", "0x1", "0x1", "0x1"] },
+    { "op": "public_input", "output": "v7" },
+    { "op": "publish", "vals": [
+        "0xc", "0x1", "0x4", "v7"] },
+    { "op": "less_than", "output": "v8", "a": "v4", "b": "v7", "bits": 32 },
+    { "op": "cond_select", "output": "v9", "bit": "v8", "a": "0x0", "b": "0x1" },
+    { "op": "if", "cond": "v8",
+        "then": [
+            { "op": "publish", "vals": [
+                "0x30",
+                "0x50", "0x1", "0x1", "0x1"] },
+            { "op": "public_input", "output": "v12" },
+            { "op": "publish", "vals": [
+                "0xc", "0x1", "0x4", "v12",
+                "0x30",
+                "0x50", "0x1", "0x1", "0x0"] },
+            { "op": "public_input", "output": "v19" },
+            { "op": "publish", "vals": [
+                "0xc", "0x1", "0x4", "v19"] }],
+        "else": [
+            { "op": "publish", "vals": [
+                "0x30",
+                "0x50", "0x1", "0x1", "0x0"] },
+            { "op": "public_input", "output": "v26" },
+            { "op": "publish", "vals": [
+                "0xc", "0x1", "0x4", "v26",
+                "0x30",
+                "0x50", "0x1", "0x1", "0x1"] },
+            { "op": "public_input", "output": "v32" },
+            { "op": "publish", "vals": [
+                "0xc", "0x1", "0x4", "v32"] }],
+        "phis": [] },
+    { "op": "cond_select", "output": "v36", "bit": "v8", "a": "v12", "b": "v26" },
+    { "op": "cond_select", "output": "v37", "bit": "v8", "a": "v19", "b": "v32" },
+    { "op": "less_than", "output": "v38", "a": "v36", "b": "v37", "bits": "v32" },
+    { "op": "cond_select", "output": "v39", "bit": "v38", "a": "0x0", "b": "0x1" },
+    { "op": "assert", "cond": "v39" },
+    { "op": "neg", "output": "v40", "a": "v37" },
+    { "op": "add", "output": "v41", "a": "v36", "b": "v40" },
+    { "op": "output", "var": "v41" }
+  ]
+}
+```
+
+This translation (introducing explicit conditionals) always has an empty array of `phis`.
+However, we can see that ZKIR v2 already in fact has the two phis that we expect (they are the two `cond_select` instructions following the `if`).
