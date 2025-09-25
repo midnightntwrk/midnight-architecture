@@ -326,7 +326,8 @@ The human-readable part should consist of 3 parts, separated by underscore:
 ### Unshielded Payment address
 
 Primary payment address in the network. It allows receiving Night and other unshielded tokens. 
-It is an SHA256 hash of an unshielded token public key.
+It is an SHA256 hash of an unshielded token public key, encoded as-is - that is 32 bytes of the hash 
+contents, with no additional prefixes or tags.
 
 Its credential type is `addr`.
 
@@ -338,8 +339,8 @@ Example human-readable parts:
 
 ### Dust address
 
-It is a Ledger-serialized Dust public key, without network id: versioning header (2 
-bytes), length information (1 byte), and contents of the key itself (up to 32 bytes).
+It is a Ledger-untagged-serialized Dust public key (which is an element of a scalar field), 
+encoded into bytes as bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
 It represents recipient of Dust generation.
 
 Its credential type is `dust-addr`.
@@ -352,8 +353,9 @@ Example human-readable parts:
 
 ### Shielded Payment address
 
-It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption 
-public key (up to 36 bytes).
+It is a concatenation of coin public key (32 bytes - SHA-256 hash of the coin secret key) 
+and ledger-untagged-serialized encryption public key (a point on the JubJub elliptic curve) 
+encoded into 32 bytes as defined $repr_\mathbb{J}$ in [Zcash specification 5.4.9.3 - JubJub](https://zips.z.cash/protocol/protocol.pdf#jubjub).
 
 NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
 
@@ -372,8 +374,7 @@ Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-serialized encryption secret key without network id: versioning header (2 bytes)
-, length information (1 byte) + contents of the secret key (up to 32 bytes) 
+Ledger-untagged-serialized encryption secret key encoded into bytes as bigint in Scale codec.
 Credential type is `shield-esk`
 
 ## Transaction structure and statuses
