@@ -1,5 +1,6 @@
-import * as ledger from "@midnight-ntwrk/ledger";
 import { bech32m } from "@scure/base";
+import { BLSScalar, JubJubScalar } from "./field.js";
+import * as subsquidScale from "@subsquid/scale-codec";
 
 export const Bech32m: unique symbol = Symbol("Bech32m");
 
@@ -11,7 +12,7 @@ export class MidnightBech32m {
   public static readonly prefix = "mn";
 
   static validateSegment(segmentName: string, segment: string): void {
-    const result = /^[A-Za-z1-9\-]+$/.test(segment);
+    const result = /^[A-Za-z1-9-]+$/.test(segment);
     if (!result) {
       throw new Error(
         `Segment ${segmentName}: ${segment} contains disallowed characters. Allowed characters are only numbers, latin letters and a hyphen`,
@@ -89,10 +90,24 @@ export class Bech32mCodec<T> {
   }
 }
 
+const ScaleBigInt = {
+  encode: (data: bigint): Buffer => {
+    const sink = new subsquidScale.ByteSink();
+    sink.compact(data);
+    return Buffer.from(sink.toBytes());
+  },
+  decode: (repr: Uint8Array): bigint => {
+    const src = new subsquidScale.Src(repr);
+    const res = src.compact();
+    src.assertEOF();
+    return BigInt(res);
+  },
+};
+
 export class UnshieldedAddress {
   static readonly length = 32;
 
-  static codec = new Bech32mCodec<UnshieldedAddress>(
+  static readonly codec = new Bech32mCodec<UnshieldedAddress>(
     "addr",
     (addr) => addr.data,
     (repr) => new UnshieldedAddress(repr),
@@ -110,66 +125,39 @@ export class UnshieldedAddress {
   }
 }
 
-export class ShieldedAddress {
-  static codec = new Bech32mCodec<ShieldedAddress>(
-    "shield-addr",
-    (addr) => Buffer.concat([addr.coinPublicKey.data, addr.encryptionPublicKey]),
-    (bytes) => {
-      const coinPublicKey = new ShieldedCoinPublicKey(
-        bytes.subarray(0, ShieldedCoinPublicKey.length),
-      );
-      const encryptionPublicKey = bytes.subarray(ShieldedCoinPublicKey.length);
-      return new ShieldedAddress(coinPublicKey, encryptionPublicKey);
-    },
-  );
-
-  [Bech32m] = ShieldedAddress.codec;
-
-  public readonly coinPublicKey: ShieldedCoinPublicKey;
-  public readonly encryptionPublicKey: Buffer;
-
-  constructor(coinPublicKey: ShieldedCoinPublicKey, encryptionPublicKey: Buffer) {
-    this.encryptionPublicKey = encryptionPublicKey;
-    this.coinPublicKey = coinPublicKey;
-  }
-}
-
 export class ShieldedEncryptionSecretKey {
-  static codec = new Bech32mCodec<ShieldedEncryptionSecretKey>(
+  static readonly codec = new Bech32mCodec<ShieldedEncryptionSecretKey>(
     "shield-esk",
     (esk) => esk.serialize(),
-    (repr) =>
-      new ShieldedEncryptionSecretKey(
-        ledger.EncryptionSecretKey.deserialize(
-          Buffer.concat([Buffer.of(0), repr]),
-          ledger.NetworkId.Undeployed,
-        ),
-      ),
+    (repr) => ShieldedEncryptionSecretKey.deserialize(repr),
   );
+
+  static deserialize(repr: Uint8Array): ShieldedEncryptionSecretKey {
+    return new ShieldedEncryptionSecretKey(ScaleBigInt.decode(repr));
+  }
 
   [Bech32m] = ShieldedEncryptionSecretKey.codec;
 
-  private wrapped: ledger.EncryptionSecretKey;
+  private readonly wrapped: bigint;
 
   // There are some bits in serialization of field elements and elliptic curve points, that are hard to replicate
   // Thus using zswap implementation directly for serialization purposes
-  constructor(toWrap: ledger.EncryptionSecretKey) {
+  constructor(toWrap: bigint) {
+    if (toWrap >= JubJubScalar.modulus) {
+      throw new Error("Encryption secret key is too large");
+    }
     this.wrapped = toWrap;
   }
 
   serialize(): Buffer {
-    return Buffer.from(
-      this.wrapped
-        .yesIKnowTheSecurityImplicationsOfThis_serialize(ledger.NetworkId.Undeployed)
-        .subarray(1),
-    );
+    return ScaleBigInt.encode(this.wrapped);
   }
 }
 
 export class ShieldedCoinPublicKey {
   static readonly length = 32;
 
-  static codec: Bech32mCodec<ShieldedCoinPublicKey> = new Bech32mCodec(
+  static readonly codec: Bech32mCodec<ShieldedCoinPublicKey> = new Bech32mCodec(
     "shield-cpk",
     (cpk) => cpk.data,
     (repr) => new ShieldedCoinPublicKey(repr),
@@ -188,18 +176,55 @@ export class ShieldedCoinPublicKey {
   }
 }
 
+export class ShieldedAddress {
+  static readonly length = ShieldedCoinPublicKey.length + 32;
+
+  static readonly codec = new Bech32mCodec<ShieldedAddress>(
+    "shield-addr",
+    (addr) => Buffer.concat([addr.coinPublicKey.data, addr.encryptionPublicKey]),
+    (bytes) => {
+      if (bytes.length != ShieldedAddress.length) {
+        throw new Error("Shielded address needs to be 64 bytes long");
+      }
+      const coinPublicKey = new ShieldedCoinPublicKey(
+        bytes.subarray(0, ShieldedCoinPublicKey.length),
+      );
+      const encryptionPublicKey = bytes.subarray(ShieldedCoinPublicKey.length);
+
+      return new ShieldedAddress(coinPublicKey, encryptionPublicKey);
+    },
+  );
+
+  [Bech32m] = ShieldedAddress.codec;
+
+  public readonly coinPublicKey: ShieldedCoinPublicKey;
+  public readonly encryptionPublicKey: Buffer;
+
+  constructor(coinPublicKey: ShieldedCoinPublicKey, encryptionPublicKey: Buffer) {
+    this.encryptionPublicKey = encryptionPublicKey;
+    this.coinPublicKey = coinPublicKey;
+  }
+}
+
 export class DustAddress {
-  static codec: Bech32mCodec<DustAddress> = new Bech32mCodec(
+  static readonly codec: Bech32mCodec<DustAddress> = new Bech32mCodec(
     "dust",
-    (daddr) => daddr.data,
-    (repr) => new DustAddress(repr),
+    (daddr) => daddr.serialize(),
+    (repr) => new DustAddress(ScaleBigInt.decode(repr)),
   );
 
   [Bech32m] = DustAddress.codec;
 
-  public readonly data: Buffer;
+  public readonly data: bigint;
 
-  constructor(data: Buffer) {
+  constructor(data: bigint) {
+    if (data >= BLSScalar.modulus) {
+      throw new Error("Dust address is too large");
+    }
     this.data = data;
+  }
+
+  serialize(): Buffer {
+    return ScaleBigInt.encode(this.data);
   }
 }
