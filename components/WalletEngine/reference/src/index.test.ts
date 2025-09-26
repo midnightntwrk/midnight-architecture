@@ -49,8 +49,22 @@ const testParity = <T extends { [Bech32m]: Bech32mCodec<T> }>(impls: {
       const specBech32 = toBech32(specKey).toString();
       const ledgerBech32 = toBech32(ledgerKey).toString();
 
-      expect(equals(specKey, ledgerKey)).toBe(true);
+      expect(specKey).toEqual(ledgerKey);
       expect(specBech32).toBe(ledgerBech32);
+    }
+  };
+};
+
+const testParityBinary = (impls: {
+  implSpec: (seed: Buffer) => Uint8Array;
+  implLedger: (seed: Buffer) => Uint8Array;
+}) => {
+  return (seeds: readonly Buffer[]) => {
+    for (const seed of seeds) {
+      const specKey = impls.implSpec(seed);
+      const ledgerKey = impls.implLedger(seed);
+
+      expect(specKey).toEqual(ledgerKey);
     }
   };
 };
@@ -198,6 +212,17 @@ test("Shielded encryption secret key parity", () =>
       );
     },
   })(seeds));
+
+test("Shielded encryption secret key parity #2", () => testParityBinary({
+  implSpec: (seed) => {
+    const esk = encryptionSecretKey(seed);
+    return new ShieldedEncryptionSecretKey(esk.key).serialize();
+  },
+  implLedger: (seed) => {
+    const keys = ledger.ZswapSecretKeys.fromSeed(seed);
+    return keys.encryptionSecretKey.yesIKnowTheSecurityImplicationsOfThis_serialize();
+  },
+}));
 
 test("Dust key parity", () =>
   testParity({ implSpec: dustAddr, implLedger: dustAddrLedger })(seeds));
