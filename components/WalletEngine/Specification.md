@@ -340,7 +340,7 @@ Example human-readable parts:
 ### Dust address
 
 It is a Ledger-untagged-serialized Dust public key (which is an element of a scalar field), 
-encoded into bytes as bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
+encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
 It represents recipient of Dust generation.
 
 Its credential type is `dust-addr`.
@@ -374,7 +374,7 @@ Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-untagged-serialized encryption secret key encoded into bytes as bigint in Scale codec.
+Ledger-untagged-serialized encryption secret key (an element of scalar field) encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
 Credential type is `shield-esk`
 
 ## Transaction structure and statuses
