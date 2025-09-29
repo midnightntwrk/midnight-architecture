@@ -254,6 +254,8 @@ related transactions - in such context it acts as a viewing key.
 
 Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve), that is $esk \cdot G$, where $G$ is JubJub's generator point and $esk$ the encryption secret key.
 
+It might be the case that a point with no canonical representation is derived (its $u$ coordinate is 0), in such case the zswap seed should be discarded (see [ZIP-0216](https://zips.z.cash/zip-0216) for more details).
+
 #### Coin keys
 
 Coin secret key is 32 random bytes, generated as an SHA-256 hash of seed with domain 
@@ -279,9 +281,10 @@ Zswap and Dust keys require sampling a scalar value out of uniform bytes. The
 procedure to follow is the same for both, with some details specific to a key and 
 curve it is related to. It iteratively hashes provided bytes with a domain separator 
 until a certain number of bytes is reached (enough to represent every number on the 
-scalar field plus some more to obtain sufficiently uniform output[^1]). Resulting byte 
+scalar field plus some more to obtain sufficiently uniform output - see [The Definitive guide to nodulo bias and how to avoid it](https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/)). Resulting byte 
 sequence is interpreted to scalar assuming a little-endian layout and taken modulo 
 the field prime. In naive TS code (simplifying for readability):
+
 ```ts
 function toScalar(bytes: Buffer): BigInt {
     return BigInt(`0x${Buffer.from(bytes).reverse().toString('hex')}`);
@@ -980,6 +983,4 @@ For example:
    2. Compare the transaction TTL value against the wall clock time.
    3. If the transaction TTL is past the wall clock time - discard it.
    4. If the transaction TTL is not past the wall clock time yet - submit it to the network.
-      
 
-[^1]: [The definitive guide to “modulo bias and how to avoid it”!](https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/)
