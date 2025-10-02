@@ -281,7 +281,7 @@ Zswap and Dust keys require sampling a scalar value out of uniform bytes. The
 procedure to follow is the same for both, with some details specific to a key and 
 curve it is related to. It iteratively hashes provided bytes with a domain separator 
 until a certain number of bytes is reached (enough to represent every number on the 
-scalar field plus some more to obtain sufficiently uniform output - see [The Definitive guide to nodulo bias and how to avoid it](https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/)). Resulting byte 
+scalar field plus some more to obtain sufficiently uniform output - see [The Definitive guide to nodulo bias and how to avoid it](https://web.archive.org/web/20250409021732/https://romailler.ch/2020/07/28/crypto-modulo_bias_guide/)). Resulting byte 
 sequence is interpreted to scalar assuming a little-endian layout and taken modulo 
 the field prime. In naive TS code (simplifying for readability):
 
