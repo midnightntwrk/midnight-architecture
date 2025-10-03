@@ -254,8 +254,6 @@ related transactions - in such context it acts as a viewing key.
 
 Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve), that is $esk \cdot G$, where $G$ is JubJub's generator point and $esk$ the encryption secret key.
 
-It might be the case that a point with no canonical representation is derived (its $u$ coordinate is 0), in such case the zswap seed should be discarded (see [ZIP-0216](https://zips.z.cash/zip-0216) for more details).
-
 #### Coin keys
 
 Coin secret key is 32 random bytes, generated as an SHA-256 hash of seed with domain 
