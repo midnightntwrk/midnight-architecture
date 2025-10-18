@@ -4,15 +4,15 @@
 The dependencies between contracts are *static* and *fixed* at deployment time.
 This proposal describes a limited facility to allow dynamic contract dependencies that can arise after contract deployment.
 
-## Context: Static Contract Composability
+## 1. Context: Static Contract Composability
 
 There were three proposals related to composable contracts:
 [0009: Sealed Ledger State](0009-sealed-ledger-state.md),
 [0010: Composable Contracts Syntax](0010-composable-contracts-syntax.md), and
-[0011: Contract Interface Types](Proposal 0011: Contract Interface Types).
-We sketch those proposals and then the actually implemented feature below.
+[0011: Contract Interface Types](0011-contract-interface-types.md).
+As background we first sketch those proposals and the variation that has been implemented.
 
-### Sealed Ledger State
+### 1.1. Sealed Ledger State
 
 Ledger fields in a contract's public state can be declared `sealed`.
 The compiler will only allow modification to sealed fields in a contract's constructor;
@@ -23,7 +23,7 @@ This proposal is not directly about composable contracts.
 It was used to enforce some restrictions on contract dependencies so that they were static and fixed at deployment time
 (restrictions which we are proposing to lift here).
 
-### Composable Contracts Syntax
+### 1.2. Composable Contracts Syntax
 
 This introduces syntax and (implicitly) a computation model for composable contracts.
 Programs consist of a collection of contract declarations,
@@ -33,7 +33,7 @@ as well as non-contract utility declarations like types, modules, and pure circu
 A contract declaration introduces a named type (the contract name).
 Values of contract types are represented as a reference to the contract (i.e., the contract address).
 A value of a contract type can be used to invoke that contract's circuits.
-You *cannot* pass contract-typed values to circuits nor return them to circuits.
+You *cannot* pass contract-typed values to circuits nor return them from circuits.
 You can pass them to witnesses (it's not clear what you can do with them in a witness),
 but you *cannot* return them from witnesses.
 You can store them into the public ledger.
@@ -50,7 +50,7 @@ and circuits do not have a way to obtain a statically unknown contract address t
 configure with at deployment time.
 
 Similarly, there is no way to create a cyclic dependency between contracts.
-A dependency is represented by a deployed contract address, it it must be fixed before deployment.
+A dependency is represented by a deployed contract address, it must be fixed before deployment.
 Therefore, contract dependencies form a DAG.
 
 Note that this does not imply that the cross-contract call graph is fixed.
@@ -63,7 +63,7 @@ Contracts are always instantiated and deployed via some extra-linguistic mechani
 Consequently: there is a static fixed graph of contract dependencies
 on preexisting contract deployments, which is established before a contract is deployed.
 
-### Contract Interface Types
+### 1.3. Contract Interface Types
 
 The final proposal is very simple.
 It introduces contract interface types, with an implied (not explicit) subtyping rule
@@ -73,7 +73,7 @@ Contract dependencies are still static and fixed.
 But in the scenario where code is conditionally choosing between multiple dependent contracts to invoke,
 they no longer have to all be instances of the same contract type.
 
-### What We Actually Implemented
+### 1.4. What We Actually Implemented
 
 This is basically what we've actually implemented.
 The only exception is that we have not removed top-level impure circuits from programs.
@@ -85,7 +85,7 @@ We did not introduce explicit contract interface types,
 but we did introduce a subtyping relation on contract types which gives effectively the same
 feature.
 
-### The Implicit Computational Model
+## 2. The Implicit (Static) Computational Model
 
 The proposal does not describe in specific terms what the semantics of this syntax is.
 There is however, a somewhat obvious computational model that fits with the existing
@@ -149,9 +149,9 @@ and to use a dependent "communication commitment" to prove the calling computati
 Presumably these are verified separately on chain,
 and the entire transaction atomically succeeds when all of the dependent ones do.
 
-## Dynamic Cross-Contract Calls
+## 3. Dynamic Cross-Contract Calls
 
-### Syntax and Static Semantics
+### 3.1. Syntax and Static Semantics
 
 The changes to Compact are relaxations of the restrictions of the static cross-contract call feature.
 A circuit is allowed to be passed a contract-typed value (i.e. a contract reference).
@@ -163,7 +163,7 @@ We can also allow contract values to be returned from circuits.
 This allows a circuit to make a call to a statically unknown contract,
 either immediately or else by storing it in the public ledgers state to be called later.
 
-### Computational Model (Runtime Semantics)
+### 3.2. (Dynamict) Computational Model
 
 **The DApp provides its own witnesses.**
 Contract types and interfaces don't contain witness signatures.
