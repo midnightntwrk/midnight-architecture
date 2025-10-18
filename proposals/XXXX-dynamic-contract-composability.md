@@ -98,56 +98,56 @@ A decentralized application (DApp) interacts with a contract.
 DApps include applications with a user interface, like a web app or a mobile app.
 They can also have only a command-line interface.
 There can also be general "DApp-like" tools that can interact more generically with a contract.
-And example of such a tool is the *Node Toolkit* that we've built,
+An example of such a tool is the *Node Toolkit* that we've built,
 which allows deploying contracts without writing any JS code
 and making transactions without any extra JS code beyond providing implementations of any required
 witnesses.
 
 All of these are collectively called "DApps" below.
 
-**A contract's constructor is invoked from JS code in a DApp.**
+**A. A contract's constructor is invoked from JS code in a DApp.**
 It can be passed an already deployed contract address and so the contract can be configured with
 its contract dependencies before deployment.
 
-**It's not specified how the JS constructor verifies the static type of the contract dependencies.**
+**B. It's not specified how the JS constructor verifies the static type of the contract dependencies.**
 A deployed contract address does not necessarily implement a subtype of the required contract type.
 We could verify that it has all of (and perhaps more than) the expected exported circuits.
 We could verify that the verifier keys (vks) are expected ones,
 but this does not allow configuration with an arbitrary subtype of a contract type.
 The code (verifier keys) for exported circuits must match exactly.
 
-**When you interact with a deployed contract, you provide your own witnesses.**
+**C. When you interact with a deployed contract, you provide your own witnesses.**
 The deployed contract can depend on witnesses, which are not deployed on chain with the contract.
 Instead, your DApp can configure them with its own witness implementations.
 This is not a (new) security hole, it's the Midnight computational model.
 Witness return values will be verified to match the constraints expected by the contract.
 
-**When a DApp makes a cross-contract call, it must have the JS implementation available.**
+**D. When a DApp makes a cross-contract call, it must have the JS implementation available.**
 Contract dependencies are available as Compact source code, and compiled when the contract is compiled.
 The DApp therefore has a JS implementation of the dependent contract available.
 
-**The DApp must fetch a snapshot of the dependent contract state.**
+**E. The DApp must fetch a snapshot of the dependent contract state.**
 A DApp executes a transaction off chain using a snapshot of the public state.
 For dependent contract calls, the DApp must have fetched a snapshot of the dependent contract's state.
 This is assumed to be fetched using the address of the called contract.
 
 Given the contract state and the JS code, we can execute the cross-contract call in the DApp.
 
-**When a cross-contract call is provem, the ZKIR code and prover key is available to the DApp.**
+**F. When a cross-contract call is proven, the ZKIR code and prover key is available to the DApp.**
 As part of constructing a transaction, the DApp uses the circuit's prover key and a representation
 of the circuit in the form of a ZKIR circuit, to prove that the circuit was run with private witness values.
 The ZKIR circuit and prover keys are produced by the Compact compiler, and they are available to a
 DApp in the same way that the JS code is.
 
-**Dependent proofs are constructed separately.**
+**G. Dependent proofs are constructed separately.**
 Because the call graph is not fixed, we did not (cannot) inline the called circuit's ZKIR representation
 into the calling circuit's ZKIR representation.
 The system is designed to prove the dependent called computation separately,
 and to use a dependent "communication commitment" to prove the calling computation.
 
-**A transaction contains a sequence of transitively dependent proofs.**
+**H. A transaction contains a sequence of transitively dependent proofs.**
 Presumably these are verified separately on chain,
-and the entire transaction atomically succeeds when all of the dependent ones do.
+and the entire transaction atomically succeeds or fails depending on the dependent transactions.
 
 ## 3. Dynamic Cross-Contract Calls
 
@@ -155,17 +155,17 @@ and the entire transaction atomically succeeds when all of the dependent ones do
 
 The changes to Compact are relaxations of the restrictions of the static cross-contract call feature.
 A circuit is allowed to be passed a contract-typed value (i.e. a contract reference).
-This allows invoking transactions that are passed contracts that were potentially unknown at deployment time.
+This allows transactions to be passed contracts that were potentially unknown at deployment time.
 Without loss of generality, we can allow witnesses to return contract values.
 (Witnesses are essentially inputs whose production is interleaved with the circuit execution.)
 We can also allow contract values to be returned from circuits.
 
 This allows a circuit to make a call to a statically unknown contract,
-either immediately or else by storing it in the public ledgers state to be called later.
+either immediately or else by storing it in the public ledger state to be called later.
 
-### 3.2. (Dynamict) Computational Model
+### 3.2. Computational Model
 
-**The DApp provides its own witnesses.**
+**A. The DApp provides its own witnesses.**
 Contract types and interfaces don't contain witness signatures.
 It's not clear how one would obtain the signatures and intended behavior of the required witnesses.
 There is conceptually no (new) security issue, the platform assumes that the DApp provides witnesses.
@@ -175,11 +175,13 @@ However, to avoid the issues for now and because it's not necessary for, e.g., t
 Because this is a restriction of the static cross-contract call case, the implementation effort is
 expected to be to enforce the restriction (see below).
 
-**The DApp gets the public state of the contract.**
+**B. The DApp gets the public state of the contract.**
 A snapshot of the public state is obtained by the DApp exactly as in the static case.
-The snapshot is obtained as before running a transaction offline, based on the contract's address.
+The snapshot is obtained before running a transaction offline, based on the contract's address.
 
-**The DApp gets the implementation of the circuit.**
+There is no new implementation work required for this.
+
+**C. The DApp gets the implementation of the circuit.**
 The normal computational model for Compact and for static cross-contract calls is that
 the implementation is in the form of JS code.
 
@@ -190,7 +192,7 @@ There is a so-called "relational interpretation" which is defined by translation
 There is also a so-called "computational interpretation", an operational sematics which is (can be)
 defined by a Rust (or other) implementation.
 
-**Open Question: where does the DApp get the circuit's ZKIR code?**
+**D. Major Open Question: where does the DApp get the circuit's ZKIR code?**
 A deployed contract in the ledger contains a map from circuit names to verifier keys (vk).
 We need a way to also map a contract address and circuit name to the ZKIR code for the circuit.
 We will potentially need to get the prover key (see below) as well.
@@ -208,7 +210,7 @@ with the circuit name somehow.
 
 **TODO: we need to come up with a proposal.**
 
-**Static verification of ZKIR.**
+**E. Static verification of ZKIR.**
 We can verify that the obtained ZKIR circuit produces the same verifier key (vk) as the one
 recorded in the contract.
 If it does, and there is no mechanism to fetch the corresponding prover key (pk),
@@ -227,7 +229,7 @@ Alternately, the execution of ZKIR (below) can simply fail if it encounters such
 
 **Static checking of ZKIR is an open issue.**
 
-**The ZKIR circuit is executed in a sandbox in the DApp.**
+**F. The ZKIR circuit is executed in a sandbox in the DApp.**
 We can provide a Rust implementation of the operational semantics of ZKIR.
 In fact, we already have nearly such an implementation though we haven't tested it in this scenario.
 This is not expected to be difficult at all.
@@ -237,7 +239,7 @@ reads and writes using the snapshot of the contract's public state.
 Conveniently, ZKIR contains an embedded copy of the needed Impact code!
 We previously thought that this was somewhat awkward, but here it turns out to be an advantage.
 
-**Proving and transactions.**
+**G. Proving and transactions.**
 When the DApp constructs proofs and makes transactions,
 it does them in exactly the same way as in the static case, using the fetched ZKIR and fetched or computed
 prover key.
