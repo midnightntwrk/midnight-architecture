@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "gen": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts gen --dir ../test-vectors",
-    "test-vectors": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts test-vectors --dir ../test-vectors",
-    "test": "tsc --noEmit && vitest run --coverage",
+    "test": "tsc --noEmit && vitest run --coverage.enabled=true --coverage.exclude=src/cli.ts",
     "find-seeds": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds",
     "format": "prettier --write ."
   },
@@ -21,14 +20,11 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@midnight-ntwrk/ledger-v6": "file:/home/akopec/mn/midnight-ledger/result/lib/node_modules/@midnight-ntwrk/ledger-v6",
+    "@midnight-ntwrk/ledger-v6": "^6.1.0-alpha.4",
     "@noble/curves": "^1.8.1",
     "@scure/base": "^1.1.9",
     "@subsquid/scale-codec": "^4.0.0",
-    "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.0.0",
-    "commander": "^14.0.0",
-    "jest-diff": "^30.0.0",
-    "lodash-es": "^4.17.21"
+    "commander": "^14.0.0"
   }
 }

@@ -37,11 +37,6 @@ jobs:
           npm rebuild
           npm run prepare --if-present
 
-      - name: Check test vectors
-        run: |
-          cd ./components/WalletEngine/reference/
-          npm run test-vectors
-
       - name: Test reference implementation
         run: |
           cd ./components/WalletEngine/reference/

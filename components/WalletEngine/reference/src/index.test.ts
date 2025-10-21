@@ -213,16 +213,17 @@ test("Shielded encryption secret key parity", () =>
     },
   })(seeds));
 
-test("Shielded encryption secret key parity #2", () => testParityBinary({
-  implSpec: (seed) => {
-    const esk = encryptionSecretKey(seed);
-    return new ShieldedEncryptionSecretKey(esk.key).serialize();
-  },
-  implLedger: (seed) => {
-    const keys = ledger.ZswapSecretKeys.fromSeed(seed);
-    return keys.encryptionSecretKey.yesIKnowTheSecurityImplicationsOfThis_serialize();
-  },
-}));
+test("Shielded encryption secret key parity #2", () =>
+  testParityBinary({
+    implSpec: (seed) => {
+      const esk = encryptionSecretKey(seed);
+      return new ShieldedEncryptionSecretKey(esk.key).serialize();
+    },
+    implLedger: (seed) => {
+      const keys = ledger.ZswapSecretKeys.fromSeed(seed);
+      return keys.encryptionSecretKey.yesIKnowTheSecurityImplicationsOfThis_serialize();
+    },
+  }));
 
 test("Dust key parity", () =>
   testParity({ implSpec: dustAddr, implLedger: dustAddrLedger })(seeds));
