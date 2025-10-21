@@ -315,14 +315,10 @@ The human-readable part should consist of 3 parts, separated by underscore:
 - type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
 - network identifier - arbitrary string consisting of alphanumeric characters and 
   hyphens, identifying network. Hyphen is allowed only to allow usage of multiple 
-  segments in network identifier, so parsing and validation are simplified. For 
-  mainnet, network identifier has to be omitted (and so its preceding underscore), for 
-  other networks it is required to be present. Following approach should be used to 
-  map ledger's `NetworkId` enum into network identifier:
-  - mainnet - no prefix
-  - testnet - "test"
-  - devnet - "dev"
-  - undeployed - "undeployed" 
+  segments in network identifier, so parsing and validation are simplified. 
+  The same value is meant to be used as part of transaction data for consistency 
+  verification. For mainnet (the value `mainnet`), network identifier has to be 
+  omitted (and so its preceding underscore).
 
 ### Unshielded Payment address
 
