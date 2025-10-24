@@ -2,7 +2,69 @@
 
 **Overview:** we have implemented a facility for contract composability.
 The dependencies between contracts are *static* and *fixed* at deployment time.
-This proposal describes a limited facility to allow dynamic contract dependencies that can arise after contract deployment.
+This proposal describes a limited facility to allow *dynamic* contract dependencies,
+which are that can arise after contract deployment.
+
+To motivate the feature we use the example of a decentralized exchange DEX.
+The DEX contract exchanges tokens by interacting with token contracts.
+New token contracts can be created all the time,
+and so the DEX should be able to interact with contracts that it does not know about at (DEX) deployment time.
+
+## 0. Motivating Example: a decentralized exchange (DEX)
+
+We describe a simplified AMM (Automated Market Maker) style DEX.
+There are other kinds of DEXs, and we believe the proposal here would also satisfy their requirements.
+
+The components of the DEX consist of **the DEX contract** and the **DEX DApp**.
+The DEX contract is deployed to the Midnight blockchain.
+DEX Users will typically interact with the DEX contract using the DEX DApp.
+In the Midnight network, there is nothing preventing a user from interacting directly with the DEX contract,
+rather than using the DEX DApp.
+Therefore, the DEX DApp can provide convenience to users, but is not an essential part of the DEX security story.
+Note that this is not new for the DEX scenario, it is generally true of Midnight.
+
+Tokens consist of a single component, a **token contract**.
+Token contracts are implemented to follow a token standard so that the DEX can interact with them in a stylized way.
+For the purpose of this example, we will use the Open Zeppelin `FungibleToken` specification
+([documentation](https://docs.openzeppelin.com/contracts-compact/fungibleToken) |
+ [source code](https://github.com/OpenZeppelin/compact-contracts/blob/main/contracts/src/token/FungibleToken.compact)).
+
+### 0.1 Token Registration
+
+Token developers can implement new tokens after the DEX is deployed.
+They deploy their token contract to the Midnight blockchain, at which point the contract is assigned a contract address.
+The DEX contract has a transaction that allows registration of a new token with the DEX.
+At that point, the token becomes tradable on the DEX.
+Note that it is not necessarily the token developer who registers the token with the DEX.
+
+An AMM-style DEX maintains a **liquidity pool** of tradable tokens, which are owned by the DEX contract.
+In order for a DEX users to trade and receive the newly registered token,
+there must be some of those tokens available in the liquidity pool.
+
+We could imagine various protocols to establish liquidity for the new token and we are not
+specifically concerned with the details.
+However, these protocols will possibly
+**require the DEX contract to be able to call circuits on the newly-registered token contract**.
+For the sake of the example, we consider a very simple protocol where the DEX calls the `transferFrom`
+circuit on the newly-registered token to transfer from a specified address to the DEX contract address.
+
+Users could register a new token through the DEX DApp, or by directly interacting with the DEX contract.
+
+### 0.2 Token Trading
+
+Traders can exchange tokens on the DEX.
+An AMM-style DEX maintains sets the exchange rate for a token exchange based on the ratio of the tokens available in the liquidity pool.
+A user would interact with the DEX through the DApp.
+The DApp could tell them the current exchange rate,
+and the user could request a trade within a range of exchange rates.
+The DApp would fulfill the trade if the exchange rate falls within that range.
+
+The actual exchange, by the DEX contract, requires it to invoke circuits on each of the exchanged tokens.
+The specific details could vary.
+For simplicity, we consider that the DEX simply calls the same `transferFrom` circuit metioned above.
+To exchange a user's $FISK tokens for $HEST tokens (for example), the DEX will transfer $FISK from the user
+to the DEX's liquidity pool (the DEX contract address), and transfer $HEST tokens from the DEX's liquidity
+pool to the user.
 
 ## 1. Context: Static Contract Composability
 
@@ -75,8 +137,9 @@ they no longer have to all be instances of the same contract type.
 
 ### 1.4. What We Actually Implemented
 
-This is basically what we've actually implemented.
-The only exception is that we have not removed top-level impure circuits from programs.
+This is basically what we've actually implemented, with some exceptions.
+
+We have not removed top-level impure circuits from programs.
 The proposed model was that a program was a collection of named contracts.
 The actual model is that a program has an implicit anonymous top-level contract,
 with contracts nested inside it (is this nesting only one level deep?).
@@ -105,9 +168,13 @@ witnesses.
 
 All of these are collectively called "DApps" below.
 
+In this model, it is the DApp, **not the contract itself,**
+that is responsible for making a cross-contract call.
+
 **A. A contract's constructor is invoked from JS code in a DApp.**
-It can be passed an already deployed contract address and so the contract can be configured with
-its contract dependencies before deployment.
+This is the normal way that a contract's initial state is constructed.
+To configure dependent contract addresses, the constructor is passed an already deployed contract address
+and so the contract can be configured with its contract dependencies before deployment.
 
 **B. It's not specified how the JS constructor verifies the static type of the contract dependencies.**
 A deployed contract address does not necessarily implement a subtype of the required contract type.
@@ -125,13 +192,18 @@ Witness return values will be verified to match the constraints expected by the 
 **D. When a DApp makes a cross-contract call, it must have the JS implementation available.**
 Contract dependencies are available as Compact source code, and compiled when the contract is compiled.
 The DApp therefore has a JS implementation of the dependent contract available.
+Cross contract calls are represented in the JS implementation of a calling contract as calls to
+corresponding functions in the JS implementation of the called contract.
 
 **E. The DApp must fetch a snapshot of the dependent contract state.**
 A DApp executes a transaction off chain using a snapshot of the public state.
 For dependent contract calls, the DApp must have fetched a snapshot of the dependent contract's state.
 This is assumed to be fetched using the address of the called contract.
+When a transaction is made on the calling contract,
+the DApp can already know the addresses of all the transitively dependent contracts.
+It can use these addresses to fetch a snapshot of the dependent contract states from an indexer.
 
-Given the contract state and the JS code, we can execute the cross-contract call in the DApp.
+**Given the witnesses, JS code, and contract state, we can execute the cross-contract call in the DApp.**
 
 **F. When a cross-contract call is proven, the ZKIR code and prover key is available to the DApp.**
 As part of constructing a transaction, the DApp uses the circuit's prover key and a representation
@@ -151,35 +223,61 @@ and the entire transaction atomically succeeds or fails depending on the depende
 
 ## 3. Dynamic Cross-Contract Calls
 
+Like static ones, dynamic cross contract calls are executed by a DApp, not a contract.
+The proposal is that we can support dynamic cross contract calls by using the ZKIR representation of a contract's circuits.
+For a circuit call on a contract address, a DApp will first fetch a snapshot of the called contract's state from an indexer.
+This should be fetched "just in time" before a cross contract call, not before the point that the called contract address is known and the call is inevitable.
+The DApp will fetch the ZKIR representation of the called circuit for the called contract.
+We discuss various ways to support this capability below.
+The DApp can then verify the ZKIR code and generate the prover key for the circuit.
+We do not (yet) propose to make witnesses (private state) available to a dynamic cross contract call,
+so the DApp will verify the absence of witnesses in for the ZKIR representation or else fail the transaction
+if they are used.
+Finally, the ZKIR code for the contract is interpreted by Wasm code (compiled from Rust code in the ledger repository) in the on-chain runtime used by the DApp.
+
 ### 3.1. Syntax and Static Semantics
 
 The changes to Compact are relaxations of the restrictions of the static cross-contract call feature.
-A circuit is allowed to be passed a contract-typed value (i.e. a contract reference).
-This allows transactions to be passed contracts that were potentially unknown at deployment time.
-Without loss of generality, we can allow witnesses to return contract values.
-(Witnesses are essentially inputs whose production is interleaved with the circuit execution.)
-We can also allow contract values to be returned from circuits.
+The static feature disallows contract-typed values to appear as circuit parameters or return values,
+or witness return values.
+Therefore, the only way that a contract-typed value can get *into* a contract is to be passed to the contract's construtor,
+or through some extra-linguistic mechanism.
 
-This allows a circuit to make a call to a statically unknown contract,
-either immediately or else by storing it in the public ledger state to be called later.
+For dynamic cross-contract calls we remove all these restrictions:
+
+* Circuits can have contract-typed parameters.
+  This allows transactions to be passed contract addresses, which can have cross-contract calls invoked on them immediately
+  or later (by storing the contract address in the public state).
+* Witnesses can return contract-typed values.
+  Witness return values are conceptually similar to circuit parameters, and there is therefore no real reason to
+  restrict contract-typed values from appearing there.
+  This allows contract-typed values to also be retrieved from the private state.
+* Circuits can return contract-typed values.
 
 ### 3.2. Computational Model
 
-**A. The DApp provides its own witnesses.**
-Contract types and interfaces don't contain witness signatures.
-It's not clear how one would obtain the signatures and intended behavior of the required witnesses.
-There is conceptually no (new) security issue, the platform assumes that the DApp provides witnesses.
-However, to avoid the issues for now and because it's not necessary for, e.g., the decentralized exchange (DEX) use case,
-**we propose that we do not allow dynamic cross-contract calls to circuits requiring witnesses**.
+**A. The DApp gets the public state of the contract.**
+A snapshot of the public state is obtained by the DApp from an indexer.
+Unlike the static case, we can not fetch the public state before we know the contract address for a call.
+And we should not fetch it before the call is inevitable, so that the DApp does experience a delay for calls that it does not make.
 
-Because this is a restriction of the static cross-contract call case, the implementation effort is
-expected to be to enforce the restriction (see below).
+To avoid repeatedly fetching snapshots of the same contract's state, the DApp can cache contract states keyed by the address during transaction construction.
 
-**B. The DApp gets the public state of the contract.**
-A snapshot of the public state is obtained by the DApp exactly as in the static case.
-The snapshot is obtained before running a transaction offline, based on the contract's address.
+**B. Witnesses are disallowed.**
+The normal computational model is that a DApp provides its own witnesses.
+In the static composition case, this is a fixed set of witness signatures that a DApp has to provide.
+In the dynamic case, it is an open set, depending on the interfaces of the contracts that might be called.
+In fact, contract interfaces do not even (yet) contain witness signatures.
 
-There is no new implementation work required for this.
+Therefore, we disallow dynamic calls to circuits that need witnesses.
+
+*Question: How do we distinguish static and dynamic contract calls.?*
+One possible way to distinguish them is that a dynamic contract call is to a contract with an *interface type*.
+This requires support for contract interfaces in the language and compiler.
+
+*Question: How do we detect that a circuit call needs witnesses.?*
+We can verify that it does not directly use witnesses statically, because we can check whether the ZKIR representation (see below) uses witnesses.
+However, we cannot verify that it does not indirectly use witnesses (e.g., via a static cross-contract call).
 
 **C. The DApp gets the implementation of the circuit.**
 The normal computational model for Compact and for static cross-contract calls is that
@@ -192,23 +290,50 @@ There is a so-called "relational interpretation" which is defined by translation
 There is also a so-called "computational interpretation", an operational sematics which is (can be)
 defined by a Rust (or other) implementation.
 
+ZKIR has a binary representation that we can use.
+This representation is relatively compact (expected to be smaller than verifier keys in most cases),
+and it has not yet been explicitly optimized for size.
+
 **D. Major Open Question: where does the DApp get the circuit's ZKIR code?**
 A deployed contract in the ledger contains a map from circuit names to verifier keys (vk).
 We need a way to also map a contract address and circuit name to the ZKIR code for the circuit.
-We will potentially need to get the prover key (see below) as well.
+There are several ways that we can achieve this.
 
-One possibility is that we also store this in the ledger alongside the verifier key,
-which will require ledger changes.
-This implementation is less resilient to potential changes to the ZKIR format.
-A second possibility is that we embed the ZKIR code as an immutable part of the contract's public state.
-This can be in a part of the state that the Compact code does not have access to
-(there is no reflective capability to read or manipulate your own ZKIR code).
-This doesn't necessarily require ledger changes.
-ZKIR has a binary represenation which can be used.
-A third possibility is an off-chain mechanism, where we only have to associate a URL (for instance)
-with the circuit name somehow.
+1. The ledger maintains it as part of the contract reperesentation.
+   In addition to mapping a circuit name to a verifier key,
+   it also maps the name to the binary ZKIR representation.
+   The DApp can then extract this from the called contract.
+   This might be ultimately useful for other purposes, and is in some ways the ideal way to do it.
+   However, we won't make this change before mainnet so we need to find an alternative way to do it.
 
-**TODO: we need to come up with a proposal.**
+2. The calling contract keeps the ZKIR representation for called contracts in its public state,
+   associated with the called contract address.
+   The DApp has access to a snapshot of the calling contract's public state,
+   from which it can fetch the ZKIR representation for an address.
+
+3. The called contract keeps its own ZKIR representation in its public state.
+   This does not have to be part of the public state that is accessible to Compact,
+   we could design a way for the token contract deployment to manage appending or prepending the binary
+   ZKIR encoding of its token circuits.
+   This solution has the advantage of being more like (1) above which we might eventually implement.
+
+4. There is an off chain mechanism.
+   This would be possible as well, but we don't pursue it below.
+
+Neither solution 2 nor solution 3 require any special compiler support.
+
+In solution 2 for instance,
+the transaction that registers a token with the DEX will include the necessary binary ZKIR
+representations of the token circuits as an input to the transaction.
+This would be encoded as an opaque blob to the contract.
+The DEX contract can manage storing this in its public state as a normal contract operation,
+and the DEX DApp can find it in the DEX's public state.
+
+In solution 3,
+the token needs to be deployed in a special way to ensure that the binary ZKIR representations
+are included in a way that should be defined by a token standard,
+e.g., an accepted Midnight Improvement Process (MIP) proposal.
+If the token is not deployed properly, DApps will not have access to cross-contract calls to its circuits.
 
 **E. Static verification of ZKIR.**
 We can verify that the obtained ZKIR circuit produces the same verifier key (vk) as the one
@@ -239,6 +364,11 @@ reads and writes using the snapshot of the contract's public state.
 Conveniently, ZKIR contains an embedded copy of the needed Impact code!
 We previously thought that this was somewhat awkward, but here it turns out to be an advantage.
 
+**Note:** there is nothing proposed that prohibits a dynamic cross contract called circuit from
+making dynamic cross contract calls in turn.  This implies that such calls need to evident in the
+ZKIR representation, and that the ZKIR interpreter needs to have a way to "call back" to the DApp
+to perform a cross-contract call.
+
 **G. Proving and transactions.**
 When the DApp constructs proofs and makes transactions,
 it does them in exactly the same way as in the static case, using the fetched ZKIR and fetched or computed
@@ -248,10 +378,51 @@ This is not expected to impose any new implementation requirements.
 
 ## An Extended Example
 
-TODO: fill in this section to explicitly describe how a DEX DApp would work.
+We turn back to the example of an AMM-style DEX, with dynamically registered tokens.
+For the sake of discussion, we assume that the DEX contract will maintain a map from token contract addresses
+to the binary ZKIR representation of the token.
 
-* A token satisfies an expected interface
-* A transaction on the DEX contract can register a new token type
-* A DEX DApp can make calls to dynamically registered token circuits
+**A. Writing, compiling, and deploying a token contract.**
+This is done as normal.  The contract implements the Open Zeppelin fungible token specification.
+It is compiled and deployed as normal, at which time it has a contract address and users can interact with it.
 
-Include a worked example of common DEX scenarios.
+**B. Registering a token using the DEX DApp.**
+The token is registered with the DEX.
+In the normal case, this would be done by interacting with the DEX DApp.
+The registration transaction will include the binary ZKIR representation of the token's circuits required
+by the DEX (which could be a subset or even a superset of the OZ fungible token specification).
+The transaction will also include a representation of how to deposit initial liquidity for the token,
+such as an address and amount.
+
+The DEX registration circuit will, before completing registration, make a cross-contract call
+to the token contract to withdraw the initial liquidity.
+
+At the point of the call in the DEX DApp's JS implementation,
+the calling code will (a) lookup the token's ZKIR code for the transfer operation from the DEX's public state
+and (b) fetch a snapshot of the token's public state from an indexer.
+The calling code can be written to verify that the verifier key of the called contract agrees with
+the one produced by compiling the binary ZKIR representation.
+The call to the token transfer circuit is made from the DEX DApp,
+and then the DEX's registration circuit is resumed.
+The token transfer therefore occurs synchronously with respect to the calling circuit.
+
+The DApp will produce two proofs as part of the registration transaction,
+(1) a proof of the token transfer and (2) a proof of the DEX registration.
+Both proofs will be verified on-chain before allowing the transaction.
+
+*Question:* the public state updates for the DEX and token contract are interleaved.
+Will this occur properly on-chain?
+
+**C. Registering a token directly with the DEX contract.**
+There is no guarantee that users will interact with the DEX contract via the "offical" DEX Dapp,
+and the Midnight Network does not rely on this happening.
+In reality, a user can construct a DEX registration transaction through any mechanism that works.
+
+To convince the blockchain to accept such a transaction, two proofs must be submitted:
+(1) the proof of a token transfer, and (2) a proof of the DEX registration.
+
+*Question:* is there any way to connect the token transfer proof to the registered token,
+or is it just generically a proof of some transfer?  What is actually required of this
+dependent proof?
+
+**D. Trading tokens using the DEX DApp.**
