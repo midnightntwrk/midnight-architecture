@@ -49,50 +49,50 @@
   },
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": null,
       "bech32m": null
     },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f67b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
-      "bech32m": "mn_shield-addr_dev1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdanmycaxc8eflrwd790hr2kq3fzp3yym6as8xerp7rjpgclv253z85qrashqf"
+      "bech32m": "mn_shield-addr_devnet1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdanmycaxc8eflrwd790hr2kq3fzp3yym6as8xerp7rjpgclv253z85qw8w4e2"
     },
     "dustAddress": {
       "hex": "738340a27895ef939ce23517cc8df768f94339cb8a96d6e244d56cdf19adde415a",
-      "bech32m": "mn_dust_dev1wwp5pgncjhhe888zx5tuer0hdru5xwwt32tddcjy64kd7xddmeq45ge7ltm"
+      "bech32m": "mn_dust_devnet1wwp5pgncjhhe888zx5tuer0hdru5xwwt32tddcjy64kd7xddmeq45rusk4u"
     },
     "shieldedESK": {
       "hex": "737b4973925903ec7f004734b2b3c15b7c16ad404c1de50732703d9179447e7802",
-      "bech32m": "mn_shield-esk_dev1wda5juujtyp7clcqgu6t9v7ptd7pdt2qfsw72pejwq7ez72y0euqyjhqt87"
+      "bech32m": "mn_shield-esk_devnet1wda5juujtyp7clcqgu6t9v7ptd7pdt2qfsw72pejwq7ez72y0euqyufzd80"
     },
     "shieldedCPK": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f67",
-      "bech32m": "mn_shield-cpk_dev1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdanshcnmmw"
+      "bech32m": "mn_shield-cpk_devnet1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdans7dxg2l"
     }
   },
   {
     "seed": "0000000000000000000000000000000000000000000000000000000000000000",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": null,
       "bech32m": null
     },
     "shieldedAddress": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f67b263a6c1f29f8dcdf15f71aac08a4418909bd760736461f0e41463ec552223d0",
-      "bech32m": "mn_shield-addr_test1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdanmycaxc8eflrwd790hr2kq3fzp3yym6as8xerp7rjpgclv253z85q9fwm8l"
+      "bech32m": "mn_shield-addr_testnet1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdanmycaxc8eflrwd790hr2kq3fzp3yym6as8xerp7rjpgclv253z85qu3c8mp"
     },
     "dustAddress": {
       "hex": "738340a27895ef939ce23517cc8df768f94339cb8a96d6e244d56cdf19adde415a",
-      "bech32m": "mn_dust_test1wwp5pgncjhhe888zx5tuer0hdru5xwwt32tddcjy64kd7xddmeq45s09fau"
+      "bech32m": "mn_dust_testnet1wwp5pgncjhhe888zx5tuer0hdru5xwwt32tddcjy64kd7xddmeq45ttk3x7"
     },
     "shieldedESK": {
       "hex": "737b4973925903ec7f004734b2b3c15b7c16ad404c1de50732703d9179447e7802",
-      "bech32m": "mn_shield-esk_test1wda5juujtyp7clcqgu6t9v7ptd7pdt2qfsw72pejwq7ez72y0euqyejk7xc"
+      "bech32m": "mn_shield-esk_testnet1wda5juujtyp7clcqgu6t9v7ptd7pdt2qfsw72pejwq7ez72y0euqye4uftf"
     },
     "shieldedCPK": {
       "hex": "064e092a80b33bee23404c46cfc48fec75a2356a9b01178dd6a62c29f5896f67",
-      "bech32m": "mn_shield-cpk_test1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdanscta72e"
+      "bech32m": "mn_shield-cpk_testnet1qe8qj25qkva7ug6qf3rvl3y0a366ydt2nvq30rwk5ckznavfdansm8ard0"
     }
   },
   {
@@ -169,50 +169,50 @@
   },
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
-      "bech32m": "mn_addr_dev1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9scrztfp"
+      "bech32m": "mn_addr_devnet1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9syn2j3y"
     },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e54612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
-      "bech32m": "mn_shield-addr_dev13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90yl9gcfv7e04ka0x7qeajljmln7za5d4edntjxncx4q0uh6gkkj706gt3l2q8"
+      "bech32m": "mn_shield-addr_devnet13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90yl9gcfv7e04ka0x7qeajljmln7za5d4edntjxncx4q0uh6gkkj706gxtpgey"
     },
     "dustAddress": {
       "hex": "73f97e7f53047cfa3a995ccb2f708363ebe76b272c492c7190261bfd9602b34164",
-      "bech32m": "mn_dust_dev1w0uhul6nq3705w5etn9j7uyrv047w6e893yjcuvsycdlm9szkdqkgg3grzy"
+      "bech32m": "mn_dust_devnet1w0uhul6nq3705w5etn9j7uyrv047w6e893yjcuvsycdlm9szkdqkgr5x2ur"
     },
     "shieldedESK": {
       "hex": "730fa773b726e94d5e4140df21dc2511e3eba1ba8861ce9c54c3b004f19a8a1809",
-      "bech32m": "mn_shield-esk_dev1wv86wuahym556hjpgr0jrhp9z837hgd63psua8z5cwcqfuv63gvqjspucxy"
+      "bech32m": "mn_shield-esk_devnet1wv86wuahym556hjpgr0jrhp9z837hgd63psua8z5cwcqfuv63gvqj7l77x4"
     },
     "shieldedCPK": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e",
-      "bech32m": "mn_shield-cpk_dev13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqjs43rz"
+      "bech32m": "mn_shield-cpk_devnet13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqm9qzjn"
     }
   },
   {
     "seed": "0101010101010101010101010101010101010101010101010101010101010101",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "ec3925bdbd24aa1cfd002f9ccf52f2bc30061721d8841e86c93c087c1fd2bdcb",
-      "bech32m": "mn_addr_test1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9s2hekw9"
+      "bech32m": "mn_addr_testnet1asujt0dayj4pelgq97wv75hjhscqv9epmzzpapkf8sy8c87jhh9s7wrhna"
     },
     "shieldedAddress": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e54612cf65f5b75e6f033d97e5bfcfc2ed1b5cb66b91a783540fe5f48b5a5e7e9",
-      "bech32m": "mn_shield-addr_test13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90yl9gcfv7e04ka0x7qeajljmln7za5d4edntjxncx4q0uh6gkkj706gd9px83"
+      "bech32m": "mn_shield-addr_testnet13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90yl9gcfv7e04ka0x7qeajljmln7za5d4edntjxncx4q0uh6gkkj706g5ah6m0"
     },
     "dustAddress": {
       "hex": "73f97e7f53047cfa3a995ccb2f708363ebe76b272c492c7190261bfd9602b34164",
-      "bech32m": "mn_dust_test1w0uhul6nq3705w5etn9j7uyrv047w6e893yjcuvsycdlm9szkdqkgs8n45r"
+      "bech32m": "mn_dust_testnet1w0uhul6nq3705w5etn9j7uyrv047w6e893yjcuvsycdlm9szkdqkgtrqd0p"
     },
     "shieldedESK": {
       "hex": "730fa773b726e94d5e4140df21dc2511e3eba1ba8861ce9c54c3b004f19a8a1809",
-      "bech32m": "mn_shield-esk_test1wv86wuahym556hjpgr0jrhp9z837hgd63psua8z5cwcqfuv63gvqjmy2d8z"
+      "bech32m": "mn_shield-esk_testnet1wv86wuahym556hjpgr0jrhp9z837hgd63psua8z5cwcqfuv63gvqjmrq62n"
     },
     "shieldedCPK": {
       "hex": "8f5b7ca223168e1d96820511305228b21b8d41223df2ac188c636533f085793e",
-      "bech32m": "mn_shield-cpk_test13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylqarm5j4"
+      "bech32m": "mn_shield-cpk_testnet13adheg3rz68pm95zq5gnq53gkgdc6sfz8he2cxyvvdjn8uy90ylq70mf4r"
     }
   },
   {
@@ -289,50 +289,50 @@
   },
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
-      "bech32m": "mn_addr_dev1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zsf7s8xc"
+      "bech32m": "mn_addr_devnet1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zs4wc77a"
     },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da06d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
-      "bech32m": "mn_shield-addr_dev1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqd4z7w3plrfsrjq8u982z5kn90agjn8gx2shh8t8ga8zsu39ew3qnsqljh"
+      "bech32m": "mn_shield-addr_devnet1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqd4z7w3plrfsrjq8u982z5kn90agjn8gx2shh8t8ga8zsu39ew3q727at5"
     },
     "dustAddress": {
       "hex": "73c81e0b4b9c94643555cd67f53970113e06ef015b7b489e1d95acd4d6c0d70840",
-      "bech32m": "mn_dust_dev1w0ypuz6tnj2xgd24e4nl2wtszylqdmcptda538sajkkdf4kq6uyyq5u9w4e"
+      "bech32m": "mn_dust_devnet1w0ypuz6tnj2xgd24e4nl2wtszylqdmcptda538sajkkdf4kq6uyyqlet8t7"
     },
     "shieldedESK": {
       "hex": "73c961a87b666c8dec5aed0990d98029a3fd95c6c729c5d5b4dab4db465d380205",
-      "bech32m": "mn_shield-esk_dev1w0ykr2rmvekgmmz6a5yepkvq9x3lm9wxcu5ut4d5m26dk3ja8qpq2wq47hn"
+      "bech32m": "mn_shield-esk_devnet1w0ykr2rmvekgmmz6a5yepkvq9x3lm9wxcu5ut4d5m26dk3ja8qpq2q7hchz"
     },
     "shieldedCPK": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da",
-      "bech32m": "mn_shield-cpk_dev1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqfgfdg5"
+      "bech32m": "mn_shield-cpk_devnet1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqqau7e9"
     }
   },
   {
     "seed": "0202020202020202020202020202020202020202020202020202020202020202",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "46f68803bbf389e1df0f3e3af39c30c4980633525825b9723462259e7b3abc45",
-      "bech32m": "mn_addr_test1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zsm2t6pu"
+      "bech32m": "mn_addr_testnet1gmmgsqam7wy7rhc08ca088pscjvqvv6jtqjmju35vgjeu7e6h3zs0n3muy"
     },
     "shieldedAddress": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da06d45e7443f1a603900fc29d42a5a657f51299d06542f73ace8e9c50e44b9744",
-      "bech32m": "mn_shield-addr_test1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqd4z7w3plrfsrjq8u982z5kn90agjn8gx2shh8t8ga8zsu39ew3q4y7n4p"
+      "bech32m": "mn_shield-addr_testnet1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqd4z7w3plrfsrjq8u982z5kn90agjn8gx2shh8t8ga8zsu39ew3qvug0fl"
     },
     "dustAddress": {
       "hex": "73c81e0b4b9c94643555cd67f53970113e06ef015b7b489e1d95acd4d6c0d70840",
-      "bech32m": "mn_dust_test1w0ypuz6tnj2xgd24e4nl2wtszylqdmcptda538sajkkdf4kq6uyyqv27cr7"
+      "bech32m": "mn_dust_testnet1w0ypuz6tnj2xgd24e4nl2wtszylqdmcptda538sajkkdf4kq6uyyqhwdqcu"
     },
     "shieldedESK": {
       "hex": "73c961a87b666c8dec5aed0990d98029a3fd95c6c729c5d5b4dab4db465d380205",
-      "bech32m": "mn_shield-esk_test1w0ykr2rmvekgmmz6a5yepkvq9x3lm9wxcu5ut4d5m26dk3ja8qpq299rtk4"
+      "bech32m": "mn_shield-esk_testnet1w0ykr2rmvekgmmz6a5yepkvq9x3lm9wxcu5ut4d5m26dk3ja8qpq29zfumy"
     },
     "shieldedCPK": {
       "hex": "e0ca5ed644b4364d281e6b19a2559026842f259738404ca52f6a8353d26944da",
-      "bech32m": "mn_shield-cpk_test1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndqxm8ger"
+      "bech32m": "mn_shield-cpk_testnet1ur99a4jyksmy62q7dvv6y4vsy6zz7fvh8pqyeff0d2p485nfgndq9h8474"
     }
   },
   {
@@ -409,50 +409,50 @@
   },
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
-      "bech32m": "mn_addr_dev1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgquhzlpn"
+      "bech32m": "mn_addr_devnet1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgqq82xek"
     },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead50f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
-      "bech32m": "mn_shield-addr_dev1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2s7aetzay04ra689gn9xrjc0m38k4gqm8z6q8enm377zxdd59t5kg53v0sl"
+      "bech32m": "mn_shield-addr_devnet1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2s7aetzay04ra689gn9xrjc0m38k4gqm8z6q8enm377zxdd59t5kgetjdfu"
     },
     "dustAddress": {
       "hex": "73a75b3fb81a03d979b7ff2c5ac07763fd0376f00586b2fb33fc7e637b5fac545f",
-      "bech32m": "mn_dust_dev1wwn4k0acrgpaj7dhluk94srhv07sxahsqkrt97enl3lxx76l43297m6r5jp"
+      "bech32m": "mn_dust_devnet1wwn4k0acrgpaj7dhluk94srhv07sxahsqkrt97enl3lxx76l43297sldavx"
     },
     "shieldedESK": {
       "hex": "73cf6dfb6f32ecd3539d3d323a6ad447655558fbd6e4c4d5f5e4911a14ad380f0a",
-      "bech32m": "mn_shield-esk_dev1w08km7m0xtkdx5ua85er56k5gaj42k8m6mjvf404ujg3599d8q8s5pmfu9g"
+      "bech32m": "mn_shield-esk_devnet1w08km7m0xtkdx5ua85er56k5gaj42k8m6mjvf404ujg3599d8q8s509t69e"
     },
     "shieldedCPK": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead5",
-      "bech32m": "mn_shield-cpk_dev1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2sugpec3"
+      "bech32m": "mn_shield-cpk_devnet1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2s4a52fq"
     }
   },
   {
     "seed": "0404040404040404040404040404040404040404040404040404040404040404",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "6974beaa685a258cb31c52153179b8307ed63d3a4718589b793e0c403254ee10",
-      "bech32m": "mn_addr_test1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgqwrezxh"
+      "bech32m": "mn_addr_testnet1d96ta2ngtgjcevcu2g2nz7dcxpldv0f6guv93xme8cxyqvj5acgq66rrm0"
     },
     "shieldedAddress": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead50f772b1748fa8fba3951329872c3f713daa806ce2d00f99ee3ef08cd6d0aba59",
-      "bech32m": "mn_shield-addr_test1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2s7aetzay04ra689gn9xrjc0m38k4gqm8z6q8enm377zxdd59t5kgj9jrhf"
+      "bech32m": "mn_shield-addr_testnet1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2s7aetzay04ra689gn9xrjc0m38k4gqm8z6q8enm377zxdd59t5kgtaylth"
     },
     "dustAddress": {
       "hex": "73a75b3fb81a03d979b7ff2c5ac07763fd0376f00586b2fb33fc7e637b5fac545f",
-      "bech32m": "mn_dust_test1wwn4k0acrgpaj7dhluk94srhv07sxahsqkrt97enl3lxx76l43297rvczyx"
+      "bech32m": "mn_dust_testnet1wwn4k0acrgpaj7dhluk94srhv07sxahsqkrt97enl3lxx76l43297cgt6ly"
     },
     "shieldedESK": {
       "hex": "73cf6dfb6f32ecd3539d3d323a6ad447655558fbd6e4c4d5f5e4911a14ad380f0a",
-      "bech32m": "mn_shield-esk_test1w08km7m0xtkdx5ua85er56k5gaj42k8m6mjvf404ujg3599d8q8s527lfyw"
+      "bech32m": "mn_shield-esk_testnet1w08km7m0xtkdx5ua85er56k5gaj42k8m6mjvf404ujg3599d8q8s52e47fl"
     },
     "shieldedCPK": {
       "hex": "092492904b90b823633b80a5d1bde9ba8af392157674fbef166d60d18859ead5",
-      "bech32m": "mn_shield-cpk_test1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2snm0ufx"
+      "bech32m": "mn_shield-cpk_testnet1pyjf9yztjzuzxcemszjar00fh2908ys4we60hmckd4sdrzzeat2ssh0pws"
     }
   },
   {
@@ -529,50 +529,50 @@
   },
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
-      "bech32m": "mn_addr_dev1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqy23xy4"
+      "bech32m": "mn_addr_devnet1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqc6elus"
     },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba53df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
-      "bech32m": "mn_shield-addr_dev1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffa79e0m4m47kvqzsw7u2m9ye4ytn6wl5lkguznxgzsl8pey3qfqyqcqumuh"
+      "bech32m": "mn_shield-addr_devnet1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffa79e0m4m47kvqzsw7u2m9ye4ytn6wl5lkguznxgzsl8pey3qfqyq46ze95"
     },
     "dustAddress": {
       "hex": "73a927b0b045cabdc8ef367742ed66231f52aff8ef8247c69e4c666dc2263a5f60",
-      "bech32m": "mn_dust_dev1ww5j0v9sgh9tmj80xem59mtxyv049tlca7py0357f3nxms3x8f0kqplkxvr"
+      "bech32m": "mn_dust_devnet1ww5j0v9sgh9tmj80xem59mtxyv049tlca7py0357f3nxms3x8f0kq26c0jy"
     },
     "shieldedESK": {
       "hex": "73fdf95134cce6deefdbe36e417a1df22293c12a6d0bdb70c6af30c9fe44153b03",
-      "bech32m": "mn_shield-esk_dev1w07lj5f5enndam7mudhyz7sa7g3f8sf2d59akuxx4ucvnljyz5asxfjz54d"
+      "bech32m": "mn_shield-esk_devnet1w07lj5f5enndam7mudhyz7sa7g3f8sf2d59akuxx4ucvnljyz5asx8vqj4u"
     },
     "shieldedCPK": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba53",
-      "bech32m": "mn_shield-cpk_dev1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsf342x7"
+      "bech32m": "mn_shield-cpk_devnet1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsqyqeh0"
     }
   },
   {
     "seed": "0808080808080808080808080808080808080808080808080808080808080808",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "46c16195f4500429a7f348339dd5723befa62ced5c5e2a680029a27d808177d0",
-      "bech32m": "mn_addr_test1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqk72mr3"
+      "bech32m": "mn_addr_testnet1gmqkr9052qzznflnfqeem4tj80h6vt8dt30z56qq9x38mqypwlgqz8s67f"
     },
     "shieldedAddress": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba53df172fdd775f5980141dee2b65266a45cf4efd3f64705332050f9c3924409010",
-      "bech32m": "mn_shield-addr_test1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffa79e0m4m47kvqzsw7u2m9ye4ytn6wl5lkguznxgzsl8pey3qfqyq75zhmp"
+      "bech32m": "mn_shield-addr_testnet1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffa79e0m4m47kvqzsw7u2m9ye4ytn6wl5lkguznxgzsl8pey3qfqyq8v5t8l"
     },
     "dustAddress": {
       "hex": "73a927b0b045cabdc8ef367742ed66231f52aff8ef8247c69e4c666dc2263a5f60",
-      "bech32m": "mn_dust_test1ww5j0v9sgh9tmj80xem59mtxyv049tlca7py0357f3nxms3x8f0kqefds6y"
+      "bech32m": "mn_dust_testnet1ww5j0v9sgh9tmj80xem59mtxyv049tlca7py0357f3nxms3x8f0kqzd7gpx"
     },
     "shieldedESK": {
       "hex": "73fdf95134cce6deefdbe36e417a1df22293c12a6d0bdb70c6af30c9fe44153b03",
-      "bech32m": "mn_shield-esk_test1w07lj5f5enndam7mudhyz7sa7g3f8sf2d59akuxx4ucvnljyz5asxzh5p5t"
+      "bech32m": "mn_shield-esk_testnet1w07lj5f5enndam7mudhyz7sa7g3f8sf2d59akuxx4ucvnljyz5asxzs7ke6"
     },
     "shieldedCPK": {
       "hex": "ef0ec893b33d6d2400de1291ea7250f7583e901b35acbb51c31545cfeefbba53",
-      "bech32m": "mn_shield-cpk_test1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffsxzm0hf"
+      "bech32m": "mn_shield-cpk_testnet1au8v3yan84kjgqx7z2g75ujs7avrayqmxkktk5wrz4zulmhmhffs9wmjsl"
     }
   },
   {
@@ -649,50 +649,50 @@
   },
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
-      "bech32m": "mn_addr_dev1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvshmu3vv"
+      "bech32m": "mn_addr_devnet1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvstt5g5f"
     },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f7e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
-      "bech32m": "mn_shield-addr_dev1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0hux8cvq42nwghsl5sd860umyuyvnj639ra2p652h9ally8qzthfswlc24v"
+      "bech32m": "mn_shield-addr_devnet1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0hux8cvq42nwghsl5sd860umyuyvnj639ra2p652h9ally8qzthfsr9xgv0"
     },
     "dustAddress": {
       "hex": "73a3241a4a85573dac2433525a740de478ad3a8ce22e3c546aa4f74a9cb771853e",
-      "bech32m": "mn_dust_dev1ww3jgxj2s4tnmtpyxdf95aqdu3u26w5vughrc4r25nm5489hwxznu6a4080"
+      "bech32m": "mn_dust_devnet1ww3jgxj2s4tnmtpyxdf95aqdu3u26w5vughrc4r25nm5489hwxznu3cmxeg"
     },
     "shieldedESK": {
       "hex": "7318fc3a9eac00e8ab9ee01b3c6d17f7d00cdc79198f3896d5b7529ca1289a5a0d",
-      "bech32m": "mn_shield-esk_dev1wvv0cw574sqw32u7uqdncmgh7lgqehrerx8n39k4kaffegfgnfdq662pmtq"
+      "bech32m": "mn_shield-esk_devnet1wvv0cw574sqw32u7uqdncmgh7lgqehrerx8n39k4kaffegfgnfdq655rat3"
     },
     "shieldedCPK": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f",
-      "bech32m": "mn_shield-cpk_dev1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sgpr7u4"
+      "bech32m": "mn_shield-cpk_devnet1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sp5kddy"
     }
   },
   {
     "seed": "1010101010101010101010101010101010101010101010101010101010101010",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "328d123f4d860270e187642d1872796f50f9ba0e34728cc861775f136a2fc599",
-      "bech32m": "mn_addr_test1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvs908vtg"
+      "bech32m": "mn_addr_testnet1x2x3y06dscp8pcv8vsk3sunedag0nwswx3egejrpwa03x630ckvs3kadks"
     },
     "shieldedAddress": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f7e18f8602aa9b91787e9069f4fe6c9c23272d44a3ea83aa2ae5effe43804bba6",
-      "bech32m": "mn_shield-addr_test1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0hux8cvq42nwghsl5sd860umyuyvnj639ra2p652h9ally8qzthfsgtxxj6"
+      "bech32m": "mn_shield-addr_testnet1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0hux8cvq42nwghsl5sd860umyuyvnj639ra2p652h9ally8qzthfs3ns6wy"
     },
     "dustAddress": {
       "hex": "73a3241a4a85573dac2433525a740de478ad3a8ce22e3c546aa4f74a9cb771853e",
-      "bech32m": "mn_dust_test1ww3jgxj2s4tnmtpyxdf95aqdu3u26w5vughrc4r25nm5489hwxznuztwe3g"
+      "bech32m": "mn_dust_testnet1ww3jgxj2s4tnmtpyxdf95aqdu3u26w5vughrc4r25nm5489hwxznue0ap22"
     },
     "shieldedESK": {
       "hex": "7318fc3a9eac00e8ab9ee01b3c6d17f7d00cdc79198f3896d5b7529ca1289a5a0d",
-      "bech32m": "mn_shield-esk_test1wvv0cw574sqw32u7uqdncmgh7lgqehrerx8n39k4kaffegfgnfdq630hw2x"
+      "bech32m": "mn_shield-esk_testnet1wvv0cw574sqw32u7uqdncmgh7lgqehrerx8n39k4kaffegfgnfdq63gae8h"
     },
     "shieldedCPK": {
       "hex": "dc4cded54d701a3b121f6ec09d58224c9ee4ffce4915e40e6073e9a593dbfb1f",
-      "bech32m": "mn_shield-cpk_test1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0s8jdmdz"
+      "bech32m": "mn_shield-cpk_testnet1m3xda42dwqdrkysldmqf6kpzfj0wfl7wfy27grnqw056ty7mlv0sy7dx25"
     }
   },
   {
@@ -769,50 +769,50 @@
   },
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
-      "bech32m": "mn_addr_dev1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nqc58g9g"
+      "bech32m": "mn_addr_devnet1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nqyy03ad"
     },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bcebad8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
-      "bech32m": "mn_shield-addr_dev1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6ads6fupuxztx3k05xmwx6gwzl5gdn4qrhuxcucg5maw6w0h06k3cgjuks7t"
+      "bech32m": "mn_shield-addr_devnet1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6ads6fupuxztx3k05xmwx6gwzl5gdn4qrhuxcucg5maw6w0h06k3cglxgj8g"
     },
     "dustAddress": {
       "hex": "73da1619fba9231da1871e01533015a6a692c8cb06eca79d4ccb23659018c88129",
-      "bech32m": "mn_dust_dev1w0dpvx0m4y33mgv8rcq4xvq456nf9jxtqmk2082vev3ktyqcezqjjgjwqde"
+      "bech32m": "mn_dust_devnet1w0dpvx0m4y33mgv8rcq4xvq456nf9jxtqmk2082vev3ktyqcezqjjrhqfn7"
     },
     "shieldedESK": {
       "hex": "73fbac57d8c0063de7b335bb8542c28c94f605744fc328dbb375c6f1bcd8f5a604",
-      "bech32m": "mn_shield-esk_dev1w0a6c47ccqrrmeanxkac2skz3j20vpt5flpj3kanwhr0r0xc7knqgt3ezwc"
+      "bech32m": "mn_shield-esk_devnet1w0a6c47ccqrrmeanxkac2skz3j20vpt5flpj3kanwhr0r0xc7knqg90mywf"
     },
     "shieldedCPK": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba",
-      "bech32m": "mn_shield-cpk_dev1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aq0lf7uh"
+      "bech32m": "mn_shield-cpk_devnet1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqx2uddx"
     }
   },
   {
     "seed": "2020202020202020202020202020202020202020202020202020202020202020",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "d8d7239b8873caeb4bf2b1bc9e1b578e0c7305c2d3b1f04ba359e4620223fd26",
-      "bech32m": "mn_addr_test1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nq2qu4zv"
+      "bech32m": "mn_addr_testnet1mrtj8xugw09wkjljkx7fux6h3cx8xpwz6wclqjart8jxyq3rl5nq7ex5l5"
     },
     "shieldedAddress": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bcebad8693c0f0c259a367d0db71b4870bf44367500efc363984537d769cfbbf568e1",
-      "bech32m": "mn_shield-addr_test1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6ads6fupuxztx3k05xmwx6gwzl5gdn4qrhuxcucg5maw6w0h06k3cg5gguea"
+      "bech32m": "mn_shield-addr_testnet1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6ads6fupuxztx3k05xmwx6gwzl5gdn4qrhuxcucg5maw6w0h06k3cgds7q9r"
     },
     "dustAddress": {
       "hex": "73da1619fba9231da1871e01533015a6a692c8cb06eca79d4ccb23659018c88129",
-      "bech32m": "mn_dust_test1w0dpvx0m4y33mgv8rcq4xvq456nf9jxtqmk2082vev3ktyqcezqjjsy4km7"
+      "bech32m": "mn_dust_testnet1w0dpvx0m4y33mgv8rcq4xvq456nf9jxtqmk2082vev3ktyqcezqjjtqxwqu"
     },
     "shieldedESK": {
       "hex": "73fbac57d8c0063de7b335bb8542c28c94f605744fc328dbb375c6f1bcd8f5a604",
-      "bech32m": "mn_shield-esk_test1w0a6c47ccqrrmeanxkac2skz3j20vpt5flpj3kanwhr0r0xc7knqgq50h07"
+      "bech32m": "mn_shield-esk_testnet1w0a6c47ccqrrmeanxkac2skz3j20vpt5flpj3kanwhr0r0xc7knqgqn9qz0"
     },
     "shieldedCPK": {
       "hex": "11d519b374e26d0bc42dfe1892f01899ae11b2d9455c0c453d373e48df9bceba",
-      "bech32m": "mn_shield-cpk_test1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqqv8mdq"
+      "bech32m": "mn_shield-cpk_testnet1z823nvm5ufksh3pdlcvf9uqcnxhprvkeg4wqc3faxuly3hume6aqrq8x2k"
     }
   },
   {
@@ -889,50 +889,50 @@
   },
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
-      "bech32m": "mn_addr_dev106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqu0hnju"
+      "bech32m": "mn_addr_devnet106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqqll22e"
     },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa424e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
-      "bech32m": "mn_shield-addr_dev1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpyudka2zp9vaaxts5fff4d2f76d0k3tt2zq3w69c953utm47mgtmqur9rz4"
+      "bech32m": "mn_shield-addr_devnet1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpyudka2zp9vaaxts5fff4d2f76d0k3tt2zq3w69c953utm47mgtmq3empmk"
     },
     "dustAddress": {
       "hex": "736ad2690f206c19208cff19e45f1b1b8e9271415335e96ef9150a4e55f2479819",
-      "bech32m": "mn_dust_dev1wd4dy6g0ypkpjgyvluv7ghcmrw8fyu2p2v67jmhez59yu40jg7vpjfpftz5"
+      "bech32m": "mn_dust_devnet1wd4dy6g0ypkpjgyvluv7ghcmrw8fyu2p2v67jmhez59yu40jg7vpjzy8zun"
     },
     "shieldedESK": {
       "hex": "73fe78f7ebb96040ebefeacb60b117ef6c54c03dc25c040c76e47c23ef7cfb1601",
-      "bech32m": "mn_shield-esk_dev1w0l83alth9syp6l0at9kpvghaak9fspacfwqgrrku37z8mmulvtqzmxtc05"
+      "bech32m": "mn_shield-esk_devnet1w0l83alth9syp6l0at9kpvghaak9fspacfwqgrrku37z8mmulvtqz4cf709"
     },
     "shieldedCPK": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa42",
-      "bech32m": "mn_shield-cpk_dev1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqp9w2cl"
+      "bech32m": "mn_shield-cpk_devnet1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqgsmefw"
     }
   },
   {
     "seed": "4040404040404040404040404040404040404040404040404040404040404040",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "7e9bcd359cf3f26198bd43a45949caef0c23e0118d382d5c2253cc20a99601d2",
-      "bech32m": "mn_addr_test106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fqwmvw4c"
+      "bech32m": "mn_addr_testnet106du6dvu70exrx9agwj9jjw2auxz8cq335uz6hpz20xzp2vkq8fq6zk0gq"
     },
     "shieldedAddress": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa424e36dd50825677a65c2894a6ad527da6bed15ad42045da2e0b48f17bafb685ec",
-      "bech32m": "mn_shield-addr_test1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpyudka2zp9vaaxts5fff4d2f76d0k3tt2zq3w69c953utm47mgtmq6hm09r"
+      "bech32m": "mn_shield-addr_testnet1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpyudka2zp9vaaxts5fff4d2f76d0k3tt2zq3w69c953utm47mgtmqr0dnea"
     },
     "dustAddress": {
       "hex": "736ad2690f206c19208cff19e45f1b1b8e9271415335e96ef9150a4e55f2479819",
-      "bech32m": "mn_dust_test1wd4dy6g0ypkpjgyvluv7ghcmrw8fyu2p2v67jmhez59yu40jg7vpj3hja5n"
+      "bech32m": "mn_dust_testnet1wd4dy6g0ypkpjgyvluv7ghcmrw8fyu2p2v67jmhez59yu40jg7vpj2np903"
     },
     "shieldedESK": {
       "hex": "73fe78f7ebb96040ebefeacb60b117ef6c54c03dc25c040c76e47c23ef7cfb1601",
-      "bech32m": "mn_shield-esk_test1w0l83alth9syp6l0at9kpvghaak9fspacfwqgrrku37z8mmulvtqzsradwj"
+      "bech32m": "mn_shield-esk_testnet1w0l83alth9syp6l0at9kpvghaak9fspacfwqgrrku37z8mmulvtqzsyh6rr"
     },
     "shieldedCPK": {
       "hex": "b018b0b0ad79ca5c84214ac6bb9a67b4f742953e081ab2424e199a556c3eaa42",
-      "bech32m": "mn_shield-cpk_test1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqwkq0fg"
+      "bech32m": "mn_shield-cpk_testnet1kqvtpv9d0899epppftrthxn8knm599f7pqdtysjwrxd92mp74fpqd6qjw7"
     }
   },
   {
@@ -1009,50 +1009,50 @@
   },
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": null,
       "bech32m": null
     },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003de8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
-      "bech32m": "mn_shield-addr_dev19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq77s9vtadlgfhwafw6h23mu7wy7uhhp8pqxly5hdemp5ln2sthkc6s2pztar"
+      "bech32m": "mn_shield-addr_devnet19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq77s9vtadlgfhwafw6h23mu7wy7uhhp8pqxly5hdemp5ln2sthkc6s8mufyq"
     },
     "dustAddress": {
       "hex": "73a98a2d477fec172f24da838b9d176179aff25a7704078d278ae96509ce158010",
-      "bech32m": "mn_dust_dev1ww5c5t280lkpwteym2pch8ghv9u6luj6wuzq0rf83t5k2zwwzkqpqgac3pz"
+      "bech32m": "mn_dust_devnet1ww5c5t280lkpwteym2pch8ghv9u6luj6wuzq0rf83t5k2zwwzkqpqrckcl9"
     },
     "shieldedESK": {
       "hex": "730194823765f3b7bd0efcfebe3d354deddc0ff4c2ee74e2587de1960852b39501",
-      "bech32m": "mn_shield-esk_dev1wvqefq3hvhem00gwlnltu0f4fhkacrl5cth8fcjc0hsevzzjkw2szks7m7r"
+      "bech32m": "mn_shield-esk_devnet1wvqefq3hvhem00gwlnltu0f4fhkacrl5cth8fcjc0hsevzzjkw2szcwua7j"
     },
     "shieldedCPK": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d",
-      "bech32m": "mn_shield-cpk_dev19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7s9eyrhc"
+      "bech32m": "mn_shield-cpk_devnet19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7svv3sxf"
     }
   },
   {
     "seed": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": null,
       "bech32m": null
     },
     "shieldedAddress": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003de8158beb7e84dddd4bb575477cf389ee5ee138406f92976e761a7e6a82ef6c6a",
-      "bech32m": "mn_shield-addr_test19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq77s9vtadlgfhwafw6h23mu7wy7uhhp8pqxly5hdemp5ln2sthkc6sv4u864"
+      "bech32m": "mn_shield-addr_testnet19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq77s9vtadlgfhwafw6h23mu7wy7uhhp8pqxly5hdemp5ln2sthkc6s4d2mxt"
     },
     "dustAddress": {
       "hex": "73a98a2d477fec172f24da838b9d176179aff25a7704078d278ae96509ce158010",
-      "bech32m": "mn_dust_test1ww5c5t280lkpwteym2pch8ghv9u6luj6wuzq0rf83t5k2zwwzkqpqstr8h9"
+      "bech32m": "mn_dust_testnet1ww5c5t280lkpwteym2pch8ghv9u6luj6wuzq0rf83t5k2zwwzkqpqt0slv8"
     },
     "shieldedESK": {
       "hex": "730194823765f3b7bd0efcfebe3d354deddc0ff4c2ee74e2587de1960852b39501",
-      "bech32m": "mn_shield-esk_test1wvqefq3hvhem00gwlnltu0f4fhkacrl5cth8fcjc0hsevzzjkw2sza4gwl9"
+      "bech32m": "mn_shield-esk_testnet1wvqefq3hvhem00gwlnltu0f4fhkacrl5cth8fcjc0hsevzzjkw2szajzej5"
     },
     "shieldedCPK": {
       "hex": "28574eaddbd020b46e53807474d8b7510ee6cf239607f2fc052a1a22b213003d",
-      "bech32m": "mn_shield-cpk_test19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7s222xx0"
+      "bech32m": "mn_shield-cpk_testnet19pt5atwm6qstgmjnsp68fk9h2y8wdnerjcrl9lq99gdz9vsnqq7sfx2mpe"
     }
   },
   {
@@ -1129,50 +1129,50 @@
   },
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
-      "bech32m": "mn_addr_dev1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqaskt8shm"
+      "bech32m": "mn_addr_devnet1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqas2m0f07"
     },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d81757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
-      "bech32m": "mn_shield-addr_dev1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97czatutcv6cn20z04c8wfx6xkg2ekrd97gmkm3c8uwx8r7artfv3gkjmtzh"
+      "bech32m": "mn_shield-addr_devnet1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97czatutcv6cn20z04c8wfx6xkg2ekrd97gmkm3c8uwx8r7artfv3gmg9fm5"
     },
     "dustAddress": {
       "hex": "739329bcd5f00c23048e286ca71993558e0d9ba92c40eceebcd55f82b4fdb1d913",
-      "bech32m": "mn_dust_dev1wwfjn0x47qxzxpyw9pk2wxvn2k8qmxaf93qwem4u640c9d8ak8v3x2hqlmp"
+      "bech32m": "mn_dust_devnet1wwfjn0x47qxzxpyw9pk2wxvn2k8qmxaf93qwem4u640c9d8ak8v3xpjwk9x"
     },
     "shieldedESK": {
       "hex": "6f154654361571436553c7d445a8c53eccf3914066f524f6e260013161aa57dd",
-      "bech32m": "mn_shield-esk_dev1du25v4pkz4c5xe2ncl2yt2x98mx08y2qvm6jfahzvqqnzcd22lwsq5ngxl"
+      "bech32m": "mn_shield-esk_devnet1du25v4pkz4c5xe2ncl2yt2x98mx08y2qvm6jfahzvqqnzcd22lwsmltnz6"
     },
     "shieldedCPK": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d",
-      "bech32m": "mn_shield-cpk_dev1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97s8utxmx"
+      "bech32m": "mn_shield-cpk_devnet1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97swf742h"
     }
   },
   {
     "seed": "b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "0883bd5230854bdb1bcfcf68ea8fa5c0d7a9934d61005d1773d5815867ecf83b",
-      "bech32m": "mn_addr_test1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqasyludsl"
+      "bech32m": "mn_addr_testnet1pzpm653ss49akx70ea5w4ra9crt6ny6dvyq969mn6kq4selvlqassxxvd8"
     },
     "shieldedAddress": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d81757c5e19ac4d4f13eb83b926d1ac8566c3697c8ddb71c1f8e31c7ee8d69645",
-      "bech32m": "mn_shield-addr_test1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97czatutcv6cn20z04c8wfx6xkg2ekrd97gmkm3c8uwx8r7artfv3gsx989p"
+      "bech32m": "mn_shield-addr_testnet1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97czatutcv6cn20z04c8wfx6xkg2ekrd97gmkm3c8uwx8r7artfv3gf7nmel"
     },
     "dustAddress": {
       "hex": "739329bcd5f00c23048e286ca71993558e0d9ba92c40eceebcd55f82b4fdb1d913",
-      "bech32m": "mn_dust_test1wwfjn0x47qxzxpyw9pk2wxvn2k8qmxaf93qwem4u640c9d8ak8v3xjpmfdx"
+      "bech32m": "mn_dust_testnet1wwfjn0x47qxzxpyw9pk2wxvn2k8qmxaf93qwem4u640c9d8ak8v3xf9g3ky"
     },
     "shieldedESK": {
       "hex": "6f154654361571436553c7d445a8c53eccf3914066f524f6e260013161aa57dd",
-      "bech32m": "mn_shield-esk_test1du25v4pkz4c5xe2ncl2yt2x98mx08y2qvm6jfahzvqqnzcd22lwsaxly58"
+      "bech32m": "mn_shield-esk_testnet1du25v4pkz4c5xe2ncl2yt2x98mx08y2qvm6jfahzvqqnzcd22lwsxr7hp0"
     },
     "shieldedCPK": {
       "hex": "0731484ed8b9321e68619d2133d31b9c936558449b9698ffa15956703c1f717d",
-      "bech32m": "mn_shield-cpk_test1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97sg09r23"
+      "bech32m": "mn_shield-cpk_testnet1quc5snkchyepu6rpn5sn85cmnjfk2kzynwtf3lapt9t8q0qlw97str97d8"
     }
   },
   {
@@ -1249,50 +1249,50 @@
   },
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
-      "bech32m": "mn_addr_dev1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6euscvv44w"
+      "bech32m": "mn_addr_devnet1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eusyuyvdt"
     },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c9a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
-      "bech32m": "mn_shield-addr_dev1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktszty6qxy0mxq6mrggv3ln67rnsplgj4zrhvexeysczcuf3mrdgutlt0qezh8p6"
+      "bech32m": "mn_shield-addr_devnet1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktszty6qxy0mxq6mrggv3ln67rnsplgj4zrhvexeysczcuf3mrdgutlt0q5cf9ce"
     },
     "dustAddress": {
       "hex": "734e625c15e1914e46ebbba57e78d46c7cd42fdb5b36f7cbb3259eea1ba1156206",
-      "bech32m": "mn_dust_dev1wd8xyhq4uxg5u3hthwjhu7x5d37dgt7mtvm00janyk0w5xapz43qvcq54zp"
+      "bech32m": "mn_dust_devnet1wd8xyhq4uxg5u3hthwjhu7x5d37dgt7mtvm00janyk0w5xapz43qvn96uux"
     },
     "shieldedESK": {
       "hex": "73059ef8f5aecb5b7b8268cec7f8b56bb8c7b8285ee9e7d8eaa96470522087720a",
-      "bech32m": "mn_shield-esk_dev1wvzea7844m94k7uzdr8v0794dwuv0wpgtm570k8249j8q53qsaeq5t2smnx"
+      "bech32m": "mn_shield-esk_devnet1wvzea7844m94k7uzdr8v0794dwuv0wpgtm570k8249j8q53qsaeq595janh"
     },
     "shieldedCPK": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c9",
-      "bech32m": "mn_shield-cpk_dev1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysrc2eat"
+      "bech32m": "mn_shield-cpk_devnet1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztys2dl2v6"
     }
   },
   {
     "seed": "06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "22c52175c3c42e2d5907b8e3e7a47d60d0322b1d163b6f5ae5b563c9045dd679",
-      "bech32m": "mn_addr_test1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eus2chgj2"
+      "bech32m": "mn_addr_testnet1ytzjzawrcshz6kg8hr370fravrgry2cazcak7kh9k43ujpza6eus7pdf0j"
     },
     "shieldedAddress": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c9a0188fd981ad8d08647f3d7873807e895443bb326c9218163898ec6d4717f5bc",
-      "bech32m": "mn_shield-addr_test1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktszty6qxy0mxq6mrggv3ln67rnsplgj4zrhvexeysczcuf3mrdgutlt0qlkftxv"
+      "bech32m": "mn_shield-addr_testnet1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktszty6qxy0mxq6mrggv3ln67rnsplgj4zrhvexeysczcuf3mrdgutlt0qxwlh6j"
     },
     "dustAddress": {
       "hex": "734e625c15e1914e46ebbba57e78d46c7cd42fdb5b36f7cbb3259eea1ba1156206",
-      "bech32m": "mn_dust_test1wd8xyhq4uxg5u3hthwjhu7x5d37dgt7mtvm00janyk0w5xapz43qvqk0r5x"
+      "bech32m": "mn_dust_testnet1wd8xyhq4uxg5u3hthwjhu7x5d37dgt7mtvm00janyk0w5xapz43qvmjum0y"
     },
     "shieldedESK": {
       "hex": "73059ef8f5aecb5b7b8268cec7f8b56bb8c7b8285ee9e7d8eaa96470522087720a",
-      "bech32m": "mn_shield-esk_test1wvzea7844m94k7uzdr8v0794dwuv0wpgtm570k8249j8q53qsaeq5q0xwjq"
+      "bech32m": "mn_shield-esk_testnet1wvzea7844m94k7uzdr8v0794dwuv0wpgtm570k8249j8q53qsaeq5qgvel3"
     },
     "shieldedCPK": {
       "hex": "e98ce5b18b700d393162f0985768c5c68e089e1bc2d18762105f25b6597012c9",
-      "bech32m": "mn_shield-cpk_test1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztysvtyuvu"
+      "bech32m": "mn_shield-cpk_testnet1axxwtvvtwqxnjvtz7zv9w6x9c68q38smctgcwcsstujmvktsztys08ypt2"
     }
   },
   {
@@ -1369,50 +1369,50 @@
   },
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
-      "bech32m": "mn_addr_dev1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rsychacn"
+      "bech32m": "mn_addr_devnet1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rscglyqk"
     },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f76a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
-      "bech32m": "mn_shield-addr_dev1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0mk493jt32j9a3zn2xqngxlgk2rhlyss32deqxqcld6huxj34q582qwavkpw"
+      "bech32m": "mn_shield-addr_devnet1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0mk493jt32j9a3zn2xqngxlgk2rhlyss32deqxqcld6huxj34q582qr8j5cd"
     },
     "dustAddress": {
       "hex": "73a78ffd09b64d1e5a8c5bc6e91f0b6b09461b7e4f3285a2534e531cf5ecc9a702",
-      "bech32m": "mn_dust_dev1wwncllgfkex3uk5vt0rwj8ctdvy5vxm7fuegtgjnfef3ea0vexnsyet27h8"
+      "bech32m": "mn_dust_devnet1wwncllgfkex3uk5vt0rwj8ctdvy5vxm7fuegtgjnfef3ea0vexnsyjwyhfq"
     },
     "shieldedESK": {
       "hex": "73e229122f331479a3c202514e3464103b514d20e96969bcdd97d255cc62881e02",
-      "bech32m": "mn_shield-esk_dev1w03zjy30xv28ng7zqfg5udryzqa4znfqa95kn0xajlf9tnrz3q0qyggfelf"
+      "bech32m": "mn_shield-esk_devnet1w03zjy30xv28ng7zqfg5udryzqa4znfqa95kn0xajlf9tnrz3q0qyxktllc"
     },
     "shieldedCPK": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f7",
-      "bech32m": "mn_shield-cpk_dev1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msavzy3g"
+      "bech32m": "mn_shield-cpk_devnet1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0ms5ehhqe"
     }
   },
   {
     "seed": "215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "83e4c537bb19138365d033bdd1b13a0226e64d6e3650f26cb59d19ad9a440507",
-      "bech32m": "mn_addr_test1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rskvvqlh"
+      "bech32m": "mn_addr_testnet1s0jv2damryfcxewsxw7arvf6qgnwvntwxeg0ym94n5v6mxjyq5rsz4kpz0"
     },
     "shieldedAddress": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f76a96325c5522f6229a8c09a0df45943bfc908454dc80c0c7dbabf0d28d4143a8",
-      "bech32m": "mn_shield-addr_test1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0mk493jt32j9a3zn2xqngxlgk2rhlyss32deqxqcld6huxj34q582qgfj6xc"
+      "bech32m": "mn_shield-addr_testnet1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0mk493jt32j9a3zn2xqngxlgk2rhlyss32deqxqcld6huxj34q582q33yx6x"
     },
     "dustAddress": {
       "hex": "73a78ffd09b64d1e5a8c5bc6e91f0b6b09461b7e4f3285a2534e531cf5ecc9a702",
-      "bech32m": "mn_dust_test1wwncllgfkex3uk5vt0rwj8ctdvy5vxm7fuegtgjnfef3ea0vexnsypa3gpq"
+      "bech32m": "mn_dust_testnet1wwncllgfkex3uk5vt0rwj8ctdvy5vxm7fuegtgjnfef3ea0vexnsy6ezs6z"
     },
     "shieldedESK": {
       "hex": "73e229122f331479a3c202514e3464103b514d20e96969bcdd97d255cc62881e02",
-      "bech32m": "mn_shield-esk_test1w03zjy30xv28ng7zqfg5udryzqa4znfqa95kn0xajlf9tnrz3q0qyrdlv70"
+      "bech32m": "mn_shield-esk_testnet1w03zjy30xv28ng7zqfg5udryzqa4znfqa95kn0xajlf9tnrz3q0qyr24mn7"
     },
     "shieldedCPK": {
       "hex": "762d1b3bb135953041aaa23bd7bd90fa9abfdbd3c76c3904765613e05d5f23f7",
-      "bech32m": "mn_shield-cpk_test1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0msjlvpql"
+      "bech32m": "mn_shield-cpk_testnet1wck3kwa3xk2nqsd25gaa00vsl2dtlk7ncakrjprk2cf7qh2ly0ms3nvu8f"
     }
   },
   {
@@ -1489,50 +1489,50 @@
   },
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
-      "bech32m": "mn_addr_dev1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvmsnjjusl"
+      "bech32m": "mn_addr_devnet1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvms0z69g6"
     },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c38a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
-      "bech32m": "mn_shield-addr_dev1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpc5qv3mqtcqdyhd9u4vqjlu2gekt0d3h6nncrkf0dvm2tkzlc37usp7luws"
+      "bech32m": "mn_shield-addr_devnet1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpc5qv3mqtcqdyhd9u4vqjlu2gekt0d3h6nncrkf0dvm2tkzlc37usvyp7hn"
     },
     "dustAddress": {
       "hex": "733bbbc9861bb01e922b315d0ad3ef66a3b7b2ed858f78ad30f814fb0883dc856c",
-      "bech32m": "mn_dust_dev1wvamhjvxrwcpay3tx9ws45l0v63m0vhdsk8h3tfslq20kzyrmjzkcm0p7zv"
+      "bech32m": "mn_dust_devnet1wvamhjvxrwcpay3tx9ws45l0v63m0vhdsk8h3tfslq20kzyrmjzkcs20hut"
     },
     "shieldedESK": {
       "hex": "73d4da6e4cc497b41d362b329395b9ceab1baa9c593d76f4baa71df95dbf8ba904",
-      "bech32m": "mn_shield-esk_dev1w02d5mjvcjtmg8fk9vef89dee643h25uty7hda965uwljhdl3w5sglvtxgs"
+      "bech32m": "mn_shield-esk_devnet1w02d5mjvcjtmg8fk9vef89dee643h25uty7hda965uwljhdl3w5sg3jfqgp"
     },
     "shieldedCPK": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c3",
-      "bech32m": "mn_shield-cpk_dev1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsuaeva9"
+      "bech32m": "mn_shield-cpk_devnet1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrps4gvlv5"
     }
   },
   {
     "seed": "a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "ceb727fab56ebffe66064e0664df99241676894e26a659dd1c2f67e9a9529b37",
-      "bech32m": "mn_addr_test1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvmspxfphm"
+      "bech32m": "mn_addr_testnet1e6mj0744d6lluesxfcrxfhueyst8dz2wy6n9nhgu9an7n22jnvms4lnq2r"
     },
     "shieldedAddress": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c38a0191d817803497697956025fe2919b2ded8df539e0764bdacda97617f11f72",
-      "bech32m": "mn_shield-addr_test1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpc5qv3mqtcqdyhd9u4vqjlu2gekt0d3h6nncrkf0dvm2tkzlc37us82psfx"
+      "bech32m": "mn_shield-addr_testnet1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpc5qv3mqtcqdyhd9u4vqjlu2gekt0d3h6nncrkf0dvm2tkzlc37us7jhv4c"
     },
     "dustAddress": {
       "hex": "733bbbc9861bb01e922b315d0ad3ef66a3b7b2ed858f78ad30f814fb0883dc856c",
-      "bech32m": "mn_dust_test1wvamhjvxrwcpay3tx9ws45l0v63m0vhdsk8h3tfslq20kzyrmjzkcre6g5t"
+      "bech32m": "mn_dust_testnet1wvamhjvxrwcpay3tx9ws45l0v63m0vhdsk8h3tfslq20kzyrmjzkccafs0f"
     },
     "shieldedESK": {
       "hex": "73d4da6e4cc497b41d362b329395b9ceab1baa9c593d76f4baa71df95dbf8ba904",
-      "bech32m": "mn_shield-esk_test1w02d5mjvcjtmg8fk9vef89dee643h25uty7hda965uwljhdl3w5sg5fanfk"
+      "bech32m": "mn_shield-esk_testnet1w02d5mjvcjtmg8fk9vef89dee643h25uty7hda965uwljhdl3w5sg5whyy8"
     },
     "shieldedCPK": {
       "hex": "c8a6485cd8a31f471e2fa8ff1fe797aea473b1ad0647c5c6192c54f9f06b98c3",
-      "bech32m": "mn_shield-cpk_test1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsnwhfvj"
+      "bech32m": "mn_shield-cpk_testnet1eznyshxc5v05w8304rl3leuh46j88vddqerut3se9320nurtnrpsszh5ty"
     }
   },
   {
@@ -1609,50 +1609,50 @@
   },
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
-      "bech32m": "mn_addr_dev1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsswasl4"
+      "bech32m": "mn_addr_devnet1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsv74f8s"
     },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f0d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
-      "bech32m": "mn_shield-addr_dev1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8s67xd49rwxscdu8jwjexte803xnf6609lzyzwr77krhx5qv5zzjspuhlc2"
+      "bech32m": "mn_shield-addr_devnet1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8s67xd49rwxscdu8jwjexte803xnf6609lzyzwr77krhx5qv5zzjsvxfapf"
     },
     "dustAddress": {
       "hex": "7319b132ff015c062fedac7996a540fd816f55ffec868766a4f34a89954bcb7561",
-      "bech32m": "mn_dust_dev1wvvmzvhlq9wqvtld43uedf2qlkqk740lajrgwe4y7d9gn92ted6kzgh9w30"
+      "bech32m": "mn_dust_devnet1wvvmzvhlq9wqvtld43uedf2qlkqk740lajrgwe4y7d9gn92ted6kzrjt80g"
     },
     "shieldedESK": {
       "hex": "6fbb9a18b638730d642bb179ad815e24c551099c03946805f143877388112e4a",
-      "bech32m": "mn_shield-esk_dev1d7ae5x9k8pes6eptk9u6mq27ynz4zzvuqw2xsp03gwrh8zq39e9qjvn0u5"
+      "bech32m": "mn_shield-esk_devnet1d7ae5x9k8pes6eptk9u6mq27ynz4zzvuqw2xsp03gwrh8zq39e9qf8t5c3"
     },
     "shieldedCPK": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f",
-      "bech32m": "mn_shield-cpk_dev1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sa82x3n"
+      "bech32m": "mn_shield-cpk_devnet1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8s5jl4qz"
     }
   },
   {
     "seed": "bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "8108536335b3e8c60f2e4ac77e415b70dfe6a1e9111609e47cddba82152602a5",
-      "bech32m": "mn_addr_test1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jsz6xdc3"
+      "bech32m": "mn_addr_testnet1syy9xce4k05vvrewftrhus2mwr07dg0fzytqnerumkagy9fxq2jskruv9f"
     },
     "shieldedAddress": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f0d78cda946e3430de1e4e964cbc9df134d3ad3cbf1104e1fbd61dcd40328214a",
-      "bech32m": "mn_shield-addr_test1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8s67xd49rwxscdu8jwjexte803xnf6609lzyzwr77krhx5qv5zzjs8gfnlu"
+      "bech32m": "mn_shield-addr_testnet1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8s67xd49rwxscdu8jwjexte803xnf6609lzyzwr77krhx5qv5zzjs7sl0rz"
     },
     "dustAddress": {
       "hex": "7319b132ff015c062fedac7996a540fd816f55ffec868766a4f34a89954bcb7561",
-      "bech32m": "mn_dust_test1wvvmzvhlq9wqvtld43uedf2qlkqk740lajrgwe4y7d9gn92ted6kzsp7c8g"
+      "bech32m": "mn_dust_testnet1wvvmzvhlq9wqvtld43uedf2qlkqk740lajrgwe4y7d9gn92ted6kzt9dqu2"
     },
     "shieldedESK": {
       "hex": "6fbb9a18b638730d642bb179ad815e24c551099c03946805f143877388112e4a",
-      "bech32m": "mn_shield-esk_test1d7ae5x9k8pes6eptk9u6mq27ynz4zzvuqw2xsp03gwrh8zq39e9q07lrwv"
+      "bech32m": "mn_shield-esk_testnet1d7ae5x9k8pes6eptk9u6mq27ynz4zzvuqw2xsp03gwrh8zq39e9q5m7smy"
     },
     "shieldedCPK": {
       "hex": "c0cf5c73a6789d537b633cd53ec1ea7972421aad221b7c9e5ab6536323aec58f",
-      "bech32m": "mn_shield-cpk_test1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8sj5yrqy"
+      "bech32m": "mn_shield-cpk_testnet1cr84cuax0zw4x7mr8n2nas0209eyyx4dygdhe8j6kefkxgawck8s3cy78j"
     }
   },
   {
@@ -1729,50 +1729,50 @@
   },
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
-      "bech32m": "mn_addr_dev1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqjx6kda"
+      "bech32m": "mn_addr_devnet1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqwkj04c"
     },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b65843b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
-      "bech32m": "mn_shield-addr_dev1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevy8dkn3ntdakh9pxmkx3kr28pdkry7qqx936d0p2gtk66f4x3hmesqs6cul"
+      "bech32m": "mn_shield-addr_devnet1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevy8dkn3ntdakh9pxmkx3kr28pdkry7qqx936d0p2gtk66f4x3hmesd2y69u"
     },
     "dustAddress": {
       "hex": "73d9e0fff3c84640983658b683a23918543e1e7fedd7029741d9a27499879d9141",
-      "bech32m": "mn_dust_dev1w0v7pllneprypxpktzmg8g3erp2ru8nlahts996pmx38fxv8nkg5zj9m9zd"
+      "bech32m": "mn_dust_devnet1w0v7pllneprypxpktzmg8g3erp2ru8nlahts996pmx38fxv8nkg5zeq4vu2"
     },
     "shieldedESK": {
       "hex": "6b70e73d791743c9d96b69a49ab2794acb927b9fb6283b443e195626036e18",
-      "bech32m": "mn_shield-esk_dev1ddcww0tezapunkttdxjf4vneft9ey7ulkc5rk3p7r9tzvqmwrq3q6cs9"
+      "bech32m": "mn_shield-esk_devnet1ddcww0tezapunkttdxjf4vneft9ey7ulkc5rk3p7r9tzvqmwrqkxea00"
     },
     "shieldedCPK": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658",
-      "bech32m": "mn_shield-cpk_dev1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqdfdcp5"
+      "bech32m": "mn_shield-cpk_devnet1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqyucts9"
     }
   },
   {
     "seed": "543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "83b9bcafca6f0c6f56bd9f8764537db717715b73d3143d72b42c54da04a833e6",
-      "bech32m": "mn_addr_test1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nqqjpt2e"
+      "bech32m": "mn_addr_testnet1swumet72duxx744an7rkg5makuthzkmn6v2r6u45932d5p9gx0nq5tm2hp"
     },
     "shieldedAddress": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b65843b6d38cd6dedae509b76346c351c2db0c9e000c58e9af0a90bb6b49a9a37de6",
-      "bech32m": "mn_shield-addr_test1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevy8dkn3ntdakh9pxmkx3kr28pdkry7qqx936d0p2gtk66f4x3hmesxyy5mf"
+      "bech32m": "mn_shield-addr_testnet1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevy8dkn3ntdakh9pxmkx3kr28pdkry7qqx936d0p2gtk66f4x3hmeslujg8h"
     },
     "dustAddress": {
       "hex": "73d9e0fff3c84640983658b683a23918543e1e7fedd7029741d9a27499879d9141",
-      "bech32m": "mn_dust_test1w0v7pllneprypxpktzmg8g3erp2ru8nlahts996pmx38fxv8nkg5z2nqn52"
+      "bech32m": "mn_dust_testnet1w0v7pllneprypxpktzmg8g3erp2ru8nlahts996pmx38fxv8nkg5z3hnt0g"
     },
     "shieldedESK": {
       "hex": "6b70e73d791743c9d96b69a49ab2794acb927b9fb6283b443e195626036e18",
-      "bech32m": "mn_shield-esk_test1ddcww0tezapunkttdxjf4vneft9ey7ulkc5rk3p7r9tzvqmwrqnuaxvx"
+      "bech32m": "mn_shield-esk_testnet1ddcww0tezapunkttdxjf4vneft9ey7ulkc5rk3p7r9tzvqmwrqlg2e3h"
     },
     "shieldedCPK": {
       "hex": "e25777857bef9a165d8eae2381b88454f559f55b2292c74572879338c473b658",
-      "bech32m": "mn_shield-cpk_test1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqz6rasr"
+      "bech32m": "mn_shield-cpk_testnet1ufth0ptma7dpvhvw4c3crwyy2n64na2my2fvw3tjs7fn33rnkevqpkrqh4"
     }
   },
   {
@@ -1849,50 +1849,50 @@
   },
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
-    "networkId": "dev",
+    "networkId": "devnet",
     "unshieldedAddress": {
       "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
-      "bech32m": "mn_addr_dev14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqugg7qs"
+      "bech32m": "mn_addr_devnet14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqqcq8c4"
     },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e5cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
-      "bech32m": "mn_shield-addr_dev1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx09e6jywyfwqedg2pm6z2r87udx3msfpknjqm97ta2vy25pam9hnqckkedzq"
+      "bech32m": "mn_shield-addr_devnet1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx09e6jywyfwqedg2pm6z2r87udx3msfpknjqm97ta2vy25pam9hnqcmv80mr"
     },
     "dustAddress": {
       "hex": "7305ddf269d23902efb5ad2f1975ee094bddec4454f372796eb73b92f8ace5e50f",
-      "bech32m": "mn_dust_dev1wvzamunf6gus9ma445h3ja0wp99ammzy2nehy7twkuae979vuhjs7g0w220"
+      "bech32m": "mn_dust_devnet1wvzamunf6gus9ma445h3ja0wp99ammzy2nehy7twkuae979vuhjs7r2qr5g"
     },
     "shieldedESK": {
       "hex": "67691d668ad1e997fa14eeb591f5b5126947b2c708562f69a57bb368f2e2",
-      "bech32m": "mn_shield-esk_dev1va536e52685e07s5a66erad4zf550vk8pptz76d90wek3uhz8vv7xm"
+      "bech32m": "mn_shield-esk_devnet1va536e52685e07s5a66erad4zf550vk8pptz76d90wek3uhz0ua8wf"
     },
     "shieldedCPK": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e",
-      "bech32m": "mn_shield-cpk_dev1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0q4y4ku8"
+      "bech32m": "mn_shield-cpk_devnet1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qu3q9dk"
     }
   },
   {
     "seed": "c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549",
-    "networkId": "test",
+    "networkId": "testnet",
     "unshieldedAddress": {
       "hex": "acf4fc8b4fb25300ba2ed1fa4ffa07384a9a027f775111071b95712a750ea3cc",
-      "bech32m": "mn_addr_test14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xqwunr85"
+      "bech32m": "mn_addr_testnet14n60ez60kffspw3w68ayl7s88p9f5qnlwag3zpcmj4cj5agw50xq69fz6v"
     },
     "shieldedAddress": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e5cea447112e065a85077a12867f71a68ee090da7206cbe5f54c22a81eecb7983",
-      "bech32m": "mn_shield-addr_test1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx09e6jywyfwqedg2pm6z2r87udx3msfpknjqm97ta2vy25pam9hnqcsz8p9k"
+      "bech32m": "mn_shield-addr_testnet1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx09e6jywyfwqedg2pm6z2r87udx3msfpknjqm97ta2vy25pam9hnqcf63aeg"
     },
     "dustAddress": {
       "hex": "7305ddf269d23902efb5ad2f1975ee094bddec4454f372796eb73b92f8ace5e50f",
-      "bech32m": "mn_dust_test1wvzamunf6gus9ma445h3ja0wp99ammzy2nehy7twkuae979vuhjs7se4uug"
+      "bech32m": "mn_dust_testnet1wvzamunf6gus9ma445h3ja0wp99ammzy2nehy7twkuae979vuhjs7taxy82"
     },
     "shieldedESK": {
       "hex": "67691d668ad1e997fa14eeb591f5b5126947b2c708562f69a57bb368f2e2",
-      "bech32m": "mn_shield-esk_test1va536e52685e07s5a66erad4zf550vk8pptz76d90wek3uhz3lce3m"
+      "bech32m": "mn_shield-esk_testnet1va536e52685e07s5a66erad4zf550vk8pptz76d90wek3uhz7mucre"
     },
     "shieldedCPK": {
       "hex": "309fa4fe7096ed88750dcf182d0915d2103b43006fd46d0b7031c8749a11999e",
-      "bech32m": "mn_shield-cpk_test1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0q6hmnds"
+      "bech32m": "mn_shield-cpk_testnet1xz06flnsjmkcsagdeuvz6zg46ggrkscqdl2x6zmsx8y8fxs3nx0qemmw2x"
     }
   },
   {

@@ -18,7 +18,7 @@ import {
 import * as ledger from "@midnight-ntwrk/ledger-v6";
 import * as crypto from "node:crypto";
 
-export const networkIds = [null, "my-private-net", "dev", "test", "my-private-net-5"]; //null stands for mainnet
+export const networkIds = [null, "my-private-net", "devnet", "testnet", "my-private-net-5"]; //null stands for mainnet
 export const seeds = [
   Buffer.alloc(32, 0),
   Buffer.alloc(32, 1),
