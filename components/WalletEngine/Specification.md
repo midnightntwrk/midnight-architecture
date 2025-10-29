@@ -279,9 +279,10 @@ Zswap and Dust keys require sampling a scalar value out of uniform bytes. The
 procedure to follow is the same for both, with some details specific to a key and 
 curve it is related to. It iteratively hashes provided bytes with a domain separator 
 until a certain number of bytes is reached (enough to represent every number on the 
-scalar field plus some more to obtain sufficiently uniform output[^1]). Resulting byte 
+scalar field plus some more to obtain sufficiently uniform output - see [The Definitive guide to nodulo bias and how to avoid it](https://web.archive.org/web/20250409021732/https://romailler.ch/2020/07/28/crypto-modulo_bias_guide/)). Resulting byte 
 sequence is interpreted to scalar assuming a little-endian layout and taken modulo 
 the field prime. In naive TS code (simplifying for readability):
+
 ```ts
 function toScalar(bytes: Buffer): BigInt {
     return BigInt(`0x${Buffer.from(bytes).reverse().toString('hex')}`);
@@ -314,19 +315,16 @@ The human-readable part should consist of 3 parts, separated by underscore:
 - type of credential encoded, like `addr` for payment address or `shield-addr` for a shielded payment address. Only alphanumeric characters and hyphen are allowed. Hyphen is allowed only to allow usage of multiple segments in credential name, so parsing and validation are simplified.
 - network identifier - arbitrary string consisting of alphanumeric characters and 
   hyphens, identifying network. Hyphen is allowed only to allow usage of multiple 
-  segments in network identifier, so parsing and validation are simplified. For 
-  mainnet, network identifier has to be omitted (and so its preceding underscore), for 
-  other networks it is required to be present. Following approach should be used to 
-  map ledger's `NetworkId` enum into network identifier:
-  - mainnet - no prefix
-  - testnet - "test"
-  - devnet - "dev"
-  - undeployed - "undeployed" 
+  segments in network identifier, so parsing and validation are simplified. 
+  The same value is meant to be used as part of transaction data for consistency 
+  verification. For mainnet (the value `mainnet`), network identifier has to be 
+  omitted (and so its preceding underscore).
 
 ### Unshielded Payment address
 
 Primary payment address in the network. It allows receiving Night and other unshielded tokens. 
-It is an SHA256 hash of an unshielded token public key.
+It is an SHA256 hash of an unshielded token public key, encoded as-is - that is 32 bytes of the hash 
+contents, with no additional prefixes or tags.
 
 Its credential type is `addr`.
 
@@ -338,8 +336,8 @@ Example human-readable parts:
 
 ### Dust address
 
-It is a Ledger-serialized Dust public key, without network id: versioning header (2 
-bytes), length information (1 byte), and contents of the key itself (up to 32 bytes).
+It is a Ledger-untagged-serialized Dust public key (which is an element of a scalar field), 
+encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
 It represents recipient of Dust generation.
 
 Its credential type is `dust-addr`.
@@ -352,8 +350,10 @@ Example human-readable parts:
 
 ### Shielded Payment address
 
-It is a concatenation of coin public key (32 bytes) and ledger-serialized encryption 
-public key (up to 36 bytes).
+It is a concatenation of coin public key (32 bytes - SHA-256 hash of the coin secret key) 
+and ledger-untagged-serialized encryption public key (a point on the JubJub elliptic curve) 
+encoded into 32 bytes as defined $repr_\mathbb{J}$ in [Zcash specification 5.4.9.3 - JubJub](https://zips.z.cash/protocol/protocol.pdf#jubjub), 
+but extra canonicity checks are applied when reading a point (see [ZIP-0216](https://zips.z.cash/zip-0216)).
 
 NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
 
@@ -372,8 +372,8 @@ Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-serialized encryption secret key without network id: versioning header (2 bytes)
-, length information (1 byte) + contents of the secret key (up to 32 bytes) 
+Ledger-untagged-serialized encryption secret key (an element of scalar field) 
+encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
 Credential type is `shield-esk`
 
 ## Transaction structure and statuses
@@ -979,6 +979,4 @@ For example:
    2. Compare the transaction TTL value against the wall clock time.
    3. If the transaction TTL is past the wall clock time - discard it.
    4. If the transaction TTL is not past the wall clock time yet - submit it to the network.
-      
 
-[^1]: [The definitive guide to “modulo bias and how to avoid it”!](https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/)
