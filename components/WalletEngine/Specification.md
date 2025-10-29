@@ -352,7 +352,8 @@ Example human-readable parts:
 
 It is a concatenation of coin public key (32 bytes - SHA-256 hash of the coin secret key) 
 and ledger-untagged-serialized encryption public key (a point on the JubJub elliptic curve) 
-encoded into 32 bytes as defined $repr_\mathbb{J}$ in [Zcash specification 5.4.9.3 - JubJub](https://zips.z.cash/protocol/protocol.pdf#jubjub).
+encoded into 32 bytes as defined $repr_\mathbb{J}$ in [Zcash specification 5.4.9.3 - JubJub](https://zips.z.cash/protocol/protocol.pdf#jubjub), 
+but extra canonicity checks are applied when reading a point (see [ZIP-0216](https://zips.z.cash/zip-0216)).
 
 NOTE: in current form and usage this address structure is prone to malleability, where attacker replaces coin or encryption public key in the address. It seems that Zcash was prone to this kind of malleability too in Sprout, and it was acceptable there because of assumption of addresses being securely transmitted. Implementation of diversified addresses seems to have addressed this malleability by design.
 
@@ -371,7 +372,8 @@ Credential type is `shield-cpk`.
 
 ### Shielded Encryption secret key
 
-Ledger-untagged-serialized encryption secret key (an element of scalar field) encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
+Ledger-untagged-serialized encryption secret key (an element of scalar field) 
+encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries).
 Credential type is `shield-esk`
 
 ## Transaction structure and statuses
