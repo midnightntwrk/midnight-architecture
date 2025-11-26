@@ -32,10 +32,13 @@ export const seeds = [
   Buffer.from("b49408db310c043ab736fb57a98e15c8cedbed4c38450df3755ac9726ee14d0c", "hex"), //random
   Buffer.from("06004625b6cb2ccead21b15fee2a940c404365702b697b4721bfeecfc6b1b15e", "hex"), //random
   Buffer.from("215ca8a6923ec73f241c92ef702ccfc277aa5856bc94f59afa7e82ec94547850", "hex"), //random
-  Buffer.from("a2a1ef19b0ea7580f8ee5c96ef320001cccd280a40252c08160482505403bbcf", "hex"), //esk 36 bytes
-  Buffer.from("bf1b28679110bec8dd00dfcd5f0ebced627201899ebd6bf8bc63bbfeda742c13", "hex"), //esk 35 bytes
-  Buffer.from("543fc6d478ab5e43f6fb8afe6f671e70e113d579e899b7f27e11ae45ed4e94b5", "hex"), //esk 34 bytes
-  Buffer.from("c024176f9266a23f49096275da2910028018128f3775d3b9ae95ebc7144d2549", "hex"), //esk 33 bytes
+  Buffer.from("4c684b618deccc0c7609536b81f6ea25f223c472c63b11fc440be8e79af6c1b1", "hex"), //esk 33 bytes
+  Buffer.from("480d28c2b74b14d4a38b4fffe8405c10a85d819d009e2c27fffaba514f6c345d", "hex"), //esk 32 bytes
+  Buffer.from("a84e2e6675e991876f75c9918d9e86edfeb431b0b44a019980c95a36a27be45c", "hex"), //esk 31 bytes
+  Buffer.from("6f0ca9ff74fc082d5ab72f996f682d9831da8f79f731a6a48159665df22b6c71", "hex"), //esk 30 bytes
+  Buffer.from("f4f9986bb7e602d1333267ce7c4320a5837c9710b95118639ee6c27f4ed55334", "hex"), //dpk 33 bytes
+  Buffer.from("37ec63328c318df8cf32722fa7ff0b75c389e38c7c7e9e9da32e09338e2b9351", "hex"), //dpk 32 bytes
+  Buffer.from("a48b298c95152242413880fb8a57d348b7e1d37d669634c0ae1d7b363a7a140d", "hex"), //dpk 31 bytes
 ];
 
 export function generateKeyDerivationTestVectors(seeds: Buffer[]) {

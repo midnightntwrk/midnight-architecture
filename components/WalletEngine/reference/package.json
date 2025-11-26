@@ -5,7 +5,8 @@
   "scripts": {
     "gen": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts gen --dir ../test-vectors",
     "test": "tsc --noEmit && vitest run --coverage.enabled=true --coverage.exclude=src/cli.ts",
-    "find-seeds": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds",
+    "find-seeds-esk": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds --key shield-esk",
+    "find-seeds-dust": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds --key dust-pk --number 3",
     "format": "prettier --write ."
   },
   "type": "module",
