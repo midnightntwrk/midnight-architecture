@@ -82,6 +82,10 @@
               category = "formatter";
             }
             {
+              package = pkgs.nodePackages.prettier;
+              category = "formatter";
+            }
+            {
               package = pkgs.nodejs_22;
               category = "runtime";
             }

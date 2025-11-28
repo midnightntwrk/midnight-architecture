@@ -1,3 +1,8 @@
 [formatter.nix]
 command = "alejandra"
 includes = ["*.nix"]
+
+[formatter.prettier]
+command = "prettier"
+includes = ["*.md"]
+options = ["--config", ".prettierrc.json", "--write"]
