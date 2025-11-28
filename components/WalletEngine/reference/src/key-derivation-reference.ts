@@ -76,7 +76,7 @@ export function coinKeys(seed: Buffer): {
   const secretKey = sha256(Buffer.from("midnight:csk", "utf-8"), seed);
   return {
     secretKey,
-    publicKey: sha256(secretKey, Buffer.from("mdn:pk", "utf-8")),
+    publicKey: sha256(Buffer.from("midnight:zswap-pk[v1]", "utf-8"), secretKey),
   };
 }
 

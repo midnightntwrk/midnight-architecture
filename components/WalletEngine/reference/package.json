@@ -21,7 +21,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@midnight-ntwrk/ledger-v6": "^6.1.0-alpha.4",
+    "@midnight-ntwrk/ledger-v6": "^6.1.0-alpha.5",
     "@noble/curves": "^1.8.1",
     "@scure/base": "^1.1.9",
     "@subsquid/scale-codec": "^4.0.0",
