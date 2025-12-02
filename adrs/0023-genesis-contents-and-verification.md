@@ -6,20 +6,16 @@ proposed
 
 ---
 
-| -         | -                                                                                                  |
-| --------- | -------------------------------------------------------------------------------------------------- |
-| date      | November 2025                                                                                      |
-| deciders  | Andrzej Kopeć                                                                                      |
-| consulted | Thomas Kerber, Oscar Bailey, Ignacio Palacios Santos                                               |
-| informed  | {list everyone who is kept up-to-date on progress; and with whom there is a one-way communication} |
+| -         | -                                                    |
+| --------- | ---------------------------------------------------- |
+| date      | November 2025                                        |
+| deciders  | Andrzej Kopeć                                        |
+| consulted | Thomas Kerber, Oscar Bailey, Ignacio Palacios Santos |
+| informed  |                                                      |
 
 ---
 
 ## Context and Problem Statement
-
-{Describe the context and problem statement, e.g., in free form using two to three sentences or in
-the form of an illustrative story. You may want to articulate the problem in form of a question and
-add links to collaboration boards or issue management systems.}
 
 Usually blockchains start with a genesis file(s) capturing hard-coded values impossible (or
 infeasible) to verify their origin. Much of Midnight's initial configuration likely falls into this
@@ -100,7 +96,7 @@ Much of these is based on Cardano data, hence 2 tools are needed:
       present in the configuration already
    4. Verify if the extrinsics being part of the genesis block contain matching:
       1. bridge transactions
-      2. dust generations
+      2. Dust generations
       3. treasury transaction
       4. Ledger parameters setup
 
@@ -122,8 +118,8 @@ future.
 
 ## Validation
 
-- given certain input data, contents of the genesis block can be independently verified and
-  re-created
+- given indicated input data, contents of the genesis configuration can be independently verified
+  and re-created when it comes to data coming from Cardano and Ledger parameters
 
 ## Negative consequences
 
@@ -135,14 +131,11 @@ genesis configuration used to generate long-lived chain specifications needs to 
 There exists an assurance that the contents of the genesis block accurately reflect Cardano-based
 data
 
-## More Information
+## Open questions
 
-## TODOs / open questions
+**Should identity of parties performing setup actions on Cardano be captured (e.g. their public
+keys)?**
 
-What about boot nodes? : Fine to put them into chain spec, the deployment configuration enables
-putting them in the chainspec before deployment
-
-Should identity of parties performing setup actions on Cardano be captured (e.g. their public keys)?
-: It remains an open question. It does not seem to be worth the effort if there are multiple
-different wallets involved. But it would be a powerful check if only 1 or 2 public keys (sets)
-perform all setup transactions on Cardano.
+It does not seem to be worth the effort if there are multiple different wallets involved. But it
+would be a powerful check if only 1 or 2 public keys (sets) perform all setup transactions on
+Cardano.
