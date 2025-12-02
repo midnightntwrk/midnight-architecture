@@ -139,5 +139,10 @@ data
 
 ## TODOs / open questions
 
-What about boot nodes? Fine to put them into chain spec, the deployment configuration enables
+What about boot nodes? : Fine to put them into chain spec, the deployment configuration enables
 putting them in the chainspec before deployment
+
+Should identity of parties performing setup actions on Cardano be captured (e.g. their public keys)?
+: It remains an open question. It does not seem to be worth the effort if there are multiple
+different wallets involved. But it would be a powerful check if only 1 or 2 public keys (sets)
+perform all setup transactions on Cardano.
