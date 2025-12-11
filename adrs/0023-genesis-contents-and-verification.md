@@ -6,12 +6,12 @@ proposed
 
 ---
 
-| -         | -                                                    |
-| --------- | ---------------------------------------------------- |
-| date      | November 2025                                        |
-| deciders  | Andrzej Kopeć                                        |
-| consulted | Thomas Kerber, Oscar Bailey, Ignacio Palacios Santos |
-| informed  |                                                      |
+| -         | -                                                                            |
+| --------- | ---------------------------------------------------------------------------- |
+| date      | November 2025                                                                |
+| deciders  | Andrzej Kopeć                                                                |
+| consulted | Thomas Kerber, Oscar Bailey, Ignacio Palacios Santos, Jon Rossie, Giles Cope |
+| informed  |                                                                              |
 
 ---
 
@@ -30,75 +30,111 @@ Partner chains, Midnight's tokenomics and its governance too.
 
 ## Decision Outcome
 
-Following data need to be present in genesis configuration:
+### Genesis configuration
+
+Following data need to be present in genesis configuration supporting generation of the chainspec:
 
 - seed for RNG
 - network id
-- hash of its entirety for integrity check:
-  - the hashing needs to be performed on data normalized according to
-    [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785)
-  - for the hashing purposes, the hash itself needs to be removed from the data, similarly to how
-    signature needs to be removed for verification
-    ([RFC 8785 Appendix F](https://www.rfc-editor.org/rfc/rfc8785#impl.guidelines))
-  - given the configuration spans across multiple files, the final hash is SHA-256 of a normalized
-    JSON document, where keys are filenames, and values are their SHA-256 hashes hex-encoded (like:
-    `{"cnight-genesis.json": "abcdeef...00", "federated-authority-config.json": "12435445...beea"}`)
-- Cardano reference block hash
-- Protocol bridge:
-  - ICS contract reference
-  - bridge transactions made in Cardano blocks up to the reference one (inclusive)
-- cNight generating Dust
-  - contract reference
+- Cardano reference block hash; this block is the one at which data dependent on Cardano state is
+  obtained and verified against; It is particularly important for verification of the treasury
+  initialization, as well as for bootstrapping the cNight Dust generation
+- cNight generating Dust (`cnight-genesis.json`):
+  - references to resolve and observe (`cnight-addresses.json`):
+    - mapping validator address (to observe Dust address mapping)
+    - Glacier Drop redemption validator address (to observe cNight assignments still locked there)
+    - auth token asset name (to follow on-chain governance)
+    - cNight policy id and asset name (to observe cNight movements)
   - generation gestures in Cardano blocks up to the reference one (inclusive)
-- Governance
-  - contract references for the council and technical comittee
+  - pointer to the reference block, to let the process restart from that point
+- Governance (`federated-authority-config.json`):
+  - contract addresses for the council and technical comittee
+  - policy ids associated with the council and technical comittee
   - both Midnight and Cardano public keys of the authorities registered
 - Treasury (treasury will be initialized by a Cardano transaction moving significant amount of Night
-  to the ICS contract)
-  - ICS contract reference
-  - detected treasury movements in Cardano blocks up to the reference one (inclusive)
+  to the _Illiquid Circulation Supply_ contract - one, which locks cNight as illiquid on Cardano, so
+  that it can become liquid on Midnight):
+  - ICS contract address
+  - detected transactions to the ICS contract in Cardano blocks up to the reference one (inclusive)
+  - computed amount of Night to be assigned to treasury
 - Ledger
   - initial parameters: cost model, limits, fee parameters, Dust parameters
-  - it has to be done through `OverrideParameters` system transaction, in order to enable Indexer to
-    learn the exact values
-- Ariadne
-  - contract references
-  - initial validators configuration based on the contract state at the reference block
+  - it has to be done through
+- Ariadne (`pc-chain-config.json`)
+  - contract address and policy id for the permissioned validators
+  - contract address for the permissionless validators
+  - initial validators configuration based on the contract state at the reference Cardano block
+
+### Chainspec
+
+So that the chainspec, which actually contains data Substrate uses to initialize the chain,
+contains:
+
+1. Hashes of additional configuration files (listed below). These hashes _must_ be computed based on
+   their contents normalized according to [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785), so
+   that their formatting does not impact hashes. The hashes also have to be verified when processing
+   the genesis block or on node boot.
+   1. `cnight-addresses.json`
+   2. `cnight-genesis.json`
+   3. `federated-authority-config.json`
+   4. `pc-chain-config.json`
+   5. `pc-resources-config.json`
+2. Initial, empty, ledger state
+
+### Genesis block contents
+
+And the genesis block extrinsics are following:
+
+1. `SystemTransaction::OverrideParameters` system transaction with the initial ledger parameters
+2. Treasure initialization with the amount present in the genesis configuration, embodied as a
+   sequence of 2 system transactions:
+   1. `SystemTransaction::DistributeReserve`
+   2. `SystemTransaction::PayBlockRewardsToTreasury`
+3. A list of `SystemTransaction::CNightGeneratesDustUpdate` based on the generation gestures
+   captured in `cnight-genesis.json`
+4. Only on testing environments - initial token assignments. Manifested by
+   1. `SystemTransaction::DistributeReserve` to unlock the Night tokens on Midnight
+   2. `SystemTransaction::DistributeNight` transaction(s) with the desired assignments
+
+### Generation and verification
 
 Much of these is based on Cardano data, hence 2 tools are needed:
 
-1. Genesis creation; It takes information listed below as an input, and fetches Cardano based
-   information using the same logic as the running chain to produce full configuration as listed
-   above. It must verify that the Cardano block provided as reference is already finalized one. It
-   must also verify that the contract references provided are already deployed.
+1. Chainspec&genesis creation; It takes information listed below as an input, and fetches Cardano
+   based information using the same logic as the running chain to produce full genesis configuration
+   as listed above, as well as the chainspec. It must verify that the Cardano block provided as
+   reference is already finalized one. It must also verify that the contract references provided are
+   already deployed.
    - inputs:
      1. connection to a Cardano indexer like db-sync
      2. seed for RNG
      3. network ID / chain Id
      4. Ledger initial parameters
      5. Cardano reference block hash
-     6. Cardano references (contract addresses, minting policy IDs, etc.), for:
-        1. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
-        2. Protocol Bridge (ICS contract address, Night policy id, Night label)
-        3. Treasury (same as for Protocol Bridge)
-        4. Ariadne (Permissioned/permissionless comittee contract addresses, d-param contract
-           address, Ariadne governance contract address, genesis UTxO, Cardano parameters)
+     6. Cardano references (contract addresses, minting policy IDs, etc.):
+        1. Night asset details: policy id and label
+        2. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
+        3. ICS contract address (for treasury, and in future - protocol bridge)
+        4. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance
+           contract address, genesis UTxO, Cardano parameters)
         5. Dust generation contract addresses (mapping validator address, redemption validator
-           address, Night policy id, Night label)
+           address)
      7. List of initial assignment extrinsics (for mainnet MUST be empty!)
      8. Boot nodes list
 2. Genesis verification; It takes as an input the genesis configuration and connection to a Cardano
-   indexer like db-sync. It performs following steps to perform verification
+   indexer like db-sync. It performs following steps to perform verification:
    1. Extract the data, which is input to genesis creation
    2. Re-create the Cardano-based genesis contents by querying the provided Cardano indexer (which
       implicitly verifies the reference Cardano block too for its presence and finality)
    3. Compute the integrity hash of newly generated genesis configuration, then compare the hash
       present in the configuration already
    4. Verify if the extrinsics being part of the genesis block contain matching:
-      1. bridge transactions
-      2. Dust generations
-      3. treasury transaction
-      4. Ledger parameters setup
+      1. Dust generations
+      2. Treasury initialization
+      3. Ledger parameters setup
+   5. Verify that sudo pallet is tied to the governance authorities
+   6. Verify that chainspec hashes of genesis configuration files (as listed in
+      [Chainspec](#chainspec))
 
 ## Alternative options considered
 
@@ -113,7 +149,7 @@ This option assumes following changes compared to the chosen one:
    3. Compare present and freshly generated chain-specs
 
 This option is rejected, because it would be very brittle in presence of runtime changes or ledger
-upgrades. It would significantly increase maintenance burder or it would require changes in soon
+upgrades. It would significantly increase maintenance burden or it would require changes in soon
 future.
 
 ## Validation
@@ -139,3 +175,7 @@ keys)?**
 It does not seem to be worth the effort if there are multiple different wallets involved. But it
 would be a powerful check if only 1 or 2 public keys (sets) perform all setup transactions on
 Cardano.
+
+Actually, it seems that _all_ (?) the contracts in use should refer to the same governance. Thus,
+the check if they are configured to refer to the same governance contract/policy id is the desired
+one.
