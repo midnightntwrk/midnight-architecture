@@ -59,7 +59,7 @@ Following data need to be present in genesis configuration supporting generation
   - computed amount of Night to be assigned to treasury
 - Ledger
   - initial parameters: cost model, limits, fee parameters, Dust parameters
-  - it has to be done through
+  - the cost model needs to be captured on a reference configuration prior to genesis preparation (TBD, e.g. "standard" Midnight Node configuration?)
 - Ariadne (`pc-chain-config.json`)
   - contract address and policy id for the permissioned validators
   - contract address for the permissionless validators
