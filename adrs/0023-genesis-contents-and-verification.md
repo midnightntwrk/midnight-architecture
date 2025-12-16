@@ -59,7 +59,8 @@ Following data need to be present in genesis configuration supporting generation
   - computed amount of Night to be assigned to treasury
 - Ledger
   - initial parameters: cost model, limits, fee parameters, Dust parameters
-  - the cost model needs to be captured on a reference configuration prior to genesis preparation (TBD, e.g. "standard" Midnight Node configuration?)
+  - the cost model needs to be captured on a reference spec machine prior to genesis preparation
+    (TBD)
 - Ariadne (`pc-chain-config.json`)
   - contract address and policy id for the permissioned validators
   - contract address for the permissionless validators
@@ -79,7 +80,8 @@ contains:
    3. `federated-authority-config.json`
    4. `pc-chain-config.json`
    5. `pc-resources-config.json`
-2. Initial, empty, ledger state
+2. Initial ledger state, initialized with Dust generations from cNight (this way they won't exceed
+   block size limit).
 
 ### Genesis block contents
 
@@ -90,51 +92,69 @@ And the genesis block extrinsics are following:
    sequence of 2 system transactions:
    1. `SystemTransaction::DistributeReserve`
    2. `SystemTransaction::PayBlockRewardsToTreasury`
-3. A list of `SystemTransaction::CNightGeneratesDustUpdate` based on the generation gestures
-   captured in `cnight-genesis.json`
-4. Only on testing environments - initial token assignments. Manifested by
+3. Only on testing environments - initial token assignments. Manifested by
    1. `SystemTransaction::DistributeReserve` to unlock the Night tokens on Midnight
    2. `SystemTransaction::DistributeNight` transaction(s) with the desired assignments
 
 ### Generation and verification
 
-Much of these is based on Cardano data, hence 2 tools are needed:
+Much of these is based on Cardano data, hence 2 related processes are needed: for creation of
+chainspec and for verification of whole genesis configuration and genesis block.
 
-1. Chainspec&genesis creation; It takes information listed below as an input, and fetches Cardano
-   based information using the same logic as the running chain to produce full genesis configuration
-   as listed above, as well as the chainspec. It must verify that the Cardano block provided as
-   reference is already finalized one. It must also verify that the contract references provided are
-   already deployed.
-   - inputs:
-     1. connection to a Cardano indexer like db-sync
-     2. seed for RNG
-     3. network ID / chain Id
-     4. Ledger initial parameters
-     5. Cardano reference block hash
-     6. Cardano references (contract addresses, minting policy IDs, etc.):
-        1. Night asset details: policy id and label
-        2. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
-        3. ICS contract address (for treasury, and in future - protocol bridge)
-        4. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance
-           contract address, genesis UTxO, Cardano parameters)
-        5. Dust generation contract addresses (mapping validator address, redemption validator
-           address)
-     7. List of initial assignment extrinsics (for mainnet MUST be empty!)
-     8. Boot nodes list
-2. Genesis verification; It takes as an input the genesis configuration and connection to a Cardano
-   indexer like db-sync. It performs following steps to perform verification:
-   1. Extract the data, which is input to genesis creation
-   2. Re-create the Cardano-based genesis contents by querying the provided Cardano indexer (which
-      implicitly verifies the reference Cardano block too for its presence and finality)
-   3. Compute the integrity hash of newly generated genesis configuration, then compare the hash
-      present in the configuration already
-   4. Verify if the extrinsics being part of the genesis block contain matching:
-      1. Dust generations
-      2. Treasury initialization
-      3. Ledger parameters setup
-   5. Verify that sudo pallet is tied to the governance authorities
-   6. Verify that chainspec hashes of genesis configuration files (as listed in
-      [Chainspec](#chainspec))
+#### Chainspec&genesis creation
+
+The process for creation of chainspec _must_ be automated to reduce likelihood of a human error or
+data consistency issues.
+
+It takes information listed below as an input, and fetches Cardano based information using the same
+logic as the running chain to produce full genesis configuration as listed above, as well as the
+chainspec. It must verify that the Cardano block provided as reference is already finalized one. It
+must also verify that the contract references provided are already deployed.
+
+Inputs:
+
+1.  connection to a Cardano indexer like db-sync
+2.  seed for RNG
+3.  network ID / chain Id
+4.  Ledger initial parameters
+5.  Cardano reference block hash
+6.  Cardano references (contract addresses, minting policy IDs, etc.):
+    1. Night asset details: policy id and label
+    2. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
+    3. ICS contract address (for treasury, and in future - protocol bridge)
+    4. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance contract
+       address, genesis UTxO, Cardano parameters)
+    5. Dust generation contract addresses (mapping validator address, redemption validator address)
+7.  List of initial assignment extrinsics (for mainnet MUST be empty!)
+8.  Boot nodes list
+
+#### Genesis verification
+
+The process for verification should be automated in as big part as possible. The verification
+process has to be well-documented, so that:
+
+- Midnight users can verify data integrity
+- It acts as a part of a network deployment checklist (not only mainnet, but also new testing
+  networks deployed in the future)
+
+It takes as an input the genesis configuration and connection to a Cardano indexer like db-sync. It
+performs following steps to perform verification:
+
+1.  Extract the data, which is input to genesis creation
+2.  Re-create the Cardano-based genesis configuration contents by querying the provided Cardano
+    indexer (which also verifies the reference Cardano block too for its presence and finality)
+3.  Verify that initial ledger state contains empty utxo set, all of 24B Night is held in the
+    reserve and the Dust generations match the ones specified in `cnight-genesis.json` file
+4.  Verify if the extrinsics being part of the genesis block contain matching:
+    1. Treasury initialization
+    2. Ledger parameters setup
+5.  Verify that sudo and glutton pallets are not present in the runtime (this check can be skipped
+    in testing environments)
+6.  Verify that chainspec hashes of genesis configuration files (as listed in
+    [Chainspec](#chainspec))
+7.  Verify that the upgradeable Cardano contracts (ICS, Federated authorities for governance and
+    permissioned validators) are all configured with the right authorization script, it must be the
+    same value for all the contracts.
 
 ## Alternative options considered
 
@@ -151,6 +171,10 @@ This option assumes following changes compared to the chosen one:
 This option is rejected, because it would be very brittle in presence of runtime changes or ledger
 upgrades. It would significantly increase maintenance burden or it would require changes in soon
 future.
+
+### Include `SystemTransaction::CNightGeneratesDustUpdate` extrinsics in genesis
+
+This option would likely exceed genesis block size limit.
 
 ## Validation
 
@@ -176,6 +200,6 @@ It does not seem to be worth the effort if there are multiple different wallets 
 would be a powerful check if only 1 or 2 public keys (sets) perform all setup transactions on
 Cardano.
 
-Actually, it seems that _all_ (?) the contracts in use should refer to the same governance. Thus,
-the check if they are configured to refer to the same governance contract/policy id is the desired
-one.
+Actually, it seems that _all upgradeable_ contracts in use should refer to the same governance.
+Thus, the check if they are configured to refer to the same governance contract/policy id is the
+desired one.
