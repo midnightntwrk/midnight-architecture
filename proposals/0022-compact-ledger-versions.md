@@ -327,3 +327,41 @@ This would get toolchain version 1.5.0, and there would be a bump of the languag
 
 This is prepared as usual, by merging a specific commit from the development branch (`main`) into the release branch.
 When users update, for any environment, they would get access to the Compact 1.1. features.
+
+## Questions and answers
+
+Here are some answers to questions you might have.
+
+### Q: What happens if the compiler depends on more than just the ledger?
+
+This is a good question!
+We are considering, for instance, that we might move the ZKIR implementation to the `midnight-zk` repository.
+In that case, we depend on a combination of ledger and ZK libraries.
+
+Imagine that this becomes the case, that we have a direct dependency on ZK.
+We can still use the same strategy, but the ledger version itself is not a good way to identify the combination
+(what would we call it if there was a ZK update but no ledger update?).
+We would need to find a different way to designate the combinations.
+
+A good solution for us would be to number the preview deployments (Preview 17, Preview 18, etc.).
+This might be useful in general, anyway.
+
+### Q: What about less-stable environments like internal devnets?
+
+We can also target these, but we don't necessarily (or at all, really) want to make a public toolchain release just to support these.
+Instead, we should make "alpha" release builds directly from `main` and release them internally.
+
+In the past, we've made release builds from experimental branches targeting new ledger versions with new features.
+This has been unsatisfying because we haven't come up with a consistent and workable way to assign version numbers to these.
+
+We bump version numbers with changes to `main` (not all projects will do this).
+Our `main` version numbers all have a patch version at least 100.
+So for example, the first change on `main` after version 0.27.0 will be 0.27.100, then 0.27.101, etc.
+So if we build a version on `main` it will already have an internal version number.
+
+We can develop experimental ledger support in an experimental ledger backend branch,
+it could even have a name like `ledger-6.0+unshielded-tokens` and a corresponding
+flag `--ledger=6.0+unshielded-tokens` which is a "feature flag" of a sort.
+
+We will just need to ensure that we also bump the internal compiler version when we commit changes to such experimental backend branches
+(so that version numbers march on appropriately for subsequent internal builds).
