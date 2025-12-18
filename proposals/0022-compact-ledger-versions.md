@@ -69,10 +69,10 @@ The most important characteristic for users is that they get a constant flow of 
 ### Midnight environments and promotion
 
 The Midnight Network will have a single Mainnet and a number of "testnets".
-We will focus on a specific pair of publid testnets: Preview and Preprod.
+We will focus on a specific pair of public testnets: Preview and Preprod.
 
 The **Midnight Mainnet** (Mainnet for short) is the Midnight Network blockchain itself.
-It will have periodic upgrades and sometimes hard forkes.
+It will have periodic upgrades and sometimes hard forks.
 
 The **Prepoduction Testnet** (Preprod for short) is a public testnet that will be upgraded to 
 the expected next version of Mainnet when a Mainnet upgrade is announced.
@@ -190,7 +190,7 @@ If we have a really stable year where there are no Mainnet upgrades, then the la
 ## Rejected approach: multiple release channels
 
 We might consider an approach where we have "alpha" (corresponding to Preview), "beta" (Preprod) and "stable" (Mainnet) release channels for the Compact tools.
-Conceptually, this means we maintain at least three separate development branch in addition to at least three separate release branches.
+Conceptually, this means we maintain at least three separate development branches in addition to at least three separate release branches.
 
 New language features become like bug fixes: they need to be cherry-picked or backported to all the active development branches.
 
@@ -211,9 +211,11 @@ We will move all of this code into a subdirectory like `compiler/ledger-6.2`.
 
 The compiler will be changed to allow multiple different versions of this code to be built in at compile time (that is, when we compile the compiler).
 It will be able to select between them with a flag, like `--ledger=6.2`.
+We will also find a way to make the `zkir` binary support multiple ledger versions
+(at worst we can ship multiple binaries with a release and dispatch to the correct one).
 
 The Compact devtools can maintain a mapping between the **relative** names of the environments,
-such as `--environment=preview` is the currently the same as `--ledger=6.2`.
+such as `--environment=preview` is currently the same as `--ledger=6.2`.
 
 We only have to maintain a limited number of these subdirectories.
 Once a version of the ledger that was on Preview is no longer a candidate for promotion to Preprod
@@ -225,19 +227,21 @@ Therefore, the compiler supports only a specific enumerable list of `--ledger` v
 
 We still maintain a single release branch.
 Bugfixes are made as normal, and they are fixed in all the affected backends.
-New language features are almost by definition independent of the backend, and they are rolled out simultaneously to all environments.
+New language features are developed the same as today, and they are released simultaneously for all environments.
 
 ## Scenarios
 
 We will continue to make frequent periodic releases as normal, independent of the environment promotion cadence.
 Developers will get new language features in new releases, for all environments.
 
+We will also be required to make new releases in conjunction with new ledger deployments to Preview.
+
 It's instructive to consider what happens when the network is upgraded.
 For illustration, suppose that Mainnet and Preprod are on ledger version 7.0.x
 (remember, Compact does not care about the ledger's patch version)
 and Preview is on ledger version 8.0.x.
 
-The current released version of the Compact toolchain is 1.2.0.
+Suppose that the current released version of the Compact toolchain is 1.2.0.
 This is supported in the compiler by two separate ledger backends:
 `compiler/ledger-7.0` and `compiler/ledger-8.0`.
 It is selected by flags `--ledger=7.0` and `--ledger=8.0`,
