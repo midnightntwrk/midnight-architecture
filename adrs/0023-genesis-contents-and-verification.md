@@ -38,7 +38,8 @@ Following data need to be present in genesis configuration supporting generation
 - network id
 - Cardano reference block hash; this block is the one at which data dependent on Cardano state is
   obtained and verified against; It is particularly important for verification of the treasury
-  initialization, as well as for bootstrapping the cNight Dust generation
+  initialization, as well as for bootstrapping the cNight Dust generation; It is meant to include a
+  dedicated transaction issued by governance authorities to mark the start of Midnight chain.
 - cNight generating Dust (`cnight-genesis.json`):
   - references to resolve and observe (`cnight-addresses.json`):
     - mapping validator address (to observe Dust address mapping)
@@ -61,6 +62,8 @@ Following data need to be present in genesis configuration supporting generation
   - initial parameters: cost model, limits, fee parameters, Dust parameters
   - the cost model needs to be captured on a reference spec machine prior to genesis preparation
     (TBD)
+  - the global ttl value needs to be explicitly set to a duration of 2 weeks
+    (`2 * 7 * 24 * 60 * 60s`) as it is not a default value as of time of writing
 - Ariadne (`pc-chain-config.json`)
   - contract address and policy id for the permissioned validators
   - contract address for the permissionless validators
@@ -155,6 +158,8 @@ performs following steps to perform verification:
 7.  Verify that the upgradeable Cardano contracts (ICS, Federated authorities for governance and
     permissioned validators) are all configured with the right authorization script, it must be the
     same value for all the contracts.
+8.  (mainnet-only) Verify that the reference Cardano block includes a transaction approved by
+    governance authorities
 
 ## Alternative options considered
 
