@@ -101,6 +101,11 @@ And the genesis block extrinsics are following:
 
 ### Generation and verification
 
+Operationally, the generation process requires all the mentioned Cardano contracts to be deployed,
+configured with the right data, and the reference block finalized. This dependency is particularly
+important for the permissionned validators, as thye need to be ready to start producing blocks when
+the chain is launched.
+
 Much of these is based on Cardano data, hence 2 related processes are needed: for creation of
 chainspec and for verification of whole genesis configuration and genesis block.
 
