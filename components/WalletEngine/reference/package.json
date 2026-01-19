@@ -7,7 +7,7 @@
     "test": "tsc --noEmit && vitest run --coverage.enabled=true --coverage.exclude=src/cli.ts",
     "find-seeds-esk": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds --key shield-esk",
     "find-seeds-dust": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds --key dust-pk --number 3",
-    "format": "prettier --write ."
+    "format": "prettier --write --config ../../.prettierrc.json ."
   },
   "type": "module",
   "author": "",
