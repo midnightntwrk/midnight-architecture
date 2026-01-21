@@ -75,15 +75,21 @@ boundaries.
 ### The API
 
 There are multiple concerns a storage API like this needs to address. It is amount of data exchanged
-in varius scenarios, and the transactionality-related: atomicity, consistency, isolation,
-durability.
+in varius scenarios, the transactionality-related: atomicity, consistency, isolation, durability. An
+important factor is also trust assumptions. As of time of writing - Midnight.js does encrypt private
+data at rest. If using this state management API - should it continue to do so (limiting API
+capabilities, reducing trust assumptions, but requiring _all_ DApps to perform the encryption) or
+should it become responsibility of implementors of this API (so data in-memory are mostly
+unecrypted, should be encrypted in transit, DApps are freed from encryption burden, but encryption
+at rest becomes a concern of the API implementor)
 
 While a minimal API surface of a simple key-value storage would be enough for a proof of concept, it
 will not be a solution scalable enough. Eventually complexity and amounts of data will become too
 much to use efficiently in this way. It is particularly important for this API to be possibly
 future-proof, because backward incompatible changes will be very costly to perform.
 
-Very likely requirements for a production implementation will be:
+Very likely requirements for a production implementation will be (assuming it's API implementor
+concern to offer encryption at rest):
 
 - ability to iterate over nested keys, etc. so that after
   `set('foo.bar', 'a'); set('foo.baz', 'b');`, an operation `listKeys('foo')` returns
