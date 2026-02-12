@@ -73,8 +73,7 @@ Following data need to be present in genesis configuration supporting generation
 - Ariadne (`pc-chain-config.json`)
   - contract address and policy id for the permissioned validators
   - contract address for the permissionless validators
-  - initial validators configuration based on the contract state at the reference Cardano block (or
-    a later one, if Ariadne can't take the reference one)
+  - initial validators configuration based on the contract state at the reference Cardano block
 
 ### Chainspec
 
