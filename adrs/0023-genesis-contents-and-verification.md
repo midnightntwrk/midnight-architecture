@@ -2,7 +2,7 @@
 
 ## Status
 
-proposed
+accepted
 
 ---
 
@@ -18,8 +18,8 @@ proposed
 ## Context and Problem Statement
 
 Usually blockchains start with a genesis file(s) capturing hard-coded values impossible (or
-infeasible) to verify their origin. Much of Midnight's initial configuration likely falls into this
-category too. Though, there are some areas of the genesis configuration, which are unique to Cardano
+infeasible) to verify their origin. Much of Midnight's initial configuration falls into this
+category. Though, there are some areas of the genesis configuration, which are unique to Cardano
 Partner chains, Midnight's tokenomics and its governance too.
 
 ## Decision Drivers
@@ -56,18 +56,25 @@ Following data need to be present in genesis configuration supporting generation
   to the _Illiquid Circulation Supply_ contract - one, which locks cNight as illiquid on Cardano, so
   that it can become liquid on Midnight):
   - ICS contract address
-  - detected transactions to the ICS contract in Cardano blocks up to the reference one (inclusive)
-  - computed amount of Night to be assigned to treasury
+  - detected Night UTxOs held in the ICS at the reference block
+  - computed amount of Night to be assigned to treasury (equal to the sum of all cNight held in the
+    ICS)
+- Reserve - to maintain the
+  [cross-chain token invariants](https://docs.google.com/document/d/125qhMYG_1Gha80jVIM0kkCmRctdRiJRyxbcnCdChPSM/edit?tab=t.0#heading=h.nw57vzbuo6wv)
+  - Reserve contract address
+  - detected Night UTxOs held in the reserve at the reference block
+  - computed amount of Night to be assigned to reserve (equal to the sum of all cNight held in the
+    reserve)
 - Ledger
   - initial parameters: cost model, limits, fee parameters, Dust parameters
   - the cost model needs to be captured on a reference spec machine prior to genesis preparation
-    (TBD)
   - the global ttl value needs to be explicitly set to a duration of 2 weeks
     (`2 * 7 * 24 * 60 * 60s`) as it is not a default value as of time of writing
 - Ariadne (`pc-chain-config.json`)
   - contract address and policy id for the permissioned validators
   - contract address for the permissionless validators
-  - initial validators configuration based on the contract state at the reference Cardano block
+  - initial validators configuration based on the contract state at the reference Cardano block (or
+    a later one, if Ariadne can't take the reference one)
 
 ### Chainspec
 
@@ -83,31 +90,38 @@ contains:
    3. `federated-authority-config.json`
    4. `pc-chain-config.json`
    5. `pc-resources-config.json`
-2. Initial ledger state, initialized with Dust generations from cNight (this way they won't exceed
-   block size limit).
+2. Initial ledger state, fully initialized, that is:
+   1. Locked, reserve and treasury pools initialized accordingly to the amounts of Night in
+      different pools on Cardano, so that cross-chain token invariants are maintained and chances
+      Night balance discrepancies limited
+      ([Genesis Action Plan](https://github.com/shieldedtech/ChiefArchitect/blob/main/explorations/genesis/Genesis-Action-Plan.md)
+      provides some context why it is important, as previous versions of this document did not take
+      these pools into consideration)
+   2. All Cardano-based Dust generations initialized
+   3. Ledger parameters matching the input (as described in
+      [Genesis Configuration](#genesis-configuration))
 
 ### Genesis block contents
 
-And the genesis block extrinsics are following:
+And the genesis block extrinsics are present only on testnets to perform initial token assignments.
+Manifested by
 
-1. `SystemTransaction::OverrideParameters` system transaction with the initial ledger parameters
-2. Treasure initialization with the amount present in the genesis configuration, embodied as a
-   sequence of 2 system transactions:
-   1. `SystemTransaction::DistributeReserve`
-   2. `SystemTransaction::PayBlockRewardsToTreasury`
-3. Only on testing environments - initial token assignments. Manifested by
-   1. `SystemTransaction::DistributeReserve` to unlock the Night tokens on Midnight
-   2. `SystemTransaction::DistributeNight` transaction(s) with the desired assignments
+1.  `SystemTransaction::DistributeReserve` to unlock the Night tokens on Midnight
+2.  `SystemTransaction::DistributeNight` transaction(s) with the desired assignments
+3.  Regular transactions to mint shielded tokens and/or start Dust generations
 
 ### Generation and verification
 
 Operationally, the generation process requires all the mentioned Cardano contracts to be deployed,
 configured with the right data, and the reference block finalized. This dependency is particularly
-important for the permissionned validators, as thye need to be ready to start producing blocks when
+important for the permissionned validators, as they need to be ready to start producing blocks when
 the chain is launched.
 
 Much of these is based on Cardano data, hence 2 related processes are needed: for creation of
 chainspec and for verification of whole genesis configuration and genesis block.
+
+Additionally, it is planned to submit a Cardano transaction signed unanimously by governance
+authorities, which holds the Midnight's genesis block hash.
 
 #### Chainspec&genesis creation
 
@@ -129,10 +143,14 @@ Inputs:
 6.  Cardano references (contract addresses, minting policy IDs, etc.):
     1. Night asset details: policy id and label
     2. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
-    3. ICS contract address (for treasury, and in future - protocol bridge)
-    4. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance contract
+    3. ICS contract address (for treasury, and in future - protocol bridge), or, as a workaround for
+       testing/usage in not fully provisioned environment — just the amount of Night to be assigned
+       to the treasury
+    4. Reserve contract address (for reserve), or, as a workaround for testing/usage in not fully
+       provisioned environment — just the amount of Night to be assigned to the reserve
+    5. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance contract
        address, genesis UTxO, Cardano parameters)
-    5. Dust generation contract addresses (mapping validator address, redemption validator address)
+    6. Dust generation contract addresses (mapping validator address, redemption validator address)
 7.  List of initial assignment extrinsics (for mainnet MUST be empty!)
 8.  Boot nodes list
 
@@ -148,23 +166,27 @@ process has to be well-documented, so that:
 It takes as an input the genesis configuration and connection to a Cardano indexer like db-sync. It
 performs following steps to perform verification:
 
-1.  Extract the data, which is input to genesis creation
-2.  Re-create the Cardano-based genesis configuration contents by querying the provided Cardano
-    indexer (which also verifies the reference Cardano block too for its presence and finality)
-3.  Verify that initial ledger state contains empty utxo set, all of 24B Night is held in the
-    reserve and the Dust generations match the ones specified in `cnight-genesis.json` file
-4.  Verify if the extrinsics being part of the genesis block contain matching:
-    1. Treasury initialization
-    2. Ledger parameters setup
-5.  Verify that sudo and glutton pallets are not present in the runtime (this check can be skipped
-    in testing environments)
-6.  Verify that chainspec hashes of genesis configuration files (as listed in
-    [Chainspec](#chainspec))
-7.  Verify that the upgradeable Cardano contracts (ICS, Federated authorities for governance and
-    permissioned validators) are all configured with the right authorization script, it must be the
-    same value for all the contracts.
-8.  (mainnet-only) Verify that the reference Cardano block includes a transaction approved by
-    governance authorities
+1. Extract the data, which is input to genesis creation
+2. Re-create the Cardano-based genesis configuration contents by querying the provided Cardano
+   indexer (which also verifies the reference Cardano block too for its presence and finality)
+3. Verify utxos:
+   - (mainnet only) Verify that initial ledger state contains empty unshielded UTxO set
+   - (testnet only) Verify that initial ledger state contains only expected Night UTxOs
+4. (mainnet only) Verify that all of 24B Night is distributed between locked pool, reserve and
+   treasury
+5. Verify that the Dust generations match the ones specified in `cnight-genesis.json` file
+6. Verify if the extrinsics being part of the genesis block contain matching:
+7. Verify that sudo and glutton pallets are not present in the runtime (this check can be skipped in
+   testing environments)
+8. Verify that chainspec hashes of genesis configuration files (as listed in
+   [Chainspec](#chainspec))
+9. Verify that the upgradeable Cardano contracts (ICS, Federated authorities for governance and
+   permissioned validators) are all configured with the right authorization script, it must be the
+   same value for all the contracts.
+10. (mainnet-only, only as a potential future extension) Verify that there exists a Cardano
+    transaction with the genesis block hash in its contents (metadata?), which is signed unanimously
+    by the governance authorities. Due to the nature of the process, it is impossible for the
+    transaction to be published earlier or in the same block that serves as the reference.
 
 ## Alternative options considered
 
