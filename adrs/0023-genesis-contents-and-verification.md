@@ -38,8 +38,7 @@ Following data need to be present in genesis configuration supporting generation
 - network id
 - Cardano reference block hash; this block is the one at which data dependent on Cardano state is
   obtained and verified against; It is particularly important for verification of the treasury
-  initialization, as well as for bootstrapping the cNight Dust generation; It is meant to include a
-  dedicated transaction issued by governance authorities to mark the start of Midnight chain.
+  initialization, as well as for bootstrapping the cNight Dust generation;
 - cNight generating Dust (`cnight-genesis.json`):
   - references to resolve and observe (`cnight-addresses.json`):
     - mapping validator address (to observe Dust address mapping)
@@ -49,8 +48,8 @@ Following data need to be present in genesis configuration supporting generation
   - generation gestures in Cardano blocks up to the reference one (inclusive)
   - pointer to the reference block, to let the process restart from that point
 - Governance (`federated-authority-config.json`):
-  - contract addresses for the council and technical comittee
-  - policy ids associated with the council and technical comittee
+  - contract addresses for the council and technical committee
+  - policy ids associated with the council and technical committee
   - both Midnight and Cardano public keys of the authorities registered
 - Treasury (treasury will be initialized by a Cardano transaction moving significant amount of Night
   to the _Illiquid Circulation Supply_ contract - one, which locks cNight as illiquid on Cardano, so
@@ -91,18 +90,46 @@ contains:
    5. `pc-resources-config.json`
 2. Initial ledger state, fully initialized, that is:
    1. Locked, reserve and treasury pools initialized accordingly to the amounts of Night in
-      different pools on Cardano, so that cross-chain token invariants are maintained and chances
-      Night balance discrepancies limited
-      ([Genesis Action Plan](https://github.com/shieldedtech/ChiefArchitect/blob/main/explorations/genesis/Genesis-Action-Plan.md)
-      provides some context why it is important, as previous versions of this document did not take
-      these pools into consideration)
+      different pools on Cardano, so that cross-chain token invariants are maintained.
    2. All Cardano-based Dust generations initialized
    3. Ledger parameters matching the input (as described in
       [Genesis Configuration](#genesis-configuration))
 
+> [!NOTE] The populated locked pool and reserve are protected at the node level. System transactions
+> that move funds between pools (e.g. `DistributeNight`) can be submitted only through observation
+> pallets with validator consensus, not through the governance extrinsic path. This ensures
+> cross-chain correspondence cannot be broken by a governance action alone.
+
+The cross-chain invariants mentioned above are related to the fact that Night does exist both as a
+Cardano asset and as Midnight asset. Both chains have a total supply of 24B Night split across 3
+pools: reserve, locked and unlocked. Unlocked pool includes all liquid Night on a particular chain -
+wallet-held UTxOs, treasury, block rewards, etc. Tokens unlocked on one chain must be locked on the
+other one.
+
+The cross-chain safety relies on 3 rules, accounting for observation delay (need to wait for
+finalization):
+
+- Unlocked Night on Midnight never exceeds locked cNight on Cardano
+- Unlocked cNight on Cardano never exceeds locked Night on Midnight
+- Cardano's reserve never exceeds Midnight's reserve
+
+Main theorem: The combined unlocked supply across both chains never exceeds 24B.
+
+In order for these invariants to hold forever, \_we need an inductive proof of protocol correctness
+starting from a correctly configured "base case" in the Genesis block.
+
+Base case (genesis): At launch, each Midnight pool exactly equals its Cardano counterpart. The
+cross-chain safety inequalities start as equalities. The treasury is the only unlocked pool on
+Midnight populated at launch, so it is initially equal to the locked pool on Cardano. The treasury
+is not explicitly part of the cross-chain invariants, so its initialization is merely a reflection
+of the locked/unlocked invariant.
+
+Genesis must get this right because every subsequent protocol action preserves the inequalities
+inductively — if the base case is wrong, the safety guarantees are unsound from block zero.\_
+
 ### Genesis block contents
 
-And the genesis block extrinsics are present only on testnets to perform initial token assignments.
+Extrinsics in the genesis block are present only on testnets to perform initial token assignments.
 Manifested by
 
 1.  `SystemTransaction::DistributeReserve` to unlock the Night tokens on Midnight
@@ -117,10 +144,13 @@ important for the permissionned validators, as they need to be ready to start pr
 the chain is launched.
 
 Much of these is based on Cardano data, hence 2 related processes are needed: for creation of
-chainspec and for verification of whole genesis configuration and genesis block.
+chainspec and for verification of whole genesis configuration and genesis block. A critical design
+property is that the genesis creation is fully deterministic - given the same Cardano reference
+block and other inputs - any party must be able to independently produce an identical genesis block
+and verify it.
 
-Additionally, it is planned to submit a Cardano transaction signed unanimously by governance
-authorities, which holds the Midnight's genesis block hash.
+Additionally, governance authorities may choose to publish a Cardano transaction containing
+Midnight's genesis block hash, signed unanimously, as an additional trust anchor.
 
 #### Chainspec&genesis creation
 
@@ -134,24 +164,32 @@ must also verify that the contract references provided are already deployed.
 
 Inputs:
 
-1.  connection to a Cardano indexer like db-sync
-2.  seed for RNG
-3.  network ID / chain Id
-4.  Ledger initial parameters
-5.  Cardano reference block hash
-6.  Cardano references (contract addresses, minting policy IDs, etc.):
-    1. Night asset details: policy id and label
-    2. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
-    3. ICS contract address (for treasury, and in future - protocol bridge), or, as a workaround for
-       testing/usage in not fully provisioned environment — just the amount of Night to be assigned
-       to the treasury
-    4. Reserve contract address (for reserve), or, as a workaround for testing/usage in not fully
-       provisioned environment — just the amount of Night to be assigned to the reserve
-    5. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance contract
-       address, genesis UTxO, Cardano parameters)
-    6. Dust generation contract addresses (mapping validator address, redemption validator address)
-7.  List of initial assignment extrinsics (for mainnet MUST be empty!)
-8.  Boot nodes list
+1. connection to a Cardano indexer like db-sync
+2. seed for RNG
+3. network ID / chain Id
+4. timestamp - it is not strictly needed for the creation process itself (since a wall-clock time
+   should be used for such purpose); it must be an available input for the verification and
+   reproducibility purposes though; At the very least it has to be at least 24h after the reference
+   Cardano block timestamp
+5. Ledger initial parameters
+6. Cardano reference block hash
+7. Cardano references (contract addresses, minting policy IDs, etc.):
+   1. Night asset details: policy id and label
+   2. Governance (contract addresses and policy ids for the Counsil and Technical Comittee)
+   3. ICS contract address (for treasury, and in future - protocol bridge)
+   4. Reserve contract address (for reserve)
+   5. Ariadne (Permissioned/permissionless comittee contract addresses, Ariadne governance contract
+      address, genesis UTxO, Cardano parameters)
+   6. Dust generation contract addresses (mapping validator address, redemption validator address)
+8. List of initial assignment extrinsics (for mainnet MUST be empty!)
+9. Boot nodes list
+
+> [!NOTE] During some testing period (and some testnets), it may be the case that Reserve and ICS
+> contracts are not deployed or do not hold the expected amount of Night. In such a situation it is
+> allowed to provide as an input amounts of Night to assign to treasury and reserve pools on a basis
+> of temporary workaround. These options hinder the ability of independent verification though, and
+> as such - must not be used for generation of mainnet genesis. In testing, they should not be used
+> as soon as the tokens are properly distributed between relevant Cardano contracts.
 
 #### Genesis verification
 
@@ -174,18 +212,17 @@ performs following steps to perform verification:
 4. (mainnet only) Verify that all of 24B Night is distributed between locked pool, reserve and
    treasury
 5. Verify that the Dust generations match the ones specified in `cnight-genesis.json` file
-6. Verify if the extrinsics being part of the genesis block contain matching:
-7. Verify that sudo and glutton pallets are not present in the runtime (this check can be skipped in
+6. Verify that sudo and glutton pallets are not present in the runtime (this check can be skipped in
    testing environments)
-8. Verify that chainspec hashes of genesis configuration files (as listed in
+7. Verify that chainspec hashes of genesis configuration files (as listed in
    [Chainspec](#chainspec))
-9. Verify that the upgradeable Cardano contracts (ICS, Federated authorities for governance and
+8. Verify that the upgradeable Cardano contracts (ICS, Federated authorities for governance and
    permissioned validators) are all configured with the right authorization script, it must be the
    same value for all the contracts.
-10. (mainnet-only, only as a potential future extension) Verify that there exists a Cardano
-    transaction with the genesis block hash in its contents (metadata?), which is signed unanimously
-    by the governance authorities. Due to the nature of the process, it is impossible for the
-    transaction to be published earlier or in the same block that serves as the reference.
+9. (mainnet-only, only as a potential future extension) Verify that there exists a Cardano
+   transaction with the genesis block hash in its contents (metadata?), which is signed unanimously
+   by the governance authorities. Due to the nature of the process, it is impossible for the
+   transaction to be published earlier or in the same block that serves as the reference.
 
 ## Alternative options considered
 
