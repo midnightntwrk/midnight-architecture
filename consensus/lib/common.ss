@@ -41,7 +41,7 @@
   (define (remove-duplicates ls)
     (cond
       [(null? ls) '()]
-      [(member (car ls) (cdr ls)) (cdr ls)]
+      [(member (car ls) (cdr ls)) (remove-duplicates (cdr ls))]
       [else (cons (car ls) (remove-duplicates (cdr ls)))]))
   (define bot '⊥)
   (define (bot? x) (eq? x bot))
