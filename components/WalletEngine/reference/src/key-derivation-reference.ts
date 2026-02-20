@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
 import { schnorr } from "@noble/curves/secp256k1";
 import { BLSScalar, Field, JubJubScalar, toScalar } from "./field.js";
-import * as ledger from "@midnight-ntwrk/ledger-v6";
+import * as ledger from "@midnight-ntwrk/ledger-v7";
 
 function sha256(a: Buffer, b: Buffer): Buffer {
   return crypto.createHash("sha-256").update(a).update(b).digest();
@@ -76,7 +76,7 @@ export function coinKeys(seed: Buffer): {
   const secretKey = sha256(Buffer.from("midnight:csk", "utf-8"), seed);
   return {
     secretKey,
-    publicKey: sha256(secretKey, Buffer.from("mdn:pk", "utf-8")),
+    publicKey: sha256(Buffer.from("midnight:zswap-pk[v1]", "utf-8"), secretKey),
   };
 }
 

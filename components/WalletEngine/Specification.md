@@ -249,8 +249,8 @@ function encryptionSecretKey(seed: Buffer): BigInt {
 ```
 
 Although it is a secret key, so it should be treated with a special care, there is one 
-situation, where it can be shared - as a key letting a trusted backend service index 
-related transactions - in such context it acts as a viewing key.
+situation, where it can be shared — as a key letting a trusted backend service index 
+related transactions — in such context it acts as a viewing key.
 
 Encryption public key is derived using Elliptic Curve Diffie-Hellman scheme (so it is a point on the JubJub curve), that is $esk \cdot G$, where $G$ is JubJub's generator point and $esk$ the encryption secret key.
 
@@ -260,12 +260,12 @@ Coin secret key is 32 random bytes, generated as an SHA-256 hash of seed with do
 separator `midnight:csk`. Through coin commitment calculation in a zero-knowledge 
 proof it is a credential to rights to spend particular coin.
 
-Coin public key is 32 bytes calculated as SHA-256 hash of coin secret key suffixed with domain separator `mdn:pk`, that is (in a TS pseudocode):
+Coin public key is 32 bytes calculated as SHA-256 hash of coin secret key prefixed with domain separator `midnight:zswap-pk[v1]`, that is (in a TS pseudocode):
 
 ```ts
 function coinPublicKey (coinSecretKey: Buffer): Buffer {
-  const DOMAIN_SEPARATOR = Buffer.from("mdn:pk");
-  return sha256(coinSecretKey.concat(DOMAIN_SEPARATOR));
+  const DOMAIN_SEPARATOR = Buffer.from("midnight:zswap-pk[v1]");
+  return sha256(DOMAIN_SEPARATOR.concat(coinSecretKey.concat));
 }
 ```
 

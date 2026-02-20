@@ -15,7 +15,7 @@ import {
   unshieldedKeyPairFromUniformBytes,
   dustKeys,
 } from "./key-derivation-reference.js";
-import * as ledger from "@midnight-ntwrk/ledger-v6";
+import * as ledger from "@midnight-ntwrk/ledger-v7";
 import * as crypto from "node:crypto";
 
 export const networkIds = [null, "my-private-net", "devnet", "testnet", "my-private-net-5"]; //null stands for mainnet

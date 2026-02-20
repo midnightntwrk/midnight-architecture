@@ -2,7 +2,7 @@
  * A small CLI utility to generate test vectors for wallet keys given a set of predefined seeds
  */
 
-import * as ledger from "@midnight-ntwrk/ledger-v6";
+import * as ledger from "@midnight-ntwrk/ledger-v7";
 import { Option, program } from "commander";
 import * as crypto from "node:crypto";
 import * as fs from "node:fs";
