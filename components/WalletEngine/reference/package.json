@@ -4,10 +4,10 @@
   "main": "index.js",
   "scripts": {
     "gen": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts gen --dir ../test-vectors",
-    "test": "tsc --noEmit && vitest run --coverage.enabled=true --coverage.exclude=src/cli.ts",
+    "test": "tsc --noEmit && vitest run --coverage.enabled=true --coverage.exclude=src/cli.ts --reporter verbose",
     "find-seeds-esk": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds --key shield-esk",
     "find-seeds-dust": "tsc --noEmit && node --no-warnings --loader ts-node/esm ./src/cli.ts find-seeds --key dust-pk --number 3",
-    "format": "prettier --write --config ../../.prettierrc.json ."
+    "format": "prettier --write --config ../../../.prettierrc.json ."
   },
   "type": "module",
   "author": "",
@@ -21,7 +21,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@midnight-ntwrk/ledger-v6": "^6.1.0-alpha.4",
+    "@midnight-ntwrk/ledger-v7": "^7.0.2",
     "@noble/curves": "^1.8.1",
     "@scure/base": "^1.1.9",
     "@subsquid/scale-codec": "^4.0.0",

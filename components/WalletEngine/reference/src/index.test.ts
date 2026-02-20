@@ -10,7 +10,7 @@ import {
   ShieldedEncryptionSecretKey,
   UnshieldedAddress,
 } from "./address-format-reference.js";
-import * as ledger from "@midnight-ntwrk/ledger-v6";
+import * as ledger from "@midnight-ntwrk/ledger-v7";
 import {
   coinKeys,
   dustKeys,
@@ -199,6 +199,7 @@ test("Shielded address parity", () =>
 
 test("Shielded coin key parity", () =>
   testParity({ implSpec: scpkSpec, implLedger: scpkZswap })(seeds));
+
 test("Shielded encryption secret key parity", () =>
   testParity({
     implSpec: (seed) => {
