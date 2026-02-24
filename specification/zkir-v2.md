@@ -1,0 +1,596 @@
+ZKIR Version 2
+==============
+
+# Overview
+
+ZKIR (**Z**ero **K**nowledge **I**ntermediate **R**epresentation) is used as the interface between smart contracts and the Midnight proof system.
+The Compact compiler generates ZKIR files for a contract as one of the compiler outputs.
+These files are used as input to a separate binary (`zkir`) to generate prover and verifier keys.
+The verifier keys are stored on-chain when a contract is deployed.
+The prover keys are used to construct zkSNARKs ("proofs") that are included as part of a transaction.
+Before a transaction is made to the network, ZKIR files are sent to the proof server along with the transaction's private inputs, in order to construct zkSNARKs to be verified on-chain.
+
+There are two different encodings of ZKIR.
+There is a [JSON](https://www.json.org/json-en.html) encoding which is produced by the Compact compiler and used as input to the `zkir` binary to generate prover and verifier keys.
+There is an equivalent binary encoding which is produced as an output by the `zkir` binary and used as input to the proof server to generate zkSNARKs.
+There is a separate pair of ZKIR files for each exported circuit in a contract.
+
+Both encodings of ZKIR are considered an [application binary interface (ABI)](https://en.wikipedia.org/wiki/Application_binary_interface).
+They are versioned together using [semantic versioning](https://semver.org/), the current major version is version 2.
+(Version 1 was not publicly released.)
+
+# The Memory
+
+A ZKIR circuit consists of a linear sequence of *instructions* which describe a program for constructing a *memory*.
+The memory is a growable array of *locations* indexed by 32-bit unsigned integers.
+The memory has a *length*, the initial length is 0 (the memory is initially empty).
+The memory is extended by incrementing the length by one and by storing into the index equal to the length before incrementing.
+Each instruction has a variable number of *inputs* and *outputs*.
+Inputs are explicitly given in an instruction's encoding, and they can be of various kinds as described below.
+Outputs are implicitly determined by an instruction's position in the instruction sequence.
+
+An instruction causes the next available locations in the memory to be filled with the instruction's outputs in order.
+One kind of input is a memory index, which represents a use of the output of some previous instruction in the sequence.
+
+The values that can be in a memory location are described below.
+
+# File Header
+
+[TODO]
+
+# Instructions
+
+An instruction in the JSON format is given by a JSON object with a member named `"op"` whose value is an operation name string.
+In the binary format, instructions have a variable length encoding that starts with a byte that determines the operation.
+An instruction has a fixed number of inputs and outputs, determined by the operation.
+
+## Instruction Inputs
+
+An instruction explicitly names a number of inputs.
+Inputs can have various kinds.
+The number and kind of an instruction's inputs depends on the operation.
+
+- *Index* is an unsigned 32-bit value that is an index into the memory.
+  This index must exist in the memory, i.e., it must have been an output of a previous instruction in the sequence.
+- *Array* (e.g., in `hash_to_curve`)
+- *Maybe* (e.g., in `pi_skip`)
+- *u32*
+- *Fr* (e.g., in `load_imm`)
+
+## Instruction Outputs
+
+An instruction has a number of outputs, possibly zero.
+The number of outputs depends on the operation.
+
+## Example
+
+The `add` instruction has a pair of inputs `a` and `b` which are both memory indexes.
+
+The JSON encoding is a JSON object with three named members:
+
+- `"op"` is the operation, which is always the string `"add"`
+- `"a"` is the first (left) input, which is a memory index represented by a JSON number
+- `"b"` is the second (right) input, which is also a memory index
+
+This is denoted in the reference below as:
+
+**JSON:** `{ "op":"add", "a":Index, "b":Index }`
+
+The Binary encoding of the `add` instruction consists of the hexadecimal byte value 0x11.
+This is followed by the binary encoding of the inputs `a` and `b`, in that order, as (fixed length little endian?) unsigned 32-bit values.
+
+This is denoted in the reference below as:
+
+**Binary:** 0x11 a:u32 b:u32
+
+# Two-phase Evaluation
+
+ZKIR circuits are evaluated in two *phases*.
+The first phase is the *rehearsal* phase, which evaluates the circuit given a (partial) proof *preimage* to construct a complete memory.
+During the rehearsal phase, the proof preimage is checked for well-formedness.
+The second phase is the *circuit* phase, which is given the memory produced by the rehearsal phase and uses the `midnight-circuits` library to construct a ZK proof.
+
+## The Rehearsal Phase
+
+The rehearsal phase is given a proof preimage, which was produced as a result of evaluating the circuit off chain.
+In the Midnight network with the Compact programming language, this off-chain execution happens by executing JavaScript code generated by the Compact compiler to build a proof preimage.
+
+The proof preimage consists of:
+
+- **inputs**: the inputs to the circuit.
+  In the Compact programming language, these are the circuit's arguments that it was invoked with.
+- **private transcript**: the private transcript, or private inputs, are the witness return values for witnesses that were called while evaluating the circuit off chain.
+- **public transcript inputs**: the public transcript inputs, or public inputs, are public inputs to the circuit.
+  In the Midnight network, this is in practice the Impact VM instructions that were executed to perform ledger state accesses and updates.
+- **public transcript outputs**: the public transcript outputs, or public outputs, are the results of ledger state accesses that were observed during off-chain execution.
+
+Programs in Compact can have conditional branches.
+During off-chain execution, not all branches will be taken, depending on the values of branch conditions.
+Therefore, the private inputs and public outputs will only be partial; values will be missing from them for branches that were not taken.
+However, the ZK proof needs to prove that values exist for these branches as well.
+So a major reason for the rehearsal phase of ZKIR evaluation is to construct a full memory that contains values for all the private inputs and public outputs that exist in the circuit.
+
+### The Rehearsal Memory
+
+Values in the rehearsal phase's memory are values in the underlying prime field.
+Field values are non-negative.
+There is a maximum field value, and arithmetic on field values is modulo the maximum value plus one.
+
+### Circuit Outputs
+
+The circuit has a number of outputs.
+These are the results (return values) of the circuit, if any.
+Note that these are different from public outputs (see below).
+The rehearsal phase builds up a vector of the circuit's outputs.
+
+### Private Inputs
+
+Private inputs are fetched from the proof preimage and written into the rehearsal memory with the `private_input` instruction.
+It is possibly conditionally executed.
+It has a single optional input *guard* index.
+If there is no guard, then the instruction is unconditionally executed.
+It produces a single output.
+
+During the rehearsal phase, an index is maintained into the private transcript.
+In the case where there is no guard, or where the value in the memory at the guard index is `1`, then the output of the `private_input` instruction is the private input at the current private transcript index, and the private transcript index is incremented.
+In the case where the value in the memory at the guard index is `0`, then the output of the `private_input` instruction is `0`, and the private transcript index is not incremented.
+
+### Public Outputs
+
+Public outputs are fetched from the proof preimage and written into the rehearsal memory with the `public_input` [sic] instruction.
+It is possibly conditionally executed.
+It has a single optional input guard index and it produces a single output.
+If there is no guard, then the instruction is unconditionally executed.
+
+During the rehearsal phase, an index is maintained into the public transcript outputs.
+In the case where there is no guard or where the value in the memory at the guard index is `1`, then the output of the `public_input` instruction is the public output at the current public transcript output index, and this index is incremented.
+In the case where the value in the memory at the guard index is `0`, then the output of the `public_input` instruction is `0` and the public transcript output index is not incremented.
+
+### Public Inputs
+
+Public inputs are implemented by a pair of ZKIR instructions, `declare_pub_input` and `pi_skip`.
+During the rehearsal phase, a complete vector of public inputs is built.
+This includes the public inputs for branches that were taken, whose values are in the proof preimage's public inputs.
+It also includes public inputs for branches that were not taken.
+Additionally, a vector of public input *skips* is built that is a vector of optional counts.
+Each element of the public input skip vector represents a corresponding `pi_skip` instruction in the ZKIR circuit.
+A count in the public input skips indicates a sequence of public inputs that were skipped during off-chain execution.
+No count (`None`) indicates a sequence of public inputs that were not skipped.
+
+Each `declare_pub_input` instruction is covered by exactly one `pi_skip` instruction that follows it somewhere in the ZKIR instruction sequence.
+A `pi_skip` instruction can cover multiple `declare_pub_input` instructions.
+
+The `declare_pub_input` instruction has a single input index and no output.
+It specifies that the value in the memory at the input index is the next public input.
+`declare_pub_input` has the effect of appending the value in the memory at the input index to the end of the public input vector and increasing the vector's length by one.
+There is a index into the partial public inputs in the proof preimage, which is unconditionally incremented by `declare_pub_input`, optimistically assuming the public input was produced by the circuit's off-chain execution.
+
+The `pi_skip` instruction is possibly conditionally executed.
+It has an optional input guard index, and an input literal *count* telling how many public inputs to skip.
+In the case where there is no guard or where the value in the memory at the guard index is `1`, then the public inputs were *not* skipped.
+Then the `pi_skip` instruction causes the rehearsal phase to verify that the previous consecutive *count* values in the proof preimage's public inputs match exactly the ones that were appended to the complete public inputs.
+A `None` optional skip is appended to the vector of public input skips (these public inputs were not skipped).
+In the case where the value in the memory at the guard index is `0`, then the public inputs were skipped during off-chain execution of the circuit.
+Then the `pi_skip` instruction simply decrements the index into the proof preimage's public inputs by the count, "undoing" the optimistic assumption the the public input was produced by the circuit's off-chain execution.
+A skip with the given count is appended to the vector of public input skips (these public inputs were skipped).
+
+## The Circuit Phase
+
+The circuit phase is given the complete memory produced by the rehearsal phase and the complete public inputs.
+It uses the `midnight-circuits` library to construct a zkSNARK.
+
+We embrace the "circuit" metaphor to describe the semantics of the circuit phase evaluation.
+Operations such as arithmetic are called *gates* with inputs and outputs.
+The inputs and outputs of gates are called *wires*.
+A special kind of gate is a *constraint*, which requires the input(s) to satisfy some property without necessarily producing an output.
+
+### The Circuit Memory
+
+Values in the circuit phase's memory are wires which are the output of some gate.
+
+**Relational Constraints**
+
+These establish a relation between their operands.
+
+`ADD`, `IS_ZERO`, `SELECT`
+
+**Equality-like Constraints**
+
+These cause the system to be unsatisfiable if they are not satisfied.
+
+`CONSTRAIN_BITS`, `EQUALS`, `NON_ZERO`
+
+# Instruction Reference
+
+Notation [TODO]
+
+The rehearsal semantics is defined by a single step transition for a virtual machine with the following components:
+
+- A ZKIR circuit, which is a sequence of ZKIR instructions
+- `M`, an extensible **m**emory vector mapping natural number indexes to field values
+- `O`, an extensible **o**utput vector containing a sequence of circuit outputs
+- `PI`, an extensible **p**ublic **i**nput vector containing a sequence of field values
+- `ro`, an index into `RO`, the proof preimage's p**r**ivate **o**utputs
+- `uo`, an index into `UO`, the proof preimage's p**u**blic **o**utputs
+- `ui`, an index into `UI`, the proof preimage's p**u**blic **i**nputs
+
+Try to use polynomial equalities and interval membership constraints ONLY.
+
+*w*, *w0*, *w1*, etc. range over wires.
+When a wire that is not in the memory is is mentioned in a constraint, then that wire is chosen fresh.
+
+## add(a, b)
+
+Adds a pair of field values in the prime field.
+There is one output.
+
+**JSON:** `{ "op":"add", "a":Index, "b":Index }`
+
+**Rehearsal semantics:**
+
+```
+<add(a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ (M[a] + M[b]), O, ro, uo, ui>
+```
+
+## assert(cond)
+Asserts that a condition has the canonical true value `1`.
+The result is undefined if the condition's value is not `0` or `1`.
+There are no outputs.
+
+**JSON:** `{ "op":"assert", "cond":Index }`
+
+**Rehearsal semantics:**
+
+```
+<assert(cond) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[cond] = 1
+                                           ==> fail, if M[cond] = 0
+```
+
+## cond_select(bit, a, b)
+
+Conditionally select between a pair of input values based on the value of a condition bit.
+The result is undefined if the bit's value is not `0` or `1`.
+There is one output, identical to either *a* or *b*.
+
+**JSON:** `{ "op":"cond_select", "bit":Index, "a":Index, "b":Index }`
+
+**Rehearsal semantics:**
+
+```
+<cond_select(bit, a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ M[a], O, ro, uo, ui>, if M[bit] = 1
+                                                     ==> <instrs, M ++ M[b], O, ro, uo, ui>, if M[bit] = 0
+```
+
+## constrain_bits(var, bits)
+
+Constrains a value's binary representation to fit into a set number of bits.
+There are no outputs.
+
+**JSON:** `{ "op":"constrain_bits", "var":Index, "bits:"u32 }`
+
+**Rehearsal semantics:**
+
+```
+<constrain_bits(var, bits) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[var] < 2^bits
+                                                        ==> fail, othersise
+```
+
+## constrain_eq(a, b)
+
+Constrains a pair of values to be equal.
+There are no outputs.
+
+**JSON:** `{ "op":"constrain_eq", "a":Index, "b":Index }`
+
+**Rehearsal semantics:**
+
+```
+<constrain_eq(a,b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[a] = M[b]
+                                                ==> fail, otherwise
+```
+
+The field values at indexes *a* and *b* are read from the memory.
+They are compared for equality and the operation fails if they are not equal.
+
+## constrain\_to\_boolean(var)
+
+Constrains a value to be one of the canonical boolean values `0` (false) or `1` (true).
+There are no outputs.
+
+**JSON:** `{ "op":"constrain_to_boolean", "var":Index }`
+
+**Rehearsal semantics:**
+
+```
+<constrain_to_boolean(var) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O, ro, uo, ui>, if M[var] <= 1
+                                                        ==> fail, otherwise
+```
+
+## copy(var)
+
+Duplicates a value in the memory.
+This instruction is not necessary but it can be useful in some cases, and it can simplify the generation of ZKIR.
+There is one output, identical to the input.
+
+**JSON:** `{ "op":"copy", "var":Index }`
+
+**Rehearsal semantics:**
+
+```
+<copy(var) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ M[var], O, ro, uo, ui>
+```
+
+## declare\_pub\_input(var)
+
+Declares a value as the next public input.
+Optimistically assumes that the declared public input is in a branch that was taken during off-chain execution.
+There are no outputs.
+
+**JSON:** `{ "op":"declare_pub_input", "var":Index }`
+
+**Rehearsal semantics:**
+
+```
+<declare_pub_input(var) :: instrs, M, O, PI, ro, uo, ui> ==> <instrs, M, O, PI ++ M[var], ro, uo, ui + 1>
+```
+
+## div\_mod\_power\_of\_two(var, bits)
+
+Splits a field value's binary representation at a given bit position into high (quotient) and low (remainder) parts.
+There are two outputs, the quotient and remainder when dividing a field value by a power of two.
+
+**JSON:** `{ "op":"div_mod_power_of_two", "var":Index, "bits":u32 }`
+
+**Rehearsal semantics:**
+
+```
+<div_mod_power_of_two(var, bits) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ M[var] div 2^bits ++ M[var] mod 2^bits, O, ro, uo, ui>
+```
+
+## ec\_add(a\_x, a\_y, b\_x, b\_y)
+
+Adds two elliptic curve points.
+The result is undefined if either pair does not represent a valid curve point.
+There are two ouputs, the x and y coordinates of the result curve point.
+
+**JSON:** `{ "op":"ec_add", "a_x":Index, "a_y":Index, "b_x":Index, "b_y":Index }`
+
+**Rehearsal semantics:**
+
+```
+<ec_add(a_x, a_y, b_x, b_y) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ p.x ++ p.y, O, ro, uo, ui>, where p = (M[a_x], M[a_y]) ⊕ (M[b_x], M[b_y])
+```
+
+## ec\_mul(a\_x, a\_y, scalar)
+
+Multiples an elliptic curve point by a scalar.
+The result is undefined if the pair of coordinated does not represent a valid curve point.
+There are two ouputs, the x and y coordinates of the result curve point.
+
+**JSON:** `{ "op":"ec_mul", "a_x":Index, "a_y":Index, "scalar":Index }`
+
+**Rehearsal semantics:**
+
+```
+<ec_mul(a_x, a_y, scalar) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ p.x ++ p.y, O, ro, uo, ui>, where p = (M[a_x], M[a_y]) ⊗ M[scalar]
+```
+
+## ec\_mul\_generator(scalar)
+
+Multiplies the group generator by a scalar.
+There are two ouputs, the x and y coordinates of the result curve point.
+
+**JSON:** `{ "op":"ec_mul_generator", "scalar": Index }`
+
+**Rehearsal semantics:**
+
+```
+<ec_mul_generator(scalar) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ p.x ++ p.y, O, ro, uo, ui>, where p = G ⊗ M[scalar]
+```
+
+## hash\_to\_curve(inputs)
+
+Hashes a sequence of field elements to an embedded curve point.
+There are two ouputs, the x and y coordinates of the result curve point.
+
+**JSON:** `{ "op":"hash_to_curve", "inputs":Index[] }`
+
+**Rehearsal semantics:**
+
+```
+<hash_to_curve(input_1, ..., input_n) ==> <instrs, M ++ HC(M[input_1], ..., M[input_n]), O, ro, uo, ui>
+```
+
+## less_than(a, b, bits)
+
+Checks if a first field value is less than a second one, interpreting both of them as sized unsigned integers of a given bit size.
+The result is undefined if either of the inputs exceeds the given size.
+There is one output, a canonical boolean value.
+
+**JSON:** `{ "op":"less_than", "a":Index, "b":Index, "bits": u32 }`
+
+**Rehearsal semantics:**
+
+```
+<less_than(a, b, bits) :: instrs, M, O, ro, uo, ui> ==> fail, if M[a] >= 2^bits or M[b] >= 2^bits
+                                                    ==> <instrs, M ++ 1, O, ro, uo, ui>, if M[a] < M[b]
+                                                    ==> <instrs, M ++ 0, O, ro, uo, ui>, otherwise
+```
+
+## load_imm(imm)
+
+Extends the memory with an immediate field value.
+There is one output.
+
+**JSON:** `{ "op":"load_imm", "imm":Field }`
+
+**Rehearsal semantics:**
+
+```
+<load_imm(imm) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ imm, O, ro, uo, ui>
+```
+
+## mul(a, b)
+
+Multiples a pair of field values in the prime field.
+There is one output.
+
+**JSON:** `{ "op":"mul", "a":Index, "b": Index }`
+
+**Rehearsal semantics:**
+
+```
+<mul(a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ (M[a] * M[b]), O, ro, uo, ui>
+```
+
+## neg(a)
+
+Negates a field value in the prime field.
+There is one ouput.
+
+**JSON:** `{ "op":"neg", "a": Index }`
+
+**Rehearsal semantics:**
+
+```
+<neg(a) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ -M[a], O, ro, uo, ui>
+```
+
+## not(a)
+
+Negates a canonical boolean value.
+The result is undefined if the input value is not `0` or `1`.
+There is one output, a canonical boolean value.
+
+**JSON:** `{ "op":"not", "a": Index }`
+
+**Rehearsal semantics:**
+
+```
+<not(a) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ 0, O, ro, uo, ui>, if M[a] = 1
+                                     ==> <instrs, M ++ 1, O, ro, uo, ui>, if M[a] = 0
+```
+
+## output(var)
+
+A value is recorded as an output from the circuit itself.
+There are no instruction outputs.
+
+**JSON:** `{ "op":"output", "var": Index }`
+
+**Rehearsal semantics:**
+
+```
+<output(var) :: instrs, M, O, ro, uo, ui> ==> <instrs, M, O ++ M[var]>
+```
+
+
+## persistent_hash(alignment, inputs)
+
+Call a long-term hash function on a sequence of items with a given alignment.
+Compared to `transient_hash`, this hash function will not change without notice and is likely less efficient.
+Potentially multiple outputs.
+The output represents a Compact byte array of length 32, which might be encoded in multiple fields depending on the maximum field value.
+Currently the encoding requires two field values, so this instruction has two outputs.
+
+**JSON:** `{ "op":"persistent_hash", "alignment": Alignment, "inputs": Index[] }`
+
+**Rehearsal semantics:**
+
+```
+<persistent_hash(alignment, input_1, ..., input_n) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ output_1 ++ ... ++ output_n, O, ro, uo, ui>, where (output_1, ..., output_n) = PH(alignment, M[input_1], ..., M[intput_n])
+```
+
+## pi_skip(guard, count)
+
+This is an instruction that tells the ZKIR evaluator whether a public input corresponds to one that was produced by the off-chain execution of the circuit or not.
+If there is a guard, the result is undefined if it is not one of the canonical boolean values.
+Every `declare_pub_input` instruction should have a unique `pi_skip` that covers it occurring later in the instruction sequence.
+There are no outputs.
+
+**JSON:** `{ "op":"pi_skip", "guard":Maybe<Index>, "count":u32 }`
+
+**Rehearsal semantics:**
+
+```
+<pi_skip(none, count) :: instrs, M, O, PI, ro, uo, ui> ==> <instrs, M, O, PI, ro, uo, ui>, if PI[PI.length - i] = UI[ui - i] for all i in 1..count
+
+<pi_skip(guard, count) :: instrs, M, O, PI, ro, uo, ui> ==> <instrs, M, O, PI, ro, uo, ui>, if M[guard] = 1 and (PI[PI.length - i] = UI[ui - i] for all i in 1..count)
+                                                        ==> <instrs, M, O, PI, ro, uo, ui - count>, if M[guard] = 0
+```
+
+## private_input(guard)
+
+Optionally retrieves a private input from the private transcript outputs.
+If there is a guard, the result is undefined if it is not one of the canonical boolean values.
+There is one output, the next private transcript output or `0` if the guard is `0`.
+
+**JSON:** `{ "op":"private_input", "guard": Maybe<Index> }`
+
+**Rehearsal semantics:**
+
+```
+<private_input(null) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ R[r], O, ro + 1, uo, ui>
+
+<private_input(guard) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ R[r], O, ro + 1, uo, ui>, if M[guard] = 1
+                                                   ==> <instrs, M ++ 0, O, ro, uo, ui>, if M[guard] = 0
+```
+
+## public_input(guard)
+
+Optionally retrieves a public input from the the public transcript outputs.
+If there is a guard, the result is undefined if it is not one of the canonical boolean values.
+There is one output, the next public transcript output or `0` if the guard is `0`.
+
+**JSON:** `{ "op":"public_input", "guard": Maybe<Index> }`
+
+**Rehearsal semantics:**
+
+```
+<public_input(null) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ U[u], O, ro, uo + 1, ui>
+
+<public_input(guard) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ U[u], O, ro, uo + 1>, ui, if M[guard] = 1
+                                                  ==> <instrs, M ++ 0, O, ro, uo, ui>, if M[guard] = 0
+```
+## reconstitute_field(divisor, modulus, bits)
+
+Inverse of `div_mod_power_of_two`.
+Combines the high and low parts of the binary representation of a field value into a field element, given *bits*, the size in bits of the low part.
+There is one ouput.
+
+**JSON:** `{ "op":"reconstitute_field", "divisor":Index, "modulus":Index, "bits": u32 }`
+
+**Rehearsal semantics:**
+
+```
+<reconstitute_field(divisor, modulus, bits) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ divisor * 2^bits + modulus, O, ro, uo, ui>, if this value does not overflow the maximum field value
+                                                                         ==> fail, otherwise
+```
+
+## test_eq(a, b)
+
+Tests if a pair of field values are equal.
+There is one output, a canonical boolean value `0` (false) or `1` (true).
+
+**JSON:** `{ "op":"test_eq": "a":Index, "b":Index }`
+
+**Rehearsal semantics:**
+
+```
+<test_eq(a, b) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ 1, O, ro, uo, ui>, if M[a] = M[b]
+                                            ==> <instrs, M ++ 0, O, ro, uo, ui>, otherwise
+```
+
+## transient_hash(inputs)
+
+Calls a circuit-friendly hash function on a sequence of inputs.
+Compared to `persistent_hash`, this hash function can change without notice but is likely more efficient.
+One output, the hash of the inputs.
+
+**JSON:** `{ "op":"transient_hash", "inputs": Index[] }`
+
+**Rehearsal semantics:**
+
+```
+<transient_hash(input_1, ..., input_n) :: instrs, M, O, ro, uo, ui> ==> <instrs, M ++ TH(M[input_1], ..., M[input_n]), O, ro, uo, ui>
+```
