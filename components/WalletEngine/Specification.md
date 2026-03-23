@@ -340,13 +340,13 @@ It is a Ledger-untagged-serialized Dust public key (which is an element of a sca
 encoded into bytes as compact bigint in [Scale encoding](https://docs.polkadot.com/polkadot-protocol/parachain-basics/data-encoding/#scale-codec-libraries) (so has a variable length, up to 33 bytes).
 It represents recipient of Dust generation.
 
-Its credential type is `dust-addr`.
+Its credential type is `dust`.
 
 Example human-readable parts:
-- for the mainnet: `mn_dust-addr`
-- for the testnet: `mn_dust-addr_test`
-- for a testing environment: `mn_dust-addr_testing-env`
-- for local development environment: `mn_dust-addr_dev`
+- for the mainnet: `mn_dust`
+- for the testnet: `mn_dust_test`
+- for a testing environment: `mn_dust_testing-env`
+- for local development environment: `mn_dust_dev`
 
 ### Shielded Payment address
 
