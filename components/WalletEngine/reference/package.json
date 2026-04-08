@@ -25,7 +25,7 @@
     "@noble/curves": "^1.8.1",
     "@scure/base": "^1.1.9",
     "@subsquid/scale-codec": "^4.0.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "commander": "^14.0.0"
   }
 }
