@@ -39,9 +39,12 @@ behavior between code built on CI and by different team members or even avoidabl
 builds because of some checks/steps/tools missing in the local environment. Which, in the
 end, is a distraction from things that matter.
 
+This decision also generally impacts how CI images are created and thus the packaging
+of the final product.
+
 ## Decision Drivers
 
-* local environment consistent with the one Cicero uses
+* local environment consistent with the one CI uses
 * local environment easy to set up for engineers on the team, with as little manual steps
   as possible
 * local environment set up ideally does not require platform-specific knowledge and is
@@ -52,61 +55,124 @@ end, is a distraction from things that matter.
 
 * Using Nix devshell
 * Using Nix devshell + shared per-stack guidelines for people not using nix
+* shared per-stack guidelines for people not using nix with an optional Nix devshell
+* Earthly + shared per-stack guidelines for people not using nix with an optional Nix devshell
+* Use Conda
+
+(Note that in all cases we expect our developers to understand Docker as this is the primary packaging technology we use.)
 
 ## Decision Outcome
 
-Chosen option: "Using Nix devshell", because:
-- it allows for definition of both local dev environment and Cicero action 
-  environment in a single place
-- Cicero is built with Nix, while it should be considered as an implementation detail, it
-  is an important fact in this context
-- While nix as a build system has a very steep learning curve, it is relatively easy to
-  use for environment provisioning
-- On the contrary to other provisioning systems Nix behaves consistently across supported
-  platforms
-- On the contrary to other provisioning systems, which can be used locally, Nix does not
-  interfere with system-level installed packages by design
-- There exists a good direnv integration for nix
-- Nix by-design allows to set up all important tools, which are necessary in environment
-- Nix by-design supports incremental builds and extensive (remote) caching, which allows
+Chosen option: "Earthly + shared per-stack guidelines for people not using nix with an optional Nix devshell" because:
+- Earthly is FAST and Consistent on CI and on a local machine.
+- Earthly's underlying tech is Docker which most developers have widespread knowledge of (unlike nix)
+  Docker is probably one of the most widely used technologies in the world.
+- Earthly is also used by the Sidechains team which will lead to potential reuse that we could
+  not achieve as easily if we were using solely Nix.
+- Nix as a build system has a very steep learning curve, and can be difficult to modify.
+- Like Nix Earthly behaves consistently across supported platforms (because docker)
+- Like Nix Earthly does not interfere with system-level installed packages by design.
+- Earthly by-design allows to set up all important tools, which are necessary in environment
+- Earthly by-design supports incremental builds and extensive (remote) caching, which allows
   for quick experimentation and switching between projects without imposing big delays on
-  engineers
-- Nix flakes allow using private repositories, which can help with nix code re-use across
-  stacks and projects
+  engineers. (This was in practice demostrably not true of Nix - changing branches was SLOW.)
+- Using standard images based on debian rather than Nix created images is less surprising for our
+  users. (Security scanning can have difficulties understanding nix images.)
 
 ### Positive Consequences
 
-* single, uniform, easy-to-run, reliable style of environment definition across all
-  projects
-* high consistency with Cicero without any overhead
-* increased familiarity with Nix across engineers on the project, which may improve
-  communication and cooperation with DevX and SREs
-* better understanding of Cicero across engineers being Cicero users
+* Single, uniform, easy-to-run, reliable style of environment definition across all
+  projects. (Any CI target can be run locally easily).
+* Increased familiarity with Docker across engineers on the project.
+* Little work done in github workflows (that was hard to debug).
+* More and faster cache hits (When we were still on Cicero the nix caching helped reduce times,
+  but when we moved to GitHub actions we lost the caching).
+* Reduction in dependency on Github / Github actions - having more things in earthly and being able
+  to run them from a local machine reduces our dependency on the centralised github (should we need
+  to move away / get de-platformed).
+* While being a rather unknown tool across the developers, Earthly proved to be easily learned thanks
+  to its similarity to Docker. New developers are able to read and understand its syntax straight away.
+* Earthly documentation is pretty comprehensive and in many cases just defers to Docker documentation.
+* Windows developers not using WSL2 are currently out of luck as nix doesn't support windows. Because
+  earthly is docker based, it works with or without WSL giving windows developers a bit more freedom.
+* Given the reduction on reliance on Nix, ideally there will be no overlap between flake.lock and other
+  lock files (E.g. Cargo.lock). It's not ideal that we currently have to update cargo and nix when
+  pulling in a new version.
+* Lazyness: While nix is a lazy language, the devshell installs everything needed for all the tools.
+  With Earthly most of the tools will just be run in containers and so they would only be downloaded
+  / installed if they were used rather than the everything upfront of a fully loaded devshell.
+* Last but not least: This fits with Midnight's values. I.e. we choose popular technologies that
+  everyone is very familiar with such as Typescript to make dapps. Choosing a technology that
+  under the hood everyone intuitively understands lowers the bar for external pull requests.
 
 ### Negative Consequences
 
-* Across developers, Nix is rather unknown tool (Haskell developers are an exception)
-* Nix documentation is generally lacking (though it is changing)
-* Nix mental model may feel foreign sometimes, which affects how easy it is to pick for a
-  newcomer
+* Time will be spent on battling issues coming either from different versions in use or specific
+  local setup (but this has to be conterballanced by the time saved not waiting for nix.)
+
+* Earthly does NOT set up a local dev environment.
+  For this reason standard per-stack conventions should be used or a simple Nix shell for installing
+  required components for basic compile and run/debug. (use nix less, just for simple stuff)
+
+* Time will be spent on issues where Earthly running on CI or running locally in a container doesn't match
+  the user's setup (if they don't use the nix shell). But at least it will be painfully obvious that it's
+  their computer's setup that's at fault.
+  (If there is a discrepancy between Earthly running on the local machine and the user's setup
+  one can put `RUN false` and invoke with a `-i` flag and you will be dropped into a shell at that point
+  and diagnose what the difference is.)
 
 ## Validation
 
-By end of September 2022 all existing and active Midnight repositories should have their
-environments defined only as Nix devshells that share environment definition with Cicero
-and using other, stack-specific tools should happen only if character of the repository
-justifies the case.
-
-Since the ultimate goal is compatibility with Cicero, unless OS-specifics are involved,
-there should not be Cicero actions or local flows failing because of versions/environment
-mismatch.
+By end of September 2024 all existing and active Midnight repositories should have their
+CI defined in an Earthfile. A Nix devshell should be made available for those that want to use it,
+but where possible it should defer to stack specific conventions for which tool versions to install.
+(I.e. the nix devshells should be as minimal as possible to be fast to enter and more likely to be cached.
+In particular devshells that depend on devshells that depend on devshells should be avoided where possible
+and heavy computation of things like public parameters should be cached in a shared image rather
+than being constantly recomputed. - Earthly makes it very easy to pull files out of images and save
+them locally)
 
 ## Pros and Cons of the Options
+
+### Using Nix devshell
+
+This option was tried for several years. It excelled in replicating the CI environment locally,
+and in installing all the dependencies required for development.
+
+But nix had certain shortfalls:
+- For nix to work well with teams it requires cache infrastructure, which we lost,
+  and we lost people with Nix experience who could set it up and maintain for us (which directly
+  affects performance in many places). Sometimes there can be a wait of 30 mins+ or more for nix
+  to build the environment due to the lack of a distributed caching setup
+  (such as we had when we were using Cicero).
+- When people got used to Nix they still found it hard. "Nix is hard. You just won't believe how vastly,
+  hugely, mind-bogglingly hard it is. I mean, you may think debugging Conda packages is hard, but
+  that's just peanuts to Nix." -- Douglas Adams might have said about nix.
+  E.g. how to switch which version of rustc we're using?
+  This delayed releases when we hit nix issues (sometimes for days, sometimes a lot longer).
+  While using nix is relatively easy (if slow), changing nix isn't easy. This is mostly down to the
+  language's lazy evaluation which means IDEs etc. really can't give you much help.
+  (Compare how much help `nix` gives you to `rustc`!)
+- nix created images while theoretically 'more secure' as they had just what they needed in them,
+  but the security scanning doesn't seem to handle them well.
+
+nix devshell is still helpful for non-windows users a sensible way to install all the dependencies
+you might need to get started, but we can slim down the devshell to be as minimal as possible so that they
+can be entered into quickly. *We're not completely removing nix devshells*, but making them optional
+and not required by the CI toolchain.
+
+### Using Conda
+
+Anaconda is the only crossplatform packaging framework that can work on Windows as well as Mac and Unix.
+Having used it for a year at another establishment @gilescope can confirm it's unsuitable because:
+- It's very very slow.
+- Making conda packages is non-trivial (considerably less fun than making nix packages).
+- Nix is hands down a better packaging framework in every way except it doesn't support Windows.
 
 ### Using Nix devshell + shared per-stack guidelines for people not using nix
 
 That option sounds very tempting, mostly because nix usage across developers can be
-limited and nix has a reputation of a tool that has a very steep learning curve, 
+limited and nix has a reputation of a tool that has a very steep learning curve,
 though in reality it would mean, that:
 - there are slightly different tool versions in use locally and in Cicero
 - more time needed for setting up development environment
