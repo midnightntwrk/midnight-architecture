@@ -393,4 +393,6 @@ Need to figure out sections where Kevin’s questions from the original draft �
 Joe’s open questions:
 
 * **Q**: ZKIR v3 will have typed values. But, value types are *not* actual inputs to the proof, meaning they’re not reflected in the prover / verifier keys for the ZKIR. Then, how can the argument types declared in the ZKIR be trusted? Is there an attack vector in which callee “checks” the parameter types for interface conformance but callee has somehow used adversarial parameter types?  
-  **A**: We can type check ZKIR and refuse to execute if it’s not well typed. When does type-checking occur? On the node at deployment or by the user on invocation? If the former, then we have to think about DDOS protection. Type checking has to be efficient / costed.
+**A**: We can type check ZKIR and refuse to execute if it’s not well typed. When does type-checking occur? On the node at deployment or by the user on invocation? If the former, then we have to think about DDOS protection. Type checking has to be efficient / costed.
+
+* **Q**: When and how do we efficiently check that the retrieved ZKIR and verifier key match?
