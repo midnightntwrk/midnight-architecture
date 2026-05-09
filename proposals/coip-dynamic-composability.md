@@ -195,17 +195,17 @@ Today, the Compact compiler produces two artifacts per contract. A JavaScript fi
 
 This proposal collapses the two artifacts into one. The Compact compiler will emit ZKIR as the sole computational artifact, and a new `execute` method on `IrSource` — distinct from the existing `preprocess` method, which validates proof preimages — will serve as the execution engine. The only JavaScript that survives is a thin binding layer in `zkir-v3-wasm` for converting TypeScript values to and from ZKIR field-element representations. Witness callbacks are not supported for any contract under this proposal (see §4.6).
 
-Replacing the JS executable means the ZKIR interpreter must also take over ledger operations. Today, the JS executable calls into the `onchain-runtime` WASM API to execute ImpactVM bytecode — the stack-based instruction set that reads, writes, and mutates contract state. ZKIR already has an `Impact` instruction, but it currently serves only the proving circuit: it declares conditional public inputs and validates that previously-computed values match what was committed to. It does not execute the ledger operations itself. The `execute` method must evaluate Impact bytecode against the contract's ledger state, building the public transcript as it goes.
+Replacing the JS executable means the ZKIR interpreter must also take over ledger operations. Today, the JS executable calls into the `onchain-runtime` WASM API to execute ImpactVM bytecode — the stack-based instruction set that reads, writes, and mutates contract state. ZKIR already has an `impact` instruction, but it currently serves only the proving circuit: it declares conditional public inputs and validates that previously-computed values match what was committed to. It does not execute the ledger operations itself. The `execute` method must evaluate Impact bytecode against the contract's ledger state, building the public transcript as it goes.
 
 This architectural change also requires a change to what the ledger stores at deployment time. Today, the on-chain `ContractState` stores a verifier key per entry point (via `ContractOperation`), but not the ZKIR itself — the ZKIR lives only on the deployer's device, used locally for proving. This is sufficient when every user who calls a contract already possesses its ZKIR (bundled with the DApp). It is not sufficient for dynamic cross-contract calls, where contract A calls contract B without A's developer ever having seen B's code. This proposal requires that the deployer's ZKIR be stored on-chain as part of the contract's state, alongside the existing verifier keys. When contract A dynamically calls contract B, the interpreter fetches B's ZKIR from the ledger and executes it directly — no out-of-band artifact retrieval, no second compilation step.
 
-#### 4.2 The ContractCall Instruction
+#### 4.2 The `contract_call` Instruction
 
-This proposal introduces a new instruction to ZKIR v3: `ContractCall`. When the Compact compiler encounters a cross-contract call expression `e.c(args)`, it emits a `ContractCall` with four groups of operands: the contract-reference value (the result of evaluating `e`, which resolves to a contract address at runtime), the circuit name `c` (identifying the callee's entry point), the argument values to pass as inputs, and the output identifiers that will receive the callee's return values. `ContractCall` is the sole mechanism by which one contract's ZKIR can invoke another's.
+This proposal introduces a new instruction to ZKIR v3: `contract_call`. When the Compact compiler encounters a cross-contract call expression `e.c(args)`, it emits a `contract_call` with four groups of operands: the contract-reference value (the result of evaluating `e`, which resolves to a contract address at runtime), the circuit name `c` (identifying the callee's entry point), the argument values to pass as inputs, and the output identifiers that will receive the callee's return values. `contract_call` is the sole mechanism by which one contract's ZKIR can invoke another's.
 
 #### 4.3 Circuit Call Evaluation
 
-When the interpreter encounters a `ContractCall` during rehearsal, evaluation proceeds as follows.
+When the interpreter encounters a `contract_call` during rehearsal, evaluation proceeds as follows.
 
 First, the interpreter resolves the contract reference operand to a concrete address and fetches the callee's ZKIR from the blockchain. If the address does not correspond to a deployed contract, execution fails immediately.
 
@@ -213,9 +213,9 @@ Next, the interpreter performs the structural conformance check described in §5
 
 With conformance established, the interpreter gathers the caller's argument values and passes them as the callee's input vector. No encoding conversion occurs at this point: the Compact compiler has already flattened all structured types to field elements at compile time, and the conformance check has verified that both sides agree on the layout.
 
-The interpreter then fetches a snapshot of the callee's ledger state (the callee's circuits may read or write their own ledger) and recursively executes the callee's ZKIR in an isolated context: its own ledger snapshot, its own transcript, and no witness callbacks. If any circuit encounters a `PrivateInput` instruction — that is, if the circuit's implementation requires witness data — execution fails immediately. This restriction confines cross-contract calls to circuits that operate only on ledger state and caller-provided inputs (see §4.6). The callee may itself encounter `ContractCall` instructions, leading to further recursion under the same constraint.
+The interpreter then fetches a snapshot of the callee's ledger state (the callee's circuits may read or write their own ledger) and recursively executes the callee's ZKIR in an isolated context: its own ledger snapshot, its own transcript, and no witness callbacks. If any circuit encounters a `private_input` instruction — that is, if the circuit's implementation requires witness data — execution fails immediately. This restriction confines cross-contract calls to circuits that operate only on ledger state and caller-provided inputs (see §4.6). The callee may itself encounter `contract_call` instructions, leading to further recursion under the same constraint.
 
-When the callee finishes, the interpreter collects its output values (those designated by `Output` instructions in the callee's ZKIR) and writes them into the caller's output identifiers. It then computes a communication commitment that cryptographically binds the call's inputs and outputs:
+When the callee finishes, the interpreter collects its output values (those designated by `output` instructions in the callee's ZKIR) and writes them into the caller's output identifiers. It then computes a communication commitment that cryptographically binds the call's inputs and outputs:
 
 ```
 comm_comm = transient_commit(concat(input, output), rand)
@@ -235,7 +235,7 @@ The commitment binds field-element values, not Compact-level types. Each contrac
 
 A transaction involving cross-contract calls produces one transcript per contract execution. These transcripts are proven independently and assembled into a single transaction.
 
-During rehearsal, the interpreter begins with the top-level circuit. Each `ContractCall` triggers recursive execution of the callee, and each execution accumulates its own public transcript (ledger operations, contract-call claims) along with the communication commitment for each call. No contract produces a private transcript, since witness callbacks are not available under this proposal (see §4.6).
+During rehearsal, the interpreter begins with the top-level circuit. Each `contract_call` triggers recursive execution of the callee, and each execution accumulates its own public transcript (ledger operations, contract-call claims) along with the communication commitment for each call. No contract produces a private transcript, since witness callbacks are not available under this proposal (see §4.6).
 
 After rehearsal completes, the flat list of executions is organized into a call forest by `partition_transcripts`, which matches each caller's contract-call claims to the corresponding callee executions using their commitment values. The output is a tree of `ContractCallPrototype` objects — one per execution — each carrying the contract address, entry point, partitioned transcript segments, input/output values, and commitment randomness.
 
@@ -245,7 +245,7 @@ Finally, assuming all proofs verify and all claims match, the node replays the p
 
 #### 4.6 Witness Limitation
 
-Under this proposal, witness callbacks are not available for any contract involved in a cross-contract call — including the top-level caller. If any circuit in the call tree encounters a `PrivateInput` instruction during execution, the transaction fails immediately. All contracts are restricted to operating on ledger state and caller-provided inputs.
+Under this proposal, witness callbacks are not available for any contract involved in a cross-contract call — including the top-level caller. If any circuit in the call tree encounters a `private_input` instruction during execution, the transaction fails immediately. All contracts are restricted to operating on ledger state and caller-provided inputs.
 
 This is a deliberate simplification. Provisioning witnesses requires the DApp to anticipate and supply callbacks for every contract in the call tree, including contracts that may not be known at DApp build time. Solving this problem is deferred to a subsequent CoIP. The restriction applies uniformly rather than only to callees in order to keep the execution model consistent: every contract in the call tree operates under the same constraints, and no contract produces a private transcript.
 
@@ -350,7 +350,7 @@ At rehearsal time, when a contract address enters the caller’s execution as a 
 There are two scenarios in which the conformance check is performed:
 
 1. When a contract is passed as an argument to an exported circuit (including the constructor).
-2. When a contract call instruction is processed (defensively, since all contract values in ledger state ultimately originate from circuit arguments that have already been checked).
+2. When a `contract_call` instruction is processed (defensively, since all contract values in ledger state ultimately originate from circuit arguments that have already been checked).
 
 ### Acceptance Criteria
 
@@ -387,7 +387,7 @@ Need to figure out sections where Kevin’s questions from the original draft �
 * Connecting proofs to specific contracts  
 * Witnesses disallowed for dynamic calls — how enforced? — **Answered**: Runtime enforcement by the ZKIR interpreter.
 * Contract interfaces don't contain witness signatures — **Answered**: See §1.1 "What a contract interface declaration does not contain."
-* Dynamic calls making dynamic calls (recursion) — **Answered**: See §4.3 — recursive `ContractCall` is supported under the no-witness constraint.
+* Dynamic calls making dynamic calls (recursion) — **Answered**: See §4.3 — recursive `contract_call` is supported under the no-witness constraint.
 * Can contract types appear in circuit params/returns/witness returns? — **Answered**: See §1.1 "Restrictions on contract-typed values" table.
 
 Joe’s open questions:
