@@ -209,7 +209,7 @@ When the interpreter encounters a `contract_call` during rehearsal, evaluation p
 
 First, the interpreter resolves the contract reference operand to a concrete address and fetches the callee's ZKIR from the blockchain. If the address does not correspond to a deployed contract, execution fails immediately.
 
-Next, the interpreter performs the structural conformance check described in §5.5: it extracts the callee's circuit signatures from the fetched ZKIR and verifies that the callee is a structural supertype of the caller's expected contract type. A failed check aborts the execution.
+Next, the interpreter performs the structural conformance check described in §5.5: it extracts the callee's circuit signatures from the fetched ZKIR and verifies that the callee is a structural subtype of the caller's expected contract type. A failed check aborts the execution.
 
 With conformance established, the interpreter gathers the caller's argument values and passes them as the callee's input vector. No encoding conversion occurs at this point: the Compact compiler has already flattened all structured types to field elements at compile time, and the conformance check has verified that both sides agree on the layout.
 
@@ -344,7 +344,7 @@ At rehearsal time, when a contract address enters the caller’s execution as a 
 1. The caller’s ZKIR contains the expected contract type `T` — a set of circuit signatures with their parameter and return types, as compiled from the Compact source.
 2. The interpreter fetches the callee’s ZKIR from the ledger (stored on-chain at deployment time per §4.1).
 3. The interpreter extracts the callee’s actual circuit signatures from the callee’s ZKIR.
-4. The interpreter checks that the callee’s circuit signatures form a structural supertype of `T`, applying the subtyping rules of §1.3.
+4. The interpreter checks that the callee’s circuit signatures form a structural subtype of `T`, applying the subtyping rules of §1.3.
 5. If the check fails, the transaction construction fails and no proof is produced.
 
 There are two scenarios in which the conformance check is performed:
