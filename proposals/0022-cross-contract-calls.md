@@ -2,11 +2,19 @@
 
 **Overview:** This is a draft of a CoIP (Compact Improvement Proposal) for a language feature.
 
+_[KSM: we need to generate ZKIR for all exported circuits, no only the ones that need a proof.  Mention this.]_
+
 ## Abstract
 
-This CoIP proposes to add a feature that allows a Compact circuit to directly call exported circuits from other deployed Compact contracts.
+This CoIP proposes to add *cross-contract calls*, a feature that allows a Compact circuit to directly call exported circuits from other deployed Compact contracts.
+With this feature, deployed contracts are first-class Compact values that can be passed as arguments, returned, stored in data structures like `struct` values and tuple values.
+Given such a contract value, a circuit is able to call its circuits.
 
-## Motivation (Kevin)
+## Motivation
+
+Compact contracts do not currently have a way to interact directly with each other.
+This rules out numerous useful ways that contracts can interact.
+An unsatisfactory workaround is that a DApp can coordinate interactions between contracts....
 
 Dynamic cross-contract calls allow one contract to interact with another contract that the first contract was unaware of when the second was deployed.
 A decentralized exchange (DEX) illustrates why dynamic cross-contract calls are useful.
@@ -26,9 +34,9 @@ When Dave wants to swap token `A` for token `B`, he submits a call transaction f
 
 ## Specification
 
-### 1 Interface Types
+### Contract Interfaces
 
-#### 1.1 Interface Declarations
+#### Interface Declarations
 
 An interface declaration introduces a named *interface type*.
 This is a new kind of Compact type describing the exported circuits of a deployed contract.
@@ -38,7 +46,7 @@ The key syntactic differences are:
 
 - The interface declaration uses the `interface` keyword instead of `contract`.
 - Interface declarations can be generic.
-- Circuit signatures cannot contain the `pure` modifier.
+- Circuit declarations cannot contain the `pure` modifier.
 
 ```
 interface-declaration → exportᵒᵖᵗ interface contract-name gparamsᵒᵖᵗ { circuit-declaration ; ⋯ ; circuit-declaration ;ᵒᵖᵗ } ;ᵒᵖᵗ
@@ -46,9 +54,6 @@ interface-declaration → exportᵒᵖᵗ interface contract-name gparamsᵒᵖ�
 
 circuit-declaration   → circuit id simple-parameter-list : type
 ```
-
-The `contract interface` keyword pair distinguishes interface declarations from potential future `contract` declarations, which may be used to declare full contract definitions including circuit bodies, ledger declarations, and constructors.
-A `contract interface` declaration is strictly an interface — it contains only circuit signatures.
 
 An interface declaration contains one or more circuit declarations describing exported circuits of a deployed contract.
 Circuit declarations define a circuit's signature, but not an implementation.
@@ -91,7 +96,49 @@ module TokenStandard {
 }
 ```
 
+#### Interface Types
+
+An interface declaration defines an interface type, a new kind of program-defined type.
+An interface type represents an unordered collection of named circuit *signatures*.
+Circuit signatures have an ordered sequence of zero or more Compact types that are the *parameter types*, and a Compact type which is the *return type*.
+Note that the parameters in circuit signatures are ordered but they are unnamed.
+
+A Compact value of an interface type represents a deployed contract.
+Values of interface types are first-class values: they can be passed to circuits and witnesses, returned, and stored in structures like `struct` values, tuples, or vectors.
+They also support the operation of calling one of the named circuits, by passing the required number of parameters of the required types.
+The type of such a cross-contract call is the circuit signature's return type.
+The value of such an cross-contract call is a Compact value of that return type.
+
+A non-generic interface declaration introduces a named interface type, where the names of the circuits are the names from the circuit declarations, and the signatures have the parameter types in the same order as the corresponding circuit declaration, with the return type specified by that circuit declaration.
+
+A generic interface type declaration does not itself introduce an interface type.
+An attempt to use it (without specialization) is a static error.
+When specialized, such a declaration introduces 
+
+
+needs to be specialized 
+
+#### Subtyping
+
+There is a subtyping relation on interface types.
+A Compact value of interface type can be used wherever a value of a supertype is expected.
+A supertype has a subset of the subtype's named circuits, where each circuit has a compatible signature.
+Interface subtyping is structural: the subtyping relation is not declared explicitly in the program, but instead it holds whenever the types are in the relation defined below.
+
+To define interface subtyping, we first define *signature subtyping*.  A signature `(T0, ..., Tm) -> T` is a signature subtype of a signature `(S0, ..., Sn) -> S` iff:
+
+- `m` = `n`,
+- for each `i` in 0..`m`, `Si` is a subtype of `Ti`, and
+- `T` is a subtype of `S`.
+
+Then we define that an interface type `I` is a subtype of an interface type `J` iff, for each named signature in `J`:
+
+- there is a signature with the same name in `I`, and
+- that signature in `I` is a signature subtype of the signature in `J`.
+
 #### 1.2 Structural Conformance
+
+_[KSM: I think this is describing a runtime check, but by placing it here it reads like it's describing a static check.  We should move it later in the proposal.]_
 
 When a caller declares that it expects a contract of type `T`, and a concrete callee address arrives at runtime, the system must determine whether the callee conforms to `T`.
 There are two classical approaches to this question: nominal conformance (the callee explicitly declares that it implements `T`) and structural conformance (the callee's circuit signatures match those required by `T`).
@@ -142,27 +189,17 @@ There is no gap between what the type system claims and what the runtime enforce
 Rather than being enforced by the core type system, nominal conformance is relocated to ecosystem conventions - interface standards can be established, e.g., via Midnight Improvement Proposals (MIPs).
 A MIP can define a canonical `FungibleToken` interface with specific circuit signatures, and tooling, auditors, and marketplaces can verify that a contract conforms to the standard.
 
-#### 1.3 Subtyping Rules
+### Cross-Contract Calls
 
-A contract type `C` is a structural subtype of a contract type `T` (written `C <: T`) when `C` provides at least the circuits that `T` requires, with compatible signatures.
-Formally:
+The Compact syntax `expr . id ( expr0 , ⋯ , exprn ,opt )` where `expr` has an interface type is a *cross-contract call*.
 
-`C <: T` if and only if, for every circuit signature `s` in `T`, there exists a circuit signature `s'` in `C` such that:
+All of the following are static errors:
 
-1. `s` and `s'` have the same circuit name.
-2. `s` and `s'` have the same number of parameters.
-3. For each parameter position `i`, the parameter type of `s'` is a supertype of (or equal to) the parameter type of `s`.
-   This is contravariance of parameter types: the callee must accept at least as wide a range of inputs as the caller promises to provide.
-4. The return type of `s'` is a subtype of (or equal to) the return type of `s`.
-   This is covariance of return types: the callee must produce a result that fits within what the caller expects to receive.
+- there is no signature `(T0, ..., Tm) -> T` with name `id` in the interface type,
+- `m` does not equal `n`,
+- for all `i` in 0..`m`, the static type of `expri` is not a subtype of `Ti`.
 
-`C` may have additional circuits beyond those required by `T`.
-This is standard width subtyping and allows a contract to satisfy multiple interfaces simultaneously.
-
-The subtyping rules for non-contract types (the types that appear within circuit signatures) follow Compact's existing type system.
-For example, `Uint<16> <: Uint<32>` because a 16-bit unsigned integer can always be treated as a 32-bit unsigned integer.
-
-### 2\. Cross-Contract Call Syntax (Kevin)
+The type of a cross-contract call is the return type `T` from the corresponding signature.
 
 #### 2.1 Calling Circuits on Contract References
 
