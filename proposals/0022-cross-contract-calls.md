@@ -1,6 +1,10 @@
-## Abstract (Kevin)
+# Proposal 0022: Cross-contract Calls
 
-Brief description of cross-contract calls and interface types.
+**Overview:** This is a draft of a CoIP (Compact Improvement Proposal) for a language feature.
+
+## Abstract
+
+This CoIP proposes to add a feature that allows a Compact circuit to directly call exported circuits from other deployed Compact contracts.
 
 ## Motivation (Kevin)
 
@@ -22,53 +26,51 @@ When Dave wants to swap token `A` for token `B`, he submits a call transaction f
 
 ## Specification
 
-### 1\. Contract Interface Types (Joe - Done)
+### 1 Interface Types
 
-#### 1.1 Interface Syntax
+#### 1.1 Interface Declarations
 
-A contract interface declaration introduces a *contract type*: a named interface describing the circuits that a deployed contract exposes.
-The syntax introduces the `contract interface` keyword pair.
+An interface declaration introduces a named *interface type*.
+This is a new kind of Compact type describing the exported circuits of a deployed contract.
 
-##### Grammar
+In the Compact grammar, the `contract-declaration` program element is replaced with `interface-declaration`.
+The key syntactic differences are:
 
-A contract interface declaration is a program element of the form:
+- The interface declaration uses the `interface` keyword instead of `contract`.
+- Interface declarations can be generic.
+- Circuit signatures cannot contain the `pure` modifier.
 
 ```
-contract-interface-declaration  →  exportᵒᵖᵗ  contract  interface  contract-name  {  circuit-signatureˢᵉᵖ  }
-circuit-signature               →  circuit  function-name  (  typed-parameterˢᵉᵖ  )  :  type
-```
+interface-declaration → exportᵒᵖᵗ interface contract-name gparamsᵒᵖᵗ { circuit-declaration ; ⋯ ; circuit-declaration ;ᵒᵖᵗ } ;ᵒᵖᵗ
+                      | exportᵒᵖᵗ interface contract-name gparamsᵒᵖᵗ { circuit-declaration , ⋯ , circuit-declaration ,ᵒᵖᵗ } ;ᵒᵖᵗ
 
-Where `circuit-signatureˢᵉᵖ` is a sequence of `circuit-signature` separated by either semicolons or commas.
-The trailing separator and the trailing semicolon after the closing brace are optional.
+circuit-declaration   → circuit id simple-parameter-list : type
+```
 
 The `contract interface` keyword pair distinguishes interface declarations from potential future `contract` declarations, which may be used to declare full contract definitions including circuit bodies, ledger declarations, and constructors.
 A `contract interface` declaration is strictly an interface — it contains only circuit signatures.
 
-##### What a contract interface declaration contains
- 
-A contract interface declaration contains one or more *circuit signatures*.
-Each circuit signature specifies:
+An interface declaration contains one or more circuit declarations describing exported circuits of a deployed contract.
+Circuit declarations define a circuit's signature, but not an implementation.
+Therefore, they do not have a body.
+Because exported circuits cannot be generic, neither can circuit declarations.
+The parameters of circuit declarations are named, but the names are merely cosmetic.
+They can be useful to indicate intent and the names can be used in documentation to refer to specific parameters.
 
-- The `circuit` keyword.
-- A function name.
-- A parameter list of typed parameters.
-- A return type.
+_[KSM: We could allow zero or more (rather than one or more) circuit declarations.
+This would allow an interface that was the supertype of all interface types.
+I'm not sure how that would be useful, though.]_
 
-A circuit signature has no body; it declares only the name, parameter types, and return type of a circuit that the contract is expected to expose.
+An interface exported from a module can be imported into a contract or another module.
+_[KSM: What does it mean to export an interface from the top-level of a contract?]_
 
-##### What a contract interface declaration does not contain
+The scope of the generic parameters of an interface declaration are visible in the body of the declaration.
 
-A contract interface declaration is strictly an interface.
-It cannot contain:
-
-- **Ledger declarations.** A contract interface does not define any public state.
-The ledger is an implementation concern of the contract that satisfies the interface.
-- **Witness declarations.** Witnesses are provided by the DApp at transaction construction time and are not part of the on-chain contract interface.
-- **Constructor definitions.** Constructors are an implementation concern.
-- **Circuit bodies.** A contract interface provides only signatures, never implementations.
+In this proposal, interface declarations do not contain other kinds of declarations such as modules, `struct` or `enum` types, type aliases, `ledger` declarations, witnesses, or constructors.
 
 ##### Examples
 
+_[KSM: We could use the signatures of some of the the OZ fungible token circuits to make this more realistic.]_
 A simple contract interface describing a fungible token:
 
 ```compact
@@ -88,48 +90,6 @@ module TokenStandard {
     }
 }
 ```
-
-##### Note on `pure` circuits
-
-Contract interface declarations do not include `pure` circuit signatures.
-The Compact compiler's `pure` modifier indicates that a circuit does not access ledger state or call witnesses; the compiler inlines pure circuits directly into the caller's ZKIR.
-Because pure circuits are inlined, they do not exist as independently callable entry points on a deployed contract — they have no ZKIR, produce no proof, and generate no communication commitment.
-Cross-contract calls, whether static or dynamic, are always to impure circuits, since those are the only circuits that appear in a contract's on-chain artifact.
-The `pure` modifier remains a useful compiler-level concept for internal optimization and reasoning about side effects, but it has no role in contract interfaces.
-
-##### Existing implementation
-
-The current Compact compiler uses the `contract` keyword (without `interface`) for this syntax.
-This proposal changes the keyword to `contract interface` to distinguish interface declarations from future full contract declarations.
-The parser currently accepts contract declarations at the program element level (alongside struct, enum, and type-alias declarations).
-The grammar is defined in `compiler/parser.ss` and the contract type is represented internally as an `External-Contract-Declaration` in the compiler’s intermediate languages.
-The parser will need to be updated to accept `contract interface` as the keyword pair.
-
-##### Relationship to contract implementations
-
-A contract interface declaration is distinct from a contract *implementation*.
-A contract interface defines a type; an implementation is a separately compiled and deployed program whose exported circuits happen to satisfy the interface described by a contract interface declaration.
-The relationship between declarations and implementations is established through the structural conformance rules described in §1.2.
-
-##### Restrictions on contract-typed values (current and proposed)
-
-The current compiler enforces the following restrictions on where contract-typed values may appear:
-
-| Position | Current (static composability) | Proposed (dynamic composability) |
-|---|---|---|
-| Ledger field type | Allowed | Allowed |
-| Constructor parameter | Allowed | Allowed |
-| Non-exported circuit parameter | Allowed | Allowed |
-| Exported circuit parameter | **Disallowed** | **Allowed** (new) |
-| Non-exported circuit return type | Allowed | Allowed |
-| Exported circuit return type | **Disallowed** | **Allowed** (new) |
-| Witness return type | **Disallowed** | **Disallowed** |
-| Constructor call to external contract | Disallowed | Disallowed |
-
-The two restrictions that this proposal lifts — exported circuit parameters and exported circuit return types — are what enable contract references to enter a contract *after* deployment.
-Under static composability, the only way a contract-typed value can enter a contract is through its constructor (i.e., at deployment time).
-Lifting these restrictions allows contract addresses to be passed into circuits at transaction time, which is the mechanism that enables dynamic cross-contract calls.
-Witness return types remain disallowed: under this proposal, no contract may invoke witnesses (see §4.6).
 
 #### 1.2 Structural Conformance
 
