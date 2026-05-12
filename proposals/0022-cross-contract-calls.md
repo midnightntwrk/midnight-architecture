@@ -1,38 +1,145 @@
 # Proposal 0022: Cross-contract Calls
 
-**Overview:** This is a draft of a CoIP (Compact Improvement Proposal) for a language feature.
-
 _[KSM: we need to generate ZKIR for all exported circuits, no only the ones that need a proof.  Mention this.]_
 
 ## Abstract
 
-This CoIP proposes to add *cross-contract calls*, a feature that allows a Compact circuit to directly call exported circuits from other deployed Compact contracts.
-With this feature, deployed contracts are first-class Compact values that can be passed as arguments, returned, stored in data structures like `struct` values and tuple values.
-Given such a contract value, a circuit is able to call its circuits.
+This CoIP proposes to add *cross-contract calls*,
+a feature that allows a Compact circuit to directly call exported circuits from other deployed Compact contracts.
+With this feature, deployed contracts become first-class Compact values that can be passed as arguments, returned,
+written into the public ledger state, and stored in data structures such as `struct` values and tuple values.
+Given such a contract value, a Compact circuit is able to call that contract's exported circuits.
 
 ## Motivation
 
 Compact contracts do not currently have a way to interact directly with each other.
 This rules out numerous useful ways that contracts can interact.
-An unsatisfactory workaround is that a DApp can coordinate interactions between contracts....
+An unsatisfactory workaround is that a DApp can coordinate interactions between contracts.
+However, such interactions do not happen on the blockchain and there is no way to ensure that their interaction is correct.
 
-Dynamic cross-contract calls allow one contract to interact with another contract that the first contract was unaware of when the second was deployed.
-A decentralized exchange (DEX) illustrates why dynamic cross-contract calls are useful.
-Consider the following scenario:
+As a motivating example, we consider a simple Uniswap-style decentralized exchange (DEX) using *liquidity pools*.
+The DEX allows users to make exchanges between pairs of tokens.
+For each pair of tokens that can be exchanged, the DEX maintains a separate liquidity pool containing a reserve amount of both of the tokens in the pair.
+Users exchange tokens by interacting with a *router* contract.
 
-* Alice deploys `DEX`, a liquidity pool contract with a `swap` circuit.
-* Bob deploys `TokenA`, a fungible token contract with a `transfer` circuit.
-* Charlie deploys `TokenB`, a fungible token contract with a `transfer` circuit.
-* Bob and Charlie register `TokenA` and `TokenB` with `DEX` after `DEX` is deployed.
+The router contract will have an exported circuit similar to this:
 
-When Dave wants to swap token `A` for token `B`, he submits a call transaction for `DEX.swap`, which internally calls:
+```compact
+// Exchange `n` of token `a` for token `b`, return the amount of `b` that was received by `key`.
+export circuit exchange(key: ZswapPublicKey,
+                        a: TokenName,
+                        n: Uint<128>,
+                        b: TokenName): Uint<128> {
+  // <<Exchange `n` `a` for some `b`>>
+}
+```
 
-1. `TokenA.transfer($DAVE_ADDR, $DEX_ADDR, amount)`
-2. `TokenB.transfer($DEX_ADDR, $DAVE_ADDR, amount)`
+Then a user with key `key` can make a transaction like `exchange(key, $FOO, 1, $BAR)` to trade one `$FOO` for some `$BAR` if the transaction succeeds.
+We ignore details like how token names are represented, because they are not important to how cross-contract calls work.
 
-`DEX` cannot know at compile time (or deployment time) which token contracts it will interact with—they might be deployed years after `DEX` itself.
+The router contract's `exchange` circuit finds the appropriate liquidity pool for a pair of tokens and determines an exchange rate based on the ratio of tokens in the pool.
+It then transfers `n` of token `a` for an amount of token `b`.
+We are not particulary concerned with the specific implementation of the router.
+For simplicity, we imagine that it has a circuit `getPool` that can return a liquidity pool for a pair of tokens:
+
+```
+// <<Exchange `n` `a` for some `b`>>
+  const lp: LiquidityPool = getPool(a, b);
+  // <<Compute `m` = quantity of `b` to receive>>
+  // <<Exchange `n` `a` for `m` `b`>>
+  return m;
+```
+
+The AMM protocol maintains a constant product of the quantity of tokens of both types in the pool.
+That computation might look something like this (ignoring any fees taken by the pool, and ignoring issues like rounding and type casting):
+
+```
+// <<Compute `m` = quantity of `b` to receive>>
+  const [aBefore, bBefore] = // <<Quantity of `a` and `b` in the pool before the exchange>>
+  const m = bBefore - (aBefore * bBefore) / (aBefore + n);
+```
+
+Crucial to this DEX design is that **the liquidity pools themselves are implemented as contracts**.
+Moreover, there is no fixed set of token pairs that the DEX can exchange.
+Liquidity pools can be created and registered with the router after the router contract is deployed.
+In fact, new tokens can be created after the router contract is deployed.
+The question of how liquidity pools get created and registered with the router is an important one,
+bit it's outside the scope of this CoIP.
+
+This CoIP proposes to add *cross-contract calls* to Compact.
+Cross-contract calls gives a contract, like the router contract, to the ability issue transactions on another contract, like the liquidity pool contract.
+For example, in order to compute the quantities of the tokens in the pool, we imagine that there is a circuit in the liquidity pool contract that we can call like this:
+
+```
+// <<Quantity of `a` and `b` in the pool before the exchange>>
+  lp.quantities(a);
+```
+
+If we tell `quantities` which token we want first, it can return a tuple of the quantities of tokens held by the pool.
+Likewise, we imagine that there is a circuit that can tell the liquidity pool to exhange quantities of tokens.
+
+```
+// <<Exchange `n` `a` for `m` `b`>>
+  lp.exchange(key, a, n, m);
+```
+
+The liquidity pool needs to know the key of the user and which token is being sold, in addition to the quantities.
+
+Compact is a strongly-typed language.
+In order to type check calls such as `lp.quantities(a)` and `lp.exchange(key, a, n, m)` we need to know the signatures of those circuits.
+
+This CoIP proposes to add *contract interface declarations*.
+For example:
+
+```
+interface LiquidityPool {
+  circuit quantities(a: TokenName): [Uint<128>, Uint<128>];
+  circuit exchange(key: ZswapPublicKey, a: TokenName, n: Uint<128>, m: Uint<128>): [];
+}
+```
+
+A contract interface declaration introduces a named *interface type*, which is a new kind of program-defined Compact type.
+Values of interface type represent deployed contracts.
+They are first-class values: they can be passed to circuits and witnesses, returned, written into a contract's public ledger state, and stored in Compact data structures like `struct` values, tuples, vectors.
 
 ## Specification
+
+### Overview of the Proposal
+
+In the current Compact system, a Compact circuit such as the DEX router's `exchange` circuit in the example is executed off-chain as JavaScript (JS) code generated by the Compact compiler.
+As a side effect of this execution, the Compact runtime JS package builds so-called *partial proof data*.
+The partial proof data records the return values of witness calls, the Impact VM code that was executed (off-chain) to perform public state updates, and the results of ledger operations.
+The partial proof data is encoded using *field aligned binary* (FAB).
+FAB is the Midnight ledger's data format, which is a binary encoding as blobs of bytes, along with *alignment tags* that tell how to decode the bytes as sequences of field values in the underlying cryptographic field.
+The partial proof data is "partial" because not all control-flow paths through the circuit were taken during execution.
+
+After executing the circuit, a ZK proof is constructed, proving that the public and private inputs in the partial proof data are correctly related according to the circuit's implementation.
+Proof construction uses a representation of the circuit as ZKIR (the **Z**ero **K**nowledge **I**ntermediate **R**epresentation).
+ZKIR is low-level binary encoding of the circuit, which is generated by the Compact compiler in addition to the JS implementation of the circuit.
+The FAB-encoded partial proof data collected during off-chain execution is converted into ZKIR-typed values and used as an input to the proof construction, along with the ZKIR representation and a Compact-compiler-generated prover key.
+The ZKIR-typed representation of the partial proof data is the so-called *proof preimage*.
+
+In order to perform a off-chain execution of a cross-contract call, we must first obtain the code for the called circuit.
+There is currently no trusted way to obtain the Compact code for the circuit.
+Nor is there any trusted way to obtain the JS implementation.
+However, the binary ZKIR representation of exported circuits is going to be stored on-chain in the Midnight blockchain.
+This is a feature that will come in a future version of the Midnight ledger (likely version 9).
+We propose to execute cross-contract calls off-chain by **interpreting the ZKIR representation of the called circuit**.
+Interpreting ZKIR will directly construct a proof preimage (rather than the FAB-encoded partial proof data).
+
+As a simplification, we could also modify the JS partial proof data to be a ZKIR-typed proof preimage, but this implementation work is not necessary at this time.
+
+Proof construction also requires the circuit's prover key.
+This can be constructed from the ZKIR representation, though the time taken to construct the prover key might be prohibitive.
+The size of prover keys might make it infeasible to store them on-chain.
+We can investigate ways to cache prover keys off-chain.
+
+The Compact compiler-generated JS code does not itself construct transactions or make proofs, this is performed by an outer layer of the system we will call "Midnight.js".
+This component is also responsible for fetching a copy of a contract's public state to pass to the JS circuit implementation.
+We propose that **this layer is also responsible for performing cross-contract calls**.
+The JS-generated contract code will perform a callback to Midnight.js (possibly through the so-called *circuit context* passed to the JS code).
+The callback is given the called contract's address, the circuit name, and the arguments.
+It returns the return value of the cross-contract call, and collects the proof preimage that it needs to make the ZK proof.
 
 ### Contract Interfaces
 
