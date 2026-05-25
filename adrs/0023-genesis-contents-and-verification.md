@@ -99,6 +99,14 @@ And the genesis block extrinsics are following:
    1. `SystemTransaction::DistributeReserve` to unlock the Night tokens on Midnight
    2. `SystemTransaction::DistributeNight` transaction(s) with the desired assignments
 
+The genesis block _must_ also carry the following text as an embedded remark:
+
+> The One remains, the many change and pass;
+> Heaven's light forever shines, Earth's shadows fly;
+> Life, like a dome of many-colour'd glass,
+> Stains the white radiance of Eternity,
+> Until Death tramples it to fragments.
+
 ### Generation and verification
 
 Operationally, the generation process requires all the mentioned Cardano contracts to be deployed,
