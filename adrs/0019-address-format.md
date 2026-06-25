@@ -62,7 +62,7 @@ Covered in [Other chain reference](../components/WalletEngine/Other%20chain%20re
 
 ## More Information
 
-[Test vectors](../components/WalletEngine/test-vectors) contain generated addresses for various kinds of credentials and networks
+[Test vectors](https://github.com/midnightntwrk/midnight-wallet/tree/main/packages/spec-reference/test-vectors) contain generated addresses for various kinds of credentials and networks
 
  
 
