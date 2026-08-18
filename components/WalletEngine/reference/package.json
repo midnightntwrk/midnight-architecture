@@ -14,7 +14,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.1.10",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.0",
