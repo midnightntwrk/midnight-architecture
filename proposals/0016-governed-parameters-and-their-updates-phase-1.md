@@ -23,8 +23,6 @@ Following parameters are proposed to be managed under governance:
   - d-parameter
   - governance authority
 
-Indirectly, also block weights (substrate configuration parameter) will need to be dynamically adjusted as a result of ledger parameters update.
-
 4 mechanics are needed to be in place, to effectively allow managing those parameters:
 1. To allow Ariadne parameters being governed by Midnight's governance
 2. To observe their changes from Cardano
@@ -74,12 +72,64 @@ Nodes need to react to those transactions with verification against data source 
 
 The cost model plays a crucial role in wallet properly balancing transactions, for that reason dynamic changes of it require it being delivered to wallet based on on-chain data. This requires node to expose relevant event and indexer to provide query, which can be used by clients.
 
+
+
 ## Desired Result
 
 Set of governed parameters and all mechanics needed to update them are identified, so that it is possible to ask for feedback and continue with a more detailed design work.
 
 ## Additional notes
 
+### Excluded parameters
+
 Following parameters were taken into consideration for being managed under governance, but were rejected:
 `MaxAuthorities` - despite being needed internally for configuration, it feels like a parameter, which should be set once to a relatively high, yet safe, value, and not touched until absolutely necessary, in which case in can be done by runtime upgrade/hard-fork; SPOs might want to increase it, but in such case Midnight might be ready to become a fully decentralized and independent network.
 `SessionLength` and `SlotsPerEpoch` - aura/Partner chains documentation explicitly mentions they should not be changed on a running network (likely to not mess with calculations between timestamp and session/slot number)
+
+### Parameter dependencies
+
+With a certain degree of simplification, following table presents parameters that should be considered for adjustment, if other parameters are being changed:
+
+<table>
+  <thead>
+    <tr>
+    <th>Related parameters</th>
+    <th>Description</th>
+</tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>maximum block length</td>
+      <td rowspan="5">
+        These parameters together affect how many and what kind of transactions can be included in a block. Since block is a transaction execution unit, they affect node performance, cost of operating Midnight infrastructure (node, but also indexers and wallets are affected too). Ticket cost factor is somewhat independent here, but eventually it affects how transaction weight turns into actual fee to be paid, which turns into rewards received by the block author.
+      </td>
+    </tr>
+    <tr>
+     <td>maximum block weight</td>
+    </tr>
+    <tr>
+     <td>cost model</td>
+    </tr>
+    <tr>
+     <td>transaction limits</td>
+    </tr>
+    <tr>
+      <td>ticket cost factor</td>
+    </tr>
+    <tr>
+      <td>protocol version</td>
+      <td>Protocol version is largely independent parameter on its own. But since it is a parameter, whose change leads to a hard-fork - content of the changes introduced might be related to other parameters.</td>
+    </tr>
+    <tr>
+      <td>permissioned keys</td>
+      <td rowspan="2">In many situations permissioned keys and d-parameters can be updated independently, though changes to the set of permissioned keys might require changes to the d-parameter in order to let Ariadne form a healthy committee.</td>
+    </tr>
+    <tr>
+      <td>d-parameter</td>
+    </tr>
+    <tr>
+      <td>Governance authority</td>
+      <td>Governance authority on its own is independent of other parameters, though in cases, where its change involve changing they way of governance - other consensus parameters should be revisited too. </td>
+    </tr>
+  </tbody>
+</table>
