@@ -18,7 +18,7 @@
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   },
   "dependencies": {
     "@midnight-ntwrk/ledger-v7": "^7.0.2",
