@@ -1,5 +1,11 @@
 # Midnight Architecture
 
+> **⚠️ This repository is archived.** It is kept as a historical record of early Midnight
+> architecture documents and is no longer maintained. Content here may be out of date.
+>
+> Changes to the Midnight protocol now go through the open-source improvement-proposal
+> process: <https://github.com/midnightntwrk/midnight-improvement-proposals>.
+
 This is a repository of the Midnight software architecture documents. While each component
 repository may have its own local documentation, this repo includes the specification of
 each component in standard terms and documents the flows, features, and deployments
@@ -44,28 +50,16 @@ architectural elements are defined in [definitions](definitions.md).
 * [Architectural Issue Tracking](./risks-and-issues.md)
 
 
-## How to update contents of this repository
+## How to propose changes
 
-There is a process in place, which ties this repository, [Jira Midnight Architecture Board](https://input-output.atlassian.net/jira/software/c/projects/PM/boards/799) and Midnight Tech Assembly meetings. Parts of it are already mentioned in ADRs:
+This repository is archived and no longer accepts updates. The former Jira / Tech Assembly
+process is retired. To propose a change to the Midnight protocol, open a Midnight
+Improvement Proposal (MIP) at
+<https://github.com/midnightntwrk/midnight-improvement-proposals>.
+
+The historical process is described in the ADRs:
   - [0, about using ADRs in the first place](./adrs/0000-use-adrs-and-adrgen.md)
-  - [1, about PR template](./adrs/0001-extended-pr-template.md) 
-
-The goal of it is to bring transparency, involvement of whole team at decision making and  a team-wide habit of documenting important decisions. Because of that - essentially every team member is allowed (and encouraged) to update contents of this repository and add tickets to the Jira board.
-
-### The process
-
-![Process](./assets/process.svg)
-
-1. Create a new ticket. Essentially any kind of issue is allowed - be it raising a concern, documenting a gap, research related to new feature or asking for decision/consultancy.
-2. On following Tech Assembly call the scope of the ticket is discussed, its priority and stakeholders are being identified, including the ticket owner. In that way it becomes clear how and with who to proceed offline
-3. After work on ticket starts, all of following is meant to happen:
-   -  stakeholders meet to discuss
-   -  necessary research is done
-   - documentation is created, in form of proposals, which are the "fast path" to adding non-obligating contents to this repository, the final decision in form of ADR or update to the official architecture
-   - on Tech Assembly calls the ticket owner provides a status update to the whole Midnight team
-4. Once a pull request with an update to the official architecture or an ADR is ready (at this stage all stakeholders should be already on the same page) - the ticket is moved to review stage, where the whole team can learn and comment the outcome. 
-5. When all the feedback is addressed and the pull request merged - on following Tech Assembly the owner gives a short presentation of the contents of the update so that whole team knows where to find necessary documentation and what is the decision made.
-
+  - [1, about PR template](./adrs/0001-extended-pr-template.md)
 
 ## Tools
 
@@ -87,5 +81,3 @@ installation, and enabled flakes and nix command features (e.g. by adding
 line `experimental-features = nix-command flakes` to `~/.config/nix/nix.conf` file), you
 can run `nix develop` or `direnv allow` to enter a shell environment, where they all are
 available on `$PATH`.
-
-
